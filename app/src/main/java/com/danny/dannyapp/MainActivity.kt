@@ -66,7 +66,7 @@ class MainActivity : AppCompatActivity() {
 
                 // Prüft, ob die URL das Tracking-Tool "posthog" enthält
                 if (url.contains("posthog.com", ignoreCase = true)) {
-                    Log.d("ScoliaAdBlock", "🚫 Tracking blockiert: $url")
+                    //Log.d("ScoliaAdBlock", "🚫 Tracking blockiert: $url")
 
                     // Gibt eine leere 200 OK Antwort zurück, damit die Webseite nicht abstürzt,
                     // sondern denkt, die Anfrage sei sauber durchgegangen.
