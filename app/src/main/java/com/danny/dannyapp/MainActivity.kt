@@ -33,60 +33,53 @@ class MainActivity : AppCompatActivity() {
             windowInsets
         }
 
-        // Aktiviert JavaScript und den lokalen Speicher für die Webseite
+        // Aktiviert JavaScript und den lokalen Speicher (HTML5 DOM Storage) für die Webseite
         webView.settings.javaScriptEnabled = true
         webView.settings.domStorageEnabled = true
-        webView.settings.databaseEnabled = true    // Erlaubt interne Web-Datenbanken
 
-        // 1. Schalte Service Worker und App-Cache frei, damit Scripte im Hintergrund laufen dürfen
-        webView.settings.allowFileAccess = true
-        webView.settings.allowContentAccess = true
-
-        // 2. Ändere den User-Agent (Scolia denkt jetzt, es läuft ein originaler Google Chrome auf dem PC)
+        // Ändere den User-Agent (Scolia denkt jetzt, es läuft ein originaler Google Chrome auf dem PC)
         webView.settings.userAgentString = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 
-        // Zwingt das WebView, im Zweifel die Daten aus dem Internet statt aus dem Cache zu laden
-        // webView.settings.cacheMode = android.webkit.WebSettings.LOAD_DEFAULT
-
-        // 1. Erlaube dem WebView, Daten auch über "sichere/unsichere" Protokolle (wie WSS/WS) zu mischen
+        // Erlaube dem WebView, Daten auch über "sichere/unsichere" Protokolle (wie WSS/WS) zu mischen
         webView.settings.mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
 
-        // 2. Erlaube Cookies von Drittanbietern (Scolia benötigt das für die Board-Lobby)
+        // Erlaube Cookies von Drittanbietern (Scolia benötigt das für die Board-Lobby)
         val cookieManager = android.webkit.CookieManager.getInstance()
         cookieManager.setAcceptCookie(true)
         cookieManager.setAcceptThirdPartyCookies(webView, true)
 
-
-
+        // WebChromeClient für Console-Logs und WebView Debugging im Browser ermöglichen
+        webView.webChromeClient = android.webkit.WebChromeClient()
+        WebView.setWebContentsDebuggingEnabled(true)
 
         // Erstellt die Brücke namens "AndroidApp" zum Browser
         webView.addJavascriptInterface(ScoliaJavaScriptInterface(), "AndroidApp")
 
         webView.webViewClient = object : WebViewClient() {
 
-//            // Dieser Filter fängt JEDE Netzwerkanfrage (GET, POST etc.) ab
-//            override fun shouldInterceptRequest(
-//                view: WebView?,
-//                request: android.webkit.WebResourceRequest?
-//            ): android.webkit.WebResourceResponse? {
-//                val url = request?.url?.toString() ?: ""
-//
-//                // Prüft, ob die URL das Tracking-Tool "posthog" enthält
-//                if (url.contains("posthog.com", ignoreCase = true)) {
-//                    Log.d("ScoliaAdBlock", "🚫 Tracking blockiert: $url")
-//
-//                    // Gibt eine leere 200 OK Antwort zurück, damit die Webseite nicht abstürzt,
-//                    // sondern denkt, die Anfrage sei sauber durchgegangen.
-//                    return android.webkit.WebResourceResponse(
-//                        "application/json",
-//                        "UTF-8",
-//                        java.io.ByteArrayInputStream("{}".toByteArray())
-//                    )
-//                }
-//
-//                // Alle anderen Anfragen (Scolia-Lobby, Websockets) normal durchlassen
-//                return super.shouldInterceptRequest(view, request)
-//            }
+            // Dieser Filter fängt Netzwerkanfragen (z. B. Tracking-Scripte) ab
+            override fun shouldInterceptRequest(
+                view: WebView?,
+                request: android.webkit.WebResourceRequest?
+            ): android.webkit.WebResourceResponse? {
+                val url = request?.url?.toString() ?: ""
+
+                // Prüft, ob die URL das Tracking-Tool "posthog" enthält
+                if (url.contains("posthog.com", ignoreCase = true)) {
+                    Log.d("ScoliaAdBlock", "🚫 Tracking blockiert: $url")
+
+                    // Gibt eine leere 200 OK Antwort zurück, damit die Webseite nicht abstürzt,
+                    // sondern denkt, die Anfrage sei sauber durchgegangen.
+                    return android.webkit.WebResourceResponse(
+                        "application/json",
+                        "UTF-8",
+                        java.io.ByteArrayInputStream("{}".toByteArray())
+                    )
+                }
+
+                // Alle anderen Anfragen (Scolia-Lobby, Websockets) normal durchlassen
+                return super.shouldInterceptRequest(view, request)
+            }
 
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
@@ -104,26 +97,30 @@ class MainActivity : AppCompatActivity() {
     private fun injectScoliaHook() {
         val jsCode = """
             (function() {
-                if (window.WebSocket.prototype.isHooked) return;
+                if (window.WebSocket.__isHooked) return;
                 
                 const OriginalWebSocket = window.WebSocket;
-                window.WebSocket = function(url, protocols) {
-                    const ws = new OriginalWebSocket(url, protocols);
-                    
-                    ws.addEventListener('message', function(event) {
-                        try {
-                            const data = JSON.parse(event.data);
-                            // Leitet die Daten an Kotlin weiter
-                            AndroidApp.onScoliaMessage(event.data);
-                        } catch (e) {
-                            // Ignoriert nicht-JSON oder fehlerhafte Datenpakete
-                        }
-                    });
-                    
-                    return ws;
-                };
-                window.WebSocket.prototype = OriginalWebSocket.prototype;
-                window.WebSocket.prototype.isHooked = true;
+                
+                const WebSocketProxy = new Proxy(OriginalWebSocket, {
+                    construct(target, args) {
+                        const ws = new target(...args);
+                        
+                        ws.addEventListener('message', function(event) {
+                            try {
+                                if (window.AndroidApp && window.AndroidApp.onScoliaMessage) {
+                                    window.AndroidApp.onScoliaMessage(event.data);
+                                }
+                            } catch (e) {
+                                // Ignoriert Fehler beim Weiterleiten
+                            }
+                        });
+                        
+                        return ws;
+                    }
+                });
+                
+                window.WebSocket = WebSocketProxy;
+                window.WebSocket.__isHooked = true;
                 console.log("🎯 Scolia WebSocket Hook aktiv!");
             })();
         """.trimIndent()
