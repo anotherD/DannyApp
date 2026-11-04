@@ -44,6 +44,16 @@ Um die Datenpakete des Scolia-WebSockets abzufangen, ohne die Funktionalität de
 
 ---
 
+## 📂 Zugriff auf die Logdatei (`scolia_events.log`)
+
+So öffnest du die Event-Logdatei direkt in Android Studio:
+1. Klicke ganz rechts unten in Android Studio auf den Reiter **Device File Explorer** (oder oben im Menü: `View` ➡️ `Tool Windows` ➡️ `Device File Explorer`).
+2. Navigiere in der Ordnerstruktur zu:  
+   `data` ➡️ `data` ➡️ `com.danny.dannyapp` ➡️ `files`
+3. Doppelklicke auf **`scolia_events.log`**, um sie direkt im Editor anzuzeigen.
+
+---
+
 ## 🚀 Roadmap & Ausblick
 
 - [x] **PoC:** WebSocket Proxy zur zuverlässigen Wurferkennung im WebView.

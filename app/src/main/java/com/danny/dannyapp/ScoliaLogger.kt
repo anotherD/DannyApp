@@ -2,6 +2,8 @@ package com.danny.dannyapp
 
 import android.content.Context
 import android.util.Log
+import org.json.JSONArray
+import org.json.JSONObject
 import java.io.File
 import java.io.FileWriter
 import java.io.IOException
@@ -21,11 +23,24 @@ class ScoliaLogger(context: Context) {
     @Synchronized
     fun log(rawJson: String) {
         val timestamp = dateFormat.format(Date())
-        val logLine = "[$timestamp] $rawJson\n"
+        val formattedJson = try {
+            val trimmed = rawJson.trim()
+            when {
+                trimmed.startsWith("{") -> JSONObject(trimmed).toString(2)
+                trimmed.startsWith("[") -> JSONArray(trimmed).toString(2)
+                else -> rawJson
+            }
+        } catch (_: Exception) {
+            rawJson
+        }
+
+        val logEntry = "────────────────────────────────────────────────────────────────\n" +
+                "[$timestamp]\n" +
+                "$formattedJson\n\n"
 
         try {
             FileWriter(logFile, true).use { writer ->
-                writer.write(logLine)
+                writer.write(logEntry)
             }
         } catch (e: IOException) {
             Log.e(TAG, "Fehler beim Schreiben in die Logdatei", e)
