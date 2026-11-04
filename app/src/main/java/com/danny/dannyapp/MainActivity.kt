@@ -10,11 +10,12 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import org.json.JSONObject
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var webView: WebView
+    private lateinit var scoliaLogger: ScoliaLogger
+    private val scoliaEventParser = ScoliaEventParser()
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,6 +24,10 @@ class MainActivity : AppCompatActivity() {
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        // Logger initialisieren (Schreibt ungefilterte WebSocket-Logs in eine Datei)
+        scoliaLogger = ScoliaLogger(this)
+        Log.i(TAG, "📁 Scolia Event-Logdatei: ${scoliaLogger.getLogFilePath()}")
 
         webView = findViewById(R.id.scoliaWebView)
 
@@ -132,21 +137,41 @@ class MainActivity : AppCompatActivity() {
     inner class ScoliaJavaScriptInterface {
         @JavascriptInterface
         fun onScoliaMessage(jsonData: String) {
-            // Wechselt auf den Hauptthread, damit du später die UI steuern kannst
+            // 1. Schreibt JEDE Rohdaten-Nachricht ungefiltert in die Logdatei
+            scoliaLogger.log(jsonData)
+
+            // 2. Parst und verarbeitet das Event auf dem Hauptthread
             runOnUiThread {
                 try {
-                    val json = JSONObject(jsonData)
-
-                    // Zeigt das komplette Datenpaket im Logcat an
-                    Log.d(TAG, "📦 Daten erhalten: $jsonData")
-
-                    // Filtert nach Wurf-Events (prüfe die genaue Schreibweise im Logcat!)
-                    if (json.has("event") && json.getString("event") == "throw") {
-                        val value = json.optString("value", "Unbekannt")
-                        Log.i(TAG, "🎯 WURF ERKANNT IM POC: $value")
+                    when (val event = scoliaEventParser.parse(jsonData)) {
+                        is ScoliaEvent.ThrowDetected -> {
+                            val dart = event.dartThrow
+                            Log.i(
+                                TAG,
+                                "🎯 WURF ERKANNT: Sektor=${dart.sector} | Score=${dart.score} | Rest=${dart.remainingScore ?: "-"} | Coords=[${dart.xCoordinate}, ${dart.yCoordinate}]"
+                            )
+                        }
+                        is ScoliaEvent.PhaseChanged -> {
+                            Log.i(TAG, "🔄 SPIELPHASE: ${event.phase}")
+                        }
+                        is ScoliaEvent.TakeoutStarted -> {
+                            Log.d(TAG, "🖐️ Darts herausziehen gestartet")
+                        }
+                        is ScoliaEvent.TakeoutFinished -> {
+                            Log.i(TAG, "✅ Darts herausziehen beendet (Board ist frei)")
+                        }
+                        is ScoliaEvent.Pong -> {
+                            // Heartbeat leise ignorieren/loggen
+                        }
+                        is ScoliaEvent.GenericEvent -> {
+                            Log.d(TAG, "📦 Event empfangen (${event.type})")
+                        }
+                        is ScoliaEvent.Unknown -> {
+                            Log.d(TAG, "📦 Unbekanntes Event empfangen")
+                        }
                     }
                 } catch (e: Exception) {
-                    Log.e(TAG, "Fehler beim Parsen der JSON-Daten", e)
+                    Log.e(TAG, "Fehler bei der Event-Verarbeitung", e)
                 }
             }
         }
