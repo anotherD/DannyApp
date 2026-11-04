@@ -145,10 +145,10 @@ class MainActivity : AppCompatActivity() {
                 try {
                     when (val event = scoliaEventParser.parse(jsonData)) {
                         is ScoliaEvent.ThrowDetected -> {
-                            val dart = event.dartThrow
+                            val (sector, score, x, y, _, remainingScore) = event.dartThrow
                             Log.i(
                                 TAG,
-                                "🎯 WURF ERKANNT: Sektor=${dart.sector} | Score=${dart.score} | Rest=${dart.remainingScore ?: "-"} | Coords=[${dart.xCoordinate}, ${dart.yCoordinate}]"
+                                "🎯 WURF ERKANNT: Sektor=$sector | Score=$score | Rest=${remainingScore ?: "-"} | Coords=[$x, $y]"
                             )
                         }
                         is ScoliaEvent.PhaseChanged -> {

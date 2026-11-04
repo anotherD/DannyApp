@@ -49,19 +49,6 @@ class ScoliaLogger(context: Context) {
 
     fun getLogFilePath(): String = logFile.absolutePath
 
-    fun getLogFile(): File = logFile
-
-    fun clearLog() {
-        try {
-            if (logFile.exists()) {
-                logFile.writeText("")
-                Log.i(TAG, "🧹 Logdatei geleert.")
-            }
-        } catch (e: IOException) {
-            Log.e(TAG, "Fehler beim Leeren der Logdatei", e)
-        }
-    }
-
     companion object {
         private const val TAG = "ScoliaLogger"
     }

@@ -47,16 +47,7 @@ class ScoliaEventParser {
                     ScoliaEvent.GenericEvent(type, jsonString)
                 }
                 else -> {
-                    // Falls es ein altes PoC Wurf-Event ist
-                    if (json.has("event") && json.getString("event") == "throw") {
-                        val sector = json.optString("value", "Unbekannt")
-                        val score = calculateScoreFromSector(sector)
-                        ScoliaEvent.ThrowDetected(
-                            DartThrow(sector = sector, score = score)
-                        )
-                    } else {
-                        ScoliaEvent.Unknown(jsonString)
-                    }
+                    ScoliaEvent.Unknown(jsonString)
                 }
             }
         } catch (e: Exception) {
@@ -71,13 +62,10 @@ class ScoliaEventParser {
         val game = state.optJSONObject("game")
 
         // 1. Prüfe auf Wurf-Events in lastTriplets
-        if (game != null && game.has("lastTriplets")) {
-            val lastTriplets = game.optJSONObject("lastTriplets")
-            if (lastTriplets != null) {
-                val dartThrow = extractLatestThrowFromTriplets(lastTriplets)
-                if (dartThrow != null) {
-                    return ScoliaEvent.ThrowDetected(dartThrow)
-                }
+        val lastTriplets = game?.optJSONObject("lastTriplets")
+        if (lastTriplets != null) {
+            extractLatestThrowFromTriplets(lastTriplets)?.let { dartThrow ->
+                return ScoliaEvent.ThrowDetected(dartThrow)
             }
         }
 
@@ -110,7 +98,7 @@ class ScoliaEventParser {
                 val throwArray = playerTriplets.optJSONArray(tripletKey) ?: continue
                 if (throwArray.length() > 0) {
                     val lastThrowObj = throwArray.optJSONObject(throwArray.length() - 1) ?: continue
-                    
+
                     val sector = lastThrowObj.optString("sector", "None")
                     val score = lastThrowObj.optInt("score", 0)
                     val remainingScore = lastThrowObj.optInt("remainingScore", 0)
