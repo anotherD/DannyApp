@@ -24,25 +24,12 @@ class ScoliaEventParser {
                 type == "API::GAME::GAME_ENDED_STATISTICS" || type == "API::X01::GAME_DELETED" -> {
                     ScoliaEvent.GameEnded(jsonString)
                 }
+                type == "API::COMMON::PUBLISH" -> {
+                    parsePublishEvent(json)
+                }
                 type == "API::COMMON::PONG" -> {
                     ScoliaEvent.Pong(jsonString)
                 }
-
-                // 2. MDT (MyDartTraining) Partner WebSocket Format
-                type.equals("THROW_DETECTED", ignoreCase = true) -> {
-                    val payload = json.optJSONObject("payload")
-                    val sector = payload?.optString("sector", "None") ?: "None"
-                    val score = calculateScoreFromSector(sector)
-                    ScoliaEvent.ThrowDetected(
-                        DartThrow(sector = sector, score = score)
-                    )
-                }
-                type.equals("SBC_STATUS_CHANGED", ignoreCase = true) || type.equals("HELLO_CLIENT", ignoreCase = true) -> {
-                    val payload = json.optJSONObject("payload")
-                    val status = payload?.optString("boardStatus", "OK") ?: "OK"
-                    ScoliaEvent.PhaseChanged("BoardStatus:$status")
-                }
-
                 type.isNotEmpty() -> {
                     ScoliaEvent.GenericEvent(type, jsonString)
                 }
@@ -54,6 +41,20 @@ class ScoliaEventParser {
             Log.e(TAG, "Fehler beim Parsen des Scolia-Events", e)
             ScoliaEvent.Unknown(jsonString)
         }
+    }
+
+    private fun parsePublishEvent(json: JSONObject): ScoliaEvent {
+        val payload = json.optJSONObject("payload") ?: return ScoliaEvent.GenericEvent("API::COMMON::PUBLISH", json.toString())
+        val data = payload.optJSONObject("data") ?: return ScoliaEvent.GenericEvent("API::COMMON::PUBLISH", json.toString())
+        val eventType = data.optString("eventType", "")
+
+        if (eventType == "boardCurrentStateUpdate") {
+            val currentState = data.optJSONObject("currentState")
+            val state = currentState?.optString("state", "Unknown") ?: "Unknown"
+            return ScoliaEvent.PhaseChanged("BoardState:$state")
+        }
+
+        return ScoliaEvent.GenericEvent("API::COMMON::PUBLISH", json.toString())
     }
 
     private fun parseGameStateChanged(json: JSONObject): ScoliaEvent {
@@ -100,7 +101,7 @@ class ScoliaEventParser {
                     val lastThrowObj = throwArray.optJSONObject(throwArray.length() - 1) ?: continue
 
                     val sector = lastThrowObj.optString("sector", "None")
-                    val score = lastThrowObj.optInt("score", 0)
+                    val score = if (lastThrowObj.has("score")) lastThrowObj.optInt("score") else calculateScoreFromSector(sector)
                     val remainingScore = lastThrowObj.optInt("remainingScore", 0)
                     val bounceout = lastThrowObj.optBoolean("bounceout", false)
                     val detectionTime = if (lastThrowObj.has("detectionTime")) lastThrowObj.optString("detectionTime") else null
@@ -120,7 +121,7 @@ class ScoliaEventParser {
                         yCoordinate = y,
                         isBounceout = bounceout,
                         remainingScore = remainingScore,
-                        detectionTime = detectionTime
+                        detectionTime = detectionTime,
                     )
                 }
             }
