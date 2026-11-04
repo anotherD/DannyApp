@@ -21,6 +21,7 @@ sealed class ScoliaEvent {
     data class PhaseChanged(val phase: String) : ScoliaEvent()
     data class TakeoutStarted(val rawJson: String) : ScoliaEvent()
     data class TakeoutFinished(val rawJson: String) : ScoliaEvent()
+    data class GameEnded(val rawJson: String) : ScoliaEvent()
     data class Pong(val rawJson: String) : ScoliaEvent()
     data class GenericEvent(val type: String, val rawJson: String) : ScoliaEvent()
     data class Unknown(val rawJson: String) : ScoliaEvent()

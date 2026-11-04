@@ -160,6 +160,9 @@ class MainActivity : AppCompatActivity() {
                         is ScoliaEvent.TakeoutFinished -> {
                             Log.i(TAG, "✅ Darts herausziehen beendet (Board ist frei)")
                         }
+                        is ScoliaEvent.GameEnded -> {
+                            Log.i(TAG, "🏁 SPIEL BEENDET (Match/Leg Statistik empfangen)")
+                        }
                         is ScoliaEvent.Pong -> {
                             // Heartbeat leise ignorieren/loggen
                         }

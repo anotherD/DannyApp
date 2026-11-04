@@ -21,6 +21,9 @@ class ScoliaEventParser {
                 type == "API::COMMON::TAKEOUT_FINISHED" || type.equals("TAKEOUT_FINISHED", ignoreCase = true) -> {
                     ScoliaEvent.TakeoutFinished(jsonString)
                 }
+                type == "API::GAME::GAME_ENDED_STATISTICS" || type == "API::X01::GAME_DELETED" -> {
+                    ScoliaEvent.GameEnded(jsonString)
+                }
                 type == "API::COMMON::PONG" -> {
                     ScoliaEvent.Pong(jsonString)
                 }
