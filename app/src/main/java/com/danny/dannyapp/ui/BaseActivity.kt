@@ -9,13 +9,25 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.danny.dannyapp.R
+import com.danny.dannyapp.data.SettingsManager
 import com.google.android.material.appbar.MaterialToolbar
 
 abstract class BaseActivity : AppCompatActivity() {
 
     protected var toolbar: MaterialToolbar? = null
-    protected var config1Checked = false
-    protected var config2Checked = false
+    protected val settingsManager by lazy { SettingsManager(this) }
+
+    protected var config1Checked: Boolean
+        get() = settingsManager.config1Checked
+        set(value) {
+            settingsManager.config1Checked = value
+        }
+
+    protected var config2Checked: Boolean
+        get() = settingsManager.config2Checked
+        set(value) {
+            settingsManager.config2Checked = value
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
@@ -66,18 +78,23 @@ abstract class BaseActivity : AppCompatActivity() {
     }
 
     protected open fun showConfigMenu() {
+        var tempConfig1 = config1Checked
+        var tempConfig2 = config2Checked
+
         val items = arrayOf(getString(R.string.dummy_config_1), getString(R.string.dummy_config_2))
-        val checkedItems = booleanArrayOf(config1Checked, config2Checked)
+        val checkedItems = booleanArrayOf(tempConfig1, tempConfig2)
 
         val dialog = AlertDialog.Builder(this)
             .setTitle(R.string.configuration)
             .setMultiChoiceItems(items, checkedItems) { _, which, isChecked ->
                 when (which) {
-                    0 -> config1Checked = isChecked
-                    1 -> config2Checked = isChecked
+                    0 -> tempConfig1 = isChecked
+                    1 -> tempConfig2 = isChecked
                 }
             }
             .setPositiveButton(android.R.string.ok) { d, _ ->
+                config1Checked = tempConfig1
+                config2Checked = tempConfig2
                 d.dismiss()
                 Toast.makeText(this, "Konfiguration gespeichert", Toast.LENGTH_SHORT).show()
             }
