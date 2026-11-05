@@ -85,17 +85,28 @@ class ScoliaEventParser {
     }
 
     private fun extractLatestThrowFromTriplets(lastTriplets: JSONObject): DartThrow? {
-        // In lastTriplets liegen Spieler-Objekte mit Array an Würfen
-        val keys = lastTriplets.keys()
-        while (keys.hasNext()) {
-            val playerKey = keys.next()
+        val candidates = mutableListOf<Triple<Int, String?, DartThrow>>()
+
+        val playerKeys = lastTriplets.keys()
+        while (playerKeys.hasNext()) {
+            val playerKey = playerKeys.next()
             val playerTriplets = lastTriplets.optJSONObject(playerKey) ?: continue
 
-            val tripletKeys = playerTriplets.keys()
-            while (tripletKeys.hasNext()) {
-                val tripletKey = tripletKeys.next()
-                if (tripletKey.startsWith("_")) continue // Ignoriere interne Metadaten wie _t
+            val validTripletKeys = mutableListOf<String>()
+            val keys = playerTriplets.keys()
+            while (keys.hasNext()) {
+                val key = keys.next()
+                if (!key.startsWith("_")) {
+                    validTripletKeys.add(key)
+                }
+            }
 
+            // Triplet-Keys numerisch absteigend sortieren, um den neuesten Triplet-Eintrag zuerst zu prüfen
+            validTripletKeys.sortByDescending { key ->
+                key.filter { it.isDigit() }.toIntOrNull() ?: 0
+            }
+
+            for (tripletKey in validTripletKeys) {
                 val throwArray = playerTriplets.optJSONArray(tripletKey) ?: continue
                 if (throwArray.length() > 0) {
                     val lastThrowObj = throwArray.optJSONObject(throwArray.length() - 1) ?: continue
@@ -114,7 +125,7 @@ class ScoliaEventParser {
                         y = coords.optDouble(1)
                     }
 
-                    return DartThrow(
+                    val dartThrow = DartThrow(
                         sector = sector,
                         score = score,
                         xCoordinate = x,
@@ -123,10 +134,20 @@ class ScoliaEventParser {
                         remainingScore = remainingScore,
                         detectionTime = detectionTime,
                     )
+
+                    val tripletIndex = tripletKey.filter { it.isDigit() }.toIntOrNull() ?: 0
+                    candidates.add(Triple(tripletIndex, detectionTime, dartThrow))
+                    // Pro Spieler den neuesten Triplet berücksichtigen
+                    break
                 }
             }
         }
-        return null
+
+        // Ermittle den Kandidaten mit der neuesten Zeit bzw. dem höchsten Triplet-Index
+        return candidates.maxWithOrNull(
+            compareBy<Triple<Int, String?, DartThrow>> { it.second ?: "" }
+                .thenBy { it.first }
+        )?.third
     }
 
     private fun calculateScoreFromSector(sector: String): Int {
