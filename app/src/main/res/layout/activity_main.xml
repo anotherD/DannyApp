@@ -32,7 +32,15 @@
             android:id="@+id/btnOpenScolia"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
             android:text="@string/open_scolia_browser"
+            android:textSize="16sp" />
+
+        <Button
+            android:id="@+id/btnOpenDesignShowcase"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/open_design_showcase"
             android:textSize="16sp" />
 
     </LinearLayout>

@@ -27,6 +27,7 @@ class MainActivity : AppCompatActivity() {
         val startLayout: View = findViewById(R.id.startLayout)
         val webView: WebView = findViewById(R.id.scoliaWebView)
         val btnOpenScolia: Button = findViewById(R.id.btnOpenScolia)
+        val btnOpenDesignShowcase: Button = findViewById(R.id.btnOpenDesignShowcase)
 
         // Verhindert, dass die Ansicht unter die Status- oder Navigationsleiste rutscht
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, windowInsets ->
@@ -45,6 +46,11 @@ class MainActivity : AppCompatActivity() {
                 webViewManager.setupWebView("https://game.scoliadarts.com/game")
                 isWebViewInitialized = true
             }
+        }
+
+        btnOpenDesignShowcase.setOnClickListener {
+            val intent = android.content.Intent(this, DesignShowcaseActivity::class.java)
+            startActivity(intent)
         }
 
         // Back-Button Handling: Wenn WebView sichtbar ist, entweder im WebView zurück navigieren oder zurück zur Startseite

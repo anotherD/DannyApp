@@ -2,8 +2,54 @@
     <!-- Zentrales Basis-Theme mit allen Farben (Single Source of Truth) -->
     <style name="Base.Theme.DannyApp" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Standard-Hintergrundfarbe der App -->
-        <item name="android:windowBackground">@color/anthrazit</item>
+<!--        <item name="android:windowBackground">@color/anthrazit</item>-->
 
+
+        <!-- 1. PRIMÄRE AKZENTE (Buttons, FABs, aktive Zustände) -->
+        <item name="colorPrimary">@color/rot</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorPrimaryContainer">@color/rot_dunkel</item>
+        <item name="colorOnPrimaryContainer">@color/white</item>
+
+        <!-- 2. SEKUNDÄRE & TERTIÄRE AKZENTE (M3-Pflichtfelder, defensiv besetzt) -->
+        <item name="colorSecondary">@color/surface_anthrazit</item>
+        <item name="colorOnSecondary">@color/text_primar</item>
+        <item name="colorTertiary">@color/rot_dunkel</item>
+        <item name="colorOnTertiary">@color/white</item>
+
+        <!-- 3. HINTERGRÜNDE & ALLGEMEINE FLÄCHEN -->
+        <item name="android:windowBackground">@color/bg_amoled</item>
+        <item name="android:colorBackground">@color/bg_amoled</item>
+        <item name="colorOnBackground">@color/text_primar</item> <!-- Erzwingt weißen Text auf dem Haupt-Hintergrund -->
+
+        <!-- 4. OBERFLÄCHEN (Karten, Dialoge, Menüs) -->
+        <item name="colorSurface">@color/surface_anthrazit</item>
+        <item name="colorOnSurface">@color/text_primar</item> <!-- Erzwingt weißen Text auf Karten -->
+
+        <item name="colorSurfaceVariant">@color/surface_grau_heller</item>
+        <item name="colorOnSurfaceVariant">@color/text_sekundar</item> <!-- Erzwingt grauen Text für Nebensachen -->
+
+        <!-- 5. RAHMEN, TRENNLINIEN & HINWEISE -->
+        <item name="colorOutline">@color/surface_grau_heller</item>
+        <item name="colorOutlineVariant">@color/surface_anthrazit</item>
+        <item name="colorError">@color/rot_hell</item>
+        <item name="colorOnError">@color/black</item>
+
+        <!-- 6. SYSTEM-BARS (Status- und Navigationsleiste) -->
+        <item name="android:statusBarColor">@color/bg_amoled</item>
+        <item name="android:navigationBarColor">@color/bg_amoled</item>
+
+        <!-- "false" sorgt dafür, dass die System-Icons (Uhrzeit, Akku) WEISS leuchten -->
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
+
+        <!-- 🚨 DIESE ZEILEN FEHLEN FÜR DEN STANDARD-TEXT: -->
+        <item name="android:textColorPrimary">@color/text_primar</item>
+        <item name="android:textColorSecondary">@color/text_sekundar</item>
+        <item name="android:textColorTertiary">@color/text_deaktiviert</item>
+
+        <!-- Für Eingabefelder (EditText-Hinweistexte) -->
+        <item name="android:textColorHint">@color/text_sekundar</item>
         <!-- REFERENZ -->
 
         <!-- Weitere Primär- und Akzentfarben -->

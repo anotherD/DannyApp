@@ -26,6 +26,10 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".ui.DesignShowcaseActivity"
+            android:exported="false" />
+
     </application>
 
 </manifest>
