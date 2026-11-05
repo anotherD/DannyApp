@@ -1,13 +1,50 @@
 <resources>
     <!-- Zentrales Basis-Theme mit allen Farben (Single Source of Truth) -->
     <style name="Base.Theme.DannyApp" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Hauptfarbe für Buttons, Oberflächen etc. -->
-        <item name="colorPrimary">@color/rot_dunkel</item>
-
-        <!-- Sekundärfarbe -->
-        <item name="colorSecondary">@color/rot_haupt</item>
-
         <!-- Standard-Hintergrundfarbe der App -->
         <item name="android:windowBackground">@color/anthrazit</item>
+
+        <!-- REFERENZ -->
+
+        <!-- Weitere Primär- und Akzentfarben -->
+<!--        <item name="colorPrimary">@color/rot_dunkel</item> &lt;!&ndash; Hauptfarbe für Buttons, Oberflächen etc. &ndash;&gt;-->
+        <!-- <item name="colorOnPrimary">@color/white</item> -->
+        <!-- <item name="colorPrimaryContainer">@color/rot_dunkel</item> -->
+        <!-- <item name="colorOnPrimaryContainer">@color/white</item> -->
+
+        <!-- Sekundär-Varianten -->
+        <!-- Sekundärfarbe -->
+<!--        <item name="colorSecondary">@color/rot_haupt</item>-->
+        <!-- <item name="colorOnSecondary">@color/white</item> -->
+        <!-- <item name="colorSecondaryContainer">@color/rot_hell</item> -->
+        <!-- <item name="colorOnSecondaryContainer">@color/white</item> -->
+
+        <!-- Tertiäre Farben (für zusätzliche Akzente) -->
+        <!-- <item name="colorTertiary">@color/rot_hell</item> -->
+        <!-- <item name="colorOnTertiary">@color/white</item> -->
+        <!-- <item name="colorTertiaryContainer">@color/dunkelgrau</item> -->
+        <!-- <item name="colorOnTertiaryContainer">@color/white</item> -->
+
+        <!-- Fehlerfarben -->
+        <!-- <item name="colorError">#B00020</item> -->
+        <!-- <item name="colorOnError">@color/white</item> -->
+        <!-- <item name="colorErrorContainer">#FCD8DF</item> -->
+        <!-- <item name="colorOnErrorContainer">#3700B3</item> -->
+
+        <!-- Oberflächen und Hintergründe (Surface) -->
+        <!-- <item name="colorSurface">@color/anthrazit</item> -->
+        <!-- <item name="colorOnSurface">@color/white</item> -->
+        <!-- <item name="colorSurfaceVariant">@color/dunkelgrau</item> -->
+        <!-- <item name="colorOnSurfaceVariant">@color/hellgrau</item> -->
+
+        <!-- Rahmen und Linien (Outlines) -->
+        <!-- <item name="colorOutline">@color/hellgrau</item> -->
+        <!-- <item name="colorOutlineVariant">@color/dunkelgrau</item> -->
+
+        <!-- Statusleiste & Navigationsleiste -->
+        <!-- <item name="android:statusBarColor">@color/anthrazit</item> -->
+        <!-- <item name="android:navigationBarColor">@color/anthrazit</item> -->
+        <!-- <item name="android:windowLightStatusBar">false</item> --> <!-- true für dunkle Icons auf heller Statusleiste -->
+        <!-- <item name="android:windowLightNavigationBar">false</item> -->
     </style>
 </resources>
