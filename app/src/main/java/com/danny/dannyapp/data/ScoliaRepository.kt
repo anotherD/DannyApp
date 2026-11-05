@@ -2,20 +2,20 @@ package com.danny.dannyapp.data
 
 import android.content.Context
 import android.webkit.JavascriptInterface
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.launch
 
 class ScoliaRepository(context: Context) {
 
     private val scoliaLogger = ScoliaLogger(context)
     private val scoliaEventParser = ScoliaEventParser()
-    private val scope = CoroutineScope(Dispatchers.Default)
 
-    private val _scoliaEvents = MutableSharedFlow<ScoliaEvent>()
+    private val _scoliaEvents = MutableSharedFlow<ScoliaEvent>(
+        extraBufferCapacity = 64,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST,
+    )
     val scoliaEvents: SharedFlow<ScoliaEvent> = _scoliaEvents.asSharedFlow()
 
     fun getLogFilePath(): String = scoliaLogger.getLogFilePath()
@@ -26,11 +26,9 @@ class ScoliaRepository(context: Context) {
             // 1. Ungefiltert in Datei loggen
             scoliaLogger.log(jsonData)
 
-            // 2. Parst und emittiert das Event über Coroutines
+            // 2. Parst und emittiert das Event direkt über tryEmit (nicht-blockierend & thread-sicher)
             val event = scoliaEventParser.parse(jsonData)
-            scope.launch {
-                _scoliaEvents.emit(event)
-            }
+            _scoliaEvents.tryEmit(event)
         }
     }
 
