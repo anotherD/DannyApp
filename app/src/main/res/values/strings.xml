@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Danny App</string>
+    <string name="app_title">Danny Darts App</string>
+    <string name="open_scolia_browser">Scolia Browser öffnen</string>
 </resources>
