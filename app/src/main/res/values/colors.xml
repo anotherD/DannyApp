@@ -1,17 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- System-Basis -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
+    <!-- Das edle Rot-Konzept (Kein Rosa!) -->
+    <color name="rot">#D32F2F</color>             <!-- Kräftiges Karmesinrot für Hauptbuttons -->
+    <color name="rot_dunkel">#7A0006</color>      <!-- Dunkleres Rot für gedrückte Zustände -->
+    <color name="rot_hell">#D32F2F</color>        <!-- Signalrot für Fehler / Benachrichtigungen -->
 
-    <!-- Rote Töne (Primärfarben) -->
-    <color name="rot_haupt">#D32F2F</color>       <!-- Ein kräftiges, edles Rot -->
-    <color name="rot_hell">#FF6659</color>        <!-- Helles Rot für Akzente -->
-    <color name="rot_dunkel">#9A0007</color>      <!-- Dunkles Rot -->
+    <!-- Das edle Schwarz/Anthrazit-Konzept -->
+    <color name="bg_amoled">#000000</color>            <!-- Der eigentliche App-Hintergrund -->
+    <color name="surface_anthrazit">#1E1E1E</color>    <!-- Karten, Eingabefelder, Bottom Sheets -->
+    <color name="surface_grau_heller">#2D2D2D</color>  <!-- Für feine Linien, Rahmen oder Trenner (Borders) -->
 
-    <!-- Neutrale Töne für Hintergründe & Text -->
-    <color name="weiss">#FFFFFF</color>
-    <color name="hellgrau">#F5F5F5</color>        <!-- Hintergrund für Light Mode -->
-    <color name="anthrazit">#121212</color>       <!-- Echtes AMOLED/Nacht-Schwarz -->
-    <color name="dunkelgrau">#1E1E1E</color>      <!-- Für Karten/Elemente im Dark Mode -->
+    <!-- Knallharte Textfarben-Zuweisung -->
+    <color name="text_primar">#FFFFFF</color>          <!-- Überschriften, wichtiger Text (Immer Weiß) -->
+    <color name="text_sekundar">#B3B3B3</color>        <!-- Beschreibungstexte, Labels (Edles Mattgrau) -->
+    <color name="text_deaktiviert">#666666</color>     <!-- Für ausgegraute, inaktive Elemente -->
 </resources>
