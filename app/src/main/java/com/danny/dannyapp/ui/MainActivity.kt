@@ -5,22 +5,17 @@ import android.view.View
 import android.webkit.WebView
 import android.widget.Button
 import androidx.activity.OnBackPressedCallback
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import com.danny.dannyapp.R
 import com.danny.dannyapp.webview.ScoliaWebViewManager
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : BaseActivity() {
 
     private val viewModel: MainViewModel by viewModels()
     private lateinit var webViewManager: ScoliaWebViewManager
     private var isWebViewInitialized = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
@@ -29,19 +24,19 @@ class MainActivity : AppCompatActivity() {
         val btnOpenScolia: Button = findViewById(R.id.btnOpenScolia)
         val btnOpenDesignShowcase: Button = findViewById(R.id.btnOpenDesignShowcase)
 
-        // Verhindert, dass die Ansicht unter die Status- oder Navigationsleiste rutscht
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, windowInsets ->
-            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(insets.left, insets.top, insets.right, insets.bottom)
-            windowInsets
-        }
+        // Auf der Startseite: Titel "Danny App", KEIN Zurück-Button
+        setupToolbar("Danny App", showBack = false, rootViewId = R.id.main)
 
         btnOpenScolia.setOnClickListener {
             startLayout.visibility = View.GONE
             webView.visibility = View.VISIBLE
+            toolbar?.title = "Scolia Browser"
+            toolbar?.setNavigationIcon(R.drawable.ic_arrow_back)
+            toolbar?.setNavigationOnClickListener {
+                onBackPressedDispatcher.onBackPressed()
+            }
 
             if (!isWebViewInitialized) {
-                // WebView Manager initialisieren und Konfiguration laden
                 webViewManager = ScoliaWebViewManager(webView, viewModel.scoliaRepository)
                 webViewManager.setupWebView("https://game.scoliadarts.com/game")
                 isWebViewInitialized = true
@@ -53,7 +48,7 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        // Back-Button Handling: Wenn WebView sichtbar ist, entweder im WebView zurück navigieren oder zurück zur Startseite
+        // Back-Button Handling
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 if (webView.visibility == View.VISIBLE && webView.canGoBack()) {
@@ -61,6 +56,8 @@ class MainActivity : AppCompatActivity() {
                 } else if (webView.visibility == View.VISIBLE) {
                     webView.visibility = View.GONE
                     startLayout.visibility = View.VISIBLE
+                    toolbar?.title = "Danny App"
+                    toolbar?.navigationIcon = null
                 } else {
                     isEnabled = false
                     onBackPressedDispatcher.onBackPressed()
