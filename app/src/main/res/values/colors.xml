@@ -2,4 +2,16 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+
+    <!-- Rote Töne (Primärfarben) -->
+    <color name="rot_haupt">#D32F2F</color>       <!-- Ein kräftiges, edles Rot -->
+    <color name="rot_hell">#FF6659</color>        <!-- Helles Rot für Akzente -->
+    <color name="rot_dunkel">#9A0007</color>      <!-- Dunkles Rot -->
+
+    <!-- Neutrale Töne für Hintergründe & Text -->
+    <color name="weiss">#FFFFFF</color>
+    <color name="hellgrau">#F5F5F5</color>        <!-- Hintergrund für Light Mode -->
+    <color name="anthrazit">#121212</color>       <!-- Echtes AMOLED/Nacht-Schwarz -->
+    <color name="dunkelgrau">#1E1E1E</color>      <!-- Für Karten/Elemente im Dark Mode -->
 </resources>

@@ -1,0 +1,13 @@
+<resources>
+    <!-- Zentrales Basis-Theme mit allen Farben (Single Source of Truth) -->
+    <style name="Base.Theme.DannyApp" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Hauptfarbe für Buttons, Oberflächen etc. -->
+        <item name="colorPrimary">@color/rot_dunkel</item>
+
+        <!-- Sekundärfarbe -->
+        <item name="colorSecondary">@color/rot_haupt</item>
+
+        <!-- Standard-Hintergrundfarbe der App -->
+        <item name="android:windowBackground">@color/anthrazit</item>
+    </style>
+</resources>
