@@ -4,10 +4,10 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
-    <!-- Das edle Rot-Konzept (Kein Rosa!) -->
-    <color name="rot">#D32F2F</color>             <!-- Kräftiges Karmesinrot für Hauptbuttons -->
-    <color name="rot_dunkel">#7A0006</color>      <!-- Dunkleres Rot für gedrückte Zustände -->
-    <color name="rot_hell">#D32F2F</color>        <!-- Signalrot für Fehler / Benachrichtigungen -->
+    <!-- Das edle Rot-Konzept (Satter & Kräftiger, kein Orange) -->
+    <color name="rot">#E50914</color>             <!-- Sattes, kräftiges Rubinrot für Hauptbuttons -->
+    <color name="rot_dunkel">#990000</color>      <!-- Sattes dunkles Rot für gedrückte Zustände -->
+    <color name="rot_hell">#FF1A1A</color>        <!-- Kräftiges Signalrot für Highlights -->
 
     <!-- Das edle Schwarz/Anthrazit-Konzept -->
     <color name="bg_amoled">#000000</color>            <!-- Der eigentliche App-Hintergrund -->
