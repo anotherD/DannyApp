@@ -1,4 +1,4 @@
-package com.danny.dannyapp
+package com.danny.dannyapp.ui
 
 import android.os.Bundle
 import android.webkit.WebView
@@ -7,6 +7,8 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.danny.dannyapp.R
+import com.danny.dannyapp.webview.ScoliaWebViewManager
 
 class MainActivity : AppCompatActivity() {
 

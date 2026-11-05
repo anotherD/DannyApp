@@ -1,4 +1,4 @@
-package com.danny.dannyapp
+package com.danny.dannyapp.data
 
 import android.util.Log
 import org.json.JSONObject

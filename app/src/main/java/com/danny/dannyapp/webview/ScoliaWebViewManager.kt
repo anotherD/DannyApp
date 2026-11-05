@@ -1,4 +1,4 @@
-package com.danny.dannyapp
+package com.danny.dannyapp.webview
 
 import android.annotation.SuppressLint
 import android.util.Log
@@ -9,6 +9,7 @@ import android.webkit.WebResourceResponse
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import com.danny.dannyapp.data.ScoliaRepository
 import java.io.ByteArrayInputStream
 
 class ScoliaWebViewManager(

@@ -1,4 +1,4 @@
-package com.danny.dannyapp
+package com.danny.dannyapp.data
 
 data class DartThrow(
     val sector: String,          // z.B. "T20", "D16", "s5", "Bull", "25", "None"

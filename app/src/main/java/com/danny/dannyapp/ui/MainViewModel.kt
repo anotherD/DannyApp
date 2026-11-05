@@ -1,9 +1,11 @@
-package com.danny.dannyapp
+package com.danny.dannyapp.ui
 
 import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.danny.dannyapp.data.ScoliaEvent
+import com.danny.dannyapp.data.ScoliaRepository
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 

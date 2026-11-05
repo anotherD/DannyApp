@@ -1,4 +1,4 @@
-package com.danny.dannyapp
+package com.danny.dannyapp.data
 
 import android.content.Context
 import android.webkit.JavascriptInterface
