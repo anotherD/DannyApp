@@ -3,4 +3,7 @@
     <string name="app_title">Danny Darts App</string>
     <string name="open_scolia_browser">Scolia Browser öffnen</string>
     <string name="open_design_showcase">Design &amp; Farben Showcase</string>
+    <string name="configuration">Konfiguration</string>
+    <string name="dummy_config_1">Dummy Config 1</string>
+    <string name="dummy_config_2">Dummy Config 2</string>
 </resources>
