@@ -2,6 +2,7 @@ package com.danny.dannyapp.webview
 
 import android.annotation.SuppressLint
 import android.content.pm.ApplicationInfo
+import android.graphics.Bitmap
 import android.util.Log
 import android.webkit.CookieManager
 import android.webkit.WebChromeClient
@@ -29,7 +30,7 @@ class ScoliaWebViewManager(
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 
         // 3. Protocol & Cookie Management
-        webView.settings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+        webView.settings.mixedContentMode = WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE
         val cookieManager = CookieManager.getInstance()
         cookieManager.setAcceptCookie(true)
         cookieManager.setAcceptThirdPartyCookies(webView, true)
@@ -43,8 +44,14 @@ class ScoliaWebViewManager(
         // 5. JavaScript Interface Brücke
         webView.addJavascriptInterface(repository.javaScriptInterface, "AndroidApp")
 
-        // 6. WebViewClient mit AdBlocker für PostHog Tracking
+        // 6. WebViewClient mit AdBlocker für PostHog Tracking & Frühzeitiger Hook-Injektion
         webView.webViewClient = object : WebViewClient() {
+            override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+                super.onPageStarted(view, url, favicon)
+                Log.d(TAG, "Webseite startet Laden: $url")
+                injectScoliaHook()
+            }
+
             override fun shouldInterceptRequest(
                 view: WebView?,
                 request: WebResourceRequest?,
@@ -76,9 +83,10 @@ class ScoliaWebViewManager(
     private fun injectScoliaHook() {
         val jsCode = """
             (function() {
-                if (window.WebSocket.__isHooked) return;
+                if (window.WebSocket && window.WebSocket.__isHooked) return;
                 
                 const OriginalWebSocket = window.WebSocket;
+                if (!OriginalWebSocket) return;
                 
                 const WebSocketProxy = new Proxy(OriginalWebSocket, {
                     construct(target, args) {
