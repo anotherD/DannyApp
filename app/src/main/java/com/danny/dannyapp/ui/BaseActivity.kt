@@ -6,6 +6,7 @@ import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.danny.dannyapp.R
@@ -38,7 +39,7 @@ abstract class BaseActivity : AppCompatActivity() {
         titleText: String,
         showBack: Boolean = true,
         rootViewId: Int = android.R.id.content,
-        menuResId: Int = R.menu.menu_main
+        menuResId: Int = R.menu.menu_main,
     ) {
         toolbar = findViewById(R.id.toolbar)
         toolbar?.let { tb ->
@@ -68,9 +69,13 @@ abstract class BaseActivity : AppCompatActivity() {
 
         val rootView = findViewById<View>(rootViewId)
         if (rootView != null) {
+            val initialLeft = toolbar?.paddingLeft ?: 0
+            val initialRight = toolbar?.paddingRight ?: 0
+            val initialBottom = toolbar?.paddingBottom ?: 0
+
             ViewCompat.setOnApplyWindowInsetsListener(rootView) { _, windowInsets ->
                 val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-                toolbar?.setPadding(toolbar!!.paddingLeft, insets.top, toolbar!!.paddingRight, toolbar!!.paddingBottom)
+                toolbar?.setPadding(initialLeft, insets.top, initialRight, initialBottom)
                 rootView.setPadding(insets.left, 0, insets.right, insets.bottom)
                 windowInsets
             }
@@ -103,8 +108,8 @@ abstract class BaseActivity : AppCompatActivity() {
             .create()
 
         dialog.setOnShowListener {
-            dialog.getButton(AlertDialog.BUTTON_POSITIVE)?.setTextColor(resources.getColor(R.color.rot_hell, theme))
-            dialog.getButton(AlertDialog.BUTTON_NEGATIVE)?.setTextColor(resources.getColor(R.color.text_primar, theme))
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE)?.setTextColor(ContextCompat.getColor(this, R.color.rot_hell))
+            dialog.getButton(AlertDialog.BUTTON_NEGATIVE)?.setTextColor(ContextCompat.getColor(this, R.color.text_primar))
         }
 
         dialog.show()

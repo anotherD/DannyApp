@@ -55,21 +55,27 @@ class MainActivity : BaseActivity() {
         }
 
         // Back-Button Handling
-        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                if (webView.visibility == View.VISIBLE && webView.canGoBack()) {
-                    webView.goBack()
-                } else if (webView.visibility == View.VISIBLE) {
-                    webView.visibility = View.GONE
-                    startLayout.visibility = View.VISIBLE
-                    toolbar?.title = "Danny App"
-                    toolbar?.navigationIcon = null
-                } else {
-                    isEnabled = false
-                    onBackPressedDispatcher.onBackPressed()
-                    isEnabled = true
+        onBackPressedDispatcher.addCallback(
+            this,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    when {
+                        webView.visibility == View.VISIBLE && webView.canGoBack() -> {
+                            webView.goBack()
+                        }
+                        webView.visibility == View.VISIBLE -> {
+                            webView.visibility = View.GONE
+                            startLayout.visibility = View.VISIBLE
+                            toolbar?.title = "Danny App"
+                            toolbar?.navigationIcon = null
+                        }
+                        else -> {
+                            remove()
+                            onBackPressedDispatcher.onBackPressed()
+                        }
+                    }
                 }
-            }
-        })
+            },
+        )
     }
 }
