@@ -2,13 +2,18 @@ package com.danny.dannyapp.data
 
 import android.content.Context
 import android.webkit.JavascriptInterface
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.launch
 
 class ScoliaRepository private constructor(context: Context) {
 
+    private val repositoryScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
     private val scoliaLogger = ScoliaLogger(context)
     private val scoliaEventParser = ScoliaEventParser()
 
@@ -26,9 +31,11 @@ class ScoliaRepository private constructor(context: Context) {
             // 1. Ungefiltert in Datei loggen
             scoliaLogger.log(jsonData)
 
-            // 2. Parst und emittiert das Event direkt über tryEmit (nicht-blockierend & thread-sicher)
-            val event = scoliaEventParser.parse(jsonData)
-            _scoliaEvents.tryEmit(event)
+            // 2. Parst und emittiert das Event asynchron auf dem Dispatchers.Default Background-Thread
+            repositoryScope.launch {
+                val event = scoliaEventParser.parse(jsonData)
+                _scoliaEvents.emit(event)
+            }
         }
     }
 
