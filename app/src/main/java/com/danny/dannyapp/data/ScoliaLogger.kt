@@ -2,27 +2,47 @@ package com.danny.dannyapp.data
 
 import android.content.Context
 import android.util.Log
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
 import java.io.FileWriter
 import java.io.IOException
-import java.text.SimpleDateFormat
-import java.util.Date
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 class ScoliaLogger(context: Context) {
 
     private val logFile: File = File(context.filesDir, "scolia_events.log")
-    private val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault())
+    private val timeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault())
+
+    private val logChannel = Channel<String>(Channel.UNLIMITED)
+    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     init {
         Log.i(TAG, "📁 Scolia Event-Logdatei bereit unter: ${logFile.absolutePath}")
+        startLogWriter()
     }
 
-    @Synchronized
+    private fun startLogWriter() {
+        scope.launch {
+            for (rawJson in logChannel) {
+                writeLogEntry(rawJson)
+            }
+        }
+    }
+
     fun log(rawJson: String) {
-        val timestamp = dateFormat.format(Date())
+        logChannel.trySend(rawJson)
+    }
+
+    private fun writeLogEntry(rawJson: String) {
+        val timestamp = LocalDateTime.now().format(timeFormatter)
         val formattedJson = try {
             val trimmed = rawJson.trim()
             when {
