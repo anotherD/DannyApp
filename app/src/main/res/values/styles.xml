@@ -2,11 +2,11 @@
     <!-- Zentrales Basis-Theme mit allen Farben (Single Source of Truth) -->
     <style name="Base.Theme.DannyApp" parent="Theme.Material3.Dark.NoActionBar">
         <!-- 1. PRIMÄRE AKZENTE (Buttons, FABs, aktive Zustände) -->
-        <item name="colorPrimary">@color/rot_dunkel</item>
+        <item name="colorPrimary">@color/rot_hell</item>
         <item name="colorOnPrimary">@color/white</item>
         <item name="colorPrimaryContainer">@color/rot</item>
         <item name="colorOnPrimaryContainer">@color/white</item>
-
+K
         <!-- 2. SEKUNDÄRE & TERTIÄRE AKZENTE (M3-Pflichtfelder, defensiv besetzt) -->
         <item name="colorSecondary">@color/rot</item>
         <item name="colorOnSecondary">@color/white</item>
