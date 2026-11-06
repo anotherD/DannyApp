@@ -14,6 +14,6 @@ data class Player(
     val skillLevel: Int, // Spielstärke (1-10)
     @ColumnInfo(name = "has_tour_card")
     val hasTourCard: Boolean, // Tour Card (ja/nein)
-    @ColumnInfo(name = "nation")
-    val nation: String // Nation
+    @ColumnInfo(name = "country_code")
+    val country: Country // Darts-Nation
 )
