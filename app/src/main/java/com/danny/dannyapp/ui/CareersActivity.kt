@@ -6,14 +6,16 @@ import android.widget.Button
 import android.widget.NumberPicker
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
 import com.danny.dannyapp.data.Career
 import com.danny.dannyapp.data.CareerRepository
-import androidx.appcompat.app.AlertDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
+import kotlinx.coroutines.launch
 import java.util.UUID
 
 class CareersActivity : BaseActivity() {
@@ -63,14 +65,16 @@ class CareersActivity : BaseActivity() {
     }
 
     private fun loadCareers() {
-        val careers = careerRepository.getCareers()
-        careerAdapter.submitList(careers)
-        if (careers.isEmpty()) {
-            rvCareers.visibility = RecyclerView.GONE
-            tvEmptyCareers.visibility = TextView.VISIBLE
-        } else {
-            rvCareers.visibility = RecyclerView.VISIBLE
-            tvEmptyCareers.visibility = TextView.GONE
+        lifecycleScope.launch {
+            val careers = careerRepository.getCareers()
+            careerAdapter.submitList(careers)
+            if (careers.isEmpty()) {
+                rvCareers.visibility = RecyclerView.GONE
+                tvEmptyCareers.visibility = TextView.VISIBLE
+            } else {
+                rvCareers.visibility = RecyclerView.VISIBLE
+                tvEmptyCareers.visibility = TextView.GONE
+            }
         }
     }
 
@@ -79,9 +83,11 @@ class CareersActivity : BaseActivity() {
             .setTitle(getString(R.string.career_delete_title))
             .setMessage(getString(R.string.career_delete_message, career.name))
             .setPositiveButton(getString(R.string.career_delete_confirm)) { _, _ ->
-                careerRepository.deleteCareer(career.id)
-                Toast.makeText(this, getString(R.string.career_deleted_msg, career.name), Toast.LENGTH_SHORT).show()
-                loadCareers()
+                lifecycleScope.launch {
+                    careerRepository.deleteCareer(career.id)
+                    Toast.makeText(this@CareersActivity, getString(R.string.career_deleted_msg, career.name), Toast.LENGTH_SHORT).show()
+                    loadCareers()
+                }
             }
             .setNegativeButton(android.R.string.cancel, null)
             .show()
@@ -117,10 +123,12 @@ class CareersActivity : BaseActivity() {
                         name = careerName,
                         level = level
                     )
-                    careerRepository.saveCareer(newCareer)
-                    Toast.makeText(this, getString(R.string.careers_career_created, careerName, level), Toast.LENGTH_SHORT).show()
-                    loadCareers()
-                    dialog.dismiss()
+                    lifecycleScope.launch {
+                        careerRepository.saveCareer(newCareer)
+                        Toast.makeText(this@CareersActivity, getString(R.string.careers_career_created, careerName, level), Toast.LENGTH_SHORT).show()
+                        loadCareers()
+                        dialog.dismiss()
+                    }
                 }
             }
         }
