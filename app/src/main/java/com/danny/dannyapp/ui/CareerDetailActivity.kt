@@ -13,7 +13,12 @@ class CareerDetailActivity : BaseActivity() {
         val careerName = intent.getStringExtra(EXTRA_CAREER_NAME) ?: "Karriere"
         val careerLevel = intent.getIntExtra(EXTRA_CAREER_LEVEL, 1)
 
-        setupToolbar(careerName, showBack = true, rootViewId = R.id.careerDetailMain)
+        setupToolbar(
+            titleText = getString(R.string.career),
+            subtitleText = careerName,
+            showBack = true,
+            rootViewId = R.id.careerDetailMain
+        )
 
         val tvDetails: TextView = findViewById(R.id.tvCareerDetails)
         tvDetails.text = getString(R.string.career_current_format, careerName, careerLevel)

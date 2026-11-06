@@ -37,6 +37,7 @@ abstract class BaseActivity : AppCompatActivity() {
 
     protected fun setupToolbar(
         titleText: String,
+        subtitleText: String? = null,
         showBack: Boolean = true,
         rootViewId: Int = android.R.id.content,
         menuResId: Int = R.menu.menu_main,
@@ -44,6 +45,7 @@ abstract class BaseActivity : AppCompatActivity() {
         toolbar = findViewById(R.id.toolbar)
         toolbar?.let { tb ->
             tb.title = titleText
+            tb.subtitle = subtitleText
             if (showBack) {
                 tb.setNavigationIcon(R.drawable.ic_arrow_back)
                 tb.setNavigationOnClickListener {

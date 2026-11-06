@@ -12,6 +12,7 @@
     <string name="careers_create_positive_button">Anlegen</string>
     <string name="careers_create_error_empty_name">Bitte gib einen Namen für die Karriere ein.</string>
     <string name="career_current_format">Aktuelle Karriere:\n%s\nLevel: %d</string>
+    <string name="career">Karriere</string>
     <string name="career_level_format">Level %d</string>
     <string name="career_delete_title">Karriere löschen</string>
     <string name="career_delete_message">Möchtest du die Karriere \'%s\' wirklich löschen?</string>
