@@ -8,6 +8,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import com.danny.dannyapp.R
 import com.danny.dannyapp.webview.ScoliaWebViewManager
+import androidx.core.view.isVisible
 
 class MainActivity : BaseActivity() {
 
@@ -60,10 +61,10 @@ class MainActivity : BaseActivity() {
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
                     when {
-                        webView.visibility == View.VISIBLE && webView.canGoBack() -> {
+                        webView.isVisible && webView.canGoBack() -> {
                             webView.goBack()
                         }
-                        webView.visibility == View.VISIBLE -> {
+                        webView.isVisible -> {
                             webView.visibility = View.GONE
                             startLayout.visibility = View.VISIBLE
                             toolbar?.title = "Danny App"
