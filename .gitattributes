@@ -1,0 +1,2 @@
+# Erzwinge strikt LF (Unix-Zeilenenden) für alle Textdateien im Projekt
+* text=auto eol=lf
