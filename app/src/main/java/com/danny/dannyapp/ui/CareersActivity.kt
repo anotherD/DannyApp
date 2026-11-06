@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
 import com.danny.dannyapp.data.Career
 import com.danny.dannyapp.data.CareerRepository
+import androidx.appcompat.app.AlertDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import java.util.UUID
@@ -98,9 +99,15 @@ class CareersActivity : BaseActivity() {
             wrapSelectorWheel = false
         }
 
-        MaterialAlertDialogBuilder(this)
+        val dialog = MaterialAlertDialogBuilder(this)
             .setView(dialogView)
-            .setPositiveButton(getString(R.string.careers_create_positive_button)) { _, _ ->
+            .setPositiveButton(getString(R.string.careers_create_positive_button), null)
+            .setNegativeButton(android.R.string.cancel, null)
+            .create()
+
+        dialog.setOnShowListener {
+            val positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+            positiveButton?.setOnClickListener {
                 val careerName = etCareerName.text.toString().trim()
                 if (careerName.isEmpty()) {
                     Toast.makeText(this, getString(R.string.careers_create_error_empty_name), Toast.LENGTH_SHORT).show()
@@ -114,9 +121,11 @@ class CareersActivity : BaseActivity() {
                     careerRepository.saveCareer(newCareer)
                     Toast.makeText(this, getString(R.string.careers_career_created, careerName, level), Toast.LENGTH_SHORT).show()
                     loadCareers()
+                    dialog.dismiss()
                 }
             }
-            .setNegativeButton(android.R.string.cancel, null)
-            .show()
+        }
+
+        dialog.show()
     }
 }
