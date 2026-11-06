@@ -29,11 +29,11 @@ Diese Dokumentation fasst alle Erkenntnisse über die Funktionsweise der Scolia-
 
 Die REST-API dient ausschließlich der Board-Registrierung beim Service-Account.
 
-| Methode | Endpunkt | Header / Parameter | Beschreibung |
-| :--- | :--- | :--- | :--- |
-| **`GET`** | `/api/social/boards` | `Authorization: <TOKEN>` | Fragt eine JSON-Liste aller aktuell verknüpften Boards ab. |
-| **`PUT`** | `/api/social/boards` | `Authorization: <TOKEN>`<br>Body: `serialNumber=<SERIAL>` | Registriert ein Board beim Service-Account. |
-| **`DELETE`** | `/api/social/boards/{serialNumber}` | `Authorization: <TOKEN>` | Meldet das Board vom Service-Account ab. |
+| Methode      | Endpunkt                            | Header / Parameter                                        | Beschreibung                                               |
+|:-------------|:------------------------------------|:----------------------------------------------------------|:-----------------------------------------------------------|
+| **`GET`**    | `/api/social/boards`                | `Authorization: <TOKEN>`                                  | Fragt eine JSON-Liste aller aktuell verknüpften Boards ab. |
+| **`PUT`**    | `/api/social/boards`                | `Authorization: <TOKEN>`<br>Body: `serialNumber=<SERIAL>` | Registriert ein Board beim Service-Account.                |
+| **`DELETE`** | `/api/social/boards/{serialNumber}` | `Authorization: <TOKEN>`                                  | Meldet das Board vom Service-Account ab.                   |
 
 ---
 
