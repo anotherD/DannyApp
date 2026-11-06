@@ -7,7 +7,9 @@ import android.widget.NumberPicker
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
@@ -41,8 +43,6 @@ class CareersActivity : BaseActivity() {
             onItemClick = { career ->
                 val intent = Intent(this, CareerDetailActivity::class.java).apply {
                     putExtra(CareerDetailActivity.EXTRA_CAREER_ID, career.id)
-                    putExtra(CareerDetailActivity.EXTRA_CAREER_NAME, career.name)
-                    putExtra(CareerDetailActivity.EXTRA_CAREER_LEVEL, career.level)
                 }
                 startActivity(intent)
             },
@@ -56,24 +56,22 @@ class CareersActivity : BaseActivity() {
             showNewCareerDialog()
         }
 
-        loadCareers()
+        observeCareers()
     }
 
-    override fun onResume() {
-        super.onResume()
-        loadCareers()
-    }
-
-    private fun loadCareers() {
+    private fun observeCareers() {
         lifecycleScope.launch {
-            val careers = careerRepository.getCareers()
-            careerAdapter.submitList(careers)
-            if (careers.isEmpty()) {
-                rvCareers.visibility = RecyclerView.GONE
-                tvEmptyCareers.visibility = TextView.VISIBLE
-            } else {
-                rvCareers.visibility = RecyclerView.VISIBLE
-                tvEmptyCareers.visibility = TextView.GONE
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                careerRepository.careersFlow.collect { careers ->
+                    careerAdapter.submitList(careers)
+                    if (careers.isEmpty()) {
+                        rvCareers.visibility = RecyclerView.GONE
+                        tvEmptyCareers.visibility = TextView.VISIBLE
+                    } else {
+                        rvCareers.visibility = RecyclerView.VISIBLE
+                        tvEmptyCareers.visibility = TextView.GONE
+                    }
+                }
             }
         }
     }
@@ -86,7 +84,6 @@ class CareersActivity : BaseActivity() {
                 lifecycleScope.launch {
                     careerRepository.deleteCareer(career.id)
                     Toast.makeText(this@CareersActivity, getString(R.string.career_deleted_msg, career.name), Toast.LENGTH_SHORT).show()
-                    loadCareers()
                 }
             }
             .setNegativeButton(android.R.string.cancel, null)
@@ -126,7 +123,6 @@ class CareersActivity : BaseActivity() {
                     lifecycleScope.launch {
                         careerRepository.saveCareer(newCareer)
                         Toast.makeText(this@CareersActivity, getString(R.string.careers_career_created, careerName, level), Toast.LENGTH_SHORT).show()
-                        loadCareers()
                         dialog.dismiss()
                     }
                 }
