@@ -2,15 +2,15 @@ package com.danny.dannyapp.data.db
 
 import androidx.room.TypeConverter
 
-class CountryConverters {
+class CountryCodeConverter {
 
     @TypeConverter
-    fun fromCountry(country: Country): String {
+    fun toCountryCode(country: Country): String {
         return country.code
     }
 
     @TypeConverter
-    fun toCountry(code: String): Country {
+    fun fromCountryCode(code: String): Country {
         return Country.fromCode(code)
     }
 }

@@ -11,7 +11,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Database(entities = [Player::class], version = 1, exportSchema = false)
-@TypeConverters(CountryConverters::class)
+@TypeConverters(CountryCodeConverter::class)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun playerDao(): PlayerDao
