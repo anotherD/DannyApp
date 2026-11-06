@@ -36,7 +36,6 @@ class CareersActivity : BaseActivity() {
 
         rvCareers.layoutManager = LinearLayoutManager(this)
         careerAdapter = CareerAdapter(
-            emptyList(),
             onItemClick = { career ->
                 val intent = Intent(this, CareerDetailActivity::class.java).apply {
                     putExtra(CareerDetailActivity.EXTRA_CAREER_ID, career.id)
@@ -65,7 +64,7 @@ class CareersActivity : BaseActivity() {
 
     private fun loadCareers() {
         val careers = careerRepository.getCareers()
-        careerAdapter.updateData(careers)
+        careerAdapter.submitList(careers)
         if (careers.isEmpty()) {
             rvCareers.visibility = RecyclerView.GONE
             tvEmptyCareers.visibility = TextView.VISIBLE

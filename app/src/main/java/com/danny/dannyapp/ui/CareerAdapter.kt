@@ -4,15 +4,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
 import com.danny.dannyapp.data.Career
 
 class CareerAdapter(
-    private var careers: List<Career>,
     private val onItemClick: (Career) -> Unit,
     private val onItemLongClick: (Career) -> Unit
-) : RecyclerView.Adapter<CareerAdapter.CareerViewHolder>() {
+) : ListAdapter<Career, CareerAdapter.CareerViewHolder>(CareerDiffCallback) {
 
     class CareerViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val tvCareerName: TextView = view.findViewById(R.id.tvCareerName)
@@ -26,7 +27,7 @@ class CareerAdapter(
     }
 
     override fun onBindViewHolder(holder: CareerViewHolder, position: Int) {
-        val career = careers[position]
+        val career = getItem(position)
         holder.tvCareerName.text = career.name
         holder.tvCareerLevel.text = holder.itemView.context.getString(R.string.career_level_format, career.level)
         holder.itemView.setOnClickListener { onItemClick(career) }
@@ -36,10 +37,13 @@ class CareerAdapter(
         }
     }
 
-    override fun getItemCount(): Int = careers.size
+    private object CareerDiffCallback : DiffUtil.ItemCallback<Career>() {
+        override fun areItemsTheSame(oldItem: Career, newItem: Career): Boolean {
+            return oldItem.id == newItem.id
+        }
 
-    fun updateData(newCareers: List<Career>) {
-        careers = newCareers
-        notifyDataSetChanged()
+        override fun areContentsTheSame(oldItem: Career, newItem: Career): Boolean {
+            return oldItem == newItem
+        }
     }
 }
