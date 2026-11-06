@@ -27,6 +27,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "danny_app_database"
                 )
+                // TODO: Implement proper database migrations before production release to avoid data loss
                 .fallbackToDestructiveMigration()
                 .addCallback(DatabaseCallback(context.applicationContext))
                 .build()
