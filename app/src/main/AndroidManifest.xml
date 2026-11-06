@@ -31,7 +31,11 @@
             android:exported="false" />
 
         <activity
-            android:name=".ui.CareerActivity"
+            android:name=".ui.CareersActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.CareerDetailActivity"
             android:exported="false" />
 
     </application>

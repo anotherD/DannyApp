@@ -9,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
-        android:text="@string/career_create_new"
+        android:text="@string/careers_create_career"
         android:textSize="20sp"
         android:textStyle="bold" />
 
@@ -23,7 +23,7 @@
             android:id="@+id/etCareerName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/career_create_name_hint"
+            android:hint="@string/careers_create_name_hint"
             android:inputType="textPersonName|textCapWords"
             android:maxLines="1" />
 
@@ -33,7 +33,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
-        android:text="@string/career_create_level"
+        android:text="@string/careers_create_level"
         android:textSize="16sp" />
 
     <NumberPicker

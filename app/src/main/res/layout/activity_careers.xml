@@ -2,10 +2,10 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/careerMain"
+    android:id="@+id/careersMain"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.CareerActivity">
+    tools:context=".ui.CareersActivity">
 
     <include
         android:id="@+id/toolbar"
@@ -14,34 +14,40 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <FrameLayout
-        android:id="@+id/contentArea"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvCareers"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:padding="24dp"
-        app:layout_constraintBottom_toTopOf="@id/btnStartNewCareer"
+        android:clipToPadding="false"
+        android:padding="16dp"
+        app:layout_constraintBottom_toTopOf="@id/btnCreateNewCareer"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/toolbar">
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        tools:listitem="@layout/item_career" />
 
-        <TextView
-            android:id="@+id/tvActiveCareer"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="@string/career"
-            android:textAlignment="center"
-            android:textSize="20sp" />
-
-    </FrameLayout>
+    <TextView
+        android:id="@+id/tvEmptyCareers"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="32dp"
+        android:text="@string/careers_empty_state"
+        android:textAlignment="center"
+        android:textColor="?attr/colorOutline"
+        android:textSize="16sp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/btnCreateNewCareer"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
     <Button
-        android:id="@+id/btnStartNewCareer"
+        android:id="@+id/btnCreateNewCareer"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="24dp"
         android:layout_marginBottom="24dp"
-        android:text="@string/career_create_new"
+        android:text="@string/careers_create_career"
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

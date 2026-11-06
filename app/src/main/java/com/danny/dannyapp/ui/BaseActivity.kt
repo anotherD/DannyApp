@@ -86,7 +86,7 @@ abstract class BaseActivity : AppCompatActivity() {
         var tempConfig1 = config1Checked
         var tempConfig2 = config2Checked
 
-        val items = arrayOf(getString(R.string.dummy_config_1), getString(R.string.dummy_config_2))
+        val items = arrayOf(getString(R.string.configuration_dummy_config_1), getString(R.string.configuration_dummy_config_2))
         val checkedItems = booleanArrayOf(tempConfig1, tempConfig2)
 
         val dialog = AlertDialog.Builder(this)

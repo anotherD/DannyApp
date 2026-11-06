@@ -23,7 +23,7 @@ class MainActivity : BaseActivity() {
         val startLayout: View = findViewById(R.id.startLayout)
         val webView: WebView = findViewById(R.id.scoliaWebView)
         val btnOpenScolia: Button = findViewById(R.id.btnOpenScolia)
-        val btnCareer: Button = findViewById(R.id.btnCareer)
+        val btnCareers: Button = findViewById(R.id.btnCareers)
         val btnOpenDesignShowcase: Button = findViewById(R.id.btnOpenDesignShowcase)
 
         // Auf der Startseite: Titel "Danny App", KEIN Zurück-Button
@@ -45,8 +45,8 @@ class MainActivity : BaseActivity() {
             }
         }
 
-        btnCareer.setOnClickListener {
-            val intent = android.content.Intent(this, CareerActivity::class.java)
+        btnCareers.setOnClickListener {
+            val intent = android.content.Intent(this, CareersActivity::class.java)
             startActivity(intent)
         }
 
