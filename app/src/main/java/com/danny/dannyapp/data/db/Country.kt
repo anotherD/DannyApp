@@ -15,6 +15,12 @@ data class Country(
             "NIR" to Pair("Nordirland", "🇬🇧")
         )
 
+        fun isValidCode(code: String): Boolean {
+            val upper = code.trim().uppercase()
+            if (HOME_NATIONS.containsKey(upper)) return true
+            return getIso2FromCode(upper).isNotEmpty()
+        }
+
         fun getDisplayName(code: String): String {
             val upper = code.trim().uppercase()
             HOME_NATIONS[upper]?.let { return it.first }
