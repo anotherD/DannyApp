@@ -9,12 +9,16 @@ import kotlinx.coroutines.withContext
 
 class CareerRepository(context: Context) {
 
-    private val careerDao: CareerDao = AppDatabase.getDatabase(context).careerDao()
+    private val careerDao: CareerDao = AppDatabase.getDatabase(context.applicationContext).careerDao()
 
     val careersFlow: Flow<List<Career>> = careerDao.getAllCareers()
 
     suspend fun getCareers(): List<Career> = withContext(Dispatchers.IO) {
         careerDao.getAllCareersList()
+    }
+
+    suspend fun getCareerById(id: String): Career? = withContext(Dispatchers.IO) {
+        careerDao.getCareerById(id)
     }
 
     suspend fun saveCareer(career: Career) = withContext(Dispatchers.IO) {

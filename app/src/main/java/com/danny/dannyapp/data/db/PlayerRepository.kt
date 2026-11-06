@@ -7,7 +7,7 @@ import kotlinx.coroutines.withContext
 
 class PlayerRepository(context: Context) {
 
-    private val playerDao: PlayerDao = AppDatabase.getDatabase(context).playerDao()
+    private val playerDao: PlayerDao = AppDatabase.getDatabase(context.applicationContext).playerDao()
 
     val allPlayers: Flow<List<Player>> = playerDao.getAllPlayers()
 
