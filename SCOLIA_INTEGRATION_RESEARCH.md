@@ -84,7 +84,7 @@ Die REST-API dient ausschließlich der Board-Registrierung beim Service-Account.
 
 ---
 
-## 5. Blaupause für eine eigene Custom App (Option 2: Eigenes Web-Session-Token)
+## 5. Blaupause für eine eigene Custom App (Option 2: eigenes Web-Session-Token)
 
 Um eine eigene App ohne Abhängigkeit von MyDartTraining oder kostenpflichtige B2B-Lizenzen zu entwickeln:
 

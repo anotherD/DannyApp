@@ -13,7 +13,7 @@ Diese App ermöglicht eine eigenständige, professionelle Dart-Karriere-Simulati
 - Ein unsichtbares Android `WebView` lädt im Hintergrund ein **9999-Punkte Solo-Spiel** auf `game.scoliadarts.com`.
 - Das Scolia-Kamerasystem erfasst kontinuierlich alle Würfe des menschlichen Spielers.
 - Über einen JavaScript-Hook (`WebSocket Proxy`) werden die Wurf-Events in Echtzeit an die Android-App übermittelt.
-- **Vorteil:** Es müssen **keine** Bot-Würfe oder Steuerbefehle an Scolia zurückgesendet werden. Die App ist dadurch 100% unabhängig, extrem stabil und zukunftssicher gegen Scolia-Webseiten-Updates.
+- **Vorteil:** Es müssen **keine** Bot-Würfe oder Steuerbefehle an Scolia zurückgesendet werden. Die App ist dadurch 100 % unabhängig, extrem stabil und zukunftssicher gegen Scolia-Webseiten-Updates.
 
 ### 2. Datenfluss
 ```
