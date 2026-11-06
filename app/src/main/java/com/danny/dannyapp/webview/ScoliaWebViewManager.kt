@@ -1,6 +1,7 @@
 package com.danny.dannyapp.webview
 
 import android.annotation.SuppressLint
+import android.content.pm.ApplicationInfo
 import android.util.Log
 import android.webkit.CookieManager
 import android.webkit.WebChromeClient
@@ -33,9 +34,11 @@ class ScoliaWebViewManager(
         cookieManager.setAcceptCookie(true)
         cookieManager.setAcceptThirdPartyCookies(webView, true)
 
-        // 4. Debugging & Chrome Client
+        // 4. Debugging & Chrome Client (Debugging nur im Debug-Build aktivieren)
         webView.webChromeClient = WebChromeClient()
-        WebView.setWebContentsDebuggingEnabled(true)
+        if (0 != (webView.context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE)) {
+            WebView.setWebContentsDebuggingEnabled(true)
+        }
 
         // 5. JavaScript Interface Brücke
         webView.addJavascriptInterface(repository.javaScriptInterface, "AndroidApp")
