@@ -44,6 +44,19 @@ Um die Datenpakete des Scolia-WebSockets abzufangen, ohne die Funktionalität de
 
 ---
 
+## 🔍 WebView Debugging (Chrome DevTools)
+
+Das Chrome-Entwicklerwerkzeug (DevTools) für die `WebView` ist so konfiguriert, dass es **automatisch nur in Debug-Builds** aktiv ist:
+
+### Wann ist Debug-Mode aktiv?
+- **Aktiv (Debug-Build):** Wenn die App direkt aus Android Studio gestartet wird („Run“ / „Debug“) oder ein Debug-APK gebaut wurde (`./gradlew assembleDebug`).
+  - Das Android-Buildsystem setzt dabei automatisch `FLAG_DEBUGGABLE` (`android:debuggable="true"`).
+  - In Google Chrome auf dem PC kann unter `chrome://inspect` das verbundene Android-Gerät ausgewählt werden, um die WebView, DOM, Konsolen-Logs und WebSockets live zu analysieren.
+- **Inaktiv (Release-Build):** Wenn die App für die Produktion oder den Play Store gebaut wird (`./gradlew assembleRelease`).
+  - `FLAG_DEBUGGABLE` ist deaktiviert (`false`). Das schützt die WebView in der fertigen App vor unbefugtem Zugriff oder Inspektion per USB/ADB.
+
+---
+
 ## 📂 Zugriff auf die Logdatei (`scolia_events.log`)
 
 So öffnest du die Event-Logdatei direkt in Android Studio:
