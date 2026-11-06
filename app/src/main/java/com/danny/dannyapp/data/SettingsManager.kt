@@ -2,6 +2,7 @@ package com.danny.dannyapp.data
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.core.content.edit
 
 class SettingsManager(context: Context) {
 
@@ -11,20 +12,20 @@ class SettingsManager(context: Context) {
     var config1Checked: Boolean
         get() = prefs.getBoolean(KEY_CONFIG_1, false)
         set(value) {
-            prefs.edit().putBoolean(KEY_CONFIG_1, value).apply()
+            prefs.edit { putBoolean(KEY_CONFIG_1, value) }
         }
 
     var config2Checked: Boolean
         get() = prefs.getBoolean(KEY_CONFIG_2, false)
         set(value) {
-            prefs.edit().putBoolean(KEY_CONFIG_2, value).apply()
+            prefs.edit { putBoolean(KEY_CONFIG_2, value) }
         }
 
     fun saveConfigs(config1: Boolean, config2: Boolean) {
-        prefs.edit()
-            .putBoolean(KEY_CONFIG_1, config1)
-            .putBoolean(KEY_CONFIG_2, config2)
-            .apply()
+        prefs.edit {
+            putBoolean(KEY_CONFIG_1, config1)
+                .putBoolean(KEY_CONFIG_2, config2)
+        }
     }
 
     companion object {
