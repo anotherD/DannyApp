@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 
-class ScoliaRepository(context: Context) {
+class ScoliaRepository private constructor(context: Context) {
 
     private val scoliaLogger = ScoliaLogger(context)
     private val scoliaEventParser = ScoliaEventParser()
@@ -33,4 +33,15 @@ class ScoliaRepository(context: Context) {
     }
 
     val javaScriptInterface = ScoliaJavaScriptInterface()
+
+    companion object {
+        @Volatile
+        private var instance: ScoliaRepository? = null
+
+        fun getInstance(context: Context): ScoliaRepository {
+            return instance ?: synchronized(this) {
+                instance ?: ScoliaRepository(context.applicationContext).also { instance = it }
+            }
+        }
+    }
 }

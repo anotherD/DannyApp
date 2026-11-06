@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
 
-    val scoliaRepository = ScoliaRepository(application)
+    val scoliaRepository = ScoliaRepository.getInstance(application)
     val scoliaEvents: SharedFlow<ScoliaEvent> = scoliaRepository.scoliaEvents
 
     init {
