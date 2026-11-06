@@ -10,25 +10,25 @@
 
 ## 📊 Event-Typen Übersicht & Häufigkeit
 
-| Event-Typ | Anzahl | Kategorie | Beschreibung |
-| :--- | :--- | :--- | :--- |
-| `API::GAME::GAME_STATE_CHANGED` | 114 | Spiel-Loop | Haupt-Event: Wurf-Daten, Restpunkte, Averages, Wurf-Koordinaten |
-| `API::COMMON::PONG` | 53 | System | Heartbeat / Verbindungstest |
-| `API::COMMON::TAKEOUT_STARTED` | 29 | Board-Phase | Spieler berührt / zieht Darts aus dem Board |
-| `API::COMMON::TAKEOUT_FINISHED` | 29 | Board-Phase | Darts wurden vollständig aus dem Board gezogen |
-| `API::COMMON::SCORE_CORRECTION_STATE` | 23 | Spiel-Loop | Status der Punkte-Korrekturen |
-| `API::COMMON::PUBLISH` | 9 | Board-Status | Board-Zustand (Calibrating, Online, Throw, Phase) |
-| `API::BULL_THROW::GAME_STATE_CHANGED` | 8 | Vor-Spiel | Wurf-Events beim Ausbullen (Wer beginnt das Leg) |
-| `API::COMMON::REFRESH_CLIENT_TOKEN` | 2 | Authentifizierung | Erneuerung des JWT-Web-Tokens |
-| `API::COMMON::HELLO_CLIENT` | 1 | Verbindung | Initialer WebSocket-Handshake |
-| `API::COMMON::PLAYER_JOINED` | 1 | Lobby | Spieler-Informationen (`Stellarvore`) |
-| `API::COMMON::SBC_FOUND` | 1 | Board-Erkennung | Verknüpftes Board & verfügbare Bot-Konfigurationen |
-| `API::BULL_THROW::GAME_CURRENT_STATE` | 1 | Vor-Spiel | Initialer Status beim Ausbullen |
-| `API::X01::GAME_STARTED` | 1 | Spiel-Start | Offizieller Beginn des 501-Matches |
-| `API::GAME::GAME_CURRENT_STATE` | 1 | Spiel-Start | Initialer Spielzustand zu Beginn des Legs |
-| `API::GAME::GAME_ENDED_STATISTICS` | 1 | Spiel-Ende | Gesamtstatistiken nach Match-Ende |
-| `API::X01::GAME_STATS` | 1 | Spiel-Ende | 2D-Koordinaten-Map aller geworfenen Darts im Leg |
-| `API::X01::GAME_DELETED` | 1 | Spiel-Ende | Leg wurde beendet und aus dem Speicher gelöscht |
+| Event-Typ                             | Anzahl | Kategorie         | Beschreibung                                                    |
+|:--------------------------------------|:-------|:------------------|:----------------------------------------------------------------|
+| `API::GAME::GAME_STATE_CHANGED`       | 114    | Spiel-Loop        | Haupt-Event: Wurf-Daten, Restpunkte, Averages, Wurf-Koordinaten |
+| `API::COMMON::PONG`                   | 53     | System            | Heartbeat / Verbindungstest                                     |
+| `API::COMMON::TAKEOUT_STARTED`        | 29     | Board-Phase       | Spieler berührt / zieht Darts aus dem Board                     |
+| `API::COMMON::TAKEOUT_FINISHED`       | 29     | Board-Phase       | Darts wurden vollständig aus dem Board gezogen                  |
+| `API::COMMON::SCORE_CORRECTION_STATE` | 23     | Spiel-Loop        | Status der Punkte-Korrekturen                                   |
+| `API::COMMON::PUBLISH`                | 9      | Board-Status      | Board-Zustand (Calibrating, Online, Throw, Phase)               |
+| `API::BULL_THROW::GAME_STATE_CHANGED` | 8      | Vor-Spiel         | Wurf-Events beim Ausbullen (Wer beginnt das Leg)                |
+| `API::COMMON::REFRESH_CLIENT_TOKEN`   | 2      | Authentifizierung | Erneuerung des JWT-Web-Tokens                                   |
+| `API::COMMON::HELLO_CLIENT`           | 1      | Verbindung        | Initialer WebSocket-Handshake                                   |
+| `API::COMMON::PLAYER_JOINED`          | 1      | Lobby             | Spieler-Informationen (`Stellarvore`)                           |
+| `API::COMMON::SBC_FOUND`              | 1      | Board-Erkennung   | Verknüpftes Board & verfügbare Bot-Konfigurationen              |
+| `API::BULL_THROW::GAME_CURRENT_STATE` | 1      | Vor-Spiel         | Initialer Status beim Ausbullen                                 |
+| `API::X01::GAME_STARTED`              | 1      | Spiel-Start       | Offizieller Beginn des 501-Matches                              |
+| `API::GAME::GAME_CURRENT_STATE`       | 1      | Spiel-Start       | Initialer Spielzustand zu Beginn des Legs                       |
+| `API::GAME::GAME_ENDED_STATISTICS`    | 1      | Spiel-Ende        | Gesamtstatistiken nach Match-Ende                               |
+| `API::X01::GAME_STATS`                | 1      | Spiel-Ende        | 2D-Koordinaten-Map aller geworfenen Darts im Leg                |
+| `API::X01::GAME_DELETED`              | 1      | Spiel-Ende        | Leg wurde beendet und aus dem Speicher gelöscht                 |
 
 ---
 
@@ -98,7 +98,7 @@ Wird gesendet, wenn der entscheidende Doppel-Dart zum Leg-Gewinn getroffen wurde
       "status": "Finished",
       "type": "X01",
       "winnerIds": ["6a8a03d632f03ebcdae32eb9"],
-      "scoreboard": { ... }
+      "scoreboard": { "...":"..."  }
     }
   }
 }
