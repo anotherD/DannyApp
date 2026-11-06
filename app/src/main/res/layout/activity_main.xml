@@ -40,7 +40,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            android:text="@string/open_scolia_browser"
+            android:text="@string/scolia_browser"
             android:textSize="16sp" />
 
         <Button
@@ -55,7 +55,7 @@
             android:id="@+id/btnOpenDesignShowcase"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/open_design_showcase"
+            android:text="@string/design_showcase"
             android:textSize="16sp" />
 
     </LinearLayout>

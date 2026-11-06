@@ -1,10 +1,17 @@
 <resources>
     <string name="app_name">Danny App</string>
     <string name="app_title">Danny Darts App</string>
-    <string name="open_scolia_browser">Scolia Browser öffnen</string>
-    <string name="open_design_showcase">Design &amp; Farben Showcase</string>
+    <string name="scolia_browser">Scolia Browser öffnen</string>
+    <string name="design_showcase">Design &amp; Farben Showcase</string>
     <string name="career">Karriere</string>
-    <string name="start_new_career">Neue Karriere starten</string>
+    <string name="career_started_msg">Karriere \'%s\' (Level %d) gestartet!</string>
+    <string name="career_active_format">Aktuelle Karriere:\n%s\nLevel: %d</string>
+    <string name="career_create_new">Neue Karriere</string>
+    <string name="career_create_name_hint">Karrierename</string>
+    <string name="career_create_level">Level</string>
+    <string name="career_create_level_format_item">Level %d</string>
+    <string name="career_create_positive_button">anlegen</string>
+    <string name="career_create_error_empty_name">Bitte gib einen Namen für die Karriere ein.</string>
     <string name="configuration">Konfiguration</string>
     <string name="dummy_config_1">Dummy Config 1</string>
     <string name="dummy_config_2">Dummy Config 2</string>
