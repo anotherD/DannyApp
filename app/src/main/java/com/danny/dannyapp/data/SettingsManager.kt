@@ -20,6 +20,13 @@ class SettingsManager(context: Context) {
             prefs.edit().putBoolean(KEY_CONFIG_2, value).apply()
         }
 
+    fun saveConfigs(config1: Boolean, config2: Boolean) {
+        prefs.edit()
+            .putBoolean(KEY_CONFIG_1, config1)
+            .putBoolean(KEY_CONFIG_2, config2)
+            .apply()
+    }
+
     companion object {
         private const val PREFS_NAME = "danny_app_settings"
         private const val KEY_CONFIG_1 = "key_config_1"

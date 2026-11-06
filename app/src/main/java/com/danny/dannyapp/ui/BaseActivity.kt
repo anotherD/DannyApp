@@ -93,8 +93,7 @@ abstract class BaseActivity : AppCompatActivity() {
                 }
             }
             .setPositiveButton(android.R.string.ok) { d, _ ->
-                config1Checked = tempConfig1
-                config2Checked = tempConfig2
+                settingsManager.saveConfigs(tempConfig1, tempConfig2)
                 d.dismiss()
                 Toast.makeText(this, "Konfiguration gespeichert", Toast.LENGTH_SHORT).show()
             }
