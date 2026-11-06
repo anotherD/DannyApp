@@ -27,12 +27,12 @@ class MainActivity : BaseActivity() {
         val btnOpenDesignShowcase: Button = findViewById(R.id.btnOpenDesignShowcase)
 
         // Auf der Startseite: Titel "Danny App", KEIN Zurück-Button
-        setupToolbar("Danny App", showBack = false, rootViewId = R.id.main)
+        setupToolbar(getString(R.string.app_title), showBack = false, rootViewId = R.id.main)
 
         btnOpenScolia.setOnClickListener {
             startLayout.visibility = View.GONE
             webView.visibility = View.VISIBLE
-            toolbar?.title = "Scolia Browser"
+            toolbar?.title = getString(R.string.scolia_browser)
             toolbar?.setNavigationIcon(R.drawable.ic_arrow_back)
             toolbar?.setNavigationOnClickListener {
                 onBackPressedDispatcher.onBackPressed()
@@ -67,7 +67,7 @@ class MainActivity : BaseActivity() {
                         webView.isVisible -> {
                             webView.visibility = View.GONE
                             startLayout.visibility = View.VISIBLE
-                            toolbar?.title = "Danny App"
+                            toolbar?.title = getString(R.string.app_title)
                             toolbar?.navigationIcon = null
                         }
                         else -> {
