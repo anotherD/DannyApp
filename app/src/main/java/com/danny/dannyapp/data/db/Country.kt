@@ -8,62 +8,59 @@ data class Country(
     val flagEmoji: String
 ) {
     companion object {
-        // Vordefinierte Darts & Haupt-Sportnationen (Alpha-3 / IOC Standard)
-        val ENGLAND = Country("ENG", "England", "🏴󠁧󠁢󠁥󠁮󠁧󠁿")
-        val SCOTLAND = Country("SCO", "Schottland", "🏴󠁧󠁢󠁳󠁣󠁴󠁿")
-        val WALES = Country("WAL", "Wales", "🏴󠁧󠁢󠁷󠁬󠁳󠁿")
-        val NORTHERN_IRELAND = Country("NIR", "Nordirland", "🇬🇧")
-        val GERMANY = Country("GER", "Deutschland", "🇩🇪")
-        val NETHERLANDS = Country("NED", "Niederlande", "🇳🇱")
-        val AUSTRIA = Country("AUT", "Österreich", "🇦🇹")
-        val SWITZERLAND = Country("SUI", "Schweiz", "🇨🇭")
-        val BELGIUM = Country("BEL", "Belgien", "🇧🇪")
-        val AUSTRALIA = Country("AUS", "Australien", "🇦🇺")
-        val USA = Country("USA", "USA", "🇺🇸")
-        val IRELAND = Country("IRL", "Irland", "🇮🇪")
-        val SPAIN = Country("ESP", "Spanien", "🇪🇸")
-        val OTHER = Country("OTH", "Sonstige", "🌐")
-
-        private val SPECIAL_COUNTRIES = listOf(
-            ENGLAND, SCOTLAND, WALES, NORTHERN_IRELAND,
-            GERMANY, NETHERLANDS, AUSTRIA, SWITZERLAND,
-            BELGIUM, AUSTRALIA, USA, IRELAND, SPAIN
+        private val HOME_NATIONS = mapOf(
+            "ENG" to Pair("England", "🏴󠁧󠁢󠁥󠁮󠁧󠁿"),
+            "SCO" to Pair("Schottland", "🏴󠁧󠁢󠁳󠁣󠁴󠁿"),
+            "WAL" to Pair("Wales", "🏴󠁧󠁢󠁷󠁬󠁳󠁿"),
+            "NIR" to Pair("Nordirland", "🇬🇧")
         )
 
-        /**
-         * Liefert die vollständige Liste aller Länder der Welt (ISO 3166 + Darts Home Nations).
-         */
+        fun getDisplayName(code: String): String {
+            val upper = code.trim().uppercase()
+            HOME_NATIONS[upper]?.let { return it.first }
+            return getLocaleFromCode(upper)?.getDisplayCountry(Locale.getDefault()).orEmpty().ifEmpty { upper }
+        }
+
+        fun getFlagEmoji(code: String): String {
+            val upper = code.trim().uppercase()
+            HOME_NATIONS[upper]?.let { return it.second }
+            val iso2 = getIso2FromCode(upper)
+            return getFlagEmojiFromIso2(iso2)
+        }
+
         fun getAllCountries(): List<Country> {
             val list = mutableListOf<Country>()
-            list.addAll(SPECIAL_COUNTRIES)
-
-            // Dynamische ISO 3166-1 Länder hinzufügen
-            val isoCodes = Locale.getISOCountries()
-            for (iso2 in isoCodes) {
+            HOME_NATIONS.forEach { (code, pair) ->
+                list.add(Country(code, pair.first, pair.second))
+            }
+            for (iso2 in Locale.getISOCountries()) {
                 val locale = Locale.Builder().setRegion(iso2).build()
                 val iso3 = try { locale.isO3Country.uppercase() } catch (_: Exception) { iso2 }
-                if (list.none { it.code.equals(iso3, ignoreCase = true) || it.code.equals(iso2, ignoreCase = true) }) {
+                if (list.none { it.code.equals(iso3, ignoreCase = true) }) {
                     val name = locale.getDisplayCountry(Locale.getDefault())
-                    val flag = getFlagEmojiFromIso2(iso2)
                     if (name.isNotEmpty()) {
-                        list.add(Country(iso3, name, flag))
+                        list.add(Country(iso3, name, getFlagEmojiFromIso2(iso2)))
                     }
                 }
             }
-
             return list.sortedBy { it.displayName }
         }
 
-        /**
-         * Findet ein Land anhand seines 2- oder 3-stelligen Ländercodes.
-         */
-        fun fromCode(code: String): Country {
-            val upper = code.trim().uppercase()
-            SPECIAL_COUNTRIES.firstOrNull { it.code == upper }?.let { return it }
+        private fun getLocaleFromCode(code: String): Locale? {
+            val iso2 = getIso2FromCode(code)
+            return if (iso2.isNotEmpty()) Locale.Builder().setRegion(iso2).build() else null
+        }
 
-            return getAllCountries().firstOrNull {
-                it.code.equals(upper, ignoreCase = true)
-            } ?: OTHER
+        private fun getIso2FromCode(code: String): String {
+            if (code.length == 2) return code.uppercase()
+            val localeIso2 = Locale.getISOCountries().firstOrNull { iso2 ->
+                try {
+                    Locale.Builder().setRegion(iso2).build().isO3Country.equals(code, ignoreCase = true)
+                } catch (_: Exception) {
+                    false
+                }
+            }
+            return localeIso2 ?: ""
         }
 
         private fun getFlagEmojiFromIso2(iso2: String): String {

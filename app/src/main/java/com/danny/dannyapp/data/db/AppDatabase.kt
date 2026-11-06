@@ -4,14 +4,12 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Database(entities = [Player::class], version = 1, exportSchema = false)
-@TypeConverters(CountryCodeConverter::class)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun playerDao(): PlayerDao
@@ -44,11 +42,11 @@ abstract class AppDatabase : RoomDatabase() {
 
             private suspend fun prepopulateDatabase(playerDao: PlayerDao) {
                 val initialPlayers = listOf(
-                    Player(name = "Luke Littler", skillLevel = 10, hasTourCard = true, country = Country.ENGLAND),
-                    Player(name = "Michael van Gerwen", skillLevel = 10, hasTourCard = true, country = Country.NETHERLANDS),
-                    Player(name = "Gary Anderson", skillLevel = 9, hasTourCard = true, country = Country.SCOTLAND),
-                    Player(name = "Max Hopp", skillLevel = 6, hasTourCard = false, country = Country.GERMANY),
-                    Player(name = "Anfänger Bot", skillLevel = 2, hasTourCard = false, country = Country.GERMANY)
+                    Player(name = "Luke Littler", skillLevel = 10, hasTourCard = true, countryCode = "ENG"),
+                    Player(name = "Michael van Gerwen", skillLevel = 10, hasTourCard = true, countryCode = "NED"),
+                    Player(name = "Gary Anderson", skillLevel = 9, hasTourCard = true, countryCode = "SCO"),
+                    Player(name = "Max Hopp", skillLevel = 6, hasTourCard = false, countryCode = "GER"),
+                    Player(name = "Anfänger Bot", skillLevel = 2, hasTourCard = false, countryCode = "GER")
                 )
                 playerDao.insertAll(initialPlayers)
             }
