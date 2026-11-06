@@ -41,6 +41,12 @@ class CareerRepository(context: Context) {
         saveAll(careers)
     }
 
+    fun deleteCareer(id: String) {
+        val careers = getCareers().toMutableList()
+        careers.removeAll { it.id == id }
+        saveAll(careers)
+    }
+
     private fun saveAll(careers: List<Career>) {
         val jsonArray = JSONArray()
         for ((id, name, level, createdAt) in careers) {

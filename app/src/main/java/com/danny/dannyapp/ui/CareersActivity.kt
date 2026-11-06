@@ -34,14 +34,20 @@ class CareersActivity : BaseActivity() {
         val btnCreateNewCareer: Button = findViewById(R.id.btnCreateNewCareer)
 
         rvCareers.layoutManager = LinearLayoutManager(this)
-        careerAdapter = CareerAdapter(emptyList()) { career ->
-            val intent = Intent(this, CareerDetailActivity::class.java).apply {
-                putExtra(CareerDetailActivity.EXTRA_CAREER_ID, career.id)
-                putExtra(CareerDetailActivity.EXTRA_CAREER_NAME, career.name)
-                putExtra(CareerDetailActivity.EXTRA_CAREER_LEVEL, career.level)
+        careerAdapter = CareerAdapter(
+            emptyList(),
+            onItemClick = { career ->
+                val intent = Intent(this, CareerDetailActivity::class.java).apply {
+                    putExtra(CareerDetailActivity.EXTRA_CAREER_ID, career.id)
+                    putExtra(CareerDetailActivity.EXTRA_CAREER_NAME, career.name)
+                    putExtra(CareerDetailActivity.EXTRA_CAREER_LEVEL, career.level)
+                }
+                startActivity(intent)
+            },
+            onItemLongClick = { career ->
+                showDeleteCareerDialog(career)
             }
-            startActivity(intent)
-        }
+        )
         rvCareers.adapter = careerAdapter
 
         btnCreateNewCareer.setOnClickListener {
@@ -66,6 +72,19 @@ class CareersActivity : BaseActivity() {
             rvCareers.visibility = RecyclerView.VISIBLE
             tvEmptyCareers.visibility = TextView.GONE
         }
+    }
+
+    private fun showDeleteCareerDialog(career: Career) {
+        MaterialAlertDialogBuilder(this)
+            .setTitle(getString(R.string.career_delete_title))
+            .setMessage(getString(R.string.career_delete_message, career.name))
+            .setPositiveButton(getString(R.string.career_delete_confirm)) { _, _ ->
+                careerRepository.deleteCareer(career.id)
+                Toast.makeText(this, getString(R.string.career_deleted_msg, career.name), Toast.LENGTH_SHORT).show()
+                loadCareers()
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
     }
 
     private fun showNewCareerDialog() {

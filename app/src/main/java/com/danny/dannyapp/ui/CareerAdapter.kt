@@ -10,7 +10,8 @@ import com.danny.dannyapp.data.Career
 
 class CareerAdapter(
     private var careers: List<Career>,
-    private val onItemClick: (Career) -> Unit
+    private val onItemClick: (Career) -> Unit,
+    private val onItemLongClick: (Career) -> Unit
 ) : RecyclerView.Adapter<CareerAdapter.CareerViewHolder>() {
 
     class CareerViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -29,6 +30,10 @@ class CareerAdapter(
         holder.tvCareerName.text = career.name
         holder.tvCareerLevel.text = holder.itemView.context.getString(R.string.career_level_format, career.level)
         holder.itemView.setOnClickListener { onItemClick(career) }
+        holder.itemView.setOnLongClickListener {
+            onItemLongClick(career)
+            true
+        }
     }
 
     override fun getItemCount(): Int = careers.size
