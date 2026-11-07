@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
+import com.danny.dannyapp.data.Country
 import com.danny.dannyapp.data.db.Player
 
 class ConfigPlayerAdapter : ListAdapter<Player, ConfigPlayerAdapter.PlayerViewHolder>(PlayerDiffCallback) {
@@ -16,7 +17,6 @@ class ConfigPlayerAdapter : ListAdapter<Player, ConfigPlayerAdapter.PlayerViewHo
         val tvPlayerName: TextView = view.findViewById(R.id.tvPlayerName)
         val tvPlayerSkill: TextView = view.findViewById(R.id.tvPlayerSkill)
         val tvPlayerTourCard: TextView = view.findViewById(R.id.tvPlayerTourCard)
-        val tvPlayerCountry: TextView = view.findViewById(R.id.tvPlayerCountry)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlayerViewHolder {
@@ -28,14 +28,14 @@ class ConfigPlayerAdapter : ListAdapter<Player, ConfigPlayerAdapter.PlayerViewHo
     override fun onBindViewHolder(holder: PlayerViewHolder, position: Int) {
         val player = getItem(position)
         val context = holder.itemView.context
-        holder.tvPlayerName.text = player.name
+        val flagEmoji = Country.getFlagEmoji(player.countryCode)
+        holder.tvPlayerName.text = "${player.name} $flagEmoji"
         holder.tvPlayerSkill.text = context.getString(R.string.player_skill_format, player.skillLevel)
         holder.tvPlayerTourCard.text = if (player.hasTourCard) {
             context.getString(R.string.player_tour_card_yes)
         } else {
             context.getString(R.string.player_tour_card_no)
         }
-        holder.tvPlayerCountry.text = context.getString(R.string.player_country_format, player.countryCode)
     }
 
     private object PlayerDiffCallback : DiffUtil.ItemCallback<Player>() {
