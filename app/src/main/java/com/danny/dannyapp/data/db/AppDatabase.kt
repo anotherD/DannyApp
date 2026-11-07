@@ -1,10 +1,12 @@
 package com.danny.dannyapp.data.db
 
 import android.content.Context
+import android.util.Log
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.danny.dannyapp.data.Country
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -85,7 +87,13 @@ abstract class AppDatabase : RoomDatabase() {
                         if (name.isNullOrEmpty()) continue
 
                         // Werte dynamisch anhand der Spaltennamen auslesen (robust gegen Int/Double/Strings)
-                        val countryCode = tokens.getCol("country")?.ifEmpty { "UNK" } ?: "UNK"
+                        val countryCode = tokens.getCol("country").orEmpty()
+
+                        if (countryCode.isEmpty()) {
+                            Log.w("CSVImport", "Spieler '$name': Kein Landeskürzel in CSV angegeben.")
+                        } else if (!Country.isValidCode(countryCode)) {
+                            Log.w("CSVImport", "Spieler '$name': Ungültiges/unbekanntes Landeskürzel '$countryCode' in CSV gefunden!")
+                        }
 
                         val skillStr = tokens.getCol("skill_level")
                         val skillLevel = skillStr?.toDoubleOrNull()?.toInt() ?: skillStr?.toIntOrNull() ?: 5

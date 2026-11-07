@@ -1,5 +1,6 @@
 package com.danny.dannyapp.data
 
+import android.util.Log
 import java.util.Locale
 
 data class Country(
@@ -8,6 +9,8 @@ data class Country(
     val flagEmoji: String
 ) {
     companion object {
+        private const val TAG = "Country"
+
         private val HOME_NATIONS = mapOf(
             "ENG" to Pair("England", "🏴󠁧󠁢󠁥󠁮󠁧󠁿"),
             "SCO" to Pair("Schottland", "🏴󠁧󠁢󠁳󠁣󠁴󠁿"),
@@ -31,6 +34,10 @@ data class Country(
             val upper = code.trim().uppercase()
             HOME_NATIONS[upper]?.let { return it.second }
             val iso2 = getIso2FromCode(upper)
+            if (iso2.isEmpty()) {
+                Log.w(TAG, "Keine Flagge für Ländercode '$code' gefunden! Verwende Fallback 🌐")
+                return "🌐"
+            }
             return getFlagEmojiFromIso2(iso2)
         }
 
