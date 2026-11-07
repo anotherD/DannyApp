@@ -9,7 +9,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@Database(entities = [Player::class, Career::class], version = 4, exportSchema = false)
+@Database(entities = [Player::class, Career::class], version = 5, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun playerDao(): PlayerDao
@@ -103,7 +103,8 @@ abstract class AppDatabase : RoomDatabase() {
                                 skillLevel = skillLevel,
                                 hasTourCard = hasTourCard,
                                 countryCode = countryCode,
-                                prizeMoney = prizeMoney
+                                prizeMoney = prizeMoney,
+                                tourCardYear = tourCardYear
                             )
                         )
                     }
