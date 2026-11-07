@@ -28,12 +28,12 @@ class ConfigActivity : BaseActivity() {
 
         switchConfig1.setOnCheckedChangeListener { _, isChecked ->
             config1Checked = isChecked
-            Toast.makeText(this, "Konfiguration gespeichert", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.config_saved), Toast.LENGTH_SHORT).show()
         }
 
         switchConfig2.setOnCheckedChangeListener { _, isChecked ->
             config2Checked = isChecked
-            Toast.makeText(this, "Konfiguration gespeichert", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.config_saved), Toast.LENGTH_SHORT).show()
         }
 
         cardPlayers.setOnClickListener {

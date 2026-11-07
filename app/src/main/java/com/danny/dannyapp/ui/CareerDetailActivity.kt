@@ -19,10 +19,10 @@ class CareerDetailActivity : BaseActivity() {
         val careerId = intent.getStringExtra(EXTRA_CAREER_ID)
 
         setupToolbar(
-            titleText = getString(R.string.career),
-            subtitleText = "Lade...",
+            titleText = getString(R.string.loading),
+            subtitleText = getString(R.string.career),
             showBack = true,
-            rootViewId = R.id.careerDetailMain
+            rootViewId = R.id.careerDetailMain,
         )
 
         val tvDetails: TextView = findViewById(R.id.tvCareerDetails)
@@ -35,15 +35,15 @@ class CareerDetailActivity : BaseActivity() {
                         titleText = career.name,
                         subtitleText = getString(R.string.career),
                         showBack = true,
-                        rootViewId = R.id.careerDetailMain
+                        rootViewId = R.id.careerDetailMain,
                     )
                     tvDetails.text = getString(R.string.career_current_format, career.name, career.level)
                 } else {
-                    tvDetails.text = "Karriere nicht gefunden."
+                    tvDetails.text = getString(R.string.career_not_found)
                 }
             }
         } else {
-            tvDetails.text = "Ungültige Karriere-ID."
+            tvDetails.text = getString(R.string.career_invalid_id)
         }
     }
 

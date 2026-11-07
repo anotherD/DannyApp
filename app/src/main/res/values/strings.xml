@@ -3,6 +3,7 @@
     <string name="app_title">Danny Darts App</string>
     <string name="scolia_browser">Scolia Browser</string>
     <string name="design_showcase">Design &amp; Farben Showcase</string>
+    <string name="loading">Lade…</string>
     <string name="careers">Karrieren</string>
     <string name="careers_career_created">Karriere \'%s\' (Level %d) angelegt!</string>
     <string name="careers_empty_state">Noch keine Karrieren vorhanden.\nErstelle deine erste Karriere über den Button unten.</string>
@@ -18,9 +19,12 @@
     <string name="career_delete_message">Möchtest du die Karriere \'%s\' wirklich löschen?</string>
     <string name="career_delete_confirm">Löschen</string>
     <string name="career_deleted_msg">Karriere \'%s\' gelöscht.</string>
+    <string name="career_not_found">Karriere nicht gefunden.</string>
+    <string name="career_invalid_id">Ungültige Karriere-ID.</string>
     <string name="config_title">Konfiguration</string>
     <string name="config_dummy_config_1">Dummy Config 1</string>
     <string name="config_dummy_config_2">Dummy Config 2</string>
+    <string name="config_saved">Konfiguration gespeichert</string>
     <string name="config_players">Spieler</string>
     <string name="config_players_empty_state">Keine Spieler vorhanden.</string>
     <string name="player_skill_format">Spielstärke: %d</string>
