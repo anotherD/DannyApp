@@ -39,7 +39,11 @@
             android:exported="false" />
 
         <activity
-            android:name=".ui.ConfigurationActivity"
+            android:name=".ui.config.ConfigActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.config.ConfigPlayersActivity"
             android:exported="false" />
 
     </application>

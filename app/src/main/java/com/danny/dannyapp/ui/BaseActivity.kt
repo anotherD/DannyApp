@@ -12,6 +12,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.danny.dannyapp.R
 import com.danny.dannyapp.data.SettingsManager
+import com.danny.dannyapp.ui.config.ConfigActivity
 import com.google.android.material.appbar.MaterialToolbar
 
 abstract class BaseActivity : AppCompatActivity() {
@@ -61,7 +62,7 @@ abstract class BaseActivity : AppCompatActivity() {
                 tb.setOnMenuItemClickListener { item ->
                     when (item.itemId) {
                         R.id.action_config -> {
-                            val intent = Intent(this, ConfigurationActivity::class.java)
+                            val intent = Intent(this, ConfigActivity::class.java)
                             startActivity(intent)
                             true
                         }

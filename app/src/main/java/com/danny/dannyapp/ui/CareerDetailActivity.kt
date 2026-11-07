@@ -32,8 +32,8 @@ class CareerDetailActivity : BaseActivity() {
                 val career = careerRepository.getCareerById(careerId)
                 if (career != null) {
                     setupToolbar(
-                        titleText = getString(R.string.career),
-                        subtitleText = career.name,
+                        titleText = career.name,
+                        subtitleText = getString(R.string.career),
                         showBack = true,
                         rootViewId = R.id.careerDetailMain
                     )

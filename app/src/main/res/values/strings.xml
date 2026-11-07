@@ -18,7 +18,13 @@
     <string name="career_delete_message">Möchtest du die Karriere \'%s\' wirklich löschen?</string>
     <string name="career_delete_confirm">Löschen</string>
     <string name="career_deleted_msg">Karriere \'%s\' gelöscht.</string>
-    <string name="configuration">Konfiguration</string>
-    <string name="configuration_dummy_config_1">Dummy Config 1</string>
-    <string name="configuration_dummy_config_2">Dummy Config 2</string>
+    <string name="config_title">Konfiguration</string>
+    <string name="config_dummy_config_1">Dummy Config 1</string>
+    <string name="config_dummy_config_2">Dummy Config 2</string>
+    <string name="config_players">Spieler</string>
+    <string name="config_players_empty_state">Keine Spieler vorhanden.</string>
+    <string name="player_skill_format">Spielstärke: %d</string>
+    <string name="player_tour_card_yes">Tour Card: Ja</string>
+    <string name="player_tour_card_no">Tour Card: Nein</string>
+    <string name="player_country_format">Land: %s</string>
 </resources>
