@@ -31,4 +31,5 @@
     <string name="player_tour_card_yes">Tour Card: Ja</string>
     <string name="player_tour_card_no">Tour Card: Nein</string>
     <string name="player_country_format">Land: %s</string>
+    <string name="player_prize_money_format">Preisgeld: £%.1fk</string>
 </resources>

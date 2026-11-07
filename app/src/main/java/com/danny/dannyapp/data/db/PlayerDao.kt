@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
@@ -31,4 +32,22 @@ interface PlayerDao {
 
     @Query("DELETE FROM players WHERE id = :id")
     suspend fun deletePlayerById(id: Long)
+
+    /* CSV Import functions */
+    // Fügt nur Spieler hinzu, deren Name noch NICHT in der DB existiert
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun csvInsertNewPlayers(players: List<Player>)
+
+    // Aktualisiert gezielt nur die Stammdaten bestehender Spieler, ID bleibt erhalten!
+    @Query("UPDATE players SET skill_level = :skillLevel, has_tour_card = :hasTourCard, country_code = :countryCode, price_money = :prizeMoney WHERE name = :name")
+    suspend fun csvUpdatePlayerStats(name: String, skillLevel: Int, hasTourCard: Boolean, countryCode: String, prizeMoney: Double)
+
+    // Hilfsfunktion, die beides sauber kombiniert
+    @Transaction
+    suspend fun syncPlayersFromCsv(csvPlayers: List<Player>) {
+        csvInsertNewPlayers(csvPlayers)
+        csvPlayers.forEach { player ->
+            csvUpdatePlayerStats(player.name, player.skillLevel, player.hasTourCard, player.countryCode, player.prizeMoney)
+        }
+    }
 }

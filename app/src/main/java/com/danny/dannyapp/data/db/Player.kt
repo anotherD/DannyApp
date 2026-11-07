@@ -19,5 +19,7 @@ data class Player(
     @ColumnInfo(name = "has_tour_card")
     val hasTourCard: Boolean, // Tour Card (ja/nein)
     @ColumnInfo(name = "country_code")
-    val countryCode: String // 3-Stelliger Sport/ISO-Code (z.B. "GER", "ENG", "NED")
+    val countryCode: String, // 3-Stelliger Sport/ISO-Code (z.B. "GER", "ENG", "NED")
+    @ColumnInfo(name = "price_money")
+    val prizeMoney: Double = 0.0 // Preisgeld
 )

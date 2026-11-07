@@ -9,7 +9,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@Database(entities = [Player::class, Career::class], version = 2, exportSchema = false)
+@Database(entities = [Player::class, Career::class], version = 4, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun playerDao(): PlayerDao
@@ -27,7 +27,7 @@ abstract class AppDatabase : RoomDatabase() {
                     "danny_app_database"
                 )
                 // TODO: Implement proper database migrations before production release to avoid data loss
-                .fallbackToDestructiveMigration(false)
+                .fallbackToDestructiveMigration(true)
                 .addCallback(DatabaseCallback(context.applicationContext))
                 .build()
                 INSTANCE = instance
@@ -36,22 +36,79 @@ abstract class AppDatabase : RoomDatabase() {
         }
 
         private class DatabaseCallback(private val context: Context) : Callback() {
-            override fun onCreate(db: SupportSQLiteDatabase) {
-                super.onCreate(db)
+            // TODO: Spieler aus DB löschen oder TourCard entziehen oder als inactive markieren?
+            // TODO: Nur auf knopfdruck? Für PoC reicht das erstmal so.
+            // TODO: (Tipp: Wenn die Liste der Spieler sehr groß wird, kannst du in den SharedPreferences einfach eine Zahl wie CSV_DATA_VERSION = 2 speichern und syncPlayersFromCsv nur dann ausführen, wenn diese Zahl höher ist als beim letzten Start.)
+            override fun onOpen(db: SupportSQLiteDatabase) {
+                super.onOpen(db)
+                // Läuft bei jedem Start der DB im Hintergrund (extrem schnell für ~250 Spieler)
                 CoroutineScope(Dispatchers.IO).launch {
-                    prepopulateDatabase(getDatabase(context).playerDao())
+                    try {
+                        val playersFromCsv = loadPlayersFromAssets(context, "players.csv")
+                        if (playersFromCsv.isNotEmpty()) {
+                            getDatabase(context).playerDao().syncPlayersFromCsv(playersFromCsv)
+                        }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
                 }
             }
 
-            private suspend fun prepopulateDatabase(playerDao: PlayerDao) {
-                val initialPlayers = listOf(
-                    Player(name = "Luke Littler", skillLevel = 10, hasTourCard = true, countryCode = "ENG"),
-                    Player(name = "Michael van Gerwen", skillLevel = 10, hasTourCard = true, countryCode = "NED"),
-                    Player(name = "Gary Anderson", skillLevel = 9, hasTourCard = true, countryCode = "SCO"),
-                    Player(name = "Max Hopp", skillLevel = 6, hasTourCard = false, countryCode = "GER"),
-                    Player(name = "Anfänger Bot", skillLevel = 2, hasTourCard = false, countryCode = "GER")
-                )
-                playerDao.insertAll(initialPlayers)
+            private fun loadPlayersFromAssets(context: Context, fileName: String): List<Player> {
+                val playerList = mutableListOf<Player>()
+                context.assets.open(fileName).bufferedReader().useLines { lines ->
+                    val iterator = lines.iterator()
+                    if (!iterator.hasNext()) return@useLines
+
+                    // 1. Kopfzeile auslesen und Index-Map erstellen (BOM-bereinigt, lowercase)
+                    val headerLine = iterator.next()
+                    val cleanHeader = if (headerLine.startsWith("\uFEFF")) headerLine.substring(1) else headerLine
+                    val columnIndexMap = cleanHeader.split(";")
+                        .mapIndexed { index, columnName -> columnName.trim().lowercase() to index }
+                        .toMap()
+
+                    // Hilfsfunktion, um sicher per Spaltenname auf den Wert zuzugreifen
+                    fun List<String>.getCol(colName: String): String? {
+                        val index = columnIndexMap[colName.lowercase()] ?: return null
+                        return this.getOrNull(index)?.trim()
+                    }
+
+                    // 2. Alle Datenzeilen durchgehen
+                    while (iterator.hasNext()) {
+                        val line = iterator.next()
+                        if (line.isBlank()) continue // Leere Zeilen am Dateiende überspringen
+
+                        val tokens = line.split(";")
+
+                        // Pflichtfeld: Wenn kein Name da ist, Zeile überspringen
+                        val name = tokens.getCol("name")
+                        if (name.isNullOrEmpty()) continue
+
+                        // Werte dynamisch anhand der Spaltennamen auslesen (robust gegen Int/Double/Strings)
+                        val countryCode = tokens.getCol("country")?.ifEmpty { "UNK" } ?: "UNK"
+
+                        val skillStr = tokens.getCol("skill_level")
+                        val skillLevel = skillStr?.toDoubleOrNull()?.toInt() ?: skillStr?.toIntOrNull() ?: 5
+
+                        val tourYearStr = tokens.getCol("tour_card_year")
+                        val tourCardYear = tourYearStr?.toDoubleOrNull()?.toInt() ?: tourYearStr?.toIntOrNull() ?: 0
+                        val hasTourCard = tourCardYear > 0
+
+                        val prizeMoneyStr = tokens.getCol("price_money")
+                        val prizeMoney = prizeMoneyStr?.toDoubleOrNull() ?: 0.0
+
+                        playerList.add(
+                            Player(
+                                name = name,
+                                skillLevel = skillLevel,
+                                hasTourCard = hasTourCard,
+                                countryCode = countryCode,
+                                prizeMoney = prizeMoney
+                            )
+                        )
+                    }
+                }
+                return playerList
             }
         }
     }
