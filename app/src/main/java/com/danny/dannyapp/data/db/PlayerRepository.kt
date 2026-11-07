@@ -11,6 +11,10 @@ class PlayerRepository(context: Context) {
 
     val allPlayers: Flow<List<Player>> = playerDao.getAllPlayers()
 
+    val playersSortedBySkill: Flow<List<Player>> = playerDao.getAllPlayersSortedBySkill()
+
+    val playersSortedByName: Flow<List<Player>> = playerDao.getAllPlayersSortedByName()
+
     suspend fun getPlayerById(id: Long): Player? = withContext(Dispatchers.IO) {
         playerDao.getPlayerById(id)
     }

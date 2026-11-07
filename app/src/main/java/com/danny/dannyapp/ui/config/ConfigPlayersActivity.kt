@@ -10,6 +10,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
 import com.danny.dannyapp.data.db.PlayerRepository
 import com.danny.dannyapp.ui.BaseActivity
+import com.google.android.material.button.MaterialButtonToggleGroup
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 class ConfigPlayersActivity : BaseActivity() {
@@ -18,6 +20,9 @@ class ConfigPlayersActivity : BaseActivity() {
     private lateinit var playerAdapter: ConfigPlayerAdapter
     private lateinit var rvPlayers: RecyclerView
     private lateinit var tvEmptyPlayers: TextView
+    private lateinit var toggleGroupSort: MaterialButtonToggleGroup
+
+    private var observePlayersJob: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,18 +38,31 @@ class ConfigPlayersActivity : BaseActivity() {
 
         rvPlayers = findViewById(R.id.rvPlayers)
         tvEmptyPlayers = findViewById(R.id.tvEmptyPlayers)
+        toggleGroupSort = findViewById(R.id.toggleGroupSort)
 
         rvPlayers.layoutManager = LinearLayoutManager(this)
         playerAdapter = ConfigPlayerAdapter()
         rvPlayers.adapter = playerAdapter
 
-        observePlayers()
+        toggleGroupSort.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (isChecked) {
+                observePlayers(sortBySkill = checkedId == R.id.btnSortSkill)
+            }
+        }
+
+        observePlayers(sortBySkill = true)
     }
 
-    private fun observePlayers() {
-        lifecycleScope.launch {
+    private fun observePlayers(sortBySkill: Boolean) {
+        observePlayersJob?.cancel()
+        observePlayersJob = lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                playerRepository.allPlayers.collect { players ->
+                val playerFlow = if (sortBySkill) {
+                    playerRepository.playersSortedBySkill
+                } else {
+                    playerRepository.playersSortedByName
+                }
+                playerFlow.collect { players ->
                     playerAdapter.submitList(players)
                     if (players.isEmpty()) {
                         rvPlayers.visibility = RecyclerView.GONE

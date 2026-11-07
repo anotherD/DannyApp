@@ -12,8 +12,14 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface PlayerDao {
 
-    @Query("SELECT * FROM players ORDER BY name ASC")
+    @Query("SELECT * FROM players ORDER BY skill_level DESC, price_money DESC, name ASC")
     fun getAllPlayers(): Flow<List<Player>>
+
+    @Query("SELECT * FROM players ORDER BY skill_level DESC, price_money DESC, name ASC")
+    fun getAllPlayersSortedBySkill(): Flow<List<Player>>
+
+    @Query("SELECT * FROM players ORDER BY name ASC")
+    fun getAllPlayersSortedByName(): Flow<List<Player>>
 
     @Query("SELECT * FROM players WHERE id = :id")
     suspend fun getPlayerById(id: Long): Player?

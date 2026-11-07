@@ -27,6 +27,9 @@
     <string name="config_saved">Konfiguration gespeichert</string>
     <string name="config_players">Spieler</string>
     <string name="config_players_empty_state">Keine Spieler vorhanden.</string>
+    <string name="sort_by_label">Sortierung:</string>
+    <string name="sort_skill">Spielstärke</string>
+    <string name="sort_name">Name</string>
     <string name="player_skill_format">Spielstärke: %d</string>
     <string name="player_tour_card_yes">Tour Card: Ja</string>
     <string name="player_tour_card_no">Tour Card: Nein</string>
