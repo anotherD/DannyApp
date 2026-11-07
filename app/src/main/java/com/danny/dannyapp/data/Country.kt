@@ -15,7 +15,7 @@ data class Country(
             "ENG" to Pair("England", "🏴󠁧󠁢󠁥󠁮󠁧󠁿"),
             "SCO" to Pair("Schottland", "🏴󠁧󠁢󠁳󠁣󠁴󠁿"),
             "WAL" to Pair("Wales", "🏴󠁧󠁢󠁷󠁬󠁳󠁿"),
-            "NIR" to Pair("Nordirland", "🇬🇧")
+            "NIR" to Pair("Nordirland", "🏴󠁧󠁢󠁮󠁡󠁲󠁧")
         )
 
         fun isValidCode(code: String): Boolean {
