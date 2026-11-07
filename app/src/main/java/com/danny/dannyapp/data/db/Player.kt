@@ -2,9 +2,13 @@ package com.danny.dannyapp.data.db
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "players")
+@Entity(
+    tableName = "players",
+    indices = [Index(value = ["name"], unique = true)] // Verhindert doppelte Spieler!
+)
 data class Player(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
