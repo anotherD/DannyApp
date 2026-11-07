@@ -1,5 +1,6 @@
 package com.danny.dannyapp.ui
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -60,7 +61,8 @@ abstract class BaseActivity : AppCompatActivity() {
                 tb.setOnMenuItemClickListener { item ->
                     when (item.itemId) {
                         R.id.action_config -> {
-                            showConfigMenu()
+                            val intent = Intent(this, ConfigurationActivity::class.java)
+                            startActivity(intent)
                             true
                         }
                         else -> false
@@ -82,39 +84,6 @@ abstract class BaseActivity : AppCompatActivity() {
                 windowInsets
             }
         }
-    }
-
-    protected open fun showConfigMenu() {
-        var tempConfig1 = config1Checked
-        var tempConfig2 = config2Checked
-
-        val items = arrayOf(getString(R.string.configuration_dummy_config_1), getString(R.string.configuration_dummy_config_2))
-        val checkedItems = booleanArrayOf(tempConfig1, tempConfig2)
-
-        val dialog = AlertDialog.Builder(this)
-            .setTitle(R.string.configuration)
-            .setMultiChoiceItems(items, checkedItems) { _, which, isChecked ->
-                when (which) {
-                    0 -> tempConfig1 = isChecked
-                    1 -> tempConfig2 = isChecked
-                }
-            }
-            .setPositiveButton(android.R.string.ok) { d, _ ->
-                settingsManager.saveConfigs(tempConfig1, tempConfig2)
-                d.dismiss()
-                Toast.makeText(this, "Konfiguration gespeichert", Toast.LENGTH_SHORT).show()
-            }
-            .setNegativeButton(android.R.string.cancel) { d, _ ->
-                d.dismiss()
-            }
-            .create()
-
-        dialog.setOnShowListener {
-            dialog.getButton(AlertDialog.BUTTON_POSITIVE)?.setTextColor(ContextCompat.getColor(this, R.color.rot_hell))
-            dialog.getButton(AlertDialog.BUTTON_NEGATIVE)?.setTextColor(ContextCompat.getColor(this, R.color.text_primar))
-        }
-
-        dialog.show()
     }
 
     protected open fun onToolbarNavigationClicked() {
