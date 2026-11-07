@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
-import com.danny.dannyapp.data.Career
+import com.danny.dannyapp.data.db.Career
 
 class CareerAdapter(
     private val onItemClick: (Career) -> Unit,

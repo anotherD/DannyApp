@@ -1,8 +1,6 @@
-package com.danny.dannyapp.data
+package com.danny.dannyapp.data.db
 
 import android.content.Context
-import com.danny.dannyapp.data.db.AppDatabase
-import com.danny.dannyapp.data.db.CareerDao
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext

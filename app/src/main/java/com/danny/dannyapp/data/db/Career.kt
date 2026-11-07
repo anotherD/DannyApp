@@ -1,4 +1,4 @@
-package com.danny.dannyapp.data
+package com.danny.dannyapp.data.db
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity

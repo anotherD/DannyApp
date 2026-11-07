@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.widget.TextView
 import androidx.lifecycle.lifecycleScope
 import com.danny.dannyapp.R
-import com.danny.dannyapp.data.CareerRepository
+import com.danny.dannyapp.data.db.CareerRepository
 import kotlinx.coroutines.launch
 
 class CareerDetailActivity : BaseActivity() {

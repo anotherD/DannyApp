@@ -1,4 +1,4 @@
-package com.danny.dannyapp.data.db
+package com.danny.dannyapp.data
 
 import java.util.Locale
 

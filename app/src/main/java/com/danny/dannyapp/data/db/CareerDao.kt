@@ -5,7 +5,6 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.danny.dannyapp.data.Career
 import kotlinx.coroutines.flow.Flow
 
 @Dao
