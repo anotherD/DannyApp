@@ -49,14 +49,14 @@
                 style="?attr/materialButtonOutlinedStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/sort_skill" />
+                android:text="@string/player_skill" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSortName"
                 style="?attr/materialButtonOutlinedStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/sort_name" />
+                android:text="@string/player_name" />
 
         </com.google.android.material.button.MaterialButtonToggleGroup>
 
