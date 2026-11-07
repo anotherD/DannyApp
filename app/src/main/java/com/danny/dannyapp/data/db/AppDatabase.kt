@@ -27,7 +27,7 @@ abstract class AppDatabase : RoomDatabase() {
                     "danny_app_database"
                 )
                 // TODO: Implement proper database migrations before production release to avoid data loss
-                .fallbackToDestructiveMigration()
+                .fallbackToDestructiveMigration(false)
                 .addCallback(DatabaseCallback(context.applicationContext))
                 .build()
                 INSTANCE = instance
