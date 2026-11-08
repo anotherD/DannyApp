@@ -58,6 +58,43 @@ class ProfilesViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+    fun updateUserProfile(profile: UserProfile, newName: String, newDescription: String, onResult: (SaveProfileResult) -> Unit) {
+        viewModelScope.launch {
+            val trimmedName = newName.trim()
+            if (trimmedName.isEmpty()) {
+                onResult(SaveProfileResult.Error("Name darf nicht leer sein"))
+                return@launch
+            }
+
+            if (!trimmedName.equals(profile.name, ignoreCase = true)) {
+                val existing = userProfileRepository.getProfileByName(trimmedName)
+                if (existing != null && existing.id != profile.id) {
+                    onResult(SaveProfileResult.DuplicateName(trimmedName))
+                    return@launch
+                }
+            }
+
+            val updatedProfile = profile.copy(
+                name = trimmedName,
+                description = newDescription.trim()
+            )
+
+            try {
+                userProfileRepository.updateUserProfile(updatedProfile)
+                onResult(SaveProfileResult.Success(trimmedName))
+            } catch (e: Exception) {
+                val isDuplicate = e is SQLiteConstraintException ||
+                    e.message?.contains("UNIQUE constraint", ignoreCase = true) == true
+
+                if (isDuplicate) {
+                    onResult(SaveProfileResult.DuplicateName(trimmedName))
+                } else {
+                    onResult(SaveProfileResult.Error(e.localizedMessage ?: "Unbekannter Fehler"))
+                }
+            }
+        }
+    }
+
     fun deleteUserProfile(profileId: Long, onSuccess: () -> Unit) {
         viewModelScope.launch {
             userProfileRepository.deleteUserProfile(profileId)

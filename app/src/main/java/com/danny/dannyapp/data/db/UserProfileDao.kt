@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -24,6 +25,9 @@ interface UserProfileDao {
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insertUserProfile(userProfile: UserProfile)
+
+    @Update
+    suspend fun updateUserProfile(userProfile: UserProfile)
 
     @Query("DELETE FROM user_profiles WHERE id = :id")
     suspend fun deleteUserProfileById(id: Long)

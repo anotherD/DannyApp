@@ -23,4 +23,13 @@ class UserProfileTest {
             UserProfile(name = "   ", description = "Blank name")
         }
     }
+
+    @Test
+    fun testUserProfileEditCopy() {
+        val original = UserProfile(id = 1L, name = "Original", description = "Desc 1")
+        val updated = original.copy(name = "Updated", description = "Desc 2")
+        assertEquals(1L, updated.id)
+        assertEquals("Updated", updated.name)
+        assertEquals("Desc 2", updated.description)
+    }
 }

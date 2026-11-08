@@ -27,6 +27,10 @@ class UserProfileRepository(context: Context) {
         userProfileDao.insertUserProfile(userProfile)
     }
 
+    suspend fun updateUserProfile(userProfile: UserProfile) = withContext(Dispatchers.IO) {
+        userProfileDao.updateUserProfile(userProfile)
+    }
+
     suspend fun deleteUserProfile(id: Long) = withContext(Dispatchers.IO) {
         userProfileDao.deleteUserProfileById(id)
     }

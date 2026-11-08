@@ -36,7 +36,7 @@ class ProfilesActivity : BaseActivity() {
         rvProfiles.layoutManager = LinearLayoutManager(this)
         profileAdapter = ProfileAdapter(
             onItemClick = { profile ->
-                Toast.makeText(this, getString(R.string.profile_selected_msg, profile.name), Toast.LENGTH_SHORT).show()
+                showEditProfileDialog(profile)
             },
             onItemLongClick = { profile ->
                 showDeleteProfileDialog(profile)
@@ -104,6 +104,52 @@ class ProfilesActivity : BaseActivity() {
                         when (result) {
                             is SaveProfileResult.Success -> {
                                 Toast.makeText(this@ProfilesActivity, getString(R.string.profile_created_msg, result.profileName), Toast.LENGTH_SHORT).show()
+                                dialog.dismiss()
+                            }
+                            is SaveProfileResult.DuplicateName -> {
+                                Toast.makeText(this@ProfilesActivity, getString(R.string.profiles_create_error_duplicate_name, result.profileName), Toast.LENGTH_SHORT).show()
+                            }
+                            is SaveProfileResult.Error -> {
+                                Toast.makeText(this@ProfilesActivity, getString(R.string.profile_create_error_general, result.message), Toast.LENGTH_LONG).show()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        dialog.show()
+    }
+
+    private fun showEditProfileDialog(profile: UserProfile) {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_new_profile, null)
+        val tvDialogTitle = dialogView.findViewById<TextView>(R.id.tvDialogTitle)
+        tvDialogTitle?.text = getString(R.string.profiles_edit_title)
+
+        val etProfileName = dialogView.findViewById<TextInputEditText>(R.id.etProfileName)
+        val etProfileDescription = dialogView.findViewById<TextInputEditText>(R.id.etProfileDescription)
+
+        etProfileName.setText(profile.name)
+        etProfileDescription.setText(profile.description)
+
+        val dialog = MaterialAlertDialogBuilder(this)
+            .setView(dialogView)
+            .setPositiveButton(getString(R.string.profiles_edit_positive_button), null)
+            .setNegativeButton(android.R.string.cancel, null)
+            .create()
+
+        dialog.setOnShowListener {
+            val positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+            positiveButton?.setOnClickListener {
+                val profileName = etProfileName.text.toString().trim()
+                if (profileName.isEmpty()) {
+                    Toast.makeText(this, getString(R.string.profiles_create_error_empty_name), Toast.LENGTH_SHORT).show()
+                } else {
+                    val profileDescription = etProfileDescription.text.toString().trim()
+                    viewModel.updateUserProfile(profile, profileName, profileDescription) { result ->
+                        when (result) {
+                            is SaveProfileResult.Success -> {
+                                Toast.makeText(this@ProfilesActivity, getString(R.string.profile_updated_msg, result.profileName), Toast.LENGTH_SHORT).show()
                                 dialog.dismiss()
                             }
                             is SaveProfileResult.DuplicateName -> {
