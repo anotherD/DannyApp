@@ -7,6 +7,7 @@ import android.widget.Button
 import android.widget.NumberPicker
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -15,17 +16,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
 import com.danny.dannyapp.data.db.Career
-import com.danny.dannyapp.data.db.CareerRepository
 import com.danny.dannyapp.data.db.UserProfile
-import com.danny.dannyapp.data.db.UserProfileRepository
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.launch
 
 class CareersActivity : BaseActivity() {
 
-    private lateinit var careerRepository: CareerRepository
-    private lateinit var userProfileRepository: UserProfileRepository
+    private val viewModel: CareersViewModel by viewModels()
     private lateinit var careerAdapter: CareerAdapter
     private lateinit var rvCareers: RecyclerView
     private lateinit var tvEmptyCareers: TextView
@@ -34,9 +32,6 @@ class CareersActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_careers)
         setupToolbar(getString(R.string.careers), showBack = true, rootViewId = R.id.careersMain)
-
-        careerRepository = CareerRepository(this)
-        userProfileRepository = UserProfileRepository(this)
 
         rvCareers = findViewById(R.id.rvCareers)
         tvEmptyCareers = findViewById(R.id.tvEmptyCareers)
@@ -66,7 +61,7 @@ class CareersActivity : BaseActivity() {
     private fun observeCareers() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                careerRepository.careersFlow.collect { careers ->
+                viewModel.careersState.collect { careers ->
                     careerAdapter.submitList(careers)
                     if (careers.isEmpty()) {
                         rvCareers.visibility = RecyclerView.GONE
@@ -82,7 +77,7 @@ class CareersActivity : BaseActivity() {
 
     private fun checkProfilesAndShowNewCareerDialog() {
         lifecycleScope.launch {
-            val profiles = userProfileRepository.getUserProfiles()
+            val profiles = viewModel.getUserProfiles()
             if (profiles.isEmpty()) {
                 MaterialAlertDialogBuilder(this@CareersActivity)
                     .setTitle(getString(R.string.career_create_no_profile_title))
@@ -104,8 +99,7 @@ class CareersActivity : BaseActivity() {
             .setTitle(getString(R.string.career_delete_title))
             .setMessage(getString(R.string.career_delete_message, career.name))
             .setPositiveButton(getString(R.string.career_delete_confirm)) { _, _ ->
-                lifecycleScope.launch {
-                    careerRepository.deleteCareer(career.id)
+                viewModel.deleteCareer(career.id) {
                     Toast.makeText(this@CareersActivity, getString(R.string.career_deleted_msg, career.name), Toast.LENGTH_SHORT).show()
                 }
             }
@@ -163,8 +157,7 @@ class CareersActivity : BaseActivity() {
                         level = level,
                         profileId = selectedProfileId
                     )
-                    lifecycleScope.launch {
-                        careerRepository.saveCareer(newCareer)
+                    viewModel.saveCareer(newCareer) {
                         Toast.makeText(this@CareersActivity, getString(R.string.careers_career_created, careerName, level), Toast.LENGTH_SHORT).show()
                         dialog.dismiss()
                     }
