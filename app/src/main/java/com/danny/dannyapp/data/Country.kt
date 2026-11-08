@@ -15,7 +15,7 @@ data class Country(
             "ENG" to Pair("England", "🏴󠁧󠁢󠁥󠁮󠁧󠁿"),
             "SCO" to Pair("Schottland", "🏴󠁧󠁢󠁳󠁣󠁴󠁿"),
             "WAL" to Pair("Wales", "🏴󠁧󠁢󠁷󠁬󠁳󠁿"),
-            "NIR" to Pair("Nordirland", "🏴󠁧󠁢󠁮󠁡󠁲󠁧")
+            "NIR" to Pair("Nordirland", "🏴󠁧󠁢󠁮󠁩󠁲󠁧")
         )
 
         fun isValidCode(code: String): Boolean {
@@ -39,6 +39,16 @@ data class Country(
                 return "🌐"
             }
             return getFlagEmojiFromIso2(iso2)
+        }
+
+        // Sonderfall für Nordirland (NIR): Android unterstützt keine nativen Emoji-Flaggen für NIR.
+        // Daher wird hier eine benutzerdefinierte Drawable-Ressourcen-ID anstelle eines Emojis zurückgegeben.
+        fun getFlagResId(code: String): Int? {
+            val upper = code.trim().uppercase()
+            if (upper == "NIR") {
+                return com.danny.dannyapp.R.drawable.ic_flag_nir
+            }
+            return null
         }
 
         fun getAllCountries(): List<Country> {
