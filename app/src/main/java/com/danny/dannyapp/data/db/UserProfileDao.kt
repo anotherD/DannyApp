@@ -22,7 +22,7 @@ interface UserProfileDao {
     @Query("SELECT * FROM user_profiles WHERE name = :name LIMIT 1")
     suspend fun getProfileByName(name: String): UserProfile?
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insertUserProfile(userProfile: UserProfile)
 
     @Query("DELETE FROM user_profiles WHERE id = :id")

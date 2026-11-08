@@ -131,8 +131,9 @@ class CareersActivity : BaseActivity() {
         if (profiles.isNotEmpty()) {
             autoCompleteProfile.setText(profiles[0].name, false)
         }
-        autoCompleteProfile.setOnItemClickListener { _, _, position, _ ->
-            selectedProfileId = profiles[position].id
+        autoCompleteProfile.setOnItemClickListener { parent, _, position, _ ->
+            val selectedName = parent.getItemAtPosition(position) as? String
+            selectedProfileId = profiles.find { it.name == selectedName }?.id ?: 0L
         }
 
         val dialog = MaterialAlertDialogBuilder(this)
@@ -145,9 +146,15 @@ class CareersActivity : BaseActivity() {
             val positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
             positiveButton?.setOnClickListener {
                 val careerName = etCareerName.text.toString().trim()
+                val enteredProfileName = autoCompleteProfile.text.toString().trim()
+                val matchedProfile = profiles.find { it.name.equals(enteredProfileName, ignoreCase = true) }
+                if (matchedProfile != null) {
+                    selectedProfileId = matchedProfile.id
+                }
+
                 if (careerName.isEmpty()) {
                     Toast.makeText(this, getString(R.string.careers_create_error_empty_name), Toast.LENGTH_SHORT).show()
-                } else if (selectedProfileId <= 0L) {
+                } else if (matchedProfile == null || selectedProfileId <= 0L) {
                     Toast.makeText(this, getString(R.string.careers_create_error_empty_profile), Toast.LENGTH_SHORT).show()
                 } else {
                     val level = numberPickerLevel.value
