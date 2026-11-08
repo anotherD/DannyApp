@@ -50,7 +50,7 @@ class ConfigPlayerAdapter : ListAdapter<Player, ConfigPlayerAdapter.PlayerViewHo
             val flagEmoji = Country.getFlagEmoji(player.countryCode)
             holder.tvPlayerName.text = "${player.name} $flagEmoji"
         }
-        holder.tvPlayerSkill.text = context.getString(R.string.player_skill_format, player.skillLevel)
+        holder.tvPlayerSkill.text = "L${player.skillLevel}"
         
         // 10-stufiges Farbschema für Level 1 bis 10 (Dark-Mode optimiert)
         val skillColor = getSkillColor(player.skillLevel)
