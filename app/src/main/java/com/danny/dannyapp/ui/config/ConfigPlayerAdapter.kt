@@ -72,7 +72,12 @@ class ConfigPlayerAdapter : ListAdapter<Player, ConfigPlayerAdapter.PlayerViewHo
     }
 
     private fun getSkillColor(level: Int): Int {
-        val colors = intArrayOf(
+        val index = (level - 1).coerceIn(0, SKILL_COLORS.size - 1)
+        return SKILL_COLORS[index]
+    }
+
+    companion object {
+        private val SKILL_COLORS = intArrayOf(
             android.graphics.Color.parseColor("#4FC3F7"), // Level 1: Cyan
             android.graphics.Color.parseColor("#26A69A"), // Level 2: Teal
             android.graphics.Color.parseColor("#66BB6A"), // Level 3: Green
@@ -84,8 +89,6 @@ class ConfigPlayerAdapter : ListAdapter<Player, ConfigPlayerAdapter.PlayerViewHo
             android.graphics.Color.parseColor("#AB47BC"), // Level 9: Purple
             android.graphics.Color.parseColor("#FFD700")  // Level 10: Gold
         )
-        val index = (level - 1).coerceIn(0, colors.size - 1)
-        return colors[index]
     }
 
     private class VerticalCenteredImageSpan(

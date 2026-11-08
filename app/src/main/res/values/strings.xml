@@ -39,7 +39,7 @@
     <string name="profile_created_msg">Profil \'%s\' angelegt!</string>
     <string name="profile_selected_msg">Profil: %s</string>
     <string name="profile_delete_title">Profil löschen</string>
-    <string name="profile_delete_message">Möchtest du das Profil \'%s\' wirklich löschen?</string>
+    <string name="profile_delete_message">Möchtest du das Profil \'%s\' und alle zugehörigen Karrieren wirklich löschen?</string>
     <string name="profile_delete_confirm">Löschen</string>
     <string name="profile_deleted_msg">Profil \'%s\' gelöscht.</string>
     <string name="config_title">Konfiguration</string>
