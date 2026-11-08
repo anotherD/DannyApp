@@ -8,7 +8,6 @@
     android:layout_marginBottom="4dp"
     tools:layout_marginTop="24dp"
     app:cardCornerRadius="8dp"
-    app:cardElevation="1dp"
     app:strokeWidth="2dp">
 
     <LinearLayout

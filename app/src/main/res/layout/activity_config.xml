@@ -28,8 +28,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="2dp">
+            app:cardCornerRadius="12dp" >
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -44,9 +43,9 @@
                     android:text="@string/config_dummy_config_1"
                     android:textSize="16sp" />
 
-                <View
+                <com.google.android.material.divider.MaterialDivider
                     android:layout_width="match_parent"
-                    android:layout_height="1dp"
+                    android:layout_height="wrap_content"
                     android:layout_marginVertical="12dp" />
 
                 <com.google.android.material.materialswitch.MaterialSwitch
@@ -65,7 +64,6 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
             app:cardCornerRadius="12dp"
-            app:cardElevation="2dp"
             android:clickable="true"
             android:focusable="true">
 
