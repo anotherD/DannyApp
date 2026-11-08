@@ -27,9 +27,21 @@ class ExampleUnitTest {
     fun testCareerSeasonDefaultAndValidation() {
         val career = com.danny.dannyapp.data.db.Career(name = "Test Career", level = 1)
         assertEquals(1, career.season)
+        assertEquals(1, career.level)
+
+        val careerMaxLevel = com.danny.dannyapp.data.db.Career(name = "Test Career 25", level = 25)
+        assertEquals(25, careerMaxLevel.level)
 
         val careerCustomSeason = com.danny.dannyapp.data.db.Career(name = "Test Career", level = 1, season = 500)
         assertEquals(500, careerCustomSeason.season)
+
+        assertThrows(IllegalArgumentException::class.java) {
+            com.danny.dannyapp.data.db.Career(name = "Invalid", level = 0, season = 1)
+        }
+
+        assertThrows(IllegalArgumentException::class.java) {
+            com.danny.dannyapp.data.db.Career(name = "Invalid", level = 26, season = 1)
+        }
 
         assertThrows(IllegalArgumentException::class.java) {
             com.danny.dannyapp.data.db.Career(name = "Invalid", level = 1, season = 0)

@@ -93,10 +93,10 @@ class CareersActivity : BaseActivity() {
         val dialogView = layoutInflater.inflate(R.layout.dialog_new_career, null)
         val etCareerName = dialogView.findViewById<TextInputEditText>(R.id.etCareerName)
         val numberPickerLevel = dialogView.findViewById<NumberPicker>(R.id.numberPickerLevel).apply {
-            minValue = 1
-            maxValue = 20
-            displayedValues = Array(20) { i -> getString(R.string.career_level_format, i + 1) }
-            value = 1
+            minValue = Career.MIN_LEVEL
+            maxValue = Career.MAX_LEVEL
+            displayedValues = Array(Career.MAX_LEVEL - Career.MIN_LEVEL + 1) { i -> getString(R.string.career_level_format, Career.MIN_LEVEL + i) }
+            value = Career.MIN_LEVEL
             wrapSelectorWheel = false
         }
 

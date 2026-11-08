@@ -18,6 +18,12 @@ data class Career(
     val createdAt: Long = System.currentTimeMillis()
 ) {
     init {
+        require(level in MIN_LEVEL..MAX_LEVEL) { "Level must be between $MIN_LEVEL and $MAX_LEVEL" }
         require(season >= 1) { "Season must be at least 1" }
+    }
+
+    companion object {
+        const val MIN_LEVEL = 1
+        const val MAX_LEVEL = 25
     }
 }
