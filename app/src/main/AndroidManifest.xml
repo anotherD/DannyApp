@@ -35,6 +35,10 @@
             android:exported="false" />
 
         <activity
+            android:name=".ui.ProfilesActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".ui.CareerDetailActivity"
             android:exported="false" />
 

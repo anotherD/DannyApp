@@ -11,11 +11,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@Database(entities = [Player::class, Career::class], version = 6, exportSchema = false)
+@Database(entities = [Player::class, Career::class, UserProfile::class], version = 8, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun playerDao(): PlayerDao
     abstract fun careerDao(): CareerDao
+    abstract fun userProfileDao(): UserProfileDao
 
     companion object {
         @Volatile

@@ -23,6 +23,7 @@ class MainActivity : BaseActivity() {
         val startLayout: View = findViewById(R.id.startLayout)
         val webView: WebView = findViewById(R.id.scoliaWebView)
         val btnOpenScolia: Button = findViewById(R.id.btnOpenScolia)
+        val btnProfiles: Button = findViewById(R.id.btnProfiles)
         val btnCareers: Button = findViewById(R.id.btnCareers)
         val btnOpenDesignShowcase: Button = findViewById(R.id.btnOpenDesignShowcase)
 
@@ -43,6 +44,11 @@ class MainActivity : BaseActivity() {
                 webViewManager.setupWebView("https://game.scoliadarts.com/game")
                 isWebViewInitialized = true
             }
+        }
+
+        btnProfiles.setOnClickListener {
+            val intent = android.content.Intent(this, ProfilesActivity::class.java)
+            startActivity(intent)
         }
 
         btnCareers.setOnClickListener {
