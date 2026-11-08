@@ -73,8 +73,8 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
                 android:gravity="center_vertical"
+                android:orientation="horizontal"
                 android:padding="16dp">
 
                 <TextView
@@ -88,10 +88,10 @@
                 <ImageView
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:src="@drawable/ic_arrow_back"
+                    android:contentDescription="@null"
                     android:rotation="180"
-                    app:tint="?attr/colorOnSurfaceVariant"
-                    android:contentDescription="@null" />
+                    android:src="@drawable/ic_arrow_back"
+                    app:tint="?attr/colorOnSurfaceVariant" />
 
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
