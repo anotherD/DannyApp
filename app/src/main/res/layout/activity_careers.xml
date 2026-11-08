@@ -33,7 +33,6 @@
         android:layout_marginHorizontal="32dp"
         android:text="@string/careers_empty_state"
         android:textAlignment="center"
-        android:textColor="?attr/colorOutline"
         android:textSize="16sp"
         android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@id/btnCreateNewCareer"
