@@ -45,15 +45,15 @@ interface PlayerDao {
     suspend fun csvInsertNewPlayers(players: List<Player>)
 
     // Aktualisiert gezielt nur die Stammdaten bestehender Spieler, ID bleibt erhalten!
-    @Query("UPDATE players SET skill_level = :skillLevel, has_tour_card = :hasTourCard, country_code = :countryCode, price_money = :prizeMoney, tour_card_year = :tourCardYear WHERE name = :name")
-    suspend fun csvUpdatePlayerStats(name: String, skillLevel: Int, hasTourCard: Boolean, countryCode: String, prizeMoney: Double, tourCardYear: Int)
+    @Query("UPDATE players SET skill_level = :skillLevel, country_code = :countryCode, price_money = :prizeMoney, tour_card_year = :tourCardYear WHERE name = :name")
+    suspend fun csvUpdatePlayerStats(name: String, skillLevel: Int, countryCode: String, prizeMoney: Double, tourCardYear: Int)
 
     // Hilfsfunktion, die beides sauber kombiniert
     @Transaction
     suspend fun syncPlayersFromCsv(csvPlayers: List<Player>) {
         csvInsertNewPlayers(csvPlayers)
         csvPlayers.forEach { player ->
-            csvUpdatePlayerStats(player.name, player.skillLevel, player.hasTourCard, player.countryCode, player.prizeMoney, player.tourCardYear)
+            csvUpdatePlayerStats(player.name, player.skillLevel, player.countryCode, player.prizeMoney, player.tourCardYear)
         }
     }
 }

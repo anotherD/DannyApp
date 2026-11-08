@@ -100,7 +100,6 @@ abstract class AppDatabase : RoomDatabase() {
 
                         val tourYearStr = tokens.getCol("tour_card_year")
                         val tourCardYear = tourYearStr?.toDoubleOrNull()?.toInt() ?: tourYearStr?.toIntOrNull() ?: 0
-                        val hasTourCard = tourCardYear > 0
 
                         val prizeMoneyStr = tokens.getCol("price_money")
                         val prizeMoney = prizeMoneyStr?.toDoubleOrNull() ?: 0.0
@@ -109,7 +108,6 @@ abstract class AppDatabase : RoomDatabase() {
                             Player(
                                 name = name,
                                 skillLevel = skillLevel,
-                                hasTourCard = hasTourCard,
                                 countryCode = countryCode,
                                 prizeMoney = prizeMoney,
                                 tourCardYear = tourCardYear

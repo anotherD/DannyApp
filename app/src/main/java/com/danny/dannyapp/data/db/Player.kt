@@ -16,12 +16,19 @@ data class Player(
     val name: String,
     @ColumnInfo(name = "skill_level")
     val skillLevel: Int, // Spielstärke (1-10)
-    @ColumnInfo(name = "has_tour_card")
-    val hasTourCard: Boolean, // Tour Card (ja/nein)
     @ColumnInfo(name = "country_code")
     val countryCode: String, // 3-Stelliger Sport/ISO-Code (z.B. "GER", "ENG", "NED")
     @ColumnInfo(name = "price_money")
     val prizeMoney: Double = 0.0, // Preisgeld
     @ColumnInfo(name = "tour_card_year")
-    val tourCardYear: Int = 0 // Tour Card Jahr / Dauer
-)
+    val tourCardYear: Int = 0 // Tour Card Jahr (0 = keine, 1 = 1. Jahr, 2 = 2. Jahr)
+) {
+    val hasTourCard: Boolean
+        get() = tourCardYear > 0
+
+    init {
+        require(name.isNotBlank()) { "Name darf nicht leer sein" }
+        require(skillLevel in 1..10) { "Skill level must be between 1 and 10, got $skillLevel" }
+        require(tourCardYear in 0..2) { "Tour card year must be 0, 1, or 2, got $tourCardYear" }
+    }
+}
