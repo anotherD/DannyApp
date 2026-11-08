@@ -4,18 +4,43 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
+    <!-- Rottöne (Primär & Akzente) -->
+    <color name="rot_sehr_hell">#FFFFDAD6</color>
+    <color name="rot_hell">#FFEF5350</color>
+    <color name="rot_haupt">#FFD32F2F</color>
+    <color name="rot_dunkel">#FF8E0000</color>
+    <color name="rot_container_dunkel">#FF5C1919</color>
+
+    <!-- Reine Anthrazit- & Grautöne (ohne Blaustich) -->
+    <color name="anthrazit_tief">#FF0D0D0D</color>
+    <color name="anthrazit_hintergrund">#FF121212</color>
+    <color name="anthrazit_flaeche">#FF181818</color>
+    <color name="anthrazit_container_niedrig">#FF1C1C1C</color>
+    <color name="anthrazit_container">#FF222222</color>
+    <color name="anthrazit_container_hoch">#FF2A2A2A</color>
+    <color name="anthrazit_variante">#FF2C2C2C</color>
+    <color name="anthrazit_container_hoechst">#FF333333</color>
+    <color name="anthrazit_sekundaer">#FF373737</color>
+
+    <!-- Text- & Rahmengrau (reines Neutralgrau) -->
+    <color name="grau_rahmen_dunkel">#FF383838</color>
+    <color name="grau_rahmen">#FF616161</color>
+    <color name="grau_text_gedaempft">#FFBDBDBD</color>
+    <color name="grau_sekundaer">#FFC4C4C4</color>
+    <color name="grau_text_hell">#FFF5F5F5</color>
+
     <!-- Das edle Rot-Konzept (Satter & Kräftiger, kein Orange) -->
-    <color name="rot">#E50914</color>             <!-- Sattes, kräftiges Rubinrot für Hauptbuttons -->
-    <color name="rot_dunkel">#990000</color>      <!-- Sattes dunkles Rot für gedrückte Zustände -->
-    <color name="rot_hell">#FF1A1A</color>        <!-- Kräftiges Signalrot für Highlights -->
+<!--    <color name="rot">#E50914</color>             &lt;!&ndash; Sattes, kräftiges Rubinrot für Hauptbuttons &ndash;&gt;-->
+<!--    <color name="rot_dunkel">#990000</color>      &lt;!&ndash; Sattes dunkles Rot für gedrückte Zustände &ndash;&gt;-->
+<!--    <color name="rot_hell">#FF1A1A</color>        &lt;!&ndash; Kräftiges Signalrot für Highlights &ndash;&gt;-->
 
     <!-- Das edle Schwarz/Anthrazit-Konzept -->
-    <color name="bg_amoled">#000000</color>            <!-- Der eigentliche App-Hintergrund -->
-    <color name="surface_anthrazit">#1E1E1E</color>    <!-- Karten, Eingabefelder, Bottom Sheets -->
-    <color name="surface_grau_heller">#2D2D2D</color>  <!-- Für feine Linien, Rahmen oder Trenner (Borders) -->
+<!--    <color name="bg_amoled">#000000</color>            &lt;!&ndash; Der eigentliche App-Hintergrund &ndash;&gt;-->
+<!--    <color name="surface_anthrazit">#1E1E1E</color>    &lt;!&ndash; Karten, Eingabefelder, Bottom Sheets &ndash;&gt;-->
+<!--    <color name="surface_grau_heller">#2D2D2D</color>  &lt;!&ndash; Für feine Linien, Rahmen oder Trenner (Borders) &ndash;&gt;-->
 
     <!-- Knallharte Textfarben-Zuweisung -->
-    <color name="text_primar">#FFFFFF</color>          <!-- Überschriften, wichtiger Text (Immer Weiß) -->
-    <color name="text_sekundar">#B3B3B3</color>        <!-- Beschreibungstexte, Labels (Edles Mattgrau) -->
-    <color name="text_deaktiviert">#666666</color>     <!-- Für ausgegraute, inaktive Elemente -->
+<!--    <color name="text_primar">#FFFFFF</color>          &lt;!&ndash; Überschriften, wichtiger Text (Immer Weiß) &ndash;&gt;-->
+<!--    <color name="text_sekundar">#B3B3B3</color>        &lt;!&ndash; Beschreibungstexte, Labels (Edles Mattgrau) &ndash;&gt;-->
+<!--    <color name="text_deaktiviert">#666666</color>     &lt;!&ndash; Für ausgegraute, inaktive Elemente &ndash;&gt;-->
 </resources>

@@ -1,60 +1,57 @@
 <resources>
     <!-- Zentrales Basis-Theme mit allen Farben (Single Source of Truth) -->
     <style name="Base.Theme.DannyApp" parent="Theme.Material3.Dark.NoActionBar">
-        <!-- 1. PRIMÄRE AKZENTE (Buttons, FABs, aktive Zustände) -->
-        <item name="colorPrimary">@color/rot_hell</item>
+        <!-- Fenster-Startfarbe (verhindert weißes Aufblitzen beim Start) -->
+        <item name="android:windowBackground">@color/anthrazit_hintergrund</item>
+
+        <!-- Abwärtskompatible Systemleisten für ältere Android-Versionen (z. B. Android 9) -->
+        <item name="android:statusBarColor">@color/anthrazit_hintergrund</item>
+        <item name="android:navigationBarColor">@color/anthrazit_tief</item>
+
+        <!-- Hauptfarbe (Rot) für Buttons, aktive Schalter, Ladebalken -->
+        <item name="colorPrimary">@color/rot_haupt</item>
         <item name="colorOnPrimary">@color/white</item>
-        <item name="colorPrimaryContainer">@color/rot</item>
-        <item name="colorOnPrimaryContainer">@color/white</item>
-K
-        <!-- 2. SEKUNDÄRE & TERTIÄRE AKZENTE (M3-Pflichtfelder, defensiv besetzt) -->
-        <item name="colorSecondary">@color/rot</item>
-        <item name="colorOnSecondary">@color/white</item>
-        <item name="colorSecondaryContainer">@color/rot_dunkel</item>
+        <item name="colorPrimaryContainer">@color/rot_dunkel</item>
+        <item name="colorOnPrimaryContainer">@color/rot_sehr_hell</item>
+
+        <!-- Zweitfarbe (Reines Neutralgrau / Anthrazit) für sekundäre Elemente & Menü-Pills -->
+        <item name="colorSecondary">@color/grau_sekundaer</item>
+        <item name="colorOnSecondary">@color/anthrazit_container_niedrig</item>
+        <item name="colorSecondaryContainer">@color/anthrazit_sekundaer</item>
         <item name="colorOnSecondaryContainer">@color/white</item>
-        <item name="colorTertiary">@color/rot_dunkel</item>
+
+        <!-- Drittfarbe (Akzente in hellem Rot) -->
+        <item name="colorTertiary">@color/rot_hell</item>
         <item name="colorOnTertiary">@color/white</item>
-        <item name="colorTertiaryContainer">@color/surface_anthrazit</item>
-        <item name="colorOnTertiaryContainer">@color/white</item>
+        <item name="colorTertiaryContainer">@color/rot_container_dunkel</item>
+        <item name="colorOnTertiaryContainer">@color/rot_sehr_hell</item>
 
-        <!-- 3. HINTERGRÜNDE & ALLGEMEINE FLÄCHEN -->
-        <item name="android:windowBackground">@color/bg_amoled</item>
-        <item name="android:colorBackground">@color/bg_amoled</item>
-        <item name="colorOnBackground">@color/text_primar</item> <!-- Erzwingt weißen Text auf dem Haupt-Hintergrund -->
+        <!-- Hintergrund & Flächen (Anthrazit) -->
+        <item name="android:colorBackground">@color/anthrazit_hintergrund</item>
+        <item name="colorOnBackground">@color/grau_text_hell</item>
+        <item name="colorSurface">@color/anthrazit_flaeche</item>
+        <item name="colorOnSurface">@color/grau_text_hell</item>
+        <item name="colorSurfaceVariant">@color/anthrazit_variante</item>
+        <item name="colorOnSurfaceVariant">@color/grau_text_gedaempft</item>
 
-        <!-- 4. OBERFLÄCHEN & CONTAINER (Karten, Dialoge, Menüs, Bottom Sheets) -->
-        <item name="colorSurface">@color/surface_anthrazit</item>
-        <item name="colorOnSurface">@color/text_primar</item> <!-- Erzwingt weißen Text auf Karten -->
+        <!-- Container-Abstufungen für Karten, Dialoge, Menüs & Leisten -->
+        <item name="colorSurfaceContainerLowest">@color/anthrazit_tief</item>
+        <item name="colorSurfaceContainerLow">@color/anthrazit_container_niedrig</item>
+        <item name="colorSurfaceContainer">@color/anthrazit_container</item>
+        <item name="colorSurfaceContainerHigh">@color/anthrazit_container_hoch</item>
+        <item name="colorSurfaceContainerHighest">@color/anthrazit_container_hoechst</item>
 
-        <item name="colorSurfaceVariant">@color/surface_grau_heller</item>
-        <item name="colorOnSurfaceVariant">@color/text_sekundar</item> <!-- Erzwingt grauen Text für Nebensachen -->
+        <!-- Rahmenlinien & Trennstriche -->
+        <item name="colorOutline">@color/grau_rahmen</item>
+        <item name="colorOutlineVariant">@color/grau_rahmen_dunkel</item>
 
-        <item name="colorSurfaceContainerLowest">@color/bg_amoled</item>
-        <item name="colorSurfaceContainerLow">@color/surface_anthrazit</item>
-        <item name="colorSurfaceContainer">@color/surface_anthrazit</item>
-        <item name="colorSurfaceContainerHigh">@color/surface_grau_heller</item>
-        <item name="colorSurfaceContainerHighest">@color/surface_grau_heller</item>
+        <!-- verhindert, dass cards mit elevation eingefärbt werden mit colorPrimary -->
+<!--        <item name="elevationOverlayEnabled">false</item>-->
 
-        <!-- 5. RAHMEN, TRENNLINIEN & FEHLER -->
-        <item name="colorOutline">@color/surface_grau_heller</item>
-        <item name="colorOutlineVariant">@color/surface_anthrazit</item>
-        <item name="colorError">@color/rot_hell</item>
-        <item name="colorOnError">@color/black</item>
-        <item name="colorErrorContainer">@color/rot_dunkel</item>
-        <item name="colorOnErrorContainer">@color/white</item>
-
-        <!-- 6. SYSTEM-BARS (Status- und Navigationsleiste) -->
-        <item name="android:statusBarColor">@color/bg_amoled</item>
-        <item name="android:navigationBarColor">@color/bg_amoled</item>
-
-        <!-- "false" sorgt dafür, dass die System-Icons (Uhrzeit, Akku) WEISS leuchten -->
-        <item name="android:windowLightStatusBar">false</item>
-        <item name="android:windowLightNavigationBar">false</item>
-
-        <!-- TEXT- & HINWEISFARBEN -->
-        <item name="android:textColorPrimary">@color/text_primar</item>
-        <item name="android:textColorSecondary">@color/text_sekundar</item>
-        <item name="android:textColorTertiary">@color/text_deaktiviert</item>
-        <item name="android:textColorHint">@color/text_sekundar</item>
+        <!-- FEHLER -->
+<!--        <item name="colorError">@color/rot_hell</item>-->
+<!--        <item name="colorOnError">@color/black</item>-->
+<!--        <item name="colorErrorContainer">@color/rot_dunkel</item>-->
+<!--        <item name="colorOnErrorContainer">@color/white</item>-->
     </style>
 </resources>
