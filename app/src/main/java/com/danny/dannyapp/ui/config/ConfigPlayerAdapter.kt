@@ -50,11 +50,34 @@ class ConfigPlayerAdapter : ListAdapter<Player, ConfigPlayerAdapter.PlayerViewHo
             holder.tvPlayerName.text = "${player.name} $flagEmoji"
         }
         holder.tvPlayerSkill.text = context.getString(R.string.player_skill_format, player.skillLevel)
+        
+        // 10-stufiges Farbschema für Level 1 bis 10 (Dark-Mode optimiert)
+        val skillColor = getSkillColor(player.skillLevel)
+        holder.tvPlayerSkill.setTextColor(skillColor)
+        (holder.itemView as? com.google.android.material.card.MaterialCardView)?.strokeColor = skillColor
+
         holder.tvPlayerTourCard.text = if (player.hasTourCard) {
             context.getString(R.string.player_tour_card_yes)
         } else {
             context.getString(R.string.player_tour_card_no)
         }
+    }
+
+    private fun getSkillColor(level: Int): Int {
+        val colors = intArrayOf(
+            android.graphics.Color.parseColor("#4FC3F7"), // Level 1: Cyan
+            android.graphics.Color.parseColor("#26A69A"), // Level 2: Teal
+            android.graphics.Color.parseColor("#66BB6A"), // Level 3: Green
+            android.graphics.Color.parseColor("#9CCC65"), // Level 4: Light Green
+            android.graphics.Color.parseColor("#FFEE58"), // Level 5: Yellow
+            android.graphics.Color.parseColor("#FFA726"), // Level 6: Orange
+            android.graphics.Color.parseColor("#FF7043"), // Level 7: Deep Orange
+            android.graphics.Color.parseColor("#FF1744"), // Level 8: Vivid Red (Stärkerer Kontrast zu Orange)
+            android.graphics.Color.parseColor("#AB47BC"), // Level 9: Purple
+            android.graphics.Color.parseColor("#FFD700")  // Level 10: Gold
+        )
+        val index = (level - 1).coerceIn(0, colors.size - 1)
+        return colors[index]
     }
 
     private class VerticalCenteredImageSpan(
