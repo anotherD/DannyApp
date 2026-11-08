@@ -12,6 +12,12 @@ data class Career(
     val name: String,
     @ColumnInfo(name = "level")
     val level: Int,
+    @ColumnInfo(name = "season")
+    val season: Int = 1,
     @ColumnInfo(name = "created_at")
     val createdAt: Long = System.currentTimeMillis()
-)
+) {
+    init {
+        require(season >= 1) { "Season must be at least 1" }
+    }
+}
