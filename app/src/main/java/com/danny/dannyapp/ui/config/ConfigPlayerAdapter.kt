@@ -16,7 +16,8 @@ class ConfigPlayerAdapter : ListAdapter<Player, ConfigPlayerAdapter.PlayerViewHo
     class PlayerViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val tvPlayerName: TextView = view.findViewById(R.id.tvPlayerName)
         val tvPlayerSkill: TextView = view.findViewById(R.id.tvPlayerSkill)
-        val tvPlayerTourCard: TextView = view.findViewById(R.id.tvPlayerTourCard)
+        val layoutTourCards: View = view.findViewById(R.id.layoutTourCards)
+        val tvTourCardSecond: View = view.findViewById(R.id.tvTourCardSecond)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlayerViewHolder {
@@ -56,10 +57,17 @@ class ConfigPlayerAdapter : ListAdapter<Player, ConfigPlayerAdapter.PlayerViewHo
         holder.tvPlayerSkill.setTextColor(skillColor)
         (holder.itemView as? com.google.android.material.card.MaterialCardView)?.strokeColor = skillColor
 
-        holder.tvPlayerTourCard.text = if (player.hasTourCard) {
-            context.getString(R.string.player_tour_card_yes)
+        if (player.hasTourCard) {
+            holder.layoutTourCards.visibility = View.VISIBLE
+            // tourCardYear == 1 ist das 1. Jahr -> 2 Tickets gestapelt (zweites Ticket sichtbar)
+            // tourCardYear == 2 ist das 2. Jahr -> 1 Ticket (zweites Ticket ausgeblendet)
+            if (player.tourCardYear == 1) {
+                holder.tvTourCardSecond.visibility = View.VISIBLE
+            } else {
+                holder.tvTourCardSecond.visibility = View.GONE
+            }
         } else {
-            context.getString(R.string.player_tour_card_no)
+            holder.layoutTourCards.visibility = View.GONE
         }
     }
 
