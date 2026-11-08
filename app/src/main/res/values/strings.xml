@@ -42,7 +42,8 @@
     <string name="profile_updated_msg">Profil \'%s\' aktualisiert!</string>
     <string name="profile_selected_msg">Profil: %s</string>
     <string name="profile_delete_title">Profil löschen</string>
-    <string name="profile_delete_message">Möchtest du das Profil \'%s\' und alle zugehörigen Karrieren wirklich löschen?</string>
+    <string name="profile_delete_message">Möchtest du das Profil \'%s\' wirklich löschen?</string>
+    <string name="profile_delete_warning_with_careers">Achtung: Das Profil \'%1$s\' ist mit %2$d Karriere(n) verknüpft.\n\nBeim Löschen werden auch alle zugehörigen Karrieren unwiderruflich gelöscht!\n\nMöchtest du das Profil trotzdem löschen?</string>
     <string name="profile_delete_confirm">Löschen</string>
     <string name="profile_deleted_msg">Profil \'%s\' gelöscht.</string>
     <string name="config_title">Konfiguration</string>

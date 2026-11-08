@@ -26,6 +26,9 @@ interface CareerDao {
     @Query("SELECT c.*, p.name as profile_name FROM careers c LEFT JOIN user_profiles p ON c.profile_id = p.id WHERE c.id = :id")
     suspend fun getCareerById(id: Long): CareerWithProfile?
 
+    @Query("SELECT COUNT(*) FROM careers WHERE profile_id = :profileId")
+    suspend fun getCareerCountForProfile(profileId: Long): Int
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCareer(career: Career)
 

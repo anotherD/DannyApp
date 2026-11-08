@@ -69,16 +69,24 @@ class ProfilesActivity : BaseActivity() {
     }
 
     private fun showDeleteProfileDialog(profile: UserProfile) {
-        MaterialAlertDialogBuilder(this)
-            .setTitle(getString(R.string.profile_delete_title))
-            .setMessage(getString(R.string.profile_delete_message, profile.name))
-            .setPositiveButton(getString(R.string.profile_delete_confirm)) { _, _ ->
-                viewModel.deleteUserProfile(profile.id) {
-                    Toast.makeText(this@ProfilesActivity, getString(R.string.profile_deleted_msg, profile.name), Toast.LENGTH_SHORT).show()
-                }
+        lifecycleScope.launch {
+            val careerCount = viewModel.getCareerCountForProfile(profile.id)
+            val message = if (careerCount > 0) {
+                getString(R.string.profile_delete_warning_with_careers, profile.name, careerCount)
+            } else {
+                getString(R.string.profile_delete_message, profile.name)
             }
-            .setNegativeButton(android.R.string.cancel, null)
-            .show()
+            MaterialAlertDialogBuilder(this@ProfilesActivity)
+                .setTitle(getString(R.string.profile_delete_title))
+                .setMessage(message)
+                .setPositiveButton(getString(R.string.profile_delete_confirm)) { _, _ ->
+                    viewModel.deleteUserProfile(profile.id) {
+                        Toast.makeText(this@ProfilesActivity, getString(R.string.profile_deleted_msg, profile.name), Toast.LENGTH_SHORT).show()
+                    }
+                }
+                .setNegativeButton(android.R.string.cancel, null)
+                .show()
+        }
     }
 
     private fun showNewProfileDialog() {

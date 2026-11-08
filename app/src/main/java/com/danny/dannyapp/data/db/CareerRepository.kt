@@ -19,6 +19,10 @@ class CareerRepository(context: Context) {
         careerDao.getCareerById(id)
     }
 
+    suspend fun getCareerCountForProfile(profileId: Long): Int = withContext(Dispatchers.IO) {
+        careerDao.getCareerCountForProfile(profileId)
+    }
+
     suspend fun saveCareer(career: Career) = withContext(Dispatchers.IO) {
         careerDao.insertCareer(career)
     }
