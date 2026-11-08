@@ -13,6 +13,9 @@ interface UserProfileDao {
     @Query("SELECT * FROM user_profiles ORDER BY created_at DESC")
     fun getAllUserProfiles(): Flow<List<UserProfile>>
 
+    @Query("SELECT * FROM user_profiles ORDER BY created_at DESC")
+    suspend fun getAllUserProfilesList(): List<UserProfile>
+
     @Query("SELECT * FROM user_profiles WHERE id = :id")
     suspend fun getUserProfileById(id: Long): UserProfile?
 

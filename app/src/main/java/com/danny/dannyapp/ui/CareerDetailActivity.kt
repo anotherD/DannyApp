@@ -29,15 +29,19 @@ class CareerDetailActivity : BaseActivity() {
 
         if (careerId != -1L) {
             lifecycleScope.launch {
-                val career = careerRepository.getCareerById(careerId)
-                if (career != null) {
+                val careerWithProfile = careerRepository.getCareerById(careerId)
+                if (careerWithProfile != null) {
+                    val career = careerWithProfile.career
                     setupToolbar(
                         titleText = career.name,
                         subtitleText = getString(R.string.career),
                         showBack = true,
                         rootViewId = R.id.careerDetailMain,
                     )
-                    tvDetails.text = getString(R.string.career_current_format, career.name, career.level)
+                    val profileText = if (!careerWithProfile.profileName.isNullOrBlank()) {
+                        "\n" + getString(R.string.career_profile_format, careerWithProfile.profileName)
+                    } else ""
+                    tvDetails.text = getString(R.string.career_current_format, career.name, career.level) + profileText
                 } else {
                     tvDetails.text = getString(R.string.career_not_found)
                 }

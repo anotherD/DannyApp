@@ -9,13 +9,13 @@ class CareerRepository(context: Context) {
 
     private val careerDao: CareerDao = AppDatabase.getDatabase(context.applicationContext).careerDao()
 
-    val careersFlow: Flow<List<Career>> = careerDao.getAllCareers()
+    val careersFlow: Flow<List<CareerWithProfile>> = careerDao.getAllCareers()
 
-    suspend fun getCareers(): List<Career> = withContext(Dispatchers.IO) {
+    suspend fun getCareers(): List<CareerWithProfile> = withContext(Dispatchers.IO) {
         careerDao.getAllCareersList()
     }
 
-    suspend fun getCareerById(id: Long): Career? = withContext(Dispatchers.IO) {
+    suspend fun getCareerById(id: Long): CareerWithProfile? = withContext(Dispatchers.IO) {
         careerDao.getCareerById(id)
     }
 

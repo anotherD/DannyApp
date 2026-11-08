@@ -11,6 +11,10 @@ class UserProfileRepository(context: Context) {
 
     val userProfilesFlow: Flow<List<UserProfile>> = userProfileDao.getAllUserProfiles()
 
+    suspend fun getUserProfiles(): List<UserProfile> = withContext(Dispatchers.IO) {
+        userProfileDao.getAllUserProfilesList()
+    }
+
     suspend fun getUserProfileById(id: Long): UserProfile? = withContext(Dispatchers.IO) {
         userProfileDao.getUserProfileById(id)
     }

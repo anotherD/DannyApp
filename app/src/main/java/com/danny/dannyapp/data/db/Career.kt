@@ -2,9 +2,22 @@ package com.danny.dannyapp.data.db
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "careers")
+@Entity(
+    tableName = "careers",
+    foreignKeys = [
+        ForeignKey(
+            entity = UserProfile::class,
+            parentColumns = ["id"],
+            childColumns = ["profile_id"],
+            onDelete = ForeignKey.CASCADE
+        )
+    ],
+    indices = [Index(value = ["profile_id"])]
+)
 data class Career(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
@@ -14,6 +27,8 @@ data class Career(
     val level: Int,
     @ColumnInfo(name = "season")
     val season: Int = 1,
+    @ColumnInfo(name = "profile_id")
+    val profileId: Long = 0,
     @ColumnInfo(name = "created_at")
     val createdAt: Long = System.currentTimeMillis()
 ) {
