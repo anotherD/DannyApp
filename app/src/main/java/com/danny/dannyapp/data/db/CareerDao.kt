@@ -17,13 +17,13 @@ interface CareerDao {
     suspend fun getAllCareersList(): List<Career>
 
     @Query("SELECT * FROM careers WHERE id = :id")
-    suspend fun getCareerById(id: String): Career?
+    suspend fun getCareerById(id: Long): Career?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCareer(career: Career)
 
     @Query("DELETE FROM careers WHERE id = :id")
-    suspend fun deleteCareerById(id: String)
+    suspend fun deleteCareerById(id: Long)
 
     @Delete
     suspend fun deleteCareer(career: Career)

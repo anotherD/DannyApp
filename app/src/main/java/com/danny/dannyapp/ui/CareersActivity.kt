@@ -18,7 +18,6 @@ import com.danny.dannyapp.data.db.CareerRepository
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.launch
-import java.util.UUID
 
 class CareersActivity : BaseActivity() {
 
@@ -116,7 +115,6 @@ class CareersActivity : BaseActivity() {
                 } else {
                     val level = numberPickerLevel.value
                     val newCareer = Career(
-                        id = UUID.randomUUID().toString(),
                         name = careerName,
                         level = level
                     )

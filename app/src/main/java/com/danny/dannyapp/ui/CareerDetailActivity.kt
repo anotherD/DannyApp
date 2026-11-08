@@ -16,7 +16,7 @@ class CareerDetailActivity : BaseActivity() {
         setContentView(R.layout.activity_career_detail)
 
         careerRepository = CareerRepository(this)
-        val careerId = intent.getStringExtra(EXTRA_CAREER_ID)
+        val careerId = intent.getLongExtra(EXTRA_CAREER_ID, -1L)
 
         setupToolbar(
             titleText = getString(R.string.loading),
@@ -27,7 +27,7 @@ class CareerDetailActivity : BaseActivity() {
 
         val tvDetails: TextView = findViewById(R.id.tvCareerDetails)
 
-        if (careerId != null) {
+        if (careerId != -1L) {
             lifecycleScope.launch {
                 val career = careerRepository.getCareerById(careerId)
                 if (career != null) {

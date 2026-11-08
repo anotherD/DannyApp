@@ -15,7 +15,7 @@ class CareerRepository(context: Context) {
         careerDao.getAllCareersList()
     }
 
-    suspend fun getCareerById(id: String): Career? = withContext(Dispatchers.IO) {
+    suspend fun getCareerById(id: Long): Career? = withContext(Dispatchers.IO) {
         careerDao.getCareerById(id)
     }
 
@@ -23,7 +23,7 @@ class CareerRepository(context: Context) {
         careerDao.insertCareer(career)
     }
 
-    suspend fun deleteCareer(id: String) = withContext(Dispatchers.IO) {
+    suspend fun deleteCareer(id: Long) = withContext(Dispatchers.IO) {
         careerDao.deleteCareerById(id)
     }
 }
