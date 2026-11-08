@@ -33,12 +33,12 @@
     <string name="profiles_create_name_hint">Profilname</string>
     <string name="profiles_create_description_hint">Beschreibung (optional)</string>
     <string name="profiles_create_positive_button">Anlegen</string>
-    <string name="profiles_edit_title">Profil bearbeiten</string>
-    <string name="profiles_edit_positive_button">Speichern</string>
     <string name="profiles_create_error_empty_name">Bitte gib einen Namen für das Profil ein.</string>
     <string name="profiles_create_error_duplicate_name">Ein Profil mit dem Namen \'%s\' existiert bereits.</string>
     <string name="profile_create_error_general">Fehler beim Speichern des Profils: %s</string>
     <string name="profile_created_msg">Profil \'%s\' angelegt!</string>
+    <string name="profile_edit_title">Profil bearbeiten</string>
+    <string name="profile_edit_positive_button">Speichern</string>
     <string name="profile_updated_msg">Profil \'%s\' aktualisiert!</string>
     <string name="profile_selected_msg">Profil: %s</string>
     <string name="profile_delete_title">Profil löschen</string>

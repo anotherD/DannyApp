@@ -124,7 +124,7 @@ class ProfilesActivity : BaseActivity() {
     private fun showEditProfileDialog(profile: UserProfile) {
         val dialogView = layoutInflater.inflate(R.layout.dialog_new_profile, null)
         val tvDialogTitle = dialogView.findViewById<TextView>(R.id.tvDialogTitle)
-        tvDialogTitle?.text = getString(R.string.profiles_edit_title)
+        tvDialogTitle?.text = getString(R.string.profile_edit_title)
 
         val etProfileName = dialogView.findViewById<TextInputEditText>(R.id.etProfileName)
         val etProfileDescription = dialogView.findViewById<TextInputEditText>(R.id.etProfileDescription)
@@ -134,7 +134,7 @@ class ProfilesActivity : BaseActivity() {
 
         val dialog = MaterialAlertDialogBuilder(this)
             .setView(dialogView)
-            .setPositiveButton(getString(R.string.profiles_edit_positive_button), null)
+            .setPositiveButton(getString(R.string.profile_edit_positive_button), null)
             .setNegativeButton(android.R.string.cancel, null)
             .create()
 
