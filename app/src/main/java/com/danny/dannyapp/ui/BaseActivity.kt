@@ -58,6 +58,7 @@ abstract class BaseActivity : AppCompatActivity() {
             }
 
             if (menuResId != 0) {
+                tb.menu.clear()
                 tb.inflateMenu(menuResId)
                 tb.setOnMenuItemClickListener { item ->
                     when (item.itemId) {
