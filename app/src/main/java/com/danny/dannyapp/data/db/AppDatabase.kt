@@ -96,7 +96,7 @@ abstract class AppDatabase : RoomDatabase() {
                         }
 
                         val skillStr = tokens.getCol("skill_level")
-                        val skillLevel = skillStr?.toDoubleOrNull()?.toInt() ?: skillStr?.toIntOrNull() ?: 5
+                        val skill = skillStr?.toDoubleOrNull()?.toInt() ?: skillStr?.toIntOrNull() ?: 5
 
                         val tourYearStr = tokens.getCol("tour_card_year")
                         val tourCardYear = tourYearStr?.toDoubleOrNull()?.toInt() ?: tourYearStr?.toIntOrNull() ?: 0
@@ -107,7 +107,7 @@ abstract class AppDatabase : RoomDatabase() {
                         playerList.add(
                             Player(
                                 name = name,
-                                skillLevel = skillLevel,
+                                skill = skill,
                                 countryCode = countryCode,
                                 prizeMoney = prizeMoney,
                                 tourCardYear = tourCardYear

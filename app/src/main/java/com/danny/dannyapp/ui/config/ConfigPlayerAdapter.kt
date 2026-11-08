@@ -50,10 +50,10 @@ class ConfigPlayerAdapter : ListAdapter<Player, ConfigPlayerAdapter.PlayerViewHo
             val flagEmoji = Country.getFlagEmoji(player.countryCode)
             holder.tvPlayerName.text = "${player.name} $flagEmoji"
         }
-        holder.tvPlayerSkill.text = "L${player.skillLevel}"
+        holder.tvPlayerSkill.text = "L${player.skill}"
         
         // 10-stufiges Farbschema für Level 1 bis 10 (Dark-Mode optimiert)
-        val skillColor = getSkillColor(player.skillLevel)
+        val skillColor = getSkillColor(player.skill)
         holder.tvPlayerSkill.setTextColor(skillColor)
         (holder.itemView as? com.google.android.material.card.MaterialCardView)?.strokeColor = skillColor
 

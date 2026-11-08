@@ -14,8 +14,8 @@ data class Player(
     val id: Long = 0,
     @ColumnInfo(name = "name")
     val name: String,
-    @ColumnInfo(name = "skill_level")
-    val skillLevel: Int, // Spielstärke (1-10)
+    @ColumnInfo(name = "skill")
+    val skill: Int, // Spielstärke (1-10)
     @ColumnInfo(name = "country_code")
     val countryCode: String, // 3-Stelliger Sport/ISO-Code (z.B. "GER", "ENG", "NED")
     @ColumnInfo(name = "price_money")
@@ -28,7 +28,7 @@ data class Player(
 
     init {
         require(name.isNotBlank()) { "Name darf nicht leer sein" }
-        require(skillLevel in Player.MIN_LEVEL..Player.MAX_LEVEL) { "Skill level must be between 1 and 10, got $skillLevel" }
+        require(skill in Player.MIN_LEVEL..Player.MAX_LEVEL) { "Skill level must be between 1 and 10, got $skill" }
         require(tourCardYear in 0..2) { "Tour card year must be 0, 1, or 2, got $tourCardYear" }
     }
 

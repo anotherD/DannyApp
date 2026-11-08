@@ -12,10 +12,10 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface PlayerDao {
 
-    @Query("SELECT * FROM players ORDER BY skill_level DESC, price_money DESC, name ASC")
+    @Query("SELECT * FROM players ORDER BY skill DESC, price_money DESC, name ASC")
     fun getAllPlayers(): Flow<List<Player>>
 
-    @Query("SELECT * FROM players ORDER BY skill_level DESC, price_money DESC, name ASC")
+    @Query("SELECT * FROM players ORDER BY skill DESC, price_money DESC, name ASC")
     fun getAllPlayersSortedBySkill(): Flow<List<Player>>
 
     @Query("SELECT * FROM players ORDER BY name ASC")
@@ -45,15 +45,15 @@ interface PlayerDao {
     suspend fun csvInsertNewPlayers(players: List<Player>)
 
     // Aktualisiert gezielt nur die Stammdaten bestehender Spieler, ID bleibt erhalten!
-    @Query("UPDATE players SET skill_level = :skillLevel, country_code = :countryCode, price_money = :prizeMoney, tour_card_year = :tourCardYear WHERE name = :name")
-    suspend fun csvUpdatePlayerStats(name: String, skillLevel: Int, countryCode: String, prizeMoney: Double, tourCardYear: Int)
+    @Query("UPDATE players SET skill = :skill, country_code = :countryCode, price_money = :prizeMoney, tour_card_year = :tourCardYear WHERE name = :name")
+    suspend fun csvUpdatePlayerStats(name: String, skill: Int, countryCode: String, prizeMoney: Double, tourCardYear: Int)
 
     // Hilfsfunktion, die beides sauber kombiniert
     @Transaction
     suspend fun syncPlayersFromCsv(csvPlayers: List<Player>) {
         csvInsertNewPlayers(csvPlayers)
         csvPlayers.forEach { player ->
-            csvUpdatePlayerStats(player.name, player.skillLevel, player.countryCode, player.prizeMoney, player.tourCardYear)
+            csvUpdatePlayerStats(player.name, player.skill, player.countryCode, player.prizeMoney, player.tourCardYear)
         }
     }
 }
