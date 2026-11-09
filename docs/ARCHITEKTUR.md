@@ -32,7 +32,7 @@ erDiagram
     USER_PROFILES ||--o{ CAREERS : "besitzt (1:N)"
     CAREERS ||--o{ SEASONS : "beinhaltet (1:N)"
     SEASONS ||--o{ TOUR_CARDS : "enthaelt (exakt 128)"
-    PLAYERS ||--o{ TOUR_CARDS : "CPU Spieler (null fuer User)"
+    PLAYERS ||--o{ TOUR_CARDS : "CPU Spieler (-1L fuer User)"
 
     USER_PROFILES {
         long id PK
