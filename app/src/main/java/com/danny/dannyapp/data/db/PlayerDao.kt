@@ -24,6 +24,9 @@ interface PlayerDao {
     @Query("SELECT * FROM players WHERE id = :id")
     suspend fun getPlayerById(id: Long): Player?
 
+    @Query("SELECT COUNT(*) FROM players")
+    suspend fun getPlayerCount(): Int
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertPlayer(player: Player): Long
 

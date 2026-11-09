@@ -39,20 +39,32 @@ abstract class AppDatabase : RoomDatabase() {
         }
 
         private class DatabaseCallback(private val context: Context) : Callback() {
-            // TODO: Spieler aus DB löschen oder TourCard entziehen oder als inactive markieren?
-            // TODO: Nur auf knopfdruck? Für PoC reicht das erstmal so.
-            // TODO: (Tipp: Wenn die Liste der Spieler sehr groß wird, kannst du in den SharedPreferences einfach eine Zahl wie CSV_DATA_VERSION = 2 speichern und syncPlayersFromCsv nur dann ausführen, wenn diese Zahl höher ist als beim letzten Start.)
+
+            companion object {
+                private const val PREFS_NAME = "app_db_prefs"
+                private const val KEY_CSV_DATA_VERSION = "csv_data_version"
+                private const val CURRENT_CSV_VERSION = 1
+            }
+
+            // TODO: Daten aktualisiern?: Spieler aus DB löschen oder TourCard entziehen oder als inactive markieren?
             override fun onOpen(db: SupportSQLiteDatabase) {
                 super.onOpen(db)
-                // Läuft bei jedem Start der DB im Hintergrund (extrem schnell für ~250 Spieler)
                 CoroutineScope(Dispatchers.IO).launch {
                     try {
-                        val playersFromCsv = loadPlayersFromAssets(context, "players.csv")
-                        if (playersFromCsv.isNotEmpty()) {
-                            getDatabase(context).playerDao().syncPlayersFromCsv(playersFromCsv)
+                        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                        val lastSyncedVersion = prefs.getInt(KEY_CSV_DATA_VERSION, 0)
+                        val playerCount = getDatabase(context).playerDao().getPlayerCount()
+
+                        if (lastSyncedVersion < CURRENT_CSV_VERSION || playerCount == 0) {
+                            val playersFromCsv = loadPlayersFromAssets(context, "players.csv")
+                            if (playersFromCsv.isNotEmpty()) {
+                                getDatabase(context).playerDao().syncPlayersFromCsv(playersFromCsv)
+                                prefs.edit().putInt(KEY_CSV_DATA_VERSION, CURRENT_CSV_VERSION).apply()
+                                Log.i("CSVImport", "Spieler aus CSV erfolgreich synchronisiert (Version $CURRENT_CSV_VERSION).")
+                            }
                         }
                     } catch (e: Exception) {
-                        e.printStackTrace()
+                        Log.e("CSVImport", "Fehler beim Synchronisieren der Spieler aus CSV", e)
                     }
                 }
             }
