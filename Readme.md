@@ -57,6 +57,29 @@ Das Chrome-Entwicklerwerkzeug (DevTools) für die `WebView` ist so konfiguriert,
 
 ---
 
+## 📊 CSV-Spielerdatenbank & Updates (`players.csv`)
+
+Die App importiert beim ersten Start die Spielerdaten aus der Datei `app/src/main/assets/players.csv` in die lokale Room-Datenbank.
+
+### Performance-Caching
+Damit beim normalen Start der App nicht jedes Mal die gesamte CSV-Datei eingelesen und verarbeitet werden muss, ist in `AppDatabase.kt` ein Versionierungs-Caching über `SharedPreferences` verbaut (`KEY_CSV_DATA_VERSION`).
+
+### 🔄 Anleitung: So führst du ein Update der Spielerdaten durch
+Wenn du die Datei `players.csv` in den Assets bearbeitest (z. B. neue Spieler hinzufügst, Spielstärken anpasst oder Preisgelder aktualisierst):
+
+1. Öffne `AppDatabase.kt` (`app/src/main/java/com/danny/dannyapp/data/db/AppDatabase.kt`).
+2. Erhöhe die Konstante `CURRENT_CSV_VERSION` um `1`:
+   ```kotlin
+   companion object {
+       private const val PREFS_NAME = "app_db_prefs"
+       private const val KEY_CSV_DATA_VERSION = "csv_data_version"
+       private const val CURRENT_CSV_VERSION = 2 // 👈 Hier um 1 erhöhen (z. B. 1 -> 2)
+   }
+   ```
+3. Beim nächsten App-Start erkennt die App automatisch, dass eine neuere Version der Spielerdaten vorliegt (`lastSyncedVersion < CURRENT_CSV_VERSION`), führt den Daten-Import einmalig aus und speichert die neue Versionsnummer ab.
+
+---
+
 ## 📂 Zugriff auf die Logdatei (`scolia_events.log`)
 
 So öffnest du die Event-Logdatei direkt in Android Studio:
