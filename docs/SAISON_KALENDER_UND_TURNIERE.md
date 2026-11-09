@@ -70,16 +70,16 @@ Zur Simulation einer echten Karriere werden drei Major-Typen integriert:
 6.  **European Championship (MAJOR_LEG):** 32 Teilnehmer. Qualifiziert sind die Top 32 der European Tour Order of Merit der laufenden Saison. Setzung erfolgt strikt nach dieser Rangliste (Platz 1 gegen Platz 32). Reines K.o.-System im Leg-Format.
 7.  **UK Open / European Open (MAJOR_LEG):** 160 Teilnehmer. Es nehmen alle 128 Tourcard-Inhaber der aktuellen Saison teil. Die 32 freien Plätze (Nachrücker/Qualifier) werden dynamisch aus der `players`-Tabelle ermittelt, indem alle Spieler geladen werden, die KEINE aktive Tourcard für die aktuelle `season_id` besitzen (`tour_card_year == 0`), sortiert nach `skill DESC`. K.o.-System ohne feste Setzliste. Jede Runde wird komplett frei neu ausgelost. Runden 1–3 gestaffelt nach Ranglistenplatzierung.
 8.  **PDC European Open (MAJOR_LEG - 160 Spieler):** Ein Major-Turnier, das exakt das spektakuläre Format der UK Open kopiert (160 Spieler, zeitloses Spielen auf 8 Bühnen parallel, keine feste Setzliste). Qualifiziert sind alle 128 Tourcard-Holder der aktuellen Saison sowie 32 Nachrücker/Qualifier ohne Tourcard (`tour_card_year == 0`), die dynamisch aus der `players`-Tabelle nach `skill DESC` ermittelt werden.
-9.  **The Masters (MAJOR_LEG):** 128 Teilnehmer. Es nehmen alle 128 aktiven Tourcard-Inhaber teil. Reines K.o.-System im Leg-Format ohne Gruppenphase.
+9.  **The Masters (MAJOR_LEG):** Top 24 bzw. Top 32 der Main Order of Merit qualifizieren sich über die Rangliste. Reines K.o.-System im Leg-Format.
 
 ---
 
 ## 💰 3. Preisgeldregeln & Ranglisten (Orders of Merit)
 
-Das System führt getrennte, dynamische Ranglisten, basierend auf den kumulierten Daten der aktuellen Saison aus der Tabelle `tournament_placements`.
+Das System führt getrennte, dynamische Ranglisten, basierend auf den kumulierten Daten der Karriere aus der Tabelle `tournament_placements`.
 
 ### 3.1 Die 4 Kern-Ranglisten
-1.  **Main Order of Merit (Gesamtrangliste):** Basis-Wert aus `players.prizeMoney` plus alle Erträge (`prize_money_ranking`) aller Turniertypen der aktuellen Saison.
+1.  **Main Order of Merit (Gesamtrangliste):** Berechnet sich ausschließlich aus den im Laufe der Karriere tatsächlich eingespielten Ranglisten-Preisgeldern (`prize_money_ranking`) aller gewerteten Turniertypen. Der Stammdatenwert `players.prizeMoney` wird aktuell nicht verwendet (kann in einer späteren Ausbaustufe optional als historischer Startwert vor Karrierebeginn dienen).
 2.  **Pro Tour Order of Merit:** Kumuliertes Ranglisten-Preisgeld aus `PLAYERS_CHAMPIONSHIP` und `EUROPEAN_TOUR`.
 3.  **Players Championship Order of Merit:** Ausschließlich Preisgelder aus `PLAYERS_CHAMPIONSHIP`.
 4.  **European Tour Order of Merit:** Ausschließlich Preisgelder aus `EUROPEAN_TOUR`.
