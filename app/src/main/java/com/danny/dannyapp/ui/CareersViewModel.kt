@@ -11,7 +11,11 @@ import com.danny.dannyapp.data.db.UserProfileRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
+
+sealed interface SaveCareerResult {
+    data class Success(val careerName: String, val level: Int) : SaveCareerResult
+    data class Error(val message: String) : SaveCareerResult
+}
 
 class CareersViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -29,17 +33,21 @@ class CareersViewModel(application: Application) : AndroidViewModel(application)
         return userProfileRepository.getUserProfiles()
     }
 
-    fun saveCareer(career: Career, onSuccess: () -> Unit) {
-        viewModelScope.launch {
+    suspend fun saveCareer(career: Career): SaveCareerResult {
+        return try {
             careerRepository.saveCareer(career)
-            onSuccess()
+            SaveCareerResult.Success(career.name, career.level)
+        } catch (e: Exception) {
+            SaveCareerResult.Error(e.localizedMessage ?: "Fehler beim Speichern der Karriere")
         }
     }
 
-    fun deleteCareer(careerId: Long, onSuccess: () -> Unit) {
-        viewModelScope.launch {
+    suspend fun deleteCareer(careerId: Long): Boolean {
+        return try {
             careerRepository.deleteCareer(careerId)
-            onSuccess()
+            true
+        } catch (e: Exception) {
+            false
         }
     }
 }

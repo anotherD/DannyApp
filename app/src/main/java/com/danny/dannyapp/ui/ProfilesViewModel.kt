@@ -10,7 +10,6 @@ import com.danny.dannyapp.data.db.UserProfileRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
 
 sealed interface SaveProfileResult {
     data class Success(val profileName: String) : SaveProfileResult
@@ -34,77 +33,72 @@ class ProfilesViewModel(application: Application) : AndroidViewModel(application
         return careerRepository.getCareerCountForProfile(profileId)
     }
 
-    fun saveUserProfile(name: String, description: String, onResult: (SaveProfileResult) -> Unit) {
-        viewModelScope.launch {
-            val trimmedName = name.trim()
+    suspend fun saveUserProfile(name: String, description: String): SaveProfileResult {
+        val trimmedName = name.trim()
+        val existing = userProfileRepository.getProfileByName(trimmedName)
+        if (existing != null) {
+            return SaveProfileResult.DuplicateName(trimmedName)
+        }
+
+        val newProfile = UserProfile(
+            name = trimmedName,
+            description = description.trim()
+        )
+
+        return try {
+            userProfileRepository.saveUserProfile(newProfile)
+            SaveProfileResult.Success(trimmedName)
+        } catch (e: Exception) {
+            val isDuplicate = e is SQLiteConstraintException ||
+                e.message?.contains("UNIQUE constraint", ignoreCase = true) == true
+
+            if (isDuplicate) {
+                SaveProfileResult.DuplicateName(trimmedName)
+            } else {
+                SaveProfileResult.Error(e.localizedMessage ?: "Unbekannter Fehler")
+            }
+        }
+    }
+
+    suspend fun updateUserProfile(profile: UserProfile, newName: String, newDescription: String): SaveProfileResult {
+        val trimmedName = newName.trim()
+        if (trimmedName.isEmpty()) {
+            return SaveProfileResult.Error("Name darf nicht leer sein")
+        }
+
+        if (!trimmedName.equals(profile.name, ignoreCase = true)) {
             val existing = userProfileRepository.getProfileByName(trimmedName)
-            if (existing != null) {
-                onResult(SaveProfileResult.DuplicateName(trimmedName))
-                return@launch
+            if (existing != null && existing.id != profile.id) {
+                return SaveProfileResult.DuplicateName(trimmedName)
             }
+        }
 
-            val newProfile = UserProfile(
-                name = trimmedName,
-                description = description.trim()
-            )
+        val updatedProfile = profile.copy(
+            name = trimmedName,
+            description = newDescription.trim()
+        )
 
-            try {
-                userProfileRepository.saveUserProfile(newProfile)
-                onResult(SaveProfileResult.Success(trimmedName))
-            } catch (e: Exception) {
-                val isDuplicate = e is SQLiteConstraintException ||
-                    e.message?.contains("UNIQUE constraint", ignoreCase = true) == true
+        return try {
+            userProfileRepository.updateUserProfile(updatedProfile)
+            SaveProfileResult.Success(trimmedName)
+        } catch (e: Exception) {
+            val isDuplicate = e is SQLiteConstraintException ||
+                e.message?.contains("UNIQUE constraint", ignoreCase = true) == true
 
-                if (isDuplicate) {
-                    onResult(SaveProfileResult.DuplicateName(trimmedName))
-                } else {
-                    onResult(SaveProfileResult.Error(e.localizedMessage ?: "Unbekannter Fehler"))
-                }
+            if (isDuplicate) {
+                SaveProfileResult.DuplicateName(trimmedName)
+            } else {
+                SaveProfileResult.Error(e.localizedMessage ?: "Unbekannter Fehler")
             }
         }
     }
 
-    fun updateUserProfile(profile: UserProfile, newName: String, newDescription: String, onResult: (SaveProfileResult) -> Unit) {
-        viewModelScope.launch {
-            val trimmedName = newName.trim()
-            if (trimmedName.isEmpty()) {
-                onResult(SaveProfileResult.Error("Name darf nicht leer sein"))
-                return@launch
-            }
-
-            if (!trimmedName.equals(profile.name, ignoreCase = true)) {
-                val existing = userProfileRepository.getProfileByName(trimmedName)
-                if (existing != null && existing.id != profile.id) {
-                    onResult(SaveProfileResult.DuplicateName(trimmedName))
-                    return@launch
-                }
-            }
-
-            val updatedProfile = profile.copy(
-                name = trimmedName,
-                description = newDescription.trim()
-            )
-
-            try {
-                userProfileRepository.updateUserProfile(updatedProfile)
-                onResult(SaveProfileResult.Success(trimmedName))
-            } catch (e: Exception) {
-                val isDuplicate = e is SQLiteConstraintException ||
-                    e.message?.contains("UNIQUE constraint", ignoreCase = true) == true
-
-                if (isDuplicate) {
-                    onResult(SaveProfileResult.DuplicateName(trimmedName))
-                } else {
-                    onResult(SaveProfileResult.Error(e.localizedMessage ?: "Unbekannter Fehler"))
-                }
-            }
-        }
-    }
-
-    fun deleteUserProfile(profileId: Long, onSuccess: () -> Unit) {
-        viewModelScope.launch {
+    suspend fun deleteUserProfile(profileId: Long): Boolean {
+        return try {
             userProfileRepository.deleteUserProfile(profileId)
-            onSuccess()
+            true
+        } catch (e: Exception) {
+            false
         }
     }
 }

@@ -80,8 +80,11 @@ class ProfilesActivity : BaseActivity() {
                 .setTitle(getString(R.string.profile_delete_title))
                 .setMessage(message)
                 .setPositiveButton(getString(R.string.profile_delete_confirm)) { _, _ ->
-                    viewModel.deleteUserProfile(profile.id) {
-                        Toast.makeText(this@ProfilesActivity, getString(R.string.profile_deleted_msg, profile.name), Toast.LENGTH_SHORT).show()
+                    lifecycleScope.launch {
+                        val success = viewModel.deleteUserProfile(profile.id)
+                        if (success) {
+                            Toast.makeText(this@ProfilesActivity, getString(R.string.profile_deleted_msg, profile.name), Toast.LENGTH_SHORT).show()
+                        }
                     }
                 }
                 .setNegativeButton(android.R.string.cancel, null)
@@ -108,7 +111,8 @@ class ProfilesActivity : BaseActivity() {
                     Toast.makeText(this, getString(R.string.profiles_create_error_empty_name), Toast.LENGTH_SHORT).show()
                 } else {
                     val profileDescription = etProfileDescription.text.toString().trim()
-                    viewModel.saveUserProfile(profileName, profileDescription) { result ->
+                    lifecycleScope.launch {
+                        val result = viewModel.saveUserProfile(profileName, profileDescription)
                         when (result) {
                             is SaveProfileResult.Success -> {
                                 Toast.makeText(this@ProfilesActivity, getString(R.string.profile_created_msg, result.profileName), Toast.LENGTH_SHORT).show()
@@ -154,7 +158,8 @@ class ProfilesActivity : BaseActivity() {
                     Toast.makeText(this, getString(R.string.profiles_create_error_empty_name), Toast.LENGTH_SHORT).show()
                 } else {
                     val profileDescription = etProfileDescription.text.toString().trim()
-                    viewModel.updateUserProfile(profile, profileName, profileDescription) { result ->
+                    lifecycleScope.launch {
+                        val result = viewModel.updateUserProfile(profile, profileName, profileDescription)
                         when (result) {
                             is SaveProfileResult.Success -> {
                                 Toast.makeText(this@ProfilesActivity, getString(R.string.profile_updated_msg, result.profileName), Toast.LENGTH_SHORT).show()

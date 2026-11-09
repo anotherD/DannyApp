@@ -99,8 +99,11 @@ class CareersActivity : BaseActivity() {
             .setTitle(getString(R.string.career_delete_title))
             .setMessage(getString(R.string.career_delete_message, career.name))
             .setPositiveButton(getString(R.string.career_delete_confirm)) { _, _ ->
-                viewModel.deleteCareer(career.id) {
-                    Toast.makeText(this@CareersActivity, getString(R.string.career_deleted_msg, career.name), Toast.LENGTH_SHORT).show()
+                lifecycleScope.launch {
+                    val success = viewModel.deleteCareer(career.id)
+                    if (success) {
+                        Toast.makeText(this@CareersActivity, getString(R.string.career_deleted_msg, career.name), Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
             .setNegativeButton(android.R.string.cancel, null)
@@ -157,9 +160,16 @@ class CareersActivity : BaseActivity() {
                         level = level,
                         profileId = selectedProfileId
                     )
-                    viewModel.saveCareer(newCareer) {
-                        Toast.makeText(this@CareersActivity, getString(R.string.careers_career_created, careerName, level), Toast.LENGTH_SHORT).show()
-                        dialog.dismiss()
+                    lifecycleScope.launch {
+                        when (val result = viewModel.saveCareer(newCareer)) {
+                            is SaveCareerResult.Success -> {
+                                Toast.makeText(this@CareersActivity, getString(R.string.careers_career_created, result.careerName, result.level), Toast.LENGTH_SHORT).show()
+                                dialog.dismiss()
+                            }
+                            is SaveCareerResult.Error -> {
+                                Toast.makeText(this@CareersActivity, result.message, Toast.LENGTH_LONG).show()
+                            }
+                        }
                     }
                 }
             }
