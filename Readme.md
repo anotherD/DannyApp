@@ -1,7 +1,7 @@
 # 🎯 Danny Darts App (Profi-Darts-Karriere-Simulation)
 
 ## 📌 Über das Projekt
-Die **Danny Darts App** ist eine umfassende Android-App zur Simulation einer eigenständigen, professionellen Dart-Karriere. Das Projekt verbindet realistische Bot-Gegner, ein ausgeklügeltes Saison- und Tour-Card-System, Caller- und Sound-Engines sowie Statistiken mit einer nahtlosen **Scolia-Kamera-Integration** als Hardware-Sensor zur automatischen Treffererkennung.
+Die **Danny Darts App** ist eine umfassende Android-App zur Simulation einer eigenständigen, professionellen Dart-Karriere. Das Projekt verbindet realistische Bot-Gegner, ein ausgeklügeltes Saison- und Tour-Card-System mit einem Saison-Kalender mit Turnieren, Caller- und Sound-Engines sowie Statistiken mit einer nahtlosen **Scolia-Kamera-Integration** als Hardware-Sensor zur automatischen Treffererkennung.
 
 ---
 
