@@ -61,7 +61,7 @@ erDiagram
     TOUR_CARDS {
         long id PK
         long seasonId FK
-        long playerId FK "null fuer User"
+        long playerId "-1L (USER_ID) fuer User"
         int tourCardYear "1 oder 2"
     }
 
@@ -82,9 +82,9 @@ erDiagram
 2. **`careers`**: Speichert Karrieren. Verweist per Fremdschlüssel `profile_id` auf `user_profiles.id` (`CASCADE`).
 3. **`seasons`**: Speichert Saisons einer Karriere. Verweist per `career_id` auf `careers.id` (`CASCADE`).
 4. **`tour_cards`**: Speichert die exakt 128 Tourcard-Inhaber pro Saison.
-   - `player_id = null` -> Der menschliche User der Karriere.
-   - `player_id != null` -> CPU-Spieler aus `players`.
-   - Property `isUser`: `playerId == null`.
+   - `player_id = USER_ID (-1L)` -> Der menschliche User der Karriere.
+   - `player_id != USER_ID` -> CPU-Spieler aus `players`.
+   - Property `isUser`: `playerId == USER_ID`.
 5. **`players`**: Stammdatenbank aller Dart-Profis (importiert aus `players.csv`).
 
 ---

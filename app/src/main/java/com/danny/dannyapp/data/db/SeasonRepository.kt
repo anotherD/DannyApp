@@ -63,11 +63,11 @@ class SeasonRepository(
     ): List<TourCard> {
         val tourCards = mutableListOf<TourCard>()
 
-        // 1. Human User receives 1 Tour Card (playerId = null, tourCardYear = 2)
+        // 1. Human User receives 1 Tour Card (playerId = USER_ID, tourCardYear = 2)
         tourCards.add(
             TourCard(
                 seasonId = seasonId,
-                playerId = null,
+                playerId = USER_ID,
                 tourCardYear = 2
             )
         )

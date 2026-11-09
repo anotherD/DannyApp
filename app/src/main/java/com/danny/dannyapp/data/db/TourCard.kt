@@ -6,6 +6,8 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 
+const val USER_ID = -1L
+
 @Entity(
     tableName = "tour_cards",
     foreignKeys = [
@@ -13,12 +15,6 @@ import androidx.room.PrimaryKey
             entity = Season::class,
             parentColumns = ["id"],
             childColumns = ["season_id"],
-            onDelete = ForeignKey.CASCADE
-        ),
-        ForeignKey(
-            entity = Player::class,
-            parentColumns = ["id"],
-            childColumns = ["player_id"],
             onDelete = ForeignKey.CASCADE
         )
     ],
@@ -34,12 +30,12 @@ data class TourCard(
     @ColumnInfo(name = "season_id")
     val seasonId: Long,
     @ColumnInfo(name = "player_id")
-    val playerId: Long? = null,
+    val playerId: Long,
     @ColumnInfo(name = "tour_card_year")
     val tourCardYear: Int
 ) {
     val isUser: Boolean
-        get() = playerId == null
+        get() = playerId == USER_ID
 
     init {
         require(tourCardYear in 1..2) { "Tour card year must be 1 or 2, got $tourCardYear" }

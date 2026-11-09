@@ -66,12 +66,11 @@ Zur Simulation einer echten Karriere werden drei Major-Typen integriert:
 2.  **World Grand Prix (MAJOR_SET / Double-In):** Die Top-Spieler im K.o.-System, jedoch im **Set-Modus** (z. B. Best of 3 Sets, jedes Set Best of 5 Legs) und mit der Verschärfung **Double-In / Double-Out** (das Leg startet erst, wenn ein Doppel getroffen wird).
 3.  **Grand Slam of Darts (MAJOR_GROUP):** 32 Spieler aufgeteilt in **8 Gruppen à 4 Spieler**. Gruppenphase im Round-Robin-System (Jeder gegen jeden, Best of 9 Legs). Die Top 2 jeder Gruppe rücken ins K.o.-Achtelfinale vor.
 4.  **World Championship (MAJOR_SET):** Das größte Event des Jahres mit 96 Spielern. Die Top 32 der Main OoM steigen direkt in Runde 2 ein. Runde 1 bestreiten die Top 32 der Pro Tour OoM gegen 32 internationale Qualifier (Nicht-Tourcard-Spieler). Set-Format (Best of 5 bis Best of 13 Sets im Finale).
-5.  **Players Championship Finals (MAJOR_LEG):** Die Top 64 Spieler der reinen *Players Championship Order of Merit* qualifizieren sich hierfür. Reines K.o.-System im Leg-Format (z. B. Runde 1 Best of 11 Legs, Finale Best of 21 Legs). Feste Setzung strikt nach der PC-Rangliste (Platz 1 gegen 64, Platz 2 gegen 63 usw.).
-6.  **European Championship (MAJOR_LEG):** Die Top 32 Spieler der reinen *European Tour Order of Merit* qualifizieren sich. Reines K.o.-System im Leg-Format (Runde 1 Best of 11 Legs, Finale Best of 21 Legs). Setzung strikt nach der ET-Rangliste (Platz 1 gegen 32).
-7.  **UK Open (MAJOR_LEG - 160 Spieler):** Das "FA Cup des Darts". Es nehmen alle 128 Tourcard-Inhaber teil, ergänzt um 32 Amateure/Challenge-Tour-Nachrücker. Das Alleinstellungsmerkmal: **Es gibt keine Setzliste** – ab Runde 4 kann in jeder Runde jede ID (auch die des Users) gegen jeden Top-Spieler gelost werden. Die Runden 1–3 filtern nach Rangliste (schwächere Spieler steigen zuerst ein). Das Turnier wird parallel auf bis zu 8 Bühnen ausgetragen.
-    (Die fehlenden 32 Plätze zur Auffüllung auf 160 Spieler werden dynamisch aus Nicht-Tourcard-Spielern mit `tour_card_year == 0` nach `skill DESC` aufgefüllt).
+5.  **Players Championship Finals (MAJOR_LEG):** 64 Teilnehmer. Qualifiziert sind die Top 64 der Players Championship Order of Merit der laufenden Saison. Setzung erfolgt strikt nach dieser Rangliste (Platz 1 gegen Platz 64). Reines K.o.-System im Leg-Format.
+6.  **European Championship (MAJOR_LEG):** 32 Teilnehmer. Qualifiziert sind die Top 32 der European Tour Order of Merit der laufenden Saison. Setzung erfolgt strikt nach dieser Rangliste (Platz 1 gegen Platz 32). Reines K.o.-System im Leg-Format.
+7.  **UK Open / European Open (MAJOR_LEG):** 160 Teilnehmer. Es nehmen alle 128 Tourcard-Inhaber teil. Die verbleibenden 32 Plätze werden mit Nicht-Tourcard-Spielern (`tour_card_year == 0`) nach `skill DESC` aufgefüllt. K.o.-System ohne feste Setzliste. Jede Runde wird komplett frei neu ausgelost. Runden 1–3 gestaffelt nach Ranglistenplatzierung.
 8.  **PDC European Open (MAJOR_LEG - 160 Spieler):** Ein brandneues Major-Turnier, das exakt das spektakuläre Format der UK Open kopiert (160 Spieler, zeitloses Spielen auf 8 Bühnen parallel, keine feste Setzliste). Qualifiziert sind alle 128 Tourcard-Holder sowie 32 regionale europäische Qualifier (z. B. über die *PDC Europe Start*-Serie).
-9.  **PDC World Masters (MAJOR_SET / ehemals "The Masters" - 32 Spieler):** Dieses Turnier wurde reformiert und wird im schnellen Set-Modus gespielt (2 Legs reichen für einen Satzgewinn). Die Top 24 der Weltrangliste sind fest qualifiziert. Die verbleibenden 8 Plätze werden über eine vorgelagerte, harte Gruppen-Vorrunde ausgespielt, an der auch die restlichen Tourcard-Inhaber teilnehmen können.
+9.  **The Masters (MAJOR_LEG):** 128 Teilnehmer. Es nehmen alle 128 aktiven Tourcard-Inhaber teil. Reines K.o.-System im Leg-Format ohne Gruppenphase.
 
 ---
 
@@ -99,10 +98,10 @@ Das System führt getrennte, dynamische Ranglisten, basierend auf den kumulierte
 ## 4. Spielformate (Legs & Sets)
 
 ### 4.1 Leg-Format (Pro Tour & ausgewählte Majors)
-*   **Players Championship / European Tour:** Best of 11 Legs (First to 6). Halbfinale: Best of 13. Finale: Best of 15.
-*   **UK Open & European Open:** Runden 1–3: Best of 11 Legs. Ab Runde 4 bis Viertelfinale: Best of 19 Legs. Halbfinale und Finale: Best of 21 Legs.
-*   **Grand Slam:** Gruppenphase: Best of 9 Legs (First to 5). K.o.-Phasen bis zu Best of 31 Legs im Finale.
-*   **World Matchplay & Players Championship Finals & European Championship:** Reines K.o.-System im Leg-Format (Langen Distanzen je nach Runde, z. B. Finale bis zu Best of 21/31 Legs).
+*   **UK Open & European Open:** Runden 1–3: Best of 11 Legs. Runde 4 bis Viertelfinale: Best of 19 Legs. Halbfinale und Finale: Best of 21 Legs.
+*   **Grand Slam of Darts:** Gruppenphase: Best of 9 Legs. Achtelfinale: Best of 19 Legs. Viertelfinale, Halbfinale und Finale: Best of 31 Legs.
+*   **World Matchplay:** Runde 1: Best of 19 Legs. Runde 2: Best of 21 Legs. Viertelfinale: Best of 31 Legs. Halbfinale: Best of 33 Legs. Finale: Best of 35 Legs.
+*   **Players Championship Finals & European Championship:** Runde 1: Best of 11 Legs. Runde 2 und Viertelfinale: Best of 19 Legs. Halbfinale und Finale: Best of 21 Legs.
 
 ### 4.2 Set-Format (World Championship & World Masters)
 Ein Set besteht aus *Best of 5 Legs* (First to 3 Legs gewinnt das Set).

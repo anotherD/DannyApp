@@ -10,11 +10,11 @@ Dieses Dokument beschreibt die Fachlogik zur Erstellung und Verwaltung von Saiso
 
 In jeder Saison gibt es **exakt 128 Tour Card Holder**:
 * **1 Tour Card für den menschlichen User:**
-  - `playerId = null` (repräsentiert den User der Karriere)
+  - `playerId = USER_ID (-1L)` (repräsentiert den User der Karriere)
   - `tourCardYear = 2` (fest vorgegeben)
-  - Computed Kotlin Property: `val isUser: Boolean get() = playerId == null`
+  - Computed Kotlin Property: `val isUser: Boolean get() = playerId == USER_ID`
 * **127 Tour Cards für CPU-Spieler:**
-  - `playerId` verweist auf die `players`-Tabelle.
+  - `playerId` entspricht der ID aus der `players`-Tabelle.
   - `tourCardYear` ist `1` oder `2`.
 
 ---
@@ -35,7 +35,7 @@ Alle CPU-Spieler aus der `players`-Tabelle mit `tour_card_year > 0` werden gelad
 
 ```mermaid
 flowchart TD
-    A[Saison 1 erstellen] --> B[1 Tour Card fuer User anlegen\nplayerId=null, tourCardYear=2]
+    A[Saison 1 erstellen] --> B[1 Tour Card fuer User anlegen\nplayerId=USER_ID (-1L), tourCardYear=2]
     B --> C[CPU-Spieler mit tour_card_year > 0 laden]
     C --> D{Anzahl CPU-Kandidaten?}
 

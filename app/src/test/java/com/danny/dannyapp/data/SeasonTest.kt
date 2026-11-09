@@ -8,12 +8,12 @@ import com.danny.dannyapp.data.db.SeasonRepository
 import com.danny.dannyapp.data.db.TourCard
 import com.danny.dannyapp.data.db.TourCardDao
 import com.danny.dannyapp.data.db.TourCardWithPlayer
+import com.danny.dannyapp.data.db.USER_ID
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -33,9 +33,9 @@ class SeasonTest {
 
     @Test
     fun testTourCardUserProperty() {
-        val userTourCard = TourCard(seasonId = 1, playerId = null, tourCardYear = 2)
+        val userTourCard = TourCard(seasonId = 1, playerId = USER_ID, tourCardYear = 2)
         assertTrue(userTourCard.isUser)
-        assertNull(userTourCard.playerId)
+        assertEquals(USER_ID, userTourCard.playerId)
 
         val cpuTourCard = TourCard(seasonId = 1, playerId = 10L, tourCardYear = 1)
         assertFalse(cpuTourCard.isUser)
@@ -118,7 +118,7 @@ class SeasonTest {
 
         // 80 initial tour card players + 47 backfilled non-tour card players = 127 CPU
         val backfilledCards = createdCards.filter { card ->
-            card.playerId != null && card.playerId in 81L..140L
+            card.playerId in 81L..140L
         }
         assertEquals(47, backfilledCards.size)
         assertTrue(backfilledCards.all { it.tourCardYear == 2 })
