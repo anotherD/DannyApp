@@ -85,9 +85,9 @@ Das System führt getrennte, dynamische Ranglisten, basierend auf den kumulierte
 4.  **European Tour Order of Merit:** Ausschließlich Preisgelder aus `EUROPEAN_TOUR`.
 
 ### 3.2 PDC-Sonderregeln für Preisgelder (Wichtig für die Logik!)
-*   **European Tour (Gesetzte Verlierer):** Wenn ein gesetzter Spieler (Top 16) in der 2. Runde der European Tour sein erstes Spiel verliert, erhält er zwar das finanzielle Preisgeld (`prize_money_earned = £3.500`), dieses wird jedoch **nicht** für die Ranglisten gewertet (`prize_money_ranking = £0`).
-*   **Players Championship (Runde 1):** Verlierer der ersten Runde (Last 128) erhalten £0.
-*   **Gesetzte Erstrunden-Verlierer (ET, European Championship, PC Finals):** Wenn ein gesetzter Spieler bei der European Tour (in Runde 2) oder bei den PC Finals / der European Championship (in Runde 1) sein jeweils erstes Turnierspiel verliert, erhält er das Preisgeld zwar finanziell ausgezahlt (`prize_money_earned`), es wird jedoch **nicht** für die Ranglisten gewertet (`prize_money_ranking = £0`).
+*   **European Tour (Gesetzte Verlierer in Runde 2):** Die Sonderregel gilt **ausschließlich** für die European Tour (ET): Wenn ein gesetzter Top-16-Spieler in der 2. Runde sein erstes Match verliert, erhält er das finanzielle Preisgeld zwar ausgezahlt (`prize_money_earned`), dieses wird jedoch **nicht** für die Ranglisten gewertet (`prize_money_ranking = £0`). Gewinnt er sein Auftaktmatch, zählt das gesamte erzielte Preisgeld voll für die Ranglisten.
+*   **Players Championship (Runde 1):** Verlierer der 1. Runde (Last 128) erhalten £0 Preisgeld (sowohl finanziell als auch für die Rangliste).
+*   **Keine Sonderregel bei Majors (z. B. Players Championship Finals & European Championship):** Bei diesen Majors gibt es keine Freilose in der ersten Runde; alle qualifizierten Spieler starten direkt in Runde 1. Wenn dort ein gesetzter Spieler in Runde 1 verliert, zählt das Preisgeld ganz normal im vollen Umfang für die Ranglisten (`prize_money_ranking = prize_money_earned`).
 
 ### 3.3 Format-Spezifikationen für Sets und Sonderregeln
 *   **Set-Modus (World Championship):** Ein Set besteht immer aus *Best of 5 Legs* (First to 3 Legs gewinnt das Set).
