@@ -30,7 +30,7 @@ interface CareerDao {
     suspend fun getCareerCountForProfile(profileId: Long): Int
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertCareer(career: Career)
+    suspend fun insertCareer(career: Career): Long
 
     @Query("DELETE FROM careers WHERE id = :id")
     suspend fun deleteCareerById(id: Long)

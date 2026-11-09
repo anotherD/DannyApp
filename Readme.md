@@ -30,6 +30,15 @@ Diese App ermöglicht eine eigenständige, professionelle Dart-Karriere-Simulati
 
 ---
 
+## 📖 Projektdokumentation
+
+Ausführliche Fachkonzepte und Architekturbeschreibungen befinden sich im [`docs/`](file:///C:/Users/Danny/AndroidStudioProjects/DannyViewsApp/docs/) Ordner:
+
+- 🏛️ **[System-Architektur & Datenmodell](file:///C:/Users/Danny/AndroidStudioProjects/DannyViewsApp/docs/ARCHITEKTUR.md)**: MVVM-Struktur, Room DB v12 Schema (`UserProfile`, `Career`, `Season`, `TourCard`, `Player`).
+- 🎯 **[Fachkonzept Saisons & Tour Cards](file:///C:/Users/Danny/AndroidStudioProjects/DannyViewsApp/docs/SAISON_LOGIK.md)**: 128er-Regel, User-Platzierung, Auffüll- & Kürzungslogik, Vorbereitung für Order of Merit.
+
+---
+
 ## 🛠️ Technische Umsetzung (Proof of Concept - PoC)
 
 ### 1. WebSocket Proxy Hook (`MainActivity.kt`)

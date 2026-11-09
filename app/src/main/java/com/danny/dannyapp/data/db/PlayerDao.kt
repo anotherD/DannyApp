@@ -16,6 +16,9 @@ interface PlayerDao {
     fun getAllPlayers(): Flow<List<Player>>
 
     @Query("SELECT * FROM players ORDER BY skill DESC, price_money DESC, name ASC")
+    suspend fun getAllPlayersList(): List<Player>
+
+    @Query("SELECT * FROM players ORDER BY skill DESC, price_money DESC, name ASC")
     fun getAllPlayersSortedBySkill(): Flow<List<Player>>
 
     @Query("SELECT * FROM players ORDER BY name ASC")
