@@ -30,9 +30,19 @@ Ausführliche Fachkonzepte, Forschungsberichte und Architekturbeschreibungen bef
 Die Scolia-Anbindung ist erfolgreich konzipiert und befindet sich in der aktiven Implementierung:
 - [x] WebSocket Proxy zur zuverlässigen Wurferkennung im WebView.
 - [x] Tracking-Blocker & Stabile WebView-Konfiguration.
+- [x] User Profile
+- [x] Karrieren anlegen und mit Profil verknüpfen
+- [ ] Karriere: Saisons anlegen (Status: initial fertig, es Fehlen aber noch details, siehe weiter Punkte)
+- [x] Saision: Spieler hinzufügen (TourcardHolder initial)
+- [ ] Saision: Spieler hinzufügen (TourcardHolder bei folgesaisons)
+- [ ] Saision: Turniere hinzufügen
+- [ ] Statistiken erfassen
+- [ ] Statistiken Anzeige und Auswertungen
+- [ ] Statistiken
 - [ ] JSON-Parser & Event-Auswertung (Sektor, Ring, Koordinaten).
 - [ ] Caller Engine (SoundPool Latenzfreie Sprachausgabe).
-- [ ] Bot-Simulation & Karrieremodus-UI.
+- [ ] Match-Simulation
+- [ ] Bot-Simulation
 
 ---
 
