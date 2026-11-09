@@ -45,6 +45,9 @@
         <item name="colorOutline">@color/grau_rahmen</item>
         <item name="colorOutlineVariant">@color/grau_rahmen_dunkel</item>
 
+        <!-- Globaler Stil für TextInputLayout (setzt Hint-Farbe nur im leeren Zustand) -->
+        <item name="textInputStyle">@style/Widget.DannyApp.TextInputLayout.OutlinedBox</item>
+
         <!-- verhindert, dass cards mit elevation eingefärbt werden mit colorPrimary -->
 <!--        <item name="elevationOverlayEnabled">false</item>-->
 
@@ -53,5 +56,10 @@
 <!--        <item name="colorOnError">@color/black</item>-->
 <!--        <item name="colorErrorContainer">@color/rot_dunkel</item>-->
 <!--        <item name="colorOnErrorContainer">@color/white</item>-->
+    </style>
+
+    <!-- Eigener TextInputLayout-Stil für den Platzhalter (Hint) ohne den schwebenden Label zu beeinflussen -->
+    <style name="Widget.DannyApp.TextInputLayout.OutlinedBox" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="android:textColorHint">@color/eingabe_hint</item>
     </style>
 </resources>

@@ -29,6 +29,8 @@
     <color name="grau_sekundaer">#FFC4C4C4</color>
     <color name="grau_text_hell">#FFF5F5F5</color>
 
+    <color name="eingabe_hint">#FF757575</color>
+
     <!-- Das edle Rot-Konzept (Satter & Kräftiger, kein Orange) -->
 <!--    <color name="rot">#E50914</color>             &lt;!&ndash; Sattes, kräftiges Rubinrot für Hauptbuttons &ndash;&gt;-->
 <!--    <color name="rot_dunkel">#990000</color>      &lt;!&ndash; Sattes dunkles Rot für gedrückte Zustände &ndash;&gt;-->

@@ -14,7 +14,6 @@
         android:textStyle="bold" />
 
     <com.google.android.material.textfield.TextInputLayout
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp">
@@ -40,8 +39,7 @@
             android:id="@+id/autoCompleteProfile"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="none"
-            android:focusable="false" />
+            android:inputType="none" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -50,7 +48,8 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:text="@string/careers_create_level"
-        android:textSize="16sp" />
+        android:textSize="16sp"
+        android:labelFor="@+id/numberPickerLevel" />
 
     <NumberPicker
         android:id="@+id/numberPickerLevel"

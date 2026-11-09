@@ -128,6 +128,14 @@ class CareersActivity : BaseActivity() {
         if (profiles.isNotEmpty()) {
             autoCompleteProfile.setText(profiles[0].name, false)
         }
+        autoCompleteProfile.setOnClickListener {
+            autoCompleteProfile.showDropDown()
+        }
+        autoCompleteProfile.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) {
+                autoCompleteProfile.showDropDown()
+            }
+        }
         autoCompleteProfile.setOnItemClickListener { parent, _, position, _ ->
             val selectedName = parent.getItemAtPosition(position) as? String
             selectedProfileId = profiles.find { it.name == selectedName }?.id ?: 0L
