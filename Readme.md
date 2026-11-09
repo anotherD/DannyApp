@@ -1,110 +1,42 @@
-# Danny Darts App (Scolia Integration & Karrieremodus)
+# 🎯 Danny Darts App (Profi-Darts-Karriere-Simulation)
 
-## 📌 Motivation & Zielsetzung
-Scolia bietet eine hervorragende Hardware zur automatischen Treffererkennung per Kamera, jedoch sind die integrierten Bots auf der Webseite limitiert. Ein offizieller API-Zugriff für eigene Apps wird von Scolia nicht oder nur zu sehr hohen monatlichen Kosten angeboten.
-
-Diese App ermöglicht eine eigenständige, professionelle Dart-Karriere-Simulation mit realistischen Bots, Callern und Statistiken, indem das Scolia-Kamerasystem als rein lokaler **Hardware-Sensor zur Wurferkennung** genutzt wird.
+## 📌 Über das Projekt
+Die **Danny Darts App** ist eine umfassende Android-App zur Simulation einer eigenständigen, professionellen Dart-Karriere. Das Projekt verbindet realistische Bot-Gegner, ein ausgeklügeltes Saison- und Tour-Card-System, Caller- und Sound-Engines sowie Statistiken mit einer nahtlosen **Scolia-Kamera-Integration** als Hardware-Sensor zur automatischen Treffererkennung.
 
 ---
 
-## 🏗️ Architektur & Kernkonzept
+## 🏗️ Kernmodule & Architektur
 
-### 1. Scolia als reiner Hardware-Sensor (Einweg-Kommunikation)
-- Ein unsichtbares Android `WebView` lädt im Hintergrund ein **9999-Punkte Solo-Spiel** auf `game.scoliadarts.com`.
-- Das Scolia-Kamerasystem erfasst kontinuierlich alle Würfe des menschlichen Spielers.
-- Über einen JavaScript-Hook (`WebSocket Proxy`) werden die Wurf-Events in Echtzeit an die Android-App übermittelt.
-- **Vorteil:** Es müssen **keine** Bot-Würfe oder Steuerbefehle an Scolia zurückgesendet werden. Die App ist dadurch 100 % unabhängig, extrem stabil und zukunftssicher gegen Scolia-Webseiten-Updates.
-
-### 2. Datenfluss
-```
-[ Scolia Kameras ] ──> [ Scolia WebApp (WebView Hintergrund) ]
-                                    │
-                                    │ (WebSocket Proxy Hook)
-                                    ▼
-                          [ Android App Core ]
-                             ├── Menschlicher Wurf (Event-Empfang)
-                             ├── Bot-Wurf (Lokale KI-Simulation)
-                             ├── Caller & Sound-Engine (SoundPool)
-                             └── Karrieremodus & UI-Anzeige
-```
+- 🏛️ **Gesamtarchitektur & Room-Datenbank:** MVVM-Pattern, Coroutines/Flow, Room DB v12 (siehe [ARCHITEKTUR.md](docs/ARCHITEKTUR.md)).
+- 🎯 **Saison- & Tour-Card-Logik:** 128er-Regel, User-Platzierung, Auffüll- & Kürzungslogik, Order of Merit (siehe [SAISON_LOGIK.md](docs/SAISON_LOGIK.md)).
+- 🔌 **Scolia-Integration:** Nutzung des Scolia-Kamerasystems als reiner Hardware-Sensor über WebView & WebSocket Proxy (siehe [Scolia Architektur & Kernkonzept](docs/SCOLIA_ARCHITEKTUR_UND_KERNKONZEPT.md)).
 
 ---
 
-## 📖 Projektdokumentation
+## 📖 Projektdokumentation (`docs/`)
 
-Ausführliche Fachkonzepte und Architekturbeschreibungen befinden sich im [`docs/`](file:///C:/Users/Danny/AndroidStudioProjects/DannyViewsApp/docs/) Ordner:
+Ausführliche Fachkonzepte, Forschungsberichte und Architekturbeschreibungen befinden sich im [`docs/`](docs/) Ordner:
 
-- 🏛️ **[System-Architektur & Datenmodell](file:///C:/Users/Danny/AndroidStudioProjects/DannyViewsApp/docs/ARCHITEKTUR.md)**: MVVM-Struktur, Room DB v12 Schema (`UserProfile`, `Career`, `Season`, `TourCard`, `Player`).
-- 🎯 **[Fachkonzept Saisons & Tour Cards](file:///C:/Users/Danny/AndroidStudioProjects/DannyViewsApp/docs/SAISON_LOGIK.md)**: 128er-Regel, User-Platzierung, Auffüll- & Kürzungslogik, Vorbereitung für Order of Merit.
-
----
-
-## 🛠️ Technische Umsetzung (Proof of Concept - PoC)
-
-### 1. WebSocket Proxy Hook (`MainActivity.kt`)
-Um die Datenpakete des Scolia-WebSockets abzufangen, ohne die Funktionalität des WebSockets zu stören, wird ein JavaScript `Proxy` injiziert:
-- Erhält die statischen `WebSocket`-Eigenschaften (`WebSocket.OPEN` etc.) aufrecht.
-- Leitet eintreffende JSON-Datenpakete (`API::GAME::GAME_STATE_CHANGED`, Wurf-Koordinaten, Sektoren) über das `@JavascriptInterface` an Kotlin weiter.
-
-### 2. WebView & AdBlocker Konfiguration
-- **JavaScript & DOM Storage:** Aktiviert für Session-Verwaltung.
-- **Desktop User-Agent:** Erzwingt die vollständige Chrome-Desktop-Ansicht.
-- **Tracking-Blocker:** Fängt Netzwerkanfragen an `posthog.com` in `shouldInterceptRequest` ab und gibt eine leere JSON-Antwort `{}` zurück.
+- 🏛️ **[System-Architektur & Datenmodell](docs/ARCHITEKTUR.md)**: MVVM-Struktur, Room DB Schema.
+- 🎯 **[Scolia Architektur & Kernkonzept](docs/SCOLIA_ARCHITEKTUR_UND_KERNKONZEPT.md)**: Hardware-Sensor-Prinzip, WebSocket Proxy, WebView-Debugging & Logging.
+- 🔬 **[Scolia Integration & Research](docs/SCOLIA_INTEGRATION_RESEARCH.md)**: Technische API-Analyse und WebSocket-Protokolle.
+- 📊 **[Scolia Match 501 Guest Analysis](docs/scolia_match_501_guest_analysis.md)**: Detaillierte Auswertung von Test-Matches und Event-Mustern.
+- 🎯 **[Saisons & Tour Cards](docs/SAISON_LOGIK.md)**: Turnierlogik und Saisonsystem.
 
 ---
 
-## 🔍 WebView Debugging (Chrome DevTools)
+## 🛠️ Aktueller Status (In Umsetzung)
 
-Das Chrome-Entwicklerwerkzeug (DevTools) für die `WebView` ist so konfiguriert, dass es **automatisch nur in Debug-Builds** aktiv ist:
-
-### Wann ist Debug-Mode aktiv?
-- **Aktiv (Debug-Build):** Wenn die App direkt aus Android Studio gestartet wird („Run“ / „Debug“) oder ein Debug-APK gebaut wurde (`./gradlew assembleDebug`).
-  - Das Android-Buildsystem setzt dabei automatisch `FLAG_DEBUGGABLE` (`android:debuggable="true"`).
-  - In Google Chrome auf dem PC kann unter `chrome://inspect` das verbundene Android-Gerät ausgewählt werden, um die WebView, DOM, Konsolen-Logs und WebSockets live zu analysieren.
-- **Inaktiv (Release-Build):** Wenn die App für die Produktion oder den Play Store gebaut wird (`./gradlew assembleRelease`).
-  - `FLAG_DEBUGGABLE` ist deaktiviert (`false`). Das schützt die WebView in der fertigen App vor unbefugtem Zugriff oder Inspektion per USB/ADB.
+Die Scolia-Anbindung ist erfolgreich konzipiert und befindet sich in der aktiven Implementierung:
+- [x] WebSocket Proxy zur zuverlässigen Wurferkennung im WebView.
+- [x] Tracking-Blocker & Stabile WebView-Konfiguration.
+- [ ] JSON-Parser & Event-Auswertung (Sektor, Ring, Koordinaten).
+- [ ] Caller Engine (SoundPool Latenzfreie Sprachausgabe).
+- [ ] Bot-Simulation & Karrieremodus-UI.
 
 ---
 
 ## 📊 CSV-Spielerdatenbank & Updates (`players.csv`)
 
-Die App importiert beim ersten Start die Spielerdaten aus der Datei `app/src/main/assets/players.csv` in die lokale Room-Datenbank.
-Das CSV file dient dazu, initiale (echte) Spielerdaten bereitzustellen.
-
-### Performance-Caching
-Damit beim normalen Start der App nicht jedes Mal die gesamte CSV-Datei eingelesen und verarbeitet werden muss, ist in `AppDatabase.kt` ein Versionierungs-Caching über `SharedPreferences` verbaut (`KEY_CSV_DATA_VERSION`).
-
-### 🔄 Anleitung: So führst du ein Update der Spielerdaten durch
-Wenn du die Datei `players.csv` in den Assets bearbeitest (z. B. neue Spieler hinzufügst, Spielstärken anpasst oder Preisgelder aktualisierst):
-
-1. Öffne `AppDatabase.kt` (`app/src/main/java/com/danny/dannyapp/data/db/AppDatabase.kt`).
-2. Erhöhe die Konstante `CURRENT_CSV_VERSION` um `1`:
-   ```kotlin
-   companion object {
-       private const val PREFS_NAME = "app_db_prefs"
-       private const val KEY_CSV_DATA_VERSION = "csv_data_version"
-       private const val CURRENT_CSV_VERSION = 2 // 👈 Hier um 1 erhöhen (z. B. 1 -> 2)
-   }
-   ```
-3. Beim nächsten App-Start erkennt die App automatisch, dass eine neuere Version der Spielerdaten vorliegt (`lastSyncedVersion < CURRENT_CSV_VERSION`), führt den Daten-Import einmalig aus und speichert die neue Versionsnummer ab.
-
----
-
-## 📂 Zugriff auf die Logdatei (`scolia_events.log`)
-
-So öffnest du die Event-Logdatei direkt in Android Studio:
-1. Klicke ganz rechts unten in Android Studio auf den Reiter **Device File Explorer** (oder oben im Menü: `View` ➡️ `Tool Windows` ➡️ `Device File Explorer`).
-2. Navigiere in der Ordnerstruktur zu:  
-   `data` ➡️ `data` ➡️ `com.danny.dannyapp` ➡️ `files`
-3. Doppelklicke auf **`scolia_events.log`**, um sie direkt im Editor anzuzeigen.
-
----
-
-## 🚀 Roadmap & Ausblick
-
-- [x] **PoC:** WebSocket Proxy zur zuverlässigen Wurferkennung im WebView.
-- [x] **PoC:** Tracking-Blocker & Stabile WebView-Konfiguration.
-- [ ] **JSON-Parser:** Detaillierte Auswertung aller Wurf-Events (Sektor, Ring, Koordinaten).
-- [ ] **Caller Engine:** Latenzfreie Sound-Wiedergabe ("180!", "Twenty", "Game Shot") via Android `SoundPool`.
-- [ ] **Bot-Simulation:** KI-Gegner basierend auf echten Spielerdatenbanken mit unterschiedlichen Stärkeprofilen (Averages von 40 bis 100+).
-- [ ] **Karrieremodus:** Simulation von Profi-Turnieren, Ranglisten, Saisons und umfangreichen Statistiken.
+Die App importiert beim ersten Start die Spielerdaten aus `app/src/main/assets/players.csv` in die lokale Room-Datenbank.
+- 💡 **Anleitung für Updates:** Wie du `players.csv` aktualisierst und die `CURRENT_CSV_VERSION` in `AppDatabase.kt` anpasst, findest du direkt in der [System-Architektur & Datenmodell Dokumentation (Abschnitt 3.1)](docs/ARCHITEKTUR.md#31-anleitung-so-führst-du-ein-update-der-spielerdaten-durch).

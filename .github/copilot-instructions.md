@@ -1,13 +1,10 @@
 # 🚨 PROJEKT-REGELN & DOKUMENTATIONSPFLICHT (Danny Darts App)
 
-## 📌 Absolute Dokumentationspflicht
-Bei JEDER Änderung an Datenmodellen, Datenbank-Schemas (Room DB), Fachlogiken (Saisons, Turniere, Ranglisten, Scolia-Integration) oder Systemabläufen **MUSS** die Dokumentation im `docs/`-Ordner aktualisiert werden.
+## 📌 Allgemeine Dokumentationspflicht
+Bei **jeder** Änderung am Projekt (Code, Features, Fachlogiken, Datenmodelle, Architektur oder Integrationen) **MUSS** die Dokumentation im `docs/`-Ordner oder in der [Readme.md](../Readme.md) entsprechend angepasst oder erstellt werden.
 
-Vor dem Abschluss JEDER Aufgabe sind folgende Schritte einzuhalten:
-1. **DB- & Code-Änderungen:** Wurden DB-Entitäten oder Versionen geändert? -> `docs/ARCHITEKTUR.md` nachführen.
-2. **Fachlogik-Änderungen:** Wurden Regeln angepasst oder erweitert? -> `docs/SAISON_LOGIK.md` (oder entsprechende Doku) nachführen.
-3. **Readme:** Bei neuen Modulen oder Kernfeatures -> `Readme.md` aktualisieren.
-
-Referenzdokumente:
+Referenzdokumente im `docs/`-Ordner:
 - Architecture & Database: `docs/ARCHITEKTUR.md`
 - Season & Tour Card Logic: `docs/SAISON_LOGIK.md`
+- Scolia Architecture & Core Concept: `docs/SCOLIA_ARCHITEKTUR_UND_KERNKONZEPT.md`
+- Scolia Integration Research & Analysis: `docs/SCOLIA_INTEGRATION_RESEARCH.md` & `docs/scolia_match_501_guest_analysis.md`

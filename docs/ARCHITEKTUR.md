@@ -96,19 +96,34 @@ erDiagram
   1. `csvInsertNewPlayers`: Fügt neue Spieler hinzu (sofern der Name nicht existiert).
   2. `csvUpdatePlayerStats`: Aktualisiert Skill, Land, Preisgeld und Stammdaten bestehender Spieler ohne deren Datenbank-ID zu verändern.
 
+### 3.1 Anleitung: So führst du ein Update der Spielerdaten durch
+Wenn du die Datei `players.csv` in den Assets bearbeitest (z. B. neue Spieler hinzufügst, Spielstärken anpasst oder Preisgelder aktualisierst):
+
+1. Öffne `AppDatabase.kt` (`app/src/main/java/com/danny/dannyapp/data/db/AppDatabase.kt`).
+2. Erhöhe die Konstante `CURRENT_CSV_VERSION` um `1`:
+   ```kotlin
+   companion object {
+       private const val PREFS_NAME = "app_db_prefs"
+       private const val KEY_CSV_DATA_VERSION = "csv_data_version"
+       private const val CURRENT_CSV_VERSION = 2 // 👈 Hier um 1 erhöhen (z. B. 1 -> 2)
+   }
+   ```
+3. Beim nächsten App-Start erkennt die App automatisch, dass eine neuere Version der Spielerdaten vorliegt (`lastSyncedVersion < CURRENT_CSV_VERSION`), führt den Daten-Import einmalig aus und speichert die neue Versionsnummer ab.
+
 ---
 
-## 📝 5. Entwicklungsrichtlinien & Doku-Pflegepflicht
+## 📝 5. Allgemeine Dokumentationspflicht
 
 > **WICHTIG FÜR ALLE ENTWICKLER & KI-ASSISTENTEN:**
-> Bei JEDER Änderung an Datenmodellen, Datenbank-Schemas (Room DB), Fachlogiken (z. B. Saisons, Turniere, Ranglisten) oder Systemabläufen **MUSS** die entsprechende Dokumentation im `docs/`-Ordner (`ARCHITEKTUR.md`, `SAISON_LOGIK.md` etc.) aktualisiert werden. 
+> Bei **jeder** Änderung am Projekt (egal ob Code, neue Features, UI-Komponenten, Fachlogiken, Datenmodelle oder Architektur) **MUSS** die entsprechende Dokumentation im `docs/`-Ordner (`ARCHITEKTUR.md`, `SAISON_LOGIK.md`, `SCOLIA_ARCHITEKTUR_UND_KERNKONZEPT.md` etc.) bzw. die [Readme.md](../Readme.md) unmittelbar angepasst oder erstellt werden. 
 > 
-> Vor dem Abschluss jeder Aufgabe ist zu prüfen:
-> 1. Wurden Datenbank-Versionen oder Entitäten verändert? -> In `ARCHITEKTUR.md` nachführen.
-> 2. Wurden fachliche Regeln angepasst oder erweitert? -> In der entsprechenden Fachdoku in `docs/` nachführen.
+> Vor dem Abschluss jeder Aufgabe ist sicherzustellen, dass die Doku den aktuellen Ist-Zustand des Codes widerspiegelt.
 
 ---
 
 ## 📚 4. Weiterführende Dokumentation
 
 - [🎯 Fachkonzept & Saison-Logik](file:///C:/Users/Danny/AndroidStudioProjects/DannyViewsApp/docs/SAISON_LOGIK.md)
+- [🎯 Scolia Architektur & Kernkonzept](file:///C:/Users/Danny/AndroidStudioProjects/DannyViewsApp/docs/SCOLIA_ARCHITEKTUR_UND_KERNKONZEPT.md)
+- [🔬 Scolia Integration & Research](file:///C:/Users/Danny/AndroidStudioProjects/DannyViewsApp/docs/SCOLIA_INTEGRATION_RESEARCH.md)
+- [📊 Scolia Match 501 Guest Analysis](file:///C:/Users/Danny/AndroidStudioProjects/DannyViewsApp/docs/scolia_match_501_guest_analysis.md)
