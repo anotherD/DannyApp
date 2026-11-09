@@ -60,6 +60,7 @@ Das Chrome-Entwicklerwerkzeug (DevTools) für die `WebView` ist so konfiguriert,
 ## 📊 CSV-Spielerdatenbank & Updates (`players.csv`)
 
 Die App importiert beim ersten Start die Spielerdaten aus der Datei `app/src/main/assets/players.csv` in die lokale Room-Datenbank.
+Das CSV file dient dazu, initiale (echte) Spielerdaten bereitzustellen.
 
 ### Performance-Caching
 Damit beim normalen Start der App nicht jedes Mal die gesamte CSV-Datei eingelesen und verarbeitet werden muss, ist in `AppDatabase.kt` ein Versionierungs-Caching über `SharedPreferences` verbaut (`KEY_CSV_DATA_VERSION`).

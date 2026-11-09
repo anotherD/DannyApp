@@ -21,7 +21,9 @@ data class Player(
     @ColumnInfo(name = "price_money")
     val prizeMoney: Double = 0.0, // Preisgeld
     @ColumnInfo(name = "tour_card_year")
-    val tourCardYear: Int = 0 // Tour Card Jahr (0 = keine, 1 = 1. Jahr, 2 = 2. Jahr)
+    val tourCardYear: Int = 0, // Tour Card Jahr (0 = keine, 1 = 1. Jahr, 2 = 2. Jahr)
+    @ColumnInfo(name = "updated_at")
+    val updatedAt: Long = System.currentTimeMillis()
 ) {
     val hasTourCard: Boolean
         get() = tourCardYear > 0
