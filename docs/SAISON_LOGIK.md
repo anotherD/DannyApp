@@ -73,14 +73,19 @@ Beim Saisonwechsel (`createSeason(careerId)`):
 
 ---
 
-## 🏆 4. Turnierteilnahmen & Nicht-Tourcard-Spieler
+## 🏆 4. Turnierteilnahmen & Entkopplung der Match-Zuweisung
 
-* **Tabelle `tour_cards`:** Speichert **ausschließlich** die 128 aktiven Tourcard-Inhaber der jeweiligen Saison.
-* **Tour Card Turniere:** Teilnehmer werden direkt aus `tour_cards` geladen.
-* **Open / Qualifier Turniere:** Kombination aus `tour_cards` + dynamische Abfrage von Nicht-Tourcard-Spielern aus der `players`-Tabelle:
+* **Tabelle `tour_cards`:** Speichert **ausschließlich** die 128 aktiven Tourcard-Inhaber der jeweiligen Saison (inklusive `USER_ID = -1L`).
+* **Entkopplung in `tournament_matches`:** In der Tabelle `tournament_matches` werden in `player_1_id` und `player_2_id` **direkt die Stamm-IDs** aus der Tabelle `players` (bzw. `USER_ID = -1L` für den menschlichen User) eingetragen. Die Match-Zuweisung ist somit **vollständig von der `tour_cards`-Tabelle entkoppelt**. Kein Turnierteilnehmer muss zwingend in `tour_cards` existieren.
+* **Tour Card Turniere (z. B. Players Championship, Masters):** Das Teilnehmerfeld (128 Spieler) setzt sich zu 100 % aus den aktiven Tourcard-Holder der aktuellen Saison zusammen.
+* **160-Spieler Turniere (UK Open & PDC European Open):**
+  - **128 Tourcard-Holder:** Werden aus `tour_cards` geladen.
+  - **32 freie Plätze (Nachrücker/Qualifier):** Werden dynamisch aus der Stammdaten-Tabelle `players` ermittelt, indem alle Spieler geladen werden, die keine aktive Tourcard für die aktuelle `season_id` besitzen (`tour_card_year == 0`), sortiert nach `skill DESC`:
   ```sql
   SELECT * FROM players 
-  WHERE id NOT IN (SELECT player_id FROM tour_cards WHERE season_id = :seasonId)
-  ORDER BY skill DESC
+  WHERE tour_card_year = 0 
+    AND id NOT IN (SELECT player_id FROM tour_cards WHERE season_id = :seasonId)
+  ORDER BY skill DESC, prize_money DESC
+  LIMIT 32
   ```
-* **Preisgelder:** Werden nicht in `TourCard` gespeichert, sondern später pro Event in einer eigenen Tabelle (`event_placements`).
+* **Preisgelder:** Werden pro Turnier in der Tabelle `tournament_placements` (bzw. `event_placements`) erfasst und verweisen ebenfalls direkt auf die `players.id` bzw. `USER_ID = -1L`.

@@ -26,8 +26,8 @@ Um Nullable-Fremdschlüssel-Probleme und komplexe Boolean-Flags zu vermeiden, er
 *   `tournament_id` (FK -> `tournaments.id`, `ON DELETE CASCADE`)
 *   `round` (String: `GROUP`, `L128`, `L64`, `L32`, `L16`, `QF`, `SF`, `F`)
 *   `match_index` (Int, Sortierung innerhalb der Runde)
-*   `player_1_id` (Long, Verweis auf `players.id` oder `-1L` für User)
-*   `player_2_id` (Long, Verweis auf `players.id` oder `-1L` für User)
+*   `player_1_id` (Long, Verweis direkt auf `players.id` oder `-1L` für den User – völlig unabhängig davon, ob der Spieler in `tour_cards` existiert oder nicht; Match-Zuweisung ist komplett entkoppelt)
+*   `player_2_id` (Long, Verweis direkt auf `players.id` oder `-1L` für den User – völlig unabhängig davon, ob der Spieler in `tour_cards` existiert oder nicht; Match-Zuweisung ist komplett entkoppelt)
 *   `player_1_score` (Int, Legs oder Sets)
 *   `player_2_score` (Int)
 *   `winner_id` (Long, Nullable)
@@ -68,8 +68,8 @@ Zur Simulation einer echten Karriere werden drei Major-Typen integriert:
 4.  **World Championship (MAJOR_SET):** Das größte Event des Jahres mit 96 Spielern. Die Top 32 der Main OoM steigen direkt in Runde 2 ein. Runde 1 bestreiten die Top 32 der Pro Tour OoM gegen 32 internationale Qualifier (Nicht-Tourcard-Spieler). Set-Format (Best of 5 bis Best of 13 Sets im Finale).
 5.  **Players Championship Finals (MAJOR_LEG):** 64 Teilnehmer. Qualifiziert sind die Top 64 der Players Championship Order of Merit der laufenden Saison. Setzung erfolgt strikt nach dieser Rangliste (Platz 1 gegen Platz 64). Reines K.o.-System im Leg-Format.
 6.  **European Championship (MAJOR_LEG):** 32 Teilnehmer. Qualifiziert sind die Top 32 der European Tour Order of Merit der laufenden Saison. Setzung erfolgt strikt nach dieser Rangliste (Platz 1 gegen Platz 32). Reines K.o.-System im Leg-Format.
-7.  **UK Open / European Open (MAJOR_LEG):** 160 Teilnehmer. Es nehmen alle 128 Tourcard-Inhaber teil. Die verbleibenden 32 Plätze werden mit Nicht-Tourcard-Spielern (`tour_card_year == 0`) nach `skill DESC` aufgefüllt. K.o.-System ohne feste Setzliste. Jede Runde wird komplett frei neu ausgelost. Runden 1–3 gestaffelt nach Ranglistenplatzierung.
-8.  **PDC European Open (MAJOR_LEG - 160 Spieler):** Ein brandneues Major-Turnier, das exakt das spektakuläre Format der UK Open kopiert (160 Spieler, zeitloses Spielen auf 8 Bühnen parallel, keine feste Setzliste). Qualifiziert sind alle 128 Tourcard-Holder sowie 32 regionale europäische Qualifier (z. B. über die *PDC Europe Start*-Serie).
+7.  **UK Open / European Open (MAJOR_LEG):** 160 Teilnehmer. Es nehmen alle 128 Tourcard-Inhaber der aktuellen Saison teil. Die 32 freien Plätze (Nachrücker/Qualifier) werden dynamisch aus der `players`-Tabelle ermittelt, indem alle Spieler geladen werden, die KEINE aktive Tourcard für die aktuelle `season_id` besitzen (`tour_card_year == 0`), sortiert nach `skill DESC`. K.o.-System ohne feste Setzliste. Jede Runde wird komplett frei neu ausgelost. Runden 1–3 gestaffelt nach Ranglistenplatzierung.
+8.  **PDC European Open (MAJOR_LEG - 160 Spieler):** Ein Major-Turnier, das exakt das spektakuläre Format der UK Open kopiert (160 Spieler, zeitloses Spielen auf 8 Bühnen parallel, keine feste Setzliste). Qualifiziert sind alle 128 Tourcard-Holder der aktuellen Saison sowie 32 Nachrücker/Qualifier ohne Tourcard (`tour_card_year == 0`), die dynamisch aus der `players`-Tabelle nach `skill DESC` ermittelt werden.
 9.  **The Masters (MAJOR_LEG):** 128 Teilnehmer. Es nehmen alle 128 aktiven Tourcard-Inhaber teil. Reines K.o.-System im Leg-Format ohne Gruppenphase.
 
 ---
