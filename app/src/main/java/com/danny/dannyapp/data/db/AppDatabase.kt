@@ -46,7 +46,6 @@ abstract class AppDatabase : RoomDatabase() {
                 private const val CURRENT_CSV_VERSION = 1
             }
 
-            // TODO: Daten aktualisiern?: Spieler aus DB löschen oder TourCard entziehen oder als inactive markieren?
             override fun onOpen(db: SupportSQLiteDatabase) {
                 super.onOpen(db)
                 CoroutineScope(Dispatchers.IO).launch {
