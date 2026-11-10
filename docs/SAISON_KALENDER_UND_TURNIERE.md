@@ -1,6 +1,6 @@
 # 🎯 Fachkonzept: Saisonkalender, Turniertypen & Ranglisten (Pro Tour & Majors)
 
-Dieses Dokument definiert die vollständige Architektur, die Datenstrukturen und die Fachlogiken für den Turnier-, Kalender- und Match-Simulationsmodus der **Danny Darts App**.
+Dieses Dokument definiert die Architektur, die Datenstrukturen und die Fachlogiken für den Turnier-, Kalender- und Match-Simulationsmodus der **Danny Darts App**.
 
 ---
 
@@ -18,13 +18,24 @@ Um Nullable-Fremdschlüssel-Probleme und komplexe Boolean-Flags zu vermeiden, er
 *   `season_id` (FK -> `seasons.id`, `ON DELETE CASCADE`)
 *   `name` (String, z. B. *"Players Championship 1"*)
 *   `type` (String/Enum: `PLAYERS_CHAMPIONSHIP`, `EUROPEAN_TOUR`, `MAJOR_LEG`, `MAJOR_SET`, `MAJOR_GROUP`)
-*   `chronological_order` (Int, fortlaufende Nummer im Kalender, 1-basiert)
+*   `order` (Int, fortlaufende Nummer im Kalender, 1-basiert)
 *   `is_completed` (Boolean, Default: `false`)
+
+    private final String eventKey;
+    private final int legsPerSet;
+    private final CareerMatchDistances matchDistances;
+    private final String name;
+    private final int participants;
+    private final CareerPrizeFund prizeFund;
+    private final int qualifierBestOfLegs;
+    private final int seriesNumber;
+    private final boolean setPlay;
+    private final CareerEventType type;
 
 #### 2. `TournamentMatch` (Tabelle: `tournament_matches`)
 *   `id` (PK, Long, Autoincrement)
 *   `tournament_id` (FK -> `tournaments.id`, `ON DELETE CASCADE`)
-*   `round` (String: `GROUP`, `L128`, `L64`, `L32`, `L16`, `QF`, `SF`, `F`)
+*   `round` (String/Enum: `GROUP`, `L128`, `L64`, `L32`, `L16`, `QF`, `SF`, `F`)
 *   `match_index` (Int, Sortierung innerhalb der Runde)
 *   `player_1_id` (Long, Verweis direkt auf `players.id` oder `-1L` für den User – völlig unabhängig davon, ob der Spieler in `tour_cards` existiert oder nicht; Match-Zuweisung ist komplett entkoppelt)
 *   `player_2_id` (Long, Verweis direkt auf `players.id` oder `-1L` für den User – völlig unabhängig davon, ob der Spieler in `tour_cards` existiert oder nicht; Match-Zuweisung ist komplett entkoppelt)
@@ -38,39 +49,53 @@ Um Nullable-Fremdschlüssel-Probleme und komplexe Boolean-Flags zu vermeiden, er
 *   `tournament_id` (FK -> `tournaments.id`, `ON DELETE CASCADE`)
 *   `player_id` (Long, Verweis auf `players.id` oder `-1L` für User)
 *   `reached_round` (String)
-*   `prize_money_earned` (Double, tatsächliche Auszahlung)
-*   `prize_money_ranking` (Double, für die Ranglisten gewerteter Betrag – wichtig für Ausnahmen!)
-
+*   `prize_money` (Double, für die Ranglisten gewerteter Betrag)
+    {
+    "playerId": 1,
+    "season": 1,
+    "eventKey": "PT-01",
+    "eventType": "proTour",
+    "placement": 33,
+    "amount": 1250
 ---
 
 ## 📅 2. Turniertypen, Qualifikation & Kalenderstruktur
 
-Der Saisonkalender umfasst 30 Players Championship Turniere, 13 European Tour Turniere und ausgewählte Major-Formate.
+Es gibt 3 Turniertypen:
+* PC: Players Championship, 34 pro Saison
+* ET: European Tour, 15 pro Saison
+* MAJOR: Major-Turniere, 8 pro Saison
 
 ### 2.1 Players Championship (PC)
-*   **Teilnehmer:** Alle 128 Tour-Card-Inhaber (inklusive User mit ID `-1L`).
-*   **Auslosung:** Top 32 der *Pro Tour Order of Merit* sind gesetzt und werden im Bracket verteilt. Die restlichen 96 Spieler werden frei zugelost. At Saisonbeginn (Turnier 1 & 2) gilt die Sortierung nach `skill DESC` aus den Stammdaten.
+*   **Teilnehmer:** 48 Spieler.
+*   **Zusammensetzung & Qualifikation:**
+    1.   Alle 128 Tour-Card-Inhaber (inklusive User mit ID `-1L`).
+*   **Auslosung:** Top 32 der *Pro Tour Order of Merit* sind gesetzt und werden im Bracket verteilt. Die restlichen 96 Spieler werden frei zugelost. Da beim Start einer karriere die *Pro Tour Order of Merit* noch leer ist, werden hierfür die Top 32 zufällig ermittelt.
 
 ### 2.2 European Tour (ET)
 *   **Teilnehmer:** 48 Spieler.
 *   **Zusammensetzung & Qualifikation:**
-    1.  **Top 16 Pro Tour Order of Merit:** Fest qualifiziert und für Runde 2 gesetzt.
-    2.  **Top 16 Main Order of Merit:** Die 16 nächstbesten Spieler der Gesamtrangliste.
-    3.  **10 Tour Card Holder Qualifier:** Werden über ein separates K.o.-Turnier (Best of 11 Legs) ausgespielt, an dem alle verbleibenden Tourcard-Inhaber teilnehmen können.
-    4.  **6 Host Nation / Regional Qualifier:** Plätze für Nicht-Tourcard-Spieler (`tour_card_year == 0`). Hier greift der **Nationen-Filter**: Bevorzugt werden Spieler aus dem Gastgeberland (z. B. Deutschland bei ET-Events in Deutschland) nach `skill DESC` selektiert. Gibt es zu wenige Spieler dieser Nation, wird das Feld per Zufallsprinzip mit spielfähigen CPU-Spielern anderer Nationen aufgefüllt.
-*   **Ablauf:** Runde 1 spielen die 32 Qualifikanten (16 Matches). In Runde 2 steigen die 16 gesetzten Spieler ein.
+    1. Top 16 der Order of Merit
+    2. Top 16 der Pro Tour Order of Merit, die nicht bereits über Punkt 1 qualifiziert sind.
+    3. 10 Gewinner des ET Tour Card Holder Qualifiers
+    4. 4 Gewinner des Host Nation Qualifiers: Plätze für Nicht-Tourcard-Spieler (`tour_card_year == 0`) der aktuellen saison. Es werden nur Spieler aus dem Gastgeberland (z. B. Deutschland bei ET-Events in Deutschland) berücksichtigt. Wird die nötige Anzahl nicht erreicht, so wird mit Spielern aufgefüllt, die nicht aus dem Gastgeberland stammen.
+    5. 2 Gewinner anderer Qualifiers: Plätze für Nicht-Tourcard-Spieler (`tour_card_year == 0`) der aktuellen saison, die nicht bereits qualifiziert sind. Die Nation ist hier egal.
+*   **Ablauf:** Runde 1 spielen die 32 Qualifikanten (16 Matches). In Runde 2 steigen die 16 gesetzten Spieler ein. Die Zuordnung in Runde 2 folgt einem festen mathematischen Schlüssel (Kreuzvergleich), der die am höchsten gesetzten Spieler schützt:
+    * Die Nummer 1 der Weltrangliste spielt gegen den Sieger der Partie von Pro Tour Seed Nr. 16 (vs. ungesetzter Qualifikant).
+    * Die Nummer 2 der Weltrangliste spielt gegen den Sieger der Partie von Pro Tour Seed Nr. 15. (vs. ungesetzter Qualifikant).
+    * ... und so weiter, bis:
+    * Die Nummer 16 der Weltrangliste gegen den Sieger von Pro Tour Seed Nr. 1 spielt.
 
 ### 2.3 Die Major-Turniere
-Zur Simulation einer echten Karriere werden drei Major-Typen integriert:
-1.  **World Matchplay (MAJOR_LEG):** Top 16 Main OoM + Top 16 Pro Tour OoM. Reines K.o.-System (100% Legs, z. B. R1 Best of 19 Legs).
-2.  **World Grand Prix (MAJOR_SET / Double-In):** Die Top-Spieler im K.o.-System, jedoch im **Set-Modus** (z. B. Best of 3 Sets, jedes Set Best of 5 Legs) und mit der Verschärfung **Double-In / Double-Out** (das Leg startet erst, wenn ein Doppel getroffen wird).
-3.  **Grand Slam of Darts (MAJOR_GROUP):** 32 Spieler aufgeteilt in **8 Gruppen à 4 Spieler**. Gruppenphase im Round-Robin-System (Jeder gegen jeden, Best of 9 Legs). Die Top 2 jeder Gruppe rücken ins K.o.-Achtelfinale vor.
-4.  **World Championship (MAJOR_SET):** Das größte Event des Jahres mit 96 Spielern. Die Top 32 der Main OoM steigen direkt in Runde 2 ein. Runde 1 bestreiten die Top 32 der Pro Tour OoM gegen 32 internationale Qualifier (Nicht-Tourcard-Spieler). Set-Format (Best of 5 bis Best of 13 Sets im Finale).
-5.  **Players Championship Finals (MAJOR_LEG):** 64 Teilnehmer. Qualifiziert sind die Top 64 der Players Championship Order of Merit der laufenden Saison. Setzung erfolgt strikt nach dieser Rangliste (Platz 1 gegen Platz 64). Reines K.o.-System im Leg-Format.
+
+2.  **UK Open / European Open (MAJOR_LEG):** 160 Teilnehmer. Es nehmen alle 128 Tourcard-Inhaber der aktuellen Saison teil. Die 32 freien Plätze (Nachrücker/Qualifier) werden dynamisch aus der `players`-Tabelle ermittelt, indem alle Spieler geladen werden, die KEINE aktive Tourcard für die aktuelle `season_id` besitzen (`tour_card_year == 0`), sortiert nach `skill DESC`. K.o.-System ohne feste Setzliste. Jede Runde wird komplett frei neu ausgelost. Runden 1–3 gestaffelt nach Ranglistenplatzierung.
+3.  **European Open (MAJOR_LEG - 160 Spieler):** Ein Major-Turnier, das exakt das spektakuläre Format der UK Open kopiert (160 Spieler, zeitloses Spielen auf 8 Bühnen parallel, keine feste Setzliste). Qualifiziert sind alle 128 Tourcard-Holder der aktuellen Saison sowie 32 Nachrücker/Qualifier ohne Tourcard (`tour_card_year == 0`), die dynamisch aus der `players`-Tabelle nach `skill DESC` ermittelt werden.
+4.  **World Matchplay (MAJOR_LEG):** Top 16 Main OoM + Top 16 Pro Tour OoM. Reines K.o.-System (100% Legs, z. B. R1 Best of 19 Legs).
+5.  **World Grand Prix (MAJOR_SET / Double-In):** Die Top-Spieler im K.o.-System, jedoch im **Set-Modus** (z. B. Best of 3 Sets, jedes Set Best of 5 Legs) und mit der Verschärfung **Double-In / Double-Out** (das Leg startet erst, wenn ein Doppel getroffen wird).
 6.  **European Championship (MAJOR_LEG):** 32 Teilnehmer. Qualifiziert sind die Top 32 der European Tour Order of Merit der laufenden Saison. Setzung erfolgt strikt nach dieser Rangliste (Platz 1 gegen Platz 32). Reines K.o.-System im Leg-Format.
-7.  **UK Open / European Open (MAJOR_LEG):** 160 Teilnehmer. Es nehmen alle 128 Tourcard-Inhaber der aktuellen Saison teil. Die 32 freien Plätze (Nachrücker/Qualifier) werden dynamisch aus der `players`-Tabelle ermittelt, indem alle Spieler geladen werden, die KEINE aktive Tourcard für die aktuelle `season_id` besitzen (`tour_card_year == 0`), sortiert nach `skill DESC`. K.o.-System ohne feste Setzliste. Jede Runde wird komplett frei neu ausgelost. Runden 1–3 gestaffelt nach Ranglistenplatzierung.
-8.  **PDC European Open (MAJOR_LEG - 160 Spieler):** Ein Major-Turnier, das exakt das spektakuläre Format der UK Open kopiert (160 Spieler, zeitloses Spielen auf 8 Bühnen parallel, keine feste Setzliste). Qualifiziert sind alle 128 Tourcard-Holder der aktuellen Saison sowie 32 Nachrücker/Qualifier ohne Tourcard (`tour_card_year == 0`), die dynamisch aus der `players`-Tabelle nach `skill DESC` ermittelt werden.
-9.  **The Masters (MAJOR_LEG):** Top 24 bzw. Top 32 der Main Order of Merit qualifizieren sich über die Rangliste. Reines K.o.-System im Leg-Format.
+7.  **Grand Slam of Darts (MAJOR_GROUP):** 32 Spieler aufgeteilt in **8 Gruppen à 4 Spieler**. Gruppenphase im Round-Robin-System (Jeder gegen jeden, Best of 9 Legs). Die Top 2 jeder Gruppe rücken ins K.o.-Achtelfinale vor.
+8**Players Championship Finals (MAJOR_LEG):** 64 Teilnehmer. Qualifiziert sind die Top 64 der Players Championship Order of Merit der laufenden Saison. Setzung erfolgt strikt nach dieser Rangliste (Platz 1 gegen Platz 64). Reines K.o.-System im Leg-Format.
+9.  **World Championship (MAJOR_SET):** Das größte Event des Jahres mit 96 Spielern. Die Top 32 der Main OoM steigen direkt in Runde 2 ein. Runde 1 bestreiten die Top 32 der Pro Tour OoM gegen 32 internationale Qualifier (Nicht-Tourcard-Spieler). Set-Format (Best of 5 bis Best of 13 Sets im Finale).
 
 ---
 
@@ -78,16 +103,21 @@ Zur Simulation einer echten Karriere werden drei Major-Typen integriert:
 
 Das System führt getrennte, dynamische Ranglisten, basierend auf den kumulierten Daten der Karriere aus der Tabelle `tournament_placements`.
 
-### 3.1 Die 4 Kern-Ranglisten
-1.  **Main Order of Merit (Gesamtrangliste):** Berechnet sich ausschließlich aus den im Laufe der Karriere tatsächlich eingespielten Ranglisten-Preisgeldern (`prize_money_ranking`) aller gewerteten Turniertypen. Der Stammdatenwert `players.prizeMoney` wird aktuell nicht verwendet (kann in einer späteren Ausbaustufe optional als historischer Startwert vor Karrierebeginn dienen).
-2.  **Pro Tour Order of Merit:** Kumuliertes Ranglisten-Preisgeld aus `PLAYERS_CHAMPIONSHIP` und `EUROPEAN_TOUR`.
-3.  **Players Championship Order of Merit:** Ausschließlich Preisgelder aus `PLAYERS_CHAMPIONSHIP`.
-4.  **European Tour Order of Merit:** Ausschließlich Preisgelder aus `EUROPEAN_TOUR`.
+### 3.1 Die 4 Ranglisten
 
-### 3.2 PDC-Sonderregeln für Preisgelder (Wichtig für die Logik!)
-*   **European Tour (Gesetzte Verlierer in Runde 2):** Die Sonderregel gilt **ausschließlich** für die European Tour (ET): Wenn ein gesetzter Top-16-Spieler in der 2. Runde sein erstes Match verliert, erhält er das finanzielle Preisgeld zwar ausgezahlt (`prize_money_earned`), dieses wird jedoch **nicht** für die Ranglisten gewertet (`prize_money_ranking = £0`). Gewinnt er sein Auftaktmatch, zählt das gesamte erzielte Preisgeld voll für die Ranglisten.
-*   **Players Championship (Runde 1):** Verlierer der 1. Runde (Last 128) erhalten £0 Preisgeld (sowohl finanziell als auch für die Rangliste).
-*   **Keine Sonderregel bei Majors (z. B. Players Championship Finals & European Championship):** Bei diesen Majors gibt es keine Freilose in der ersten Runde; alle qualifizierten Spieler starten direkt in Runde 1. Wenn dort ein gesetzter Spieler in Runde 1 verliert, zählt das Preisgeld ganz normal im vollen Umfang für die Ranglisten (`prize_money_ranking = prize_money_earned`).
+Alle Ranglisten errechnen sich aus den Preisgeldern (`TournamentPlacement`.`prize_money`), der in dieser Karriere gespielen Tourniere.
+Der Stammdatenwert `players.prizeMoney` wird aktuell nicht verwendet (kann in einer späteren Ausbaustufe optional als historischer Startwert vor Karrierebeginn dienen).
+
+1.  **Order of Merit:**  Kürzel: "OOM". Preisgelder aller Turniere der letzten zwei Jahre. Das heißt, die jüngsten zwei Austragungen jedes Turniers werden berücksichtigt (saisonübergreifend). 
+2.  **Pro Tour Order of Merit:** Kürzel: "PT OOM". Preisgeld aus `PLAYERS_CHAMPIONSHIP` und `EUROPEAN_TOUR` . Nur die jüngsten Austragungen jedes Turniers werden berücksichtigt (saisonübergreifend).  
+3.  **Players Championship Order of Merit:** Kürzel: "PC OOM". Ausschließlich Preisgelder aus `PLAYERS_CHAMPIONSHIP` der aktuellen saison.
+4.  **European Tour Order of Merit:** Kürzel: "ET OOM". Ausschließlich Preisgelder aus `EUROPEAN_TOUR` der aktuellen saison.
+
+
+### 3.2 PDC-Sonderregeln für Preisgelder (vereinfacht für die App)
+*   Es wird nur ein einziges Feld `prize_money` gespeichert, das den für die Ranglisten relevanten Betrag repräsentiert.
+*   Sonderregeln, die früher zwischen `prize_money_earned` und `TournamentPlacement`.`prize_money` unterschieden (z. B. European Tour: Setzliste-Verlierer in Runde 2 erhalten finanzielles Preisgeld, aber keinen Ranking-Beitrag), wurden entfernt, da die App nur die für die Rankings relevanten Werte verwaltet.
+*   Für die Rangliste relevanz: `prize_money` wird ausschließlich aus Turniertypen gespeist, die für die Orders of Merit gewertet werden (Players Championship, European Tour, Majors mit entsprechender Formatierung).
 
 ### 3.3 Format-Spezifikationen für Sets und Sonderregeln
 *   **Set-Modus (World Championship):** Ein Set besteht immer aus *Best of 5 Legs* (First to 3 Legs gewinnt das Set).
