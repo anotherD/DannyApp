@@ -112,15 +112,6 @@ Wenn du die Datei `players.csv` in den Assets bearbeitest (z. B. neue Spieler hi
 
 ---
 
-## 📝 5. Allgemeine Dokumentationspflicht
-
-> **WICHTIG FÜR ALLE ENTWICKLER & KI-ASSISTENTEN:**
-> Bei **jeder** Änderung am Projekt (egal ob Code, neue Features, UI-Komponenten, Fachlogiken, Datenmodelle oder Architektur) **MUSS** die entsprechende Dokumentation im `docs/`-Ordner (`ARCHITEKTUR.md`, `SAISON_LOGIK.md`, `SCOLIA_ARCHITEKTUR_UND_KERNKONZEPT.md` etc.) bzw. die [Readme.md](../Readme.md) unmittelbar angepasst oder erstellt werden. 
-> 
-> Vor dem Abschluss jeder Aufgabe ist sicherzustellen, dass die Doku den aktuellen Ist-Zustand des Codes widerspiegelt.
-
----
-
 ## 📚 4. Weiterführende Dokumentation
 
 - [🎯 Fachkonzept & Saison-Logik](file:///C:/Users/Danny/AndroidStudioProjects/DannyViewsApp/docs/SAISON_LOGIK.md)

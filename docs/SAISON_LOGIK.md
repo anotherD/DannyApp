@@ -2,8 +2,6 @@
 
 Dieses Dokument beschreibt die Fachlogik zur Erstellung und Verwaltung von Saisons und Tour Cards im Karrieremodus. Es dient als zentrale Referenz für Entwickler und KI-Assistenten.
 
-> 📝 **Pflicht zur Doku-Pflege:** Bei allen künftigen Regelanpassungen oder Erweiterungen (z. B. Order of Merit, Saisonkalender) **muss** dieses Dokument umgehend vom Entwickler/KI-Assistenten aktualisiert werden.
-
 ---
 
 ## 📌 1. Das Tour Card Reglement (128er-Regel)
