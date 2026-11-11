@@ -73,7 +73,7 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
 *   **Zusammensetzung & Qualifikation:**
     1. Alle 128 Tour-Card-Inhaber (inklusive User mit ID `-1L`).
 *   **Auslosung:** Top 32 der *Pro Tour Order of Merit* sind gesetzt und werden im Bracket verteilt. Die restlichen 96 Spieler werden frei zugelost. Da beim Start einer Karriere die *Pro Tour Order of Merit* noch leer ist, werden hierfür die Top 32 zufällig ermittelt.
-*   **Preisgeldaufschlüsselung (Gesamt: £150.000 pro Event, Stand 2026/27):**
+*   **Preisgeldaufschlüsselung (Gesamt: £150.000 pro Event):**
 
 | Platzierung / Runde | Anzahl Spieler | Preisgeld pro Spieler |
 | :--- | :--- | :--- |
@@ -106,7 +106,7 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
     * Die Nummer 2 der Weltrangliste spielt gegen den Sieger der Partie von Pro Tour Seed Nr. 15 (vs. ungesetzter Qualifikant).
     * ... und so weiter, bis:
     * Die Nummer 16 der Weltrangliste gegen den Sieger von Pro Tour Seed Nr. 1 spielt.
-*   **Preisgeldaufschlüsselung (Gesamt: £230.000 pro Event, Stand 2026/27):**
+*   **Preisgeldaufschlüsselung (Gesamt: £230.000 pro Event):**
 
 | Platzierung / Runde | Anzahl Spieler | Preisgeld pro Spieler |
 | :--- | :--- | :--- |
@@ -126,7 +126,7 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
 
 **Major-Turniere folgen spezifischen Format- und Qualifikationsregeln:**
 
-#### 2.1 UK Open / European Open
+#### 2.1 UK Open
 *   **Teilnehmer:** 160.
 *   **Zusammensetzung & Qualifikation:**
     1. Alle 128 Tourcard-Inhaber der aktuellen Saison.
@@ -139,7 +139,7 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
     * Runde 2 (L128): Die 32 Sieger aus Runde 1 treffen auf die Plätze 65–96 der Order of Merit.
     * Runde 3 (L96): Die 32 Sieger aus Runde 2 treffen auf die Plätze 33–64 der Order of Merit.
     * Runde 4 (L64): Die 32 Sieger aus Runde 3 treffen auf die Top 32 der Order of Merit.
-*   **Preisgeldaufschlüsselung (Gesamt: £750.000, Stand 2026/27):**
+*   **Preisgeldaufschlüsselung (Gesamt: £750.000):**
 
 | Platzierung / Runde | Anzahl Spieler | Preisgeld pro Spieler |
 | :--- | :--- | :--- |
@@ -173,10 +173,8 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
 *   **Setzliste:**
     * OOM-Platz 1 spielt gegen Pro Tour Platz 16
     * OOM-Platz 2 spielt gegen Pro Tour Platz 15
-    * OOM-Platz 3 spielt gegen Pro Tour Platz 14
-    * ... und so weiter, bis:
-    * OOM-Platz 16 gegen Pro Tour Platz 1 spielt.
-*   **Preisgeldaufschlüsselung (Gesamt: £1.000.000, Stand 2026/27):**
+    * ... bis OOM-Platz 16 gegen Pro Tour Platz 1 spielt.
+*   **Preisgeldaufschlüsselung (Gesamt: £1.000.000):**
 
 | Platzierung / Runde | Anzahl Spieler | Preisgeld pro Spieler |
 | :--- | :--- | :--- |
@@ -202,7 +200,7 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
     * Die Top 8 der Order of Merit sind gesetzt.
     * Platz 9–16 der OOM: Diese acht Spieler sind zwar ebenfalls für die 1. Runde „gesetzt“ (sie können also in Runde 1 nicht gegen die Top 8 oder gegeneinander spielen), aber ihre genaue Position im Turnierbaum wird ausgelost.
     * Die 16 Spieler, die sich über die Pro Tour Order of Merit qualifiziert haben, sind völlig ungesetzt.
-*   **Preisgeldaufschlüsselung (Gesamt: £750.000, Stand 2026/27):**
+*   **Preisgeldaufschlüsselung (Gesamt: £750.000):**
 
 | Platzierung / Runde | Anzahl Spieler | Preisgeld pro Spieler |
 | :--- | :--- | :--- |
@@ -224,7 +222,7 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
     * Leg
 *   **Setzliste:** 
     * Setzung strikt nach Rangliste (Platz 1 gegen Platz 32). Reines K.o.-System im Leg-Format.
-*   **Preisgeldaufschlüsselung (Gesamt: £750.000, Stand 2026/27):**
+*   **Preisgeldaufschlüsselung (Gesamt: £750.000):**
 
 | Platzierung / Runde | Anzahl Spieler | Preisgeld pro Spieler |
 | :--- | :--- | :--- |
@@ -272,7 +270,7 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
     * Tag 1: Der gesetzte Spieler (Topf 1) spielt gegen den Qualifier-Spieler (Topf 3). Der Major-Qualifikant (Topf 2) setzt aus.
     * Tag 2: Der Major-Qualifikant (Topf 2) steigt ein und spielt gegen den Verlierer von Tag 1. Der Sieger von Tag 1 setzt aus.
     * Tag 3: Der Major-Qualifikant (Topf 2) spielt gegen den Sieger von Tag 1. Der Verlierer von Tag 1 setzt aus.
-    Die Top 2 jeder Gruppe qualifizieren sich für die K.-o.-Runde (insgesamt 32 Spieler). *(Hinweis aus der PDC-Praxis 2026: In der realen PDC kommt bei 16x3 Gruppen ab 2026 nur der Gruppenerste direkt ins Achtelfinale; die Preisgeldtabelle unten spiegelt das offizielle 2026er PDC-Schema wider. Wenn im Spiel mit 32 K.O.-Spielern gespielt wird, erhalten die L32-Verlierer entsprechend das Gruppenzweiten-Preisgeld von £12.500).*
+    Die Top 2 jeder Gruppe qualifizieren sich für die K.-o.-Runde (insgesamt 32 Spieler).
 *   **K.O.-Phase (Das 32er-Turnierbaum-System):**
     *  Die 16 Gruppensieger werden strikt gegen die 16 Gruppenzweiten gekreuzt:
         * Sieger Gruppe A gegen Zweiter Gruppe B
@@ -280,7 +278,7 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
         * Sieger Gruppe C gegen Zweiter Gruppe D
         * Sieger Gruppe D gegen Zweiter Gruppe C
         * ... das System läuft exakt so weiter paarweise durch bis: Sieger Gruppe O gegen Zweiter Gruppe P / Sieger Gruppe P gegen Zweiter Gruppe O.
-*   **Preisgeldaufschlüsselung (Gesamt: £1.000.000, Stand 2026/27):**
+*   **Preisgeldaufschlüsselung (Gesamt: £1.000.000):**
 
 | Platzierung / Runde | Anzahl Spieler | Preisgeld pro Spieler |
 | :--- | :--- | :--- |
@@ -300,7 +298,7 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
     * Leg
 *   **Setzliste:**
     * Setzung strikt nach Rangliste der Players Championship Order of Merit (Platz 1 gegen Platz 64). Reines K.O.-System im Leg-Format.
-*   **Preisgeldaufschlüsselung (Gesamt: £750.000, Stand 2026/27):**
+*   **Preisgeldaufschlüsselung (Gesamt: £750.000):**
 
 | Platzierung / Runde | Anzahl Spieler | Preisgeld pro Spieler |
 | :--- | :--- | :--- |
@@ -328,7 +326,7 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
     2. Platz 1–32 aus dieser Liste sind auf Platz 1–32 gesetzt.
     3. Platz 33–64 aus dieser Liste werden zufällig den Plätzen 33–64 zugelost.
     4. Die restlichen 64 Spieler werden zufällig zugelost.
-*   **Preisgeldaufschlüsselung (Gesamt: £5.000.000, Stand 2026/27):**
+*   **Preisgeldaufschlüsselung (Gesamt: £5.000.000):**
 
 | Platzierung / Runde | Anzahl Spieler | Preisgeld pro Spieler |
 | :--- | :--- | :--- |
@@ -358,27 +356,18 @@ Der Stammdatenwert `players.prizeMoney` wird aktuell nicht verwendet (kann in ei
 3.  **Players Championship Order of Merit:** Kürzel: "PC OOM". Ausschließlich Preisgelder aus `PLAYERS_CHAMPIONSHIP` der aktuellen Saison.
 4.  **European Tour Order of Merit:** Kürzel: "ET OOM". Ausschließlich Preisgelder aus `EUROPEAN_TOUR` der aktuellen Saison.
 
-### 3.2 Offizielle PDC-Ausnahmeregelungen (Wann gibt es £0 Preisgeld / Ranglistenpunkte?)
+### 3.2 Turnierübergreifende Sonderfälle (Nichtantritt, Freilos & Nachrücker)
+*(Hinweis: Die turnierspezifischen Nullrunden-Regeln wie Runde-1-Aus bei PC/UK Open oder Auftaktniederlagen gesetzter Spieler auf der European Tour sind direkt bei den jeweiligen Turnieren unter Abschnitt 2 definiert.)*
 
-Für die exakte Simulation der PDC-Regeln (gemäß *PDC Rankings Rules*, Abschnitte 2.9, 3.7, 4.5 und 4.17) gelten folgende Ausnahmen:
+Für das Match- und Turnier-Management (gemäß *PDC Rankings Rules*, Abschnitte 3.7 & 4.17) gelten darüber hinaus folgende allgemeine Sonderfälle:
 
-1.  **Auftaktniederlage vorqualifizierter Spieler auf der European Tour (Regel 4.5):**
-    *   Alle 32 über die Ranglisten vorqualifizierten Spieler (Top 16 OOM & Top 16 Pro Tour OOM) erhalten bei einer Niederlage in ihrem **allerersten Match** zwar ihr Preisgeld ausgezahlt (£3.500 in R2 bzw. £2.000 in R1), es wird aber mit **£0 für alle Ranglisten** gewertet.
-    *   *Ausnahme:* Qualifikanten (Qualifier-Sieger) erhalten auch bei einer Runde-1-Niederlage die vollen £2.000 für alle Ranglisten.
-2.  **Runde-1-Aus bei Players Championships & UK Open / European Open:**
-    *   Verlierer der 1. Runde (Last 128 bei PC bzw. Last 160 bei UK Open / European Open) erhalten grundsätzlich **£0** Preisgeld und **£0** für die Ranglisten.
-3.  **Nichtantritt / Absage vor Turnierstart (Withdrawal, Regel 4.17):**
+1.  **Nichtantritt / Absage vor Turnierstart (Withdrawal):**
     *   Qualifiziert sich ein Spieler für ein Hauptfeld (Major oder European Tour), tritt aber vor seinem ersten Match nicht an, erhält er **£0** (weder Auszahlung noch Ranglistenpunkte), selbst wenn er erst in Runde 2 eingestiegen wäre.
-4.  **Freilos (Bye) durch unvollständiges Teilnehmerfeld (Regel 4.17):**
+2.  **Freilos (Bye) durch unvollständiges Teilnehmerfeld:**
     *   Erhält ein Spieler durch die Auslosung ein Freilos in Runde 2 und verliert dort sein erstes gespieltes Match, wird er ranglistentechnisch so behandelt, als hätte er in Runde 1 verloren (er erhält also nur das Preisgeld der 1. Runde – bei PC/UK Open somit **£0**).
     *   *Gegenausnahme:* Kommt das Freilos zustande, weil der geplante Gegner kurzfristig zurückgezogen hat (Walkover), gilt das Match als gewonnen und das Preisgeld der erreichten Runde wird regulär gewertet.
-5.  **Nachrücker in spätere Runden (Late Replacement, Regel 3.7):**
+3.  **Nachrücker in spätere Runden (Late Replacement):**
     *   Rückt ein Ersatzspieler für einen ausgefallenen Spieler direkt in eine spätere Runde nach (z. B. Runde 2 bei ET oder Runde 3 bei UK Open) und verliert dort sofort sein erstes Match, erhält er nur das Preisgeld der allerersten Turnierrunde (bei UK Open also **£0**, bei ET **£2.000**). Gewinnt er sein Auftaktmatch, greift ab der nächsten Runde das reguläre Preisgeld.
-6.  **Disqualifikation / Matchabbruch / Regelverstoß (Regel 4.17):**
-    *   Wird ein Spieler während des Turniers disqualifiziert oder tritt zu einem Folgematch nach Turnierstart ohne triftigen Grund nicht an, kann die DRA (Darts Regulation Authority) das Preisgeld komplett einbehalten (**£0** für die Ranglisten).
-7.  **Verlust der Tour Card / Reset auf £0 (Regel 2.9):**
-    *   Verliert ein Spieler am Saisonende seine Tour Card (außerhalb der Top 64 nach dem 2. Jahr) und gewinnt sie nicht sofort über die Q-School zurück, wird sein gesamtes Preisgeld auf allen Ranglisten auf **£0** zurückgesetzt.
-    *   *(Hinweis zur realen Abzugsregel 2.10: In der Realität zieht die PDC von jedem ausgezahlten Preisgeld 2 % PDPA-Abgabe ab – auf den Ranglisten wird jedoch immer der volle Bruttobetrag ohne Abzug geführt).*
 
 ### 3.3 Format-Spezifikationen für Sets und Sonderregeln
 *   **Set-Modus (World Championship):** Ein Set besteht immer aus *Best of 5 Legs* (First to 3 Legs gewinnt das Set).
@@ -418,7 +407,7 @@ Die Ablaufsteuerung, Match-Generierung und algorithmischen Berechnungen werden i
 
 ---
 
-### Quellenverzeichnis (Stand: Saison 2026/2027)
-*   **PDC Rankings Rules (as of January 1, 2026 – Sections 2, 3, 4 & 8):** Offizielles Regelwerk zu Preisgeldern, Ranglistenwertungen und Ausnahmen (`https://www.pdc.tv/rankings/pdc-rankings-rules`).
-*   **PDC News (31.03.2025):** *Biggest prize money increase in PDC history confirmed* – Offizielle Bekanntgabe der Preisgeldstruktur ab 2026 (`https://www.pdc.tv/news/2025/03/31/biggest-prize-money-increase-pdc-history-confirmed`).
-*   **Turnier-Spezifikationen 2026/2027:** PDC Players Championship Series 2026, European Tour 2026, UK Open 2026, World Matchplay 2026, World Grand Prix 2026, European Championship 2026, Grand Slam of Darts 2026, Players Championship Finals 2026 sowie PDC World Darts Championship 2027.
+### Verwendete Quellen zur Doppelprüfung (Stand: Saison 2026/2027)
+*   **Offizielles PDC-Regelwerk & Preisgeldtabellen (2026/27):** [PDC Rankings Rules (as of January 1, 2026 – Section 2, 3, 4 & 8)](https://www.pdc.tv/rankings/pdc-rankings-rules)
+*   **PDC-Ankündigung der Preisgelderhöhung ab 2026:** [PDC News: Biggest prize money increase in PDC history confirmed](https://www.pdc.tv/news/2025/03/31/biggest-prize-money-increase-pdc-history-confirmed)
+*   **Turnierspezifische Verifizierungen 2026/2027:** [Wikipedia – 2026 PDC Players Championship series](https://en.wikipedia.org/wiki/2026_PDC_Players_Championship_series), [Wikipedia – 2026 World Matchplay](https://en.wikipedia.org/wiki/2026_World_Matchplay), [Wikipedia – 2026 UK Open](https://en.wikipedia.org/wiki/2026_UK_Open), [Sky Sports – Grand Slam of Darts 2026](https://www.skysports.com/darts/news/13610214/grand-slam-of-darts-2026-schedule-new-format-players-prize-money-past-winners-as-luke-littler-looks-to-retain-title), [Wikipedia – 2027 PDC World Darts Championship](https://en.wikipedia.org/wiki/2027_PDC_World_Darts_Championship).
