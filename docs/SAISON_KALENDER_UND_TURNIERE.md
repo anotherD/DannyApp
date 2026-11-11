@@ -35,7 +35,7 @@ Um Nullable-Fremdschlüssel-Probleme und komplexe Boolean-Flags zu vermeiden, er
 #### 2. `TournamentMatch` (Tabelle: `tournament_matches`)
 *   `id` (PK, Long, Autoincrement)
 *   `tournament_id` (FK -> `tournaments.id`, `ON DELETE CASCADE`)
-*   `round` (String/Enum: `GROUP`, `L128`, `L64`, `L32`, `L16`, `QF`, `SF`, `F`)
+*   `round` (String/Enum: `GROUP`, `R1_160`, `R2_128`, `R3_96`, `L64`, `L48`, `L32`, `L16`, `QF`, `SF`, `F`)
 *   `match_index` (Int, Sortierung innerhalb der Runde)
 *   `player_1_id` (Long, Verweis direkt auf `players.id` oder `-1L` für den User – völlig unabhängig davon, ob der Spieler in `tour_cards` existiert oder nicht; Match-Zuweisung ist komplett entkoppelt)
 *   `player_2_id` (Long, Verweis direkt auf `players.id` oder `-1L` für den User – völlig unabhängig davon, ob der Spieler in `tour_cards` existiert oder nicht; Match-Zuweisung ist komplett entkoppelt)
@@ -50,13 +50,7 @@ Um Nullable-Fremdschlüssel-Probleme und komplexe Boolean-Flags zu vermeiden, er
 *   `player_id` (Long, Verweis auf `players.id` oder `-1L` für User)
 *   `reached_round` (String)
 *   `prize_money` (Double, für die Ranglisten gewerteter Betrag)
-{
-    "playerId": 1,
-    "season": 1,
-    "eventKey": "PT-01",
-    "eventType": "proTour",
-    "placement": 33,
-    "amount": 1250
+
 ---
 
 ## 📅 2. Turniertypen, Qualifikation & Kalenderstruktur
@@ -75,20 +69,22 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
 *   **Auslosung:** Top 32 der *Pro Tour Order of Merit* sind gesetzt und werden im Bracket verteilt. Die restlichen 96 Spieler werden frei zugelost. Da beim Start einer Karriere die *Pro Tour Order of Merit* noch leer ist, werden hierfür die Top 32 zufällig ermittelt.
 *   **Preisgeldaufschlüsselung (Gesamt: £150.000 pro Event):**
 
-| Platzierung / Runde | Anzahl Spieler | Preisgeld pro Spieler |
-| :--- | :--- | :--- |
-| **Sieger** | 1 | £15.000 |
-| **Finalist (Runner-Up)** | 1 | £10.000 |
-| **Halbfinale (SF)** | 2 | £6.500 |
-| **Viertelfinale (QF)** | 4 | £4.000 |
-| **Achtelfinale (L16 / R4)** | 8 | £3.000 |
-| **Letzte 32 (R3)** | 16 | £2.000 |
-| **Letzte 64 (R2)** | 32 | £1.250 |
-| **Letzte 128 (R1-Verlierer)** | 64 | **£0** *(kein Preisgeld)* |
+| Platzierung / Runde | Enum-Key | Anzahl Spieler | Preisgeld pro Spieler |
+| :--- | :--- | :--- | :--- |
+| **Sieger** | `WINNER` | 1 | £15.000 |
+| **Finalist (Runner-Up)** | `F` | 1 | £10.000 |
+| **Halbfinale (SF)** | `SF` | 2 | £6.500 |
+| **Viertelfinale (QF)** | `QF` | 4 | £4.000 |
+| **Achtelfinale (L16 / R4)** | `L16` | 8 | £3.000 |
+| **Letzte 32 (R3)** | `L32` | 16 | £2.000 |
+| **Letzte 64 (R2)** | `L64` | 32 | £1.250 |
+| **Letzte 128 (R1-Verlierer)** | `L128` | 64 | **£0** *(kein Preisgeld)* |
 
 *   **Ausnahmen & Besonderheiten (PC):**
     *   **Runde-1-Verlierer:** Wer in der 1. Runde (Last 128) ausscheidet, erhält **£0**.
     *   **Freilos-Regel (Bye):** Erhält ein Spieler durch ein nicht volles Teilnehmerfeld ein Freilos in Runde 2 und verliert dort, erhält er das Preisgeld von Runde 1 (**£0**).
+*   **Hinweis zur App-Vereinfachung vs. reale PDC-Regeln:**
+    *   *Reale PDC:* Sagen Tour-Card-Inhaber für ein PC-Event ab, rücken Spieler aus der *Challenge Tour Order of Merit* (und bei Bedarf *Development Tour*) nach, um das 128er-Feld aufzufüllen. Da diese Secondary Tours aktuell nicht simuliert werden, wird das Feld ggf. aus Nicht-Tourcard-Spielern (`tour_card_year == 0`) aufgefüllt oder mit Byes gearbeitet.
 
 ### 2.2 European Tour (ET)
 *   **Teilnehmer:** 48 Spieler.
@@ -108,19 +104,21 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
     * Die Nummer 16 der Weltrangliste gegen den Sieger von Pro Tour Seed Nr. 1 spielt.
 *   **Preisgeldaufschlüsselung (Gesamt: £230.000 pro Event):**
 
-| Platzierung / Runde | Anzahl Spieler | Preisgeld pro Spieler |
-| :--- | :--- | :--- |
-| **Sieger** | 1 | £35.000 |
-| **Finalist (Runner-Up)** | 1 | £15.000 |
-| **Halbfinale (SF)** | 2 | £10.000 |
-| **Viertelfinale (QF)** | 4 | £8.000 |
-| **Achtelfinale (L16 / R3)** | 8 | £5.000 |
-| **Letzte 32 (R2)** | 16 | £3.500\* |
-| **Letzte 48 (R1-Verlierer)** | 16 | £2.000\* |
+| Platzierung / Runde | Enum-Key | Anzahl Spieler | Preisgeld pro Spieler |
+| :--- | :--- | :--- | :--- |
+| **Sieger** | `WINNER` | 1 | £35.000 |
+| **Finalist (Runner-Up)** | `F` | 1 | £15.000 |
+| **Halbfinale (SF)** | `SF` | 2 | £10.000 |
+| **Viertelfinale (QF)** | `QF` | 4 | £8.000 |
+| **Achtelfinale (L16 / R3)** | `L16` | 8 | £5.000 |
+| **Letzte 32 (R2)** | `L32` | 16 | £3.500\* |
+| **Letzte 48 (R1-Verlierer)** | `L48` | 16 | £2.000\* |
 
 *   **\*Ausnahmen & Besonderheiten (ET – Extrem wichtig für die Ranglisten-Logik!):**
     *   **Auftaktniederlage gesetzter/vorqualifizierter Spieler:** Alle 32 vorqualifizierten Spieler (Top 16 OOM, die in R2 einsteigen, sowie Top 16 Pro Tour, die in R1 starten) erhalten ihr Preisgeld zwar real ausgezahlt, aber **£0 für die Ranglisten (OOM, PT OOM, ET OOM)**, wenn sie ihr **erstes Match** im Turnier verlieren! Für `TournamentPlacement.prize_money` (Ranglistenwert) muss in diesem Fall `0.0` gespeichert werden.
     *   Qualifikanten (die 16 Spieler aus den Qualifiern) erhalten ihr Preisgeld auch bei einer Auftaktniederlage in Runde 1 (£2.000) voll für alle Ranglisten angerechnet.
+*   **Hinweis zur App-Vereinfachung vs. reale PDC-Regeln:**
+    *   *Reale PDC:* Die 6 Nicht-Tourcard-Plätze (Punkte 4 & 5) teilen sich in der Realität auf in **4 Host Nation Qualifier**, **1 Nordic & Baltic Qualifier** sowie **1 East Europe Qualifier**. Im Konzept sind die beiden regionalen Tour-Qualifier (Nordic & Baltic / East Europe) aktuell zu „2 Gewinner anderer Qualifier“ ohne Nationsbindung zusammengefasst, da diese regionalen Toursysteme noch nicht abgebildet sind.
 
 ### 2.3 Die Major-Turniere
 
@@ -135,28 +133,30 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
     * K.O.-System
     * Legs
 *   **Setzliste:** ohne feste Setzliste. Runden 1–3 gestaffelt nach Ranglistenplatzierung:
-    * Runde 1 (L160): Die Plätze 97–128 der Order of Merit + alle 32 Qualifikanten
-    * Runde 2 (L128): Die 32 Sieger aus Runde 1 treffen auf die Plätze 65–96 der Order of Merit.
-    * Runde 3 (L96): Die 32 Sieger aus Runde 2 treffen auf die Plätze 33–64 der Order of Merit.
-    * Runde 4 (L64): Die 32 Sieger aus Runde 3 treffen auf die Top 32 der Order of Merit.
+    * Runde 1 (`R1_160`): Die Plätze 97–128 der Order of Merit + alle 32 Qualifikanten (32 Matches -> 32 Verlierer scheiden aus).
+    * Runde 2 (`R2_128`): Die 32 Sieger aus Runde 1 treffen auf die Plätze 65–96 der Order of Merit (32 Matches -> 32 Verlierer scheiden aus).
+    * Runde 3 (`R3_96`): Die 32 Sieger aus Runde 2 treffen auf die Plätze 33–64 der Order of Merit (32 Matches -> 32 Verlierer scheiden aus).
+    * Runde 4 (`L64`): Die 32 Sieger aus Runde 3 treffen auf die Top 32 der Order of Merit (32 Matches -> 32 Verlierer scheiden aus).
 *   **Preisgeldaufschlüsselung (Gesamt: £750.000):**
 
-| Platzierung / Runde | Anzahl Spieler | Preisgeld pro Spieler |
-| :--- | :--- | :--- |
-| **Sieger** | 1 | £120.000 |
-| **Finalist (Runner-Up)** | 1 | £60.000 |
-| **Halbfinale (SF)** | 2 | £35.000 |
-| **Viertelfinale (QF)** | 4 | £20.000 |
-| **Achtelfinale (L16 / R6)** | 8 | £12.500 |
-| **Letzte 32 (R5)** | 16 | £7.500 |
-| **Letzte 64 (R4)** | 32 | £3.000 |
-| **Letzte 96 (R3)** | 32 | £2.000 |
-| **Letzte 128 (R2)** | 32 | £1.250 |
-| **Letzte 160 (R1-Verlierer)** | 32 | **£0** *(kein Preisgeld)* |
+| Platzierung / Runde | Enum-Key | Anzahl Spieler | Preisgeld pro Spieler |
+| :--- |:---------| :--- | :--- |
+| **Sieger** | `WINNER` | 1 | £120.000 |
+| **Finalist (Runner-Up)** | `F`      | 1 | £60.000 |
+| **Halbfinale (SF)** | `SF`     | 2 | £35.000 |
+| **Viertelfinale (QF)** | `QF`     | 4 | £20.000 |
+| **Achtelfinale (L16 / R6)** | `L16`    | 8 | £12.500 |
+| **Letzte 32 (R5)** | `L32`    | 16 | £7.500 |
+| **Letzte 64 (R4)** | `L64`    | 32 | £3.000 |
+| **Letzte 96 (R3)** | `R3_96`  | 32 | £2.000 |
+| **Letzte 128 (R2)** | `R2_128` | 32 | £1.250 |
+| **Letzte 160 (R1-Verlierer)** | `R1_160` | 32 | **£0** *(kein Preisgeld)* |
 
 *   **Ausnahmen & Besonderheiten (UK Open):**
-    *   **Runde-1-Verlierer:** Wer in Runde 1 (Last 160) verliert, geht komplett leer aus (**£0**).
-    *   **Top-Gesetzte (Top 32):** Es gibt bei den UK Open *keine* Nullrunde für gesetzte Spieler – auch wer erst in Runde 4 einsteigt und dort direkt verliert, erhält regulär £3.000 für die Order of Merit.
+    *   **Runde-1-Verlierer (`R1_160`):** Alle Spieler, die in Runde 1 (Last 160) verlieren – sowohl die 32 Qualifikanten als auch die Tour-Card-Inhaber der Plätze 97–128 –, gehen komplett leer aus (**£0**).
+    *   **Einstieg in spätere Runden (Top 96):** Spieler, die aufgrund ihrer Weltranglistenposition erst in Runde 2 (`L128`, Plätze 65–96), Runde 3 (`R3_96`, Plätze 33–64) oder Runde 4 (`L64`, Top 32) einsteigen und dort sofort ihr erstes Match verlieren, erhalten regulär das Preisgeld dieser Runde (£1.250, £2.000 bzw. £3.000) voll für die Order of Merit angerechnet. Hier gibt es *keine* Nullrunde wie auf der European Tour.
+*   **Hinweis zur App-Vereinfachung vs. reale PDC-Regeln:**
+    *   *Reale PDC:* Die 32 Nicht-Tourcard-Plätze setzen sich in der Realität zusammen aus den **Top 8 der Challenge Tour Order of Merit**, den **Top 8 der Development Tour Order of Merit** (jeweils des Vorjahres, sofern keine Tour Card gewonnen wurde) sowie **16 Amateur-Qualifikanten** (8x Rileys Amateur Qualifiers + 8x PDC in the Community Qualifiers). In der App wird dies aktuell vereinfacht über die Top 32 Nicht-Tourcard-Spieler nach `skill DESC` abgebildet.
 
 #### 2.2 European Open
 *   Alles genau wie bei den UK Open (Format, Teilnehmerfeld, Setzliste und Preisgeldverteilung identisch zu Abschnitt 2.1 mit £750.000 Gesamtpreisgeld).
@@ -176,16 +176,18 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
     * ... bis OOM-Platz 16 gegen Pro Tour Platz 1 spielt.
 *   **Preisgeldaufschlüsselung (Gesamt: £1.000.000):**
 
-| Platzierung / Runde | Anzahl Spieler | Preisgeld pro Spieler |
-| :--- | :--- | :--- |
-| **Sieger** | 1 | £225.000 |
-| **Finalist (Runner-Up)** | 1 | £125.000 |
-| **Halbfinale (SF)** | 2 | £65.000 |
-| **Viertelfinale (QF)** | 4 | £35.000 |
-| **Achtelfinale (L16 / R2)** | 8 | £22.500 |
-| **Letzte 32 (R1-Verlierer)** | 16 | £12.500 |
+| Platzierung / Runde | Enum-Key | Anzahl Spieler | Preisgeld pro Spieler |
+| :--- | :--- | :--- | :--- |
+| **Sieger** | `WINNER` | 1 | £225.000 |
+| **Finalist (Runner-Up)** | `F` | 1 | £125.000 |
+| **Halbfinale (SF)** | `SF` | 2 | £65.000 |
+| **Viertelfinale (QF)** | `QF` | 4 | £35.000 |
+| **Achtelfinale (L16 / R2)** | `L16` | 8 | £22.500 |
+| **Letzte 32 (R1-Verlierer)** | `L32` | 16 | £12.500 |
 
 *   **Ausnahmen & Besonderheiten:** Alle 32 Teilnehmer erhalten bei regulärer Teilnahme mindestens £12.500 voll für die Order of Merit angerechnet.
+*   **Hinweis zur App-Vereinfachung vs. reale PDC-Regeln:**
+    *   *Reale PDC:* Das Teilnehmerfeld (Top 16 OOM + Top 16 Pro Tour OOM) entspricht 1:1 den offiziellen PDC-Regeln. Einziger kleiner Unterschied: In der realen PDC werden die 16 Pro-Tour-Qualifikanten den Plätzen 1–16 der Setzliste frei zugelost, statt starr 1 vs. 16 gekreuzt zu werden.
 
 #### 2.4 World Grand Prix
 *   **Teilnehmer:** 32
@@ -202,16 +204,18 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
     * Die 16 Spieler, die sich über die Pro Tour Order of Merit qualifiziert haben, sind völlig ungesetzt.
 *   **Preisgeldaufschlüsselung (Gesamt: £750.000):**
 
-| Platzierung / Runde | Anzahl Spieler | Preisgeld pro Spieler |
-| :--- | :--- | :--- |
-| **Sieger** | 1 | £150.000 |
-| **Finalist (Runner-Up)** | 1 | £80.000 |
-| **Halbfinale (SF)** | 2 | £50.000 |
-| **Viertelfinale (QF)** | 4 | £35.000 |
-| **Achtelfinale (L16 / R2)** | 8 | £20.000 |
-| **Letzte 32 (R1-Verlierer)** | 16 | £7.500 |
+| Platzierung / Runde | Enum-Key | Anzahl Spieler | Preisgeld pro Spieler |
+| :--- | :--- | :--- | :--- |
+| **Sieger** | `WINNER` | 1 | £150.000 |
+| **Finalist (Runner-Up)** | `F` | 1 | £80.000 |
+| **Halbfinale (SF)** | `SF` | 2 | £50.000 |
+| **Viertelfinale (QF)** | `QF` | 4 | £35.000 |
+| **Achtelfinale (L16 / R2)** | `L16` | 8 | £20.000 |
+| **Letzte 32 (R1-Verlierer)** | `L32` | 16 | £7.500 |
 
 *   **Ausnahmen & Besonderheiten:** Alle 32 Teilnehmer erhalten bei regulärer Teilnahme mindestens £7.500 voll für die Order of Merit angerechnet.
+*   **Hinweis zur App-Vereinfachung vs. reale PDC-Regeln:**
+    *   *Reale PDC:* Teilnehmerfeld und Preisgelder entsprechen 1:1 dem offiziellen PDC-Regelwerk.
 
 #### 2.5 European Championship (MAJOR_LEG)
 *   **Teilnehmer:** 32.
@@ -224,22 +228,24 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
     * Setzung strikt nach Rangliste (Platz 1 gegen Platz 32). Reines K.o.-System im Leg-Format.
 *   **Preisgeldaufschlüsselung (Gesamt: £750.000):**
 
-| Platzierung / Runde | Anzahl Spieler | Preisgeld pro Spieler |
-| :--- | :--- | :--- |
-| **Sieger** | 1 | £150.000 |
-| **Finalist (Runner-Up)** | 1 | £80.000 |
-| **Halbfinale (SF)** | 2 | £50.000 |
-| **Viertelfinale (QF)** | 4 | £35.000 |
-| **Achtelfinale (L16 / R2)** | 8 | £20.000 |
-| **Letzte 32 (R1-Verlierer)** | 16 | £7.500 |
+| Platzierung / Runde | Enum-Key | Anzahl Spieler | Preisgeld pro Spieler |
+| :--- | :--- | :--- | :--- |
+| **Sieger** | `WINNER` | 1 | £150.000 |
+| **Finalist (Runner-Up)** | `F` | 1 | £80.000 |
+| **Halbfinale (SF)** | `SF` | 2 | £50.000 |
+| **Viertelfinale (QF)** | `QF` | 4 | £35.000 |
+| **Achtelfinale (L16 / R2)** | `L16` | 8 | £20.000 |
+| **Letzte 32 (R1-Verlierer)** | `L32` | 16 | £7.500 |
 
 *   **Ausnahmen & Besonderheiten:** Alle 32 Teilnehmer erhalten bei regulärer Teilnahme mindestens £7.500 voll für die Order of Merit angerechnet.
+*   **Hinweis zur App-Vereinfachung vs. reale PDC-Regeln:**
+    *   *Reale PDC:* Teilnehmerfeld, Setzliste (1 vs. 32) und Preisgelder entsprechen 1:1 dem offiziellen PDC-Regelwerk.
 
 #### 2.6 Grand Slam of Darts (MAJOR_GROUP)
-*   **Teilnehmer:** 48
+*   **Teilnehmer:** 48 (Offizielles PDC-Format ab 2026)
 *   **Modus:**
-    * Spieler in 16 Gruppen (A bis P) zu je 3 Spielern.
-    * Leg
+    * 16 Gruppen (A bis P) zu je 3 Spielern (Leg-Format: Best of 9 Legs).
+    * **Aufstieg in die K.-o.-Runde:** Nur der **Gruppenerste** jeder Gruppe (insgesamt 16 Spieler) zieht direkt in die K.-o.-Runde (`L16` / Achtelfinale) ein. Gruppenzweite und Gruppendritte scheiden nach der Gruppenphase aus.
 *   **Zusammensetzung & Qualifikation:**
     * Die Top 16 der Order of Merit sind qualifiziert und als Gruppenköpfe gesetzt.
     * Die nächsten 16 Plätze werden wie folgt vergeben, bis 16 Spieler ausgewählt wurden (ist ein Spieler bereits qualifiziert, wird mit dem nächsten Punkt fortgefahren). Sind die Spieler ermittelt, wird jeder zufällig einer Gruppe zugelost:
@@ -263,32 +269,34 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
 *   **Gruppenphase:**
     Die Auslosung erfolgt über drei exakte Lostöpfe:
     * Topf 1 (Die gesetzten Köpfe): Die Weltranglistenplätze 1 bis 16. Platz 1 geht in Gruppe A, Platz 2 in Gruppe B... bis Platz 16 in Gruppe P.
-    * Topf 2 (16 Spieler): Die 16 Major-Qualifikanten. Sie werden den Gruppen A–P frei zugelost.
+    * Topf 2 (16 Spieler): Die 16 Major-/ProTour-Qualifikanten. Sie werden den Gruppen A–P frei zugelost.
     * Topf 3 (16 Spieler): Die 16 Qualifierspieler. Sie werden ebenfalls den Gruppen A–P frei zugelost.
     Der exakte Ablauf der Dreiergruppe (Best of 9 Legs / First to 5):
     Da es eine ungerade Spieleranzahl pro Gruppe gibt, setzt ein Spieler pro Spieltag aus:
-    * Tag 1: Der gesetzte Spieler (Topf 1) spielt gegen den Qualifier-Spieler (Topf 3). Der Major-Qualifikant (Topf 2) setzt aus.
-    * Tag 2: Der Major-Qualifikant (Topf 2) steigt ein und spielt gegen den Verlierer von Tag 1. Der Sieger von Tag 1 setzt aus.
-    * Tag 3: Der Major-Qualifikant (Topf 2) spielt gegen den Sieger von Tag 1. Der Verlierer von Tag 1 setzt aus.
-    Die Top 2 jeder Gruppe qualifizieren sich für die K.-o.-Runde (insgesamt 32 Spieler).
-*   **K.O.-Phase (Das 32er-Turnierbaum-System):**
-    *  Die 16 Gruppensieger werden strikt gegen die 16 Gruppenzweiten gekreuzt:
-        * Sieger Gruppe A gegen Zweiter Gruppe B
-        * Sieger Gruppe B gegen Zweiter Gruppe A
-        * Sieger Gruppe C gegen Zweiter Gruppe D
-        * Sieger Gruppe D gegen Zweiter Gruppe C
-        * ... das System läuft exakt so weiter paarweise durch bis: Sieger Gruppe O gegen Zweiter Gruppe P / Sieger Gruppe P gegen Zweiter Gruppe O.
+    * Tag 1: Der gesetzte Spieler (Topf 1) spielt gegen den Qualifier-Spieler (Topf 3). Der Spieler aus Topf 2 setzt aus.
+    * Tag 2: Der Spieler aus Topf 2 steigt ein und spielt gegen den Verlierer von Tag 1. Der Sieger von Tag 1 setzt aus.
+    * Tag 3: Der Spieler aus Topf 2 spielt gegen den Sieger von Tag 1. Der Verlierer von Tag 1 setzt aus.
+*   **K.O.-Phase (Das 16er-Turnierbaum-System ab Achtelfinale `L16`):**
+    * Die 16 Gruppensieger treten direkt im Achtelfinale (`L16`) paarweise gegeneinander an:
+        * Sieger Gruppe A gegen Sieger Gruppe B
+        * Sieger Gruppe C gegen Sieger Gruppe D
+        * Sieger Gruppe E gegen Sieger Gruppe F
+        * ... das System läuft exakt so weiter paarweise durch bis: Sieger Gruppe O gegen Sieger Gruppe P.
 *   **Preisgeldaufschlüsselung (Gesamt: £1.000.000):**
 
-| Platzierung / Runde | Anzahl Spieler | Preisgeld pro Spieler |
-| :--- | :--- | :--- |
-| **Sieger** | 1 | £200.000 |
-| **Finalist (Runner-Up)** | 1 | £100.000 |
-| **Halbfinale (SF)** | 2 | £60.000 |
-| **Viertelfinale (QF)** | 4 | £35.000 |
-| **Achtelfinale (L16)** | 8 | £20.000 |
-| **Gruppenzweiter (bzw. L32)** | 16 | £12.500 |
-| **Gruppendritter (Aus in Gruppe)** | 16 | £5.000 |
+| Platzierung / Runde | Enum-Key | Anzahl Spieler | Preisgeld pro Spieler |
+| :--- | :--- | :--- | :--- |
+| **Sieger** | `WINNER` | 1 | £200.000 |
+| **Finalist (Runner-Up)** | `F` | 1 | £100.000 |
+| **Halbfinale (SF)** | `SF` | 2 | £60.000 |
+| **Viertelfinale (QF)** | `QF` | 4 | £35.000 |
+| **Achtelfinale (L16)** | `L16` | 8 | £20.000 |
+| **Gruppenzweiter (Aus in Gruppe)** | `GROUP_2ND` | 16 | £12.500 |
+| **Gruppendritter (Aus in Gruppe)** | `GROUP_3RD` | 16 | £5.000 |
+
+*   **Ausnahmen & Besonderheiten:** Der früher übliche Gruppensieger-Bonus von £3.500 wurde mit der Formatumstellung 2026 abgeschafft. Alle Preisgelder zählen voll für die Order of Merit.
+*   **Hinweis zur App-Vereinfachung vs. reale PDC-Regeln:**
+    *   *Reale PDC:* In der Realität erhalten bis zu 12 automatische Startplätze nicht nur Major-Finalisten, sondern auch Sieger/Finalisten von **World Series of Darts Finals**, **World Cup of Darts**, **World Youth Championship** (Sieger & Finalist), **Women's World Matchplay** (Siegerin), **Women's Series** (#1), **Challenge Tour** (#1), **Development Tour** (#1) sowie regionale Champions (CDC Continental Cup, Asian Championship). Außerdem sind die Top 16 der OOM nicht pauschal über ihre Weltrangliste gesetzt, sondern nur die 16 höchstplatzierten Qualifikanten werden als Gruppenköpfe gesetzt. Im Konzept werden diese Secondary-/Women's-/World-Series-Plätze aktuell durch das Nachrücken über die *Pro Tour Order of Merit* sowie die *8 Nicht-Tourcard-Qualifier* kompensiert.
 
 #### 2.7 Players Championship Finals (MAJOR_LEG)
 *   **Teilnehmer:** 64.
@@ -300,17 +308,19 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
     * Setzung strikt nach Rangliste der Players Championship Order of Merit (Platz 1 gegen Platz 64). Reines K.O.-System im Leg-Format.
 *   **Preisgeldaufschlüsselung (Gesamt: £750.000):**
 
-| Platzierung / Runde | Anzahl Spieler | Preisgeld pro Spieler |
-| :--- | :--- | :--- |
-| **Sieger** | 1 | £130.000 |
-| **Finalist (Runner-Up)** | 1 | £70.000 |
-| **Halbfinale (SF)** | 2 | £40.000 |
-| **Viertelfinale (QF)** | 4 | £27.500 |
-| **Achtelfinale (L16 / R3)** | 8 | £15.000 |
-| **Letzte 32 (R2)** | 16 | £7.000 |
-| **Letzte 64 (R1-Verlierer)** | 32 | £4.000 |
+| Platzierung / Runde | Enum-Key | Anzahl Spieler | Preisgeld pro Spieler |
+| :--- | :--- | :--- | :--- |
+| **Sieger** | `WINNER` | 1 | £130.000 |
+| **Finalist (Runner-Up)** | `F` | 1 | £70.000 |
+| **Halbfinale (SF)** | `SF` | 2 | £40.000 |
+| **Viertelfinale (QF)** | `QF` | 4 | £27.500 |
+| **Achtelfinale (L16 / R3)** | `L16` | 8 | £15.000 |
+| **Letzte 32 (R2)** | `L32` | 16 | £7.000 |
+| **Letzte 64 (R1-Verlierer)** | `L64` | 32 | £4.000 |
 
 *   **Ausnahmen & Besonderheiten:** Alle 64 Teilnehmer erhalten bei regulärer Teilnahme mindestens £4.000 voll für die Order of Merit angerechnet.
+*   **Hinweis zur App-Vereinfachung vs. reale PDC-Regeln:**
+    *   *Reale PDC:* Teilnehmerfeld, Setzliste (1 vs. 64) und Preisgelder entsprechen 1:1 dem offiziellen PDC-Regelwerk.
 
 #### 2.8 World Championship (MAJOR_SET)
 *   **Teilnehmer:** 128.
@@ -328,17 +338,20 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
     4. Die restlichen 64 Spieler werden zufällig zugelost.
 *   **Preisgeldaufschlüsselung (Gesamt: £5.000.000):**
 
-| Platzierung / Runde | Anzahl Spieler | Preisgeld pro Spieler |
-| :--- | :--- | :--- |
-| **Sieger** | 1 | £1.000.000 |
-| **Finalist (Runner-Up)** | 1 | £400.000 |
-| **Halbfinale (SF)** | 2 | £200.000 |
-| **Viertelfinale (QF)** | 4 | £100.000 |
-| **Achtelfinale (L16 / R4)** | 8 | £60.000 |
-| **Letzte 32 (R3)** | 16 | £35.000 |
-| **Letzte 64 (R2)** | 32 | £25.000 |
-| **Letzte 128 (R1-Verlierer)** | 64 | £15.000 |
+| Platzierung / Runde | Enum-Key | Anzahl Spieler | Preisgeld pro Spieler |
+| :--- | :--- | :--- | :--- |
+| **Sieger** | `WINNER` | 1 | £1.000.000 |
+| **Finalist (Runner-Up)** | `F` | 1 | £400.000 |
+| **Halbfinale (SF)** | `SF` | 2 | £200.000 |
+| **Viertelfinale (QF)** | `QF` | 4 | £100.000 |
+| **Achtelfinale (L16 / R4)** | `L16` | 8 | £60.000 |
+| **Letzte 32 (R3)** | `L32` | 16 | £35.000 |
+| **Letzte 64 (R2)** | `L64` | 32 | £25.000 |
+| **Letzte 128 (R1-Verlierer)** | `L128` | 64 | £15.000 |
 
+*   **Ausnahmen & Besonderheiten:** Seit der Erweiterung auf 128 Spieler (Saison 2025/26 bzw. 2026/27) starten auch die Top 32 in Runde 1 (Last 128). Verliert ein gesetzter Spieler in Runde 1, erhält er die £15.000 dennoch voll für die Order of Merit angerechnet. *(Optionaler Sonderbonus: Ein 9-Darter bei der WM wird oft mit £60.000 gesponsert, zählt aber **nicht** zur Order of Merit).*
+*   **Hinweis zur App-Vereinfachung vs. reale PDC-Regeln:**
+    *   *Reale PDC:* Die 48 internationalen Plätze (Punkt 3) setzen sich in der Realität aus festen Kontingenten zusammen, darunter **Women's Series** (mindestens 4 Plätze inkl. Women's World Matchplay), **Development Tour** (Top 3 + World Youth Champion), **Challenge Tour** (Top 3), regionale Touren (**Asian Tour**, **Nordic & Baltic**, **CDC Nordamerika**, **ANZ/Australien**, **Afrika**) sowie nationale Super Leagues (z. B. **DACH Super League**) und ein Tour Card Holder Last-Chance Qualifier. Im Konzept sind diese 48 Plätze aktuell als einheitlicher Pool freier Nicht-Tourcard-Qualifier zusammengefasst.
 
 ---
 
@@ -356,17 +369,16 @@ Der Stammdatenwert `players.prizeMoney` wird aktuell nicht verwendet (kann in ei
 3.  **Players Championship Order of Merit:** Kürzel: "PC OOM". Ausschließlich Preisgelder aus `PLAYERS_CHAMPIONSHIP` der aktuellen Saison.
 4.  **European Tour Order of Merit:** Kürzel: "ET OOM". Ausschließlich Preisgelder aus `EUROPEAN_TOUR` der aktuellen Saison.
 
-### 3.2 Turnierübergreifende Sonderfälle (Nichtantritt, Freilos & Nachrücker)
-*(Hinweis: Die turnierspezifischen Nullrunden-Regeln wie Runde-1-Aus bei PC/UK Open oder Auftaktniederlagen gesetzter Spieler auf der European Tour sind direkt bei den jeweiligen Turnieren unter Abschnitt 2 definiert.)*
+### 3.2 Turnierübergreifende Ausnahmeregelungen (Wann gibt es £0 Preisgeld / Ranglistenpunkte?)
 
-Für das Match- und Turnier-Management (gemäß *PDC Rankings Rules*, Abschnitte 3.7 & 4.17) gelten darüber hinaus folgende allgemeine Sonderfälle:
+Ergänzend zu den jeweiligen Turnierregeln in Abschnitt 2 gelten für die Simulation der PDC-Ranglisten (gemäß *PDC Rankings Rules*, Abschnitte 3.7 & 4.17) folgende turnierübergreifende Sonderfälle:
 
-1.  **Nichtantritt / Absage vor Turnierstart (Withdrawal):**
-    *   Qualifiziert sich ein Spieler für ein Hauptfeld (Major oder European Tour), tritt aber vor seinem ersten Match nicht an, erhält er **£0** (weder Auszahlung noch Ranglistenpunkte), selbst wenn er erst in Runde 2 eingestiegen wäre.
-2.  **Freilos (Bye) durch unvollständiges Teilnehmerfeld:**
+1.  **Nichtantritt / Absage vor Turnierstart (Withdrawal, Regel 4.17):**
+    *   Qualifiziert sich ein Spieler für ein Hauptfeld (Major oder European Tour), tritt aber vor seinem ersten Match nicht an, erhält er **£0** (weder Auszahlung noch Ranglistenpunkte), selbst wenn er erst in einer späteren Runde eingestiegen wäre.
+2.  **Freilos (Bye) durch unvollständiges Teilnehmerfeld (Regel 4.17):**
     *   Erhält ein Spieler durch die Auslosung ein Freilos in Runde 2 und verliert dort sein erstes gespieltes Match, wird er ranglistentechnisch so behandelt, als hätte er in Runde 1 verloren (er erhält also nur das Preisgeld der 1. Runde – bei PC/UK Open somit **£0**).
     *   *Gegenausnahme:* Kommt das Freilos zustande, weil der geplante Gegner kurzfristig zurückgezogen hat (Walkover), gilt das Match als gewonnen und das Preisgeld der erreichten Runde wird regulär gewertet.
-3.  **Nachrücker in spätere Runden (Late Replacement):**
+3.  **Nachrücker in spätere Runden (Late Replacement, Regel 3.7):**
     *   Rückt ein Ersatzspieler für einen ausgefallenen Spieler direkt in eine spätere Runde nach (z. B. Runde 2 bei ET oder Runde 3 bei UK Open) und verliert dort sofort sein erstes Match, erhält er nur das Preisgeld der allerersten Turnierrunde (bei UK Open also **£0**, bei ET **£2.000**). Gewinnt er sein Auftaktmatch, greift ab der nächsten Runde das reguläre Preisgeld.
 
 ### 3.3 Format-Spezifikationen für Sets und Sonderregeln
@@ -404,6 +416,146 @@ Die Ablaufsteuerung, Match-Generierung und algorithmischen Berechnungen werden i
 *   **`GenerateBracketUseCase`:** Berechnet nach Abschluss eines Turniers (oder bei Saisonstart) die Setzlisten anhand der spezifischen Orders of Merit aus `tournament_placements` und generiert die Paarungen (Runde 1) für das nächste anstehende Turnier in `tournament_matches`.
 *   **`SimulateCpuMatchUseCase`:** Simuliert CPU-vs-CPU-Matches. *Ausbaustufe 1:* Gewichteter Zufall basierend auf dem `skill`-Faktor. *Ausbaustufe 2:* Schritt-für-Schritt-Darts-Simulation, die pro Match virtuelle 3-Dart-Averages und Doppelquoten erzeugt, um tiefe Statistiken für die CPU-Gegner zu erfassen.
 *   **`GameEngine / SpielLogik`:** Eine eigenständige Engine steuert die Live-Partien des Users. Sie verarbeitet die Wurfdaten – entweder manuell per Tastatur-Eingabe oder automatisiert als Event-Stream über den WebSocket Proxy der *Scolia-Kamera-Integration*.
+
+### 5.2 Kotlin-Enums & Preisgeld-Mapping (Vorlage für Android Studio)
+
+Für die typsichere Umsetzung in Kotlin empfiehlt sich die Abbildung der Turnierrunden und Turniere als Enums inklusive zentraler Preisgeld- und Ranglistenberechnung:
+
+```kotlin
+enum class TournamentRound(val displayName: String) {
+    GROUP_3RD("Gruppenphase (Platz 3)"),
+    GROUP_2ND("Gruppenphase (Platz 2)"),
+    R1_160("Runde 1 (Last 160)"),
+    R2_128("Runde 2 (Last 128)"),
+    L128("Last 128"),
+    R3_96("Runde 3 (Last 96)"),
+    L64("Last 64"),
+    L48("Last 48"),
+    L32("Last 32"),
+    L16("Achtelfinale (Last 16)"),
+    QF("Viertelfinale"),
+    SF("Halbfinale"),
+    F("Finalist (Runner-Up)"),
+    WINNER("Turniersieger")
+}
+
+enum class TournamentEvent(val totalPrizeFund: Double) {
+    PLAYERS_CHAMPIONSHIP(150_000.0),
+    EUROPEAN_TOUR(230_000.0),
+    UK_OPEN(750_000.0),
+    EUROPEAN_OPEN(750_000.0),
+    WORLD_MATCHPLAY(1_000_000.0),
+    WORLD_GRAND_PRIX(750_000.0),
+    EUROPEAN_CHAMPIONSHIP(750_000.0),
+    GRAND_SLAM_OF_DARTS(1_000_000.0),
+    PLAYERS_CHAMPIONSHIP_FINALS(750_000.0),
+    WORLD_CHAMPIONSHIP(5_000_000.0);
+
+    /**
+     * Gibt das für die Order of Merit gewertete Preisgeld zurück.
+     * @param round Die erreichte Runde (bzw. Ausscheiderunde)
+     * @param isPreQualifiedSeedRelevant True, wenn der Spieler auf der European Tour vorqualifiziert war (Top 16 OOM / Top 16 PT OOM)
+     * @param lostFirstMatch True, wenn der Spieler sein allererstes Match im Turnier verloren hat
+     */
+    fun getRankingPrizeMoney(
+        round: TournamentRound,
+        isPreQualifiedSeedRelevant: Boolean = false,
+        lostFirstMatch: Boolean = false
+    ): Double {
+        // Sonderregel European Tour (PDC Rule 4.5):
+        // Vorqualifizierte Spieler erhalten bei Auftaktniederlage £0 für alle Ranglisten
+        if (this == EUROPEAN_TOUR && isPreQualifiedSeedRelevant && lostFirstMatch) {
+            return 0.0
+        }
+
+        return when (this) {
+            PLAYERS_CHAMPIONSHIP -> when (round) {
+                TournamentRound.WINNER -> 15_000.0
+                TournamentRound.F -> 10_000.0
+                TournamentRound.SF -> 6_500.0
+                TournamentRound.QF -> 4_000.0
+                TournamentRound.L16 -> 3_000.0
+                TournamentRound.L32 -> 2_000.0
+                TournamentRound.L64 -> 1_250.0
+                TournamentRound.L128 -> 0.0
+                else -> 0.0
+            }
+            EUROPEAN_TOUR -> when (round) {
+                TournamentRound.WINNER -> 35_000.0
+                TournamentRound.F -> 15_000.0
+                TournamentRound.SF -> 10_000.0
+                TournamentRound.QF -> 8_000.0
+                TournamentRound.L16 -> 5_000.0
+                TournamentRound.L32 -> 3_500.0
+                TournamentRound.L48 -> 2_000.0
+                else -> 0.0
+            }
+            UK_OPEN, EUROPEAN_OPEN -> when (round) {
+                TournamentRound.WINNER -> 120_000.0
+                TournamentRound.F -> 60_000.0
+                TournamentRound.SF -> 35_000.0
+                TournamentRound.QF -> 20_000.0
+                TournamentRound.L16 -> 12_500.0
+                TournamentRound.L32 -> 7_500.0
+                TournamentRound.L64 -> 3_000.0
+                TournamentRound.R3_96 -> 2_000.0
+                TournamentRound.R2_128 -> 1_250.0
+                TournamentRound.R1_160 -> 0.0
+                else -> 0.0
+            }
+            WORLD_MATCHPLAY -> when (round) {
+                TournamentRound.WINNER -> 225_000.0
+                TournamentRound.F -> 125_000.0
+                TournamentRound.SF -> 65_000.0
+                TournamentRound.QF -> 35_000.0
+                TournamentRound.L16 -> 22_500.0
+                TournamentRound.L32 -> 12_500.0
+                else -> 0.0
+            }
+            WORLD_GRAND_PRIX, EUROPEAN_CHAMPIONSHIP -> when (round) {
+                TournamentRound.WINNER -> 150_000.0
+                TournamentRound.F -> 80_000.0
+                TournamentRound.SF -> 50_000.0
+                TournamentRound.QF -> 35_000.0
+                TournamentRound.L16 -> 20_000.0
+                TournamentRound.L32 -> 7_500.0
+                else -> 0.0
+            }
+            GRAND_SLAM_OF_DARTS -> when (round) {
+                TournamentRound.WINNER -> 200_000.0
+                TournamentRound.F -> 100_000.0
+                TournamentRound.SF -> 60_000.0
+                TournamentRound.QF -> 35_000.0
+                TournamentRound.L16 -> 20_000.0
+                TournamentRound.GROUP_2ND -> 12_500.0
+                TournamentRound.GROUP_3RD -> 5_000.0
+                else -> 0.0
+            }
+            PLAYERS_CHAMPIONSHIP_FINALS -> when (round) {
+                TournamentRound.WINNER -> 130_000.0
+                TournamentRound.F -> 70_000.0
+                TournamentRound.SF -> 40_000.0
+                TournamentRound.QF -> 27_500.0
+                TournamentRound.L16 -> 15_000.0
+                TournamentRound.L32 -> 7_000.0
+                TournamentRound.L64 -> 4_000.0
+                else -> 0.0
+            }
+            WORLD_CHAMPIONSHIP -> when (round) {
+                TournamentRound.WINNER -> 1_000_000.0
+                TournamentRound.F -> 400_000.0
+                TournamentRound.SF -> 200_000.0
+                TournamentRound.QF -> 100_000.0
+                TournamentRound.L16 -> 60_000.0
+                TournamentRound.L32 -> 35_000.0
+                TournamentRound.L64 -> 25_000.0
+                TournamentRound.L128 -> 15_000.0
+                else -> 0.0
+            }
+        }
+    }
+}
+```
 
 ---
 
