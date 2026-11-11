@@ -21,17 +21,6 @@ Um Nullable-Fremdschlüssel-Probleme und komplexe Boolean-Flags zu vermeiden, er
 *   `order` (Int, fortlaufende Nummer im Kalender, 1-basiert)
 *   `is_completed` (Boolean, Default: `false`)
 
-    private final String eventKey;
-    private final int legsPerSet;
-    private final CareerMatchDistances matchDistances;
-    private final String name;
-    private final int participants;
-    private final CareerPrizeFund prizeFund;
-    private final int qualifierBestOfLegs;
-    private final int seriesNumber;
-    private final boolean setPlay;
-    private final CareerEventType type;
-
 #### 2. `TournamentMatch` (Tabelle: `tournament_matches`)
 *   `id` (PK, Long, Autoincrement)
 *   `tournament_id` (FK -> `tournaments.id`, `ON DELETE CASCADE`)
@@ -154,12 +143,14 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
 
 *   **Ausnahmen & Besonderheiten (UK Open):**
     *   **Runde-1-Verlierer (`R1_160`):** Alle Spieler, die in Runde 1 (Last 160) verlieren – sowohl die 32 Qualifikanten als auch die Tour-Card-Inhaber der Plätze 97–128 –, gehen komplett leer aus (**£0**).
-    *   **Einstieg in spätere Runden (Top 96):** Spieler, die aufgrund ihrer Weltranglistenposition erst in Runde 2 (`L128`, Plätze 65–96), Runde 3 (`R3_96`, Plätze 33–64) oder Runde 4 (`L64`, Top 32) einsteigen und dort sofort ihr erstes Match verlieren, erhalten regulär das Preisgeld dieser Runde (£1.250, £2.000 bzw. £3.000) voll für die Order of Merit angerechnet. Hier gibt es *keine* Nullrunde wie auf der European Tour.
+    *   **Einstieg in spätere Runden (Top 96):** Spieler, die aufgrund ihrer Weltranglistenposition erst in Runde 2 (`R2_128`, Plätze 65–96), Runde 3 (`R3_96`, Plätze 33–64) oder Runde 4 (`L64`, Top 32) einsteigen und dort sofort ihr erstes Match verlieren, erhalten regulär das Preisgeld dieser Runde (£1.250, £2.000 bzw. £3.000) voll für die Order of Merit angerechnet. Hier gibt es *keine* Nullrunde wie auf der European Tour.
 *   **Hinweis zur App-Vereinfachung vs. reale PDC-Regeln:**
     *   *Reale PDC:* Die 32 Nicht-Tourcard-Plätze setzen sich in der Realität zusammen aus den **Top 8 der Challenge Tour Order of Merit**, den **Top 8 der Development Tour Order of Merit** (jeweils des Vorjahres, sofern keine Tour Card gewonnen wurde) sowie **16 Amateur-Qualifikanten** (8x Rileys Amateur Qualifiers + 8x PDC in the Community Qualifiers). In der App wird dies aktuell vereinfacht über die Top 32 Nicht-Tourcard-Spieler nach `skill DESC` abgebildet.
 
-#### 2.2 European Open
-*   Alles genau wie bei den UK Open (Format, Teilnehmerfeld, Setzliste und Preisgeldverteilung identisch zu Abschnitt 2.1 mit £750.000 Gesamtpreisgeld).
+#### 2.2 European Open (Neues PDC-Major ab 2027)
+*   Alles genau wie bei den UK Open (160 Teilnehmer, gestaffelter Rundeneinstieg und identische Preisgeldverteilung mit **£750.000** Gesamtpreisgeld).
+*   **Hinweis zur App-Vereinfachung vs. reale PDC-Regeln:**
+    *   *Reale PDC:* Bei der Premiere ab 2027 in Salzburg (160 Spieler) teilen sich die 32 Nicht-Tourcard-Plätze auf in **Top 4 Challenge Tour**, **Top 4 Development Tour**, **8 PDC Europe Next Gen / START Qualifier** sowie **16 internationale Qualifikanten**. In der App wird dies wie bei den UK Open über die Top 32 Nicht-Tourcard-Spieler nach `skill DESC` abgebildet.
 
 #### 2.3 World Matchplay
 *   **Teilnehmer:** 32.
@@ -170,10 +161,9 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
     * K.O.-System
     * Leg
     * „Two-Clear-Legs Rule“: Ein Spiel muss mit 2 Legs Vorsprung gewonnen werden; ist dies nicht der Fall, wird weiter gespielt, bis ein Spieler 2 Legs Vorsprung hat. Hat ein Spieler 3 Legs mehr gewonnen, als nötig, greift diese Regel nicht mehr, und es reicht ein Leg Vorsprung (Sudden-Death-Leg).
-*   **Setzliste:**
-    * OOM-Platz 1 spielt gegen Pro Tour Platz 16
-    * OOM-Platz 2 spielt gegen Pro Tour Platz 15
-    * ... bis OOM-Platz 16 gegen Pro Tour Platz 1 spielt.
+*   **Setzliste / Auslosung (1:1 wie offizielle PDC-Regel):**
+    * Die **Top 16 der Order of Merit** sind auf den Plätzen 1 bis 16 im Turnierbaum gesetzt (damit sie nicht in Runde 1 aufeinandertreffen).
+    * Die **16 Qualifikanten der Pro Tour Order of Merit** sind ungesetzt und werden den 16 gesetzten Spielern in Runde 1 **frei zugelost** (anstatt starr 1 vs. 16 zu kreuzen).
 *   **Preisgeldaufschlüsselung (Gesamt: £1.000.000):**
 
 | Platzierung / Runde | Enum-Key | Anzahl Spieler | Preisgeld pro Spieler |
@@ -186,8 +176,7 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
 | **Letzte 32 (R1-Verlierer)** | `L32` | 16 | £12.500 |
 
 *   **Ausnahmen & Besonderheiten:** Alle 32 Teilnehmer erhalten bei regulärer Teilnahme mindestens £12.500 voll für die Order of Merit angerechnet.
-*   **Hinweis zur App-Vereinfachung vs. reale PDC-Regeln:**
-    *   *Reale PDC:* Das Teilnehmerfeld (Top 16 OOM + Top 16 Pro Tour OOM) entspricht 1:1 den offiziellen PDC-Regeln. Einziger kleiner Unterschied: In der realen PDC werden die 16 Pro-Tour-Qualifikanten den Plätzen 1–16 der Setzliste frei zugelost, statt starr 1 vs. 16 gekreuzt zu werden.
+*   *(Keine App-Vereinfachung nötig: Teilnehmerfeld, freie Auslosung der 16 Pro-Tour-Qualifikanten gegen die Top 16 Seeds und Preisgelder entsprechen 1:1 dem offiziellen PDC-Regelwerk).*
 
 #### 2.4 World Grand Prix
 *   **Teilnehmer:** 32
@@ -214,8 +203,7 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
 | **Letzte 32 (R1-Verlierer)** | `L32` | 16 | £7.500 |
 
 *   **Ausnahmen & Besonderheiten:** Alle 32 Teilnehmer erhalten bei regulärer Teilnahme mindestens £7.500 voll für die Order of Merit angerechnet.
-*   **Hinweis zur App-Vereinfachung vs. reale PDC-Regeln:**
-    *   *Reale PDC:* Teilnehmerfeld und Preisgelder entsprechen 1:1 dem offiziellen PDC-Regelwerk.
+*   *(Keine App-Vereinfachung nötig: Teilnehmerfeld und Preisgelder entsprechen 1:1 dem offiziellen PDC-Regelwerk).*
 
 #### 2.5 European Championship (MAJOR_LEG)
 *   **Teilnehmer:** 32.
@@ -238,8 +226,7 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
 | **Letzte 32 (R1-Verlierer)** | `L32` | 16 | £7.500 |
 
 *   **Ausnahmen & Besonderheiten:** Alle 32 Teilnehmer erhalten bei regulärer Teilnahme mindestens £7.500 voll für die Order of Merit angerechnet.
-*   **Hinweis zur App-Vereinfachung vs. reale PDC-Regeln:**
-    *   *Reale PDC:* Teilnehmerfeld, Setzliste (1 vs. 32) und Preisgelder entsprechen 1:1 dem offiziellen PDC-Regelwerk.
+*   *(Hinweis für zukünftige Saison-Updates: Für 2026 gilt das obige 32er-Feld mit £750.000; ab Herbst 2027 erweitert die PDC die European Championship auf 48 Spieler und £1.000.000 Preisgeld).*
 
 #### 2.6 Grand Slam of Darts (MAJOR_GROUP)
 *   **Teilnehmer:** 48 (Offizielles PDC-Format ab 2026)
@@ -319,8 +306,7 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
 | **Letzte 64 (R1-Verlierer)** | `L64` | 32 | £4.000 |
 
 *   **Ausnahmen & Besonderheiten:** Alle 64 Teilnehmer erhalten bei regulärer Teilnahme mindestens £4.000 voll für die Order of Merit angerechnet.
-*   **Hinweis zur App-Vereinfachung vs. reale PDC-Regeln:**
-    *   *Reale PDC:* Teilnehmerfeld, Setzliste (1 vs. 64) und Preisgelder entsprechen 1:1 dem offiziellen PDC-Regelwerk.
+*   *(Hinweis für zukünftige Saison-Updates: Für 2026 gilt das 64er-Feld; ab 2027 plant die PDC eine Erweiterung der Players Championship Finals auf 128 Spieler).*
 
 #### 2.8 World Championship (MAJOR_SET)
 *   **Teilnehmer:** 128.
@@ -417,12 +403,27 @@ Die Ablaufsteuerung, Match-Generierung und algorithmischen Berechnungen werden i
 *   **`SimulateCpuMatchUseCase`:** Simuliert CPU-vs-CPU-Matches. *Ausbaustufe 1:* Gewichteter Zufall basierend auf dem `skill`-Faktor. *Ausbaustufe 2:* Schritt-für-Schritt-Darts-Simulation, die pro Match virtuelle 3-Dart-Averages und Doppelquoten erzeugt, um tiefe Statistiken für die CPU-Gegner zu erfassen.
 *   **`GameEngine / SpielLogik`:** Eine eigenständige Engine steuert die Live-Partien des Users. Sie verarbeitet die Wurfdaten – entweder manuell per Tastatur-Eingabe oder automatisiert als Event-Stream über den WebSocket Proxy der *Scolia-Kamera-Integration*.
 
-### 5.2 Kotlin-Enums & Preisgeld-Mapping (Vorlage für Android Studio)
+### 5.2 Kotlin-Enums, Match-Distanzen & Preisgeld-Mapping (Vorlage für Android Studio)
 
-Für die typsichere Umsetzung in Kotlin empfiehlt sich die Abbildung der Turnierrunden und Turniere als Enums inklusive zentraler Preisgeld- und Ranglistenberechnung:
+Für die typsichere Umsetzung in Kotlin empfiehlt sich die zentrale Abbildung der Turnierrunden, Match-Distanzen (Legs/Sets) und Preisgelder über Enums und Data Classes:
 
 ```kotlin
+enum class MatchFormatType {
+    LEGS,
+    SETS_BEST_OF_5_LEGS,
+    SETS_BEST_OF_3_LEGS,
+    SETS_DOUBLE_IN_OUT
+}
+
+data class MatchDistance(
+    val bestOf: Int,
+    val format: MatchFormatType,
+    val legsPerSet: Int = 5,
+    val twoClearLegsRule: Boolean = false
+)
+
 enum class TournamentRound(val displayName: String) {
+    GROUP("Gruppenphase (Match)"),
     GROUP_3RD("Gruppenphase (Platz 3)"),
     GROUP_2ND("Gruppenphase (Platz 2)"),
     R1_160("Runde 1 (Last 160)"),
@@ -435,7 +436,7 @@ enum class TournamentRound(val displayName: String) {
     L16("Achtelfinale (Last 16)"),
     QF("Viertelfinale"),
     SF("Halbfinale"),
-    F("Finalist (Runner-Up)"),
+    F("Finale / Finalist (Runner-Up)"),
     WINNER("Turniersieger")
 }
 
@@ -450,6 +451,66 @@ enum class TournamentEvent(val totalPrizeFund: Double) {
     GRAND_SLAM_OF_DARTS(1_000_000.0),
     PLAYERS_CHAMPIONSHIP_FINALS(750_000.0),
     WORLD_CHAMPIONSHIP(5_000_000.0);
+
+    /**
+     * Liefert die offizielle Match-Distanz (Best-of-Legs oder Best-of-Sets) für die jeweilige Runde.
+     */
+    fun getMatchDistance(round: TournamentRound): MatchDistance {
+        return when (this) {
+            PLAYERS_CHAMPIONSHIP, EUROPEAN_TOUR -> when (round) {
+                TournamentRound.SF -> MatchDistance(13, MatchFormatType.LEGS, 1)
+                TournamentRound.F -> MatchDistance(15, MatchFormatType.LEGS, 1)
+                else -> MatchDistance(11, MatchFormatType.LEGS, 1) // L128/L48 bis QF
+            }
+            UK_OPEN, EUROPEAN_OPEN -> when (round) {
+                TournamentRound.R1_160,
+                TournamentRound.R1_128,
+                TournamentRound.R2_128,
+                TournamentRound.R3_96 -> MatchDistance(11, MatchFormatType.LEGS, 1)
+                TournamentRound.SF,
+                TournamentRound.F -> MatchDistance(21, MatchFormatType.LEGS, 1)
+                else -> MatchDistance(19, MatchFormatType.LEGS, 1) // L64 bis QF
+            }
+            WORLD_MATCHPLAY -> when (round) {
+                TournamentRound.L32 -> MatchDistance(19, MatchFormatType.LEGS, 1, twoClearLegsRule = true)
+                TournamentRound.L16 -> MatchDistance(21, MatchFormatType.LEGS, 1, twoClearLegsRule = true)
+                TournamentRound.QF -> MatchDistance(31, MatchFormatType.LEGS, 1, twoClearLegsRule = true)
+                TournamentRound.SF -> MatchDistance(33, MatchFormatType.LEGS, 1, twoClearLegsRule = true)
+                TournamentRound.F -> MatchDistance(35, MatchFormatType.LEGS, 1, twoClearLegsRule = true)
+                else -> MatchDistance(19, MatchFormatType.LEGS, 1, twoClearLegsRule = true)
+            }
+            WORLD_GRAND_PRIX -> when (round) {
+                TournamentRound.L32 -> MatchDistance(3, MatchFormatType.SETS_DOUBLE_IN_OUT, 3, twoClearLegsRule = true)
+                TournamentRound.L16,
+                TournamentRound.QF -> MatchDistance(5, MatchFormatType.SETS_DOUBLE_IN_OUT, 3, twoClearLegsRule = true)
+                TournamentRound.SF -> MatchDistance(9, MatchFormatType.SETS_DOUBLE_IN_OUT, 3, twoClearLegsRule = true)
+                TournamentRound.F -> MatchDistance(11, MatchFormatType.SETS_DOUBLE_IN_OUT, 3, twoClearLegsRule = true)
+                else -> MatchDistance(3, MatchFormatType.SETS_DOUBLE_IN_OUT, 3, twoClearLegsRule = true)
+            }
+            EUROPEAN_CHAMPIONSHIP, PLAYERS_CHAMPIONSHIP_FINALS -> when (round) {
+                TournamentRound.L64,
+                TournamentRound.L32 -> MatchDistance(11, MatchFormatType.LEGS, 1)
+                TournamentRound.SF,
+                TournamentRound.F -> MatchDistance(21, MatchFormatType.LEGS, 1)
+                else -> MatchDistance(19, MatchFormatType.LEGS, 1) // L16 & QF
+            }
+            GRAND_SLAM_OF_DARTS -> when (round) {
+                TournamentRound.GROUP -> MatchDistance(9, MatchFormatType.LEGS, 1)
+                TournamentRound.L16 -> MatchDistance(19, MatchFormatType.LEGS, 1)
+                else -> MatchDistance(31, MatchFormatType.LEGS, 1) // QF, SF, F
+            }
+            WORLD_CHAMPIONSHIP -> when (round) {
+                TournamentRound.L128,
+                TournamentRound.L64 -> MatchDistance(5, MatchFormatType.SETS_BEST_OF_5_LEGS, 5, twoClearLegsRule = true)
+                TournamentRound.L32,
+                TournamentRound.L16 -> MatchDistance(7, MatchFormatType.SETS_BEST_OF_5_LEGS, 5, twoClearLegsRule = true)
+                TournamentRound.QF -> MatchDistance(9, MatchFormatType.SETS_BEST_OF_5_LEGS, 5, twoClearLegsRule = true)
+                TournamentRound.SF -> MatchDistance(11, MatchFormatType.SETS_BEST_OF_5_LEGS, 5, twoClearLegsRule = true)
+                TournamentRound.F -> MatchDistance(13, MatchFormatType.SETS_BEST_OF_5_LEGS, 5, twoClearLegsRule = true)
+                else -> MatchDistance(5, MatchFormatType.SETS_BEST_OF_5_LEGS, 5, twoClearLegsRule = true)
+            }
+        }
+    }
 
     /**
      * Gibt das für die Order of Merit gewertete Preisgeld zurück.
@@ -562,4 +623,5 @@ enum class TournamentEvent(val totalPrizeFund: Double) {
 ### Verwendete Quellen zur Doppelprüfung (Stand: Saison 2026/2027)
 *   **Offizielles PDC-Regelwerk & Preisgeldtabellen (2026/27):** [PDC Rankings Rules (as of January 1, 2026 – Section 2, 3, 4 & 8)](https://www.pdc.tv/rankings/pdc-rankings-rules)
 *   **PDC-Ankündigung der Preisgelderhöhung ab 2026:** [PDC News: Biggest prize money increase in PDC history confirmed](https://www.pdc.tv/news/2025/03/31/biggest-prize-money-increase-pdc-history-confirmed)
+*   **PDC-Erweiterung European Open & European Tour 2027:** [PDC News: Major expansion announced for PDC European events in 2027](https://www.pdc.tv/news/2026/september/25/major-expansion-announced-for-pdc-european-events-in-2027)
 *   **Turnierspezifische Verifizierungen 2026/2027:** [Wikipedia – 2026 PDC Players Championship series](https://en.wikipedia.org/wiki/2026_PDC_Players_Championship_series), [Wikipedia – 2026 World Matchplay](https://en.wikipedia.org/wiki/2026_World_Matchplay), [Wikipedia – 2026 UK Open](https://en.wikipedia.org/wiki/2026_UK_Open), [Sky Sports – Grand Slam of Darts 2026](https://www.skysports.com/darts/news/13610214/grand-slam-of-darts-2026-schedule-new-format-players-prize-money-past-winners-as-luke-littler-looks-to-retain-title), [Wikipedia – 2027 PDC World Darts Championship](https://en.wikipedia.org/wiki/2027_PDC_World_Darts_Championship).
