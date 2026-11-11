@@ -155,6 +155,9 @@ class SeasonTest {
         override fun getSeasonsForCareer(careerId: Long): Flow<List<Season>> =
             flowOf(seasons.filter { it.careerId == careerId })
 
+        override suspend fun getSeasonsListForCareer(careerId: Long): List<Season> =
+            seasons.filter { it.careerId == careerId }
+
         override suspend fun getCurrentSeasonForCareer(careerId: Long): Season? =
             seasons.filter { it.careerId == careerId }.maxByOrNull { it.seasonNumber }
 

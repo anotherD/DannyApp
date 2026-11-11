@@ -14,6 +14,9 @@ interface SeasonDao {
     @Query("SELECT * FROM seasons WHERE career_id = :careerId ORDER BY season_number DESC")
     fun getSeasonsForCareer(careerId: Long): Flow<List<Season>>
 
+    @Query("SELECT * FROM seasons WHERE career_id = :careerId ORDER BY season_number ASC")
+    suspend fun getSeasonsListForCareer(careerId: Long): List<Season>
+
     @Query("SELECT * FROM seasons WHERE career_id = :careerId ORDER BY season_number DESC LIMIT 1")
     suspend fun getCurrentSeasonForCareer(careerId: Long): Season?
 

@@ -20,6 +20,9 @@ interface TournamentPlacementDao {
     @Query("SELECT * FROM tournament_placements WHERE player_id = :playerId")
     fun getPlacementsForPlayer(playerId: Long): Flow<List<TournamentPlacement>>
 
+    @Query("SELECT tp.* FROM tournament_placements tp INNER JOIN tournaments t ON tp.tournament_id = t.id WHERE t.season_id IN (:seasonIds)")
+    suspend fun getPlacementsForSeasons(seasonIds: List<Long>): List<TournamentPlacement>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertPlacement(placement: TournamentPlacement): Long
 
