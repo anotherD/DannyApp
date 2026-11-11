@@ -11,34 +11,13 @@ Um Nullable-Fremdschlüssel-Probleme und komplexe Boolean-Flags zu vermeiden, er
 * **`USER_ID = -1L`**
   Diese ID wird in `tour_cards`, `tournament_matches` und `tournament_placements` verwendet. Bei der Spieler-Stammdatenbank (`players`) wird beim CSV-Import sichergestellt, dass kein CPU-Spieler die ID `-1` oder `0` erhalten kann (Auto-Increment startet bei 1).
 
-### 1.2 Neue Entitäten (Entities)
+### 1.2 Implementierte Entitäten (Room v13)
 
-#### 1. `Tournament` (Tabelle: `tournaments`)
-*   `id` (PK, Long, Autoincrement)
-*   `season_id` (FK -> `seasons.id`, `ON DELETE CASCADE`)
-*   `name` (String, z. B. *"Players Championship 1"*)
-*   `type` (String/Enum: `PLAYERS_CHAMPIONSHIP`, `EUROPEAN_TOUR`, `MAJOR_LEG`, `MAJOR_SET`, `MAJOR_GROUP`)
-*   `order` (Int, fortlaufende Nummer im Kalender, 1-basiert)
-*   `is_completed` (Boolean, Default: `false`)
+Die Tabellenstrukturen für den Turnierbetrieb wurden wie folgt implementiert:
 
-#### 2. `TournamentMatch` (Tabelle: `tournament_matches`)
-*   `id` (PK, Long, Autoincrement)
-*   `tournament_id` (FK -> `tournaments.id`, `ON DELETE CASCADE`)
-*   `round` (String/Enum: `GROUP`, `R1_160`, `R2_128`, `R3_96`, `L64`, `L48`, `L32`, `L16`, `QF`, `SF`, `F`)
-*   `match_index` (Int, Sortierung innerhalb der Runde)
-*   `player_1_id` (Long, Verweis direkt auf `players.id` oder `-1L` für den User – völlig unabhängig davon, ob der Spieler in `tour_cards` existiert oder nicht; Match-Zuweisung ist komplett entkoppelt)
-*   `player_2_id` (Long, Verweis direkt auf `players.id` oder `-1L` für den User – völlig unabhängig davon, ob der Spieler in `tour_cards` existiert oder nicht; Match-Zuweisung ist komplett entkoppelt)
-*   `player_1_score` (Int, Legs oder Sets)
-*   `player_2_score` (Int)
-*   `winner_id` (Long, Nullable)
-*   `is_completed` (Boolean, Default: `false`)
-
-#### 3. `TournamentPlacement` (Tabelle: `tournament_placements`)
-*   `id` (PK, Long, Autoincrement)
-*   `tournament_id` (FK -> `tournaments.id`, `ON DELETE CASCADE`)
-*   `player_id` (Long, Verweis auf `players.id` oder `-1L` für User)
-*   `reached_round` (String)
-*   `prize_money` (Double, für die Ranglisten gewerteter Betrag)
+*   **`Tournament` (`tournaments`)**: Speichert Saisonturniere mit `id`, `season_id`, `name`, `type` (`PLAYERS_CHAMPIONSHIP`, `EUROPEAN_TOUR`, `MAJOR_LEG`, `MAJOR_SET`, `MAJOR_GROUP`), `order` (1–57) und `is_completed`.
+*   **`TournamentMatch` (`tournament_matches`)**: Verwaltet alle Einzelpartien mit `id`, `tournament_id`, `round`, `match_index`, `player_1_id`, `player_2_id` (jeweils Spieler-ID oder `USER_ID = -1L`), Scores, `winner_id` und `is_completed`.
+*   **`TournamentPlacement` (`tournament_placements`)**: Erfasst die errungenen Platzierungen und Preisgelder pro Spieler zur Berechnung der Ranglisten (`id`, `tournament_id`, `player_id`, `reached_round`, `prize_money`).
 
 ---
 
