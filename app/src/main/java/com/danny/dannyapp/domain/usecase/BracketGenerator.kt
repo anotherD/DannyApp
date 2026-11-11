@@ -61,6 +61,14 @@ object BracketGenerator {
                 ranks33To64Oom = oomSortedIds.drop(32).take(32),
                 remaining64 = qualifierIds.take(64)
             )
+            TournamentEvent.QUALIFIER_ET -> generateStrictSeededRound1(
+                round = TournamentRound.L64,
+                seededIds = oomSortedIds.take(40)
+            )
+            TournamentEvent.QUALIFIER_GRAND_SLAM -> generateStrictSeededRound1(
+                round = TournamentRound.L32,
+                seededIds = oomSortedIds.take(32)
+            )
         }
     }
 

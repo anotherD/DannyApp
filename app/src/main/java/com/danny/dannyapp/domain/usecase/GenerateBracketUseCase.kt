@@ -5,6 +5,7 @@ import com.danny.dannyapp.data.db.AppDatabase
 import com.danny.dannyapp.data.db.PlayerDao
 import com.danny.dannyapp.data.db.SeasonDao
 import com.danny.dannyapp.data.db.TourCardDao
+import com.danny.dannyapp.data.db.Tournament
 import com.danny.dannyapp.data.db.TournamentDao
 import com.danny.dannyapp.data.db.TournamentMatch
 import com.danny.dannyapp.data.db.TournamentMatchDao
@@ -13,6 +14,7 @@ import com.danny.dannyapp.domain.model.MatchPairing
 import com.danny.dannyapp.domain.model.OrderOfMeritEntry
 import com.danny.dannyapp.domain.model.OrderOfMeritType
 import com.danny.dannyapp.domain.model.TournamentEvent
+import com.danny.dannyapp.domain.model.TournamentRound
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -77,6 +79,35 @@ class GenerateBracketUseCase(
             )
         }
 
+        // Helper to get winners from preceding qualifier tournament
+        suspend fun getQualifierWinnersFromPreceding(targetCount: Int): List<Long> {
+            val prevTournament = tournamentDao.getTournamentsListForSeason(season.id)
+                .find { it.order == tournament.order - 1 } ?: return emptyList()
+            val prevMatches = tournamentMatchDao.getMatchesListForTournament(prevTournament.id)
+            if (prevMatches.isEmpty()) return emptyList()
+
+            val rounds = prevMatches.map { it.round }.distinct()
+            val finalRoundName = rounds.lastOrNull { r ->
+                prevMatches.filter { it.round == r }.all { it.isCompleted && it.winnerId != null }
+            } ?: rounds.lastOrNull() ?: return emptyList()
+
+            val finalRoundMatches = prevMatches.filter { it.round == finalRoundName }
+            val winners = finalRoundMatches.mapNotNull { it.winnerId }
+            if (winners.size >= targetCount) {
+                return winners.take(targetCount)
+            }
+            return winners
+        }
+
+        // Pre-qualified sets for ET and Grand Slam
+        val sortedOomTc = getPlayerListSortedByOom(tourCardPlayerIds, oomEntries)
+        val top16Oom = sortedOomTc.take(16)
+        val remainingTcAfterOom = tourCardPlayerIds.filterNot { it in top16Oom }
+        val top16PtOom = getPlayerListSortedByOom(remainingTcAfterOom, ptOomEntries).take(16)
+        val etPreQualified = (top16Oom + top16PtOom).toSet()
+
+        val nonPreqEtTc = tourCardPlayerIds.filterNot { it in etPreQualified }
+
         val matchPairings: List<MatchPairing> = when (event) {
             TournamentEvent.PLAYERS_CHAMPIONSHIP -> {
                 val tcIds = fillToTargetCount(tourCardPlayerIds, 128, allPlayerIds, oomEntries)
@@ -91,29 +122,34 @@ class GenerateBracketUseCase(
                 )
             }
 
+            TournamentEvent.QUALIFIER_ET -> {
+                val sortedNonPreq = getPlayerListSortedByOom(nonPreqEtTc, oomEntries)
+                val participants = fillToTargetCount(sortedNonPreq, 40, tourCardPlayerIds, oomEntries)
+                BracketGenerator.generateInitialMatches(
+                    event = event,
+                    oomSortedIds = participants
+                )
+            }
+
             TournamentEvent.EUROPEAN_TOUR -> {
-                val sortedOomTc = getPlayerListSortedByOom(tourCardPlayerIds, oomEntries)
-                val top16Oom = sortedOomTc.take(16)
-
-                val remainingTcAfterOom = tourCardPlayerIds.filterNot { it in top16Oom }
-                val sortedPtTc = getPlayerListSortedByOom(remainingTcAfterOom, ptOomEntries)
-                val top16PtOom = sortedPtTc.take(16)
-
-                val remainingTcAfterPt = remainingTcAfterOom.filterNot { it in top16PtOom }
-                val tcQualifiers = getPlayerListSortedByOom(remainingTcAfterPt, ptOomEntries).take(10)
+                var tcQualifiers = getQualifierWinnersFromPreceding(10)
+                if (tcQualifiers.size < 10) {
+                    tcQualifiers = fillToTargetCount(tcQualifiers, 10, nonPreqEtTc, oomEntries)
+                }
 
                 val nonTcPlayerIds = allPlayerIds.filterNot { it in tourCardPlayerIds }
-                val gerNonTc = nonTcPlayerIds.filter { id ->
+                val hostCountry = tournament.hostCountry ?: "GER"
+                val hostCountryNonTc = nonTcPlayerIds.filter { id ->
                     val player = allPlayers.find { it.id == id }
-                    player?.countryCode == "GER"
+                    player?.countryCode == hostCountry && player.tourCardYear == 0
                 }
-                val hostQualifiers = fillToTargetCount(gerNonTc, 4, nonTcPlayerIds, oomEntries).take(4)
+                val hostQualifiers = fillToTargetCount(hostCountryNonTc, 4, nonTcPlayerIds, oomEntries).take(4)
                 val remainingNonTc = nonTcPlayerIds.filterNot { it in hostQualifiers }
                 val otherQualifiers = getPlayerListSortedByOom(remainingNonTc, oomEntries).take(2)
 
                 var qualifiersPool = tcQualifiers + hostQualifiers + otherQualifiers
                 if (qualifiersPool.size < 16) {
-                    val candidatePool = allPlayerIds.filterNot { it in top16Oom || it in top16PtOom || it in qualifiersPool }
+                    val candidatePool = allPlayerIds.filterNot { it in etPreQualified || it in qualifiersPool }
                     qualifiersPool = fillToTargetCount(qualifiersPool, 16, candidatePool, oomEntries)
                 }
 
@@ -177,15 +213,28 @@ class GenerateBracketUseCase(
                 )
             }
 
-            TournamentEvent.GRAND_SLAM_OF_DARTS -> {
-                val sortedOom = getPlayerListSortedByOom(allPlayerIds, oomEntries)
-                val top16Oom = sortedOom.take(16)
+            TournamentEvent.QUALIFIER_GRAND_SLAM -> {
+                val remainingForPt = tourCardPlayerIds.filterNot { it in top16Oom }
+                val gsPreq = top16Oom + getPlayerListSortedByOom(remainingForPt, ptOomEntries).take(16)
+                val nonPreqGsTc = tourCardPlayerIds.filterNot { it in gsPreq }
+                val participants = fillToTargetCount(getPlayerListSortedByOom(nonPreqGsTc, oomEntries), 32, tourCardPlayerIds, oomEntries)
+                BracketGenerator.generateInitialMatches(
+                    event = event,
+                    oomSortedIds = participants
+                )
+            }
 
+            TournamentEvent.GRAND_SLAM_OF_DARTS -> {
                 val remainingForPt = allPlayerIds.filterNot { it in top16Oom }
                 val pot2 = getPlayerListSortedByOom(remainingForPt, ptOomEntries).take(16)
 
-                val remainingForPot3 = remainingForPt.filterNot { it in pot2 }
-                val pot3 = getPlayerListSortedByOom(remainingForPot3, oomEntries).take(16)
+                var gsTchqWinners = getQualifierWinnersFromPreceding(8)
+                if (gsTchqWinners.size < 8) {
+                    gsTchqWinners = fillToTargetCount(gsTchqWinners, 8, tourCardPlayerIds, oomEntries)
+                }
+                val nonTcPlayerIds = allPlayerIds.filterNot { it in tourCardPlayerIds }
+                val otherQuals = getPlayerListSortedByOom(nonTcPlayerIds, oomEntries).take(8)
+                val pot3 = fillToTargetCount(gsTchqWinners + otherQuals, 16, allPlayerIds, oomEntries)
 
                 BracketGenerator.generateInitialMatches(
                     event = event,

@@ -15,7 +15,7 @@ Um Nullable-Fremdschlüssel-Probleme und komplexe Boolean-Flags zu vermeiden, er
 
 Die Tabellenstrukturen für den Turnierbetrieb wurden wie folgt implementiert:
 
-*   **`Tournament` (`tournaments`)**: Speichert Saisonturniere mit `id`, `season_id`, `name`, `type` (`PLAYERS_CHAMPIONSHIP`, `EUROPEAN_TOUR`, `MAJOR_LEG`, `MAJOR_SET`, `MAJOR_GROUP`), `order` (1–57) und `is_completed`.
+*   **`Tournament` (`tournaments`)**: Speichert Saisonturniere mit `id`, `season_id`, `name`, `type` (`PLAYERS_CHAMPIONSHIP`, `EUROPEAN_TOUR`, `MAJOR_LEG`, `MAJOR_SET`, `MAJOR_GROUP`, `QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`), `order` (1–73), `is_completed` und `host_country` (`host_country`, z. B. `"GER"`, `"AUT"`, `"ENG"`).
 *   **`TournamentMatch` (`tournament_matches`)**: Verwaltet alle Einzelpartien mit `id`, `tournament_id`, `round`, `match_index`, `player_1_id`, `player_2_id` (jeweils Spieler-ID oder `USER_ID = -1L`), Scores, `winner_id` und `is_completed`.
 *   **`TournamentPlacement` (`tournament_placements`)**: Erfasst die errungenen Platzierungen und Preisgelder pro Spieler zur Berechnung der Ranglisten (`id`, `tournament_id`, `player_id`, `reached_round`, `prize_money`).
 
@@ -54,14 +54,15 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
 *   **Hinweis zur App-Vereinfachung vs. reale PDC-Regeln:**
     *   *Reale PDC:* Sagen Tour-Card-Inhaber für ein PC-Event ab, rücken Spieler aus der *Challenge Tour Order of Merit* (und bei Bedarf *Development Tour*) nach, um das 128er-Feld aufzufüllen. Da diese Secondary Tours aktuell nicht simuliert werden, wird das Feld ggf. aus Nicht-Tourcard-Spielern (`tour_card_year == 0`) aufgefüllt oder mit Byes gearbeitet.
 
-### 2.2 European Tour (ET)
-*   **Teilnehmer:** 48 Spieler.
+### 2.2 European Tour (ET) & ET Tour Card Holder Qualifier (`QUALIFIER_ET`)
+*   **ET Qualifier (`QUALIFIER_ET`):** Vor jedem der 15 European Tour Events findet ein Tour Card Holder Qualifier statt. Daran nehmen alle Tour-Card-Inhaber (inkl. `USER_ID = -1L`) teil, die nicht bereits über die Top 16 OOM oder Top 16 PT OOM vorqualifiziert sind. Das Turnier läuft im K.o.-Modus, bis exakt 10 Sieger (Qualifikanten) feststehen (£0 Preisgeld).
+*   **Teilnehmer (European Tour):** 48 Spieler.
 *   **Zusammensetzung & Qualifikation:**
     1. Top 16 der Order of Merit
     2. Top 16 der Pro Tour Order of Merit, die nicht bereits über Punkt 1 qualifiziert sind.
-    3. 10 Gewinner des ET Tour Card Holder Qualifiers
-    4. 4 Gewinner des Host Nation Qualifiers: Plätze für Nicht-Tourcard-Spieler (`tour_card_year == 0`) der aktuellen Saison. Es werden nur Spieler aus dem Gastgeberland (z. B. Deutschland bei ET-Events in Deutschland) berücksichtigt. Wird die nötige Anzahl nicht erreicht, so wird mit Spielern aufgefüllt, die nicht aus dem Gastgeberland stammen.
-    5. 2 Gewinner anderer Qualifier: Plätze für Nicht-Tourcard-Spieler (`tour_card_year == 0`) der aktuellen Saison, die nicht bereits qualifiziert sind. Die Nation ist hier egal.
+    3. 10 Gewinner des ET Tour Card Holder Qualifiers (`QUALIFIER_ET`)
+    4. 4 Gewinner des Host Nation Qualifiers: Plätze für Nicht-Tourcard-Spieler (`tour_card_year == 0`) der aktuellen Saison. Es werden primär Spieler aus dem Gastgeberland (`host_country`) berücksichtigt und bei Bedarf international aufgefüllt.
+    5. 2 Gewinner anderer Qualifier: Plätze für Nicht-Tourcard-Spieler (`tour_card_year == 0`) der aktuellen Saison, die nicht bereits qualifiziert sind.
 *   **Modus:**
     * K.O.-System
     * Leg

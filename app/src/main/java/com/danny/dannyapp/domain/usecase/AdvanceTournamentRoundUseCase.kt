@@ -64,6 +64,29 @@ class AdvanceTournamentRoundUseCase(
             return@withContext false // Not all matches in current round are finished yet
         }
 
+        // Special handling for qualifier tournaments (QUALIFIER_ET and QUALIFIER_GRAND_SLAM)
+        if (event == TournamentEvent.QUALIFIER_ET || event == TournamentEvent.QUALIFIER_GRAND_SLAM) {
+            val isFinalQualifierRound = (event == TournamentEvent.QUALIFIER_ET && currentRoundEnum == TournamentRound.L32) ||
+                    (event == TournamentEvent.QUALIFIER_GRAND_SLAM && currentRoundEnum == TournamentRound.L16)
+
+            if (isFinalQualifierRound) {
+                tournamentDao.updateTournament(tournament.copy(isCompleted = true))
+                return@withContext true
+            }
+
+            val currentIdx = roundSequence.indexOf(currentRoundEnum)
+            if (currentIdx != -1 && currentIdx < roundSequence.size - 1) {
+                val nextRoundEnum = roundSequence[currentIdx + 1]
+                val sortedCurrentMatches = currentRoundMatches.sortedBy { it.matchIndex }
+                val winners = sortedCurrentMatches.mapNotNull { it.winnerId }
+                val nextMatches = generateStandardKoMatches(tournamentId, nextRoundEnum, winners)
+                if (nextMatches.isNotEmpty()) {
+                    tournamentMatchDao.insertMatches(nextMatches)
+                }
+                return@withContext true
+            }
+        }
+
         val season = seasonDao.getSeasonById(tournament.seasonId)
             ?: throw IllegalArgumentException("Season not found for tournament: ${tournament.seasonId}")
         val careerId = season.careerId
@@ -433,6 +456,12 @@ class AdvanceTournamentRoundUseCase(
             TournamentEvent.WORLD_CHAMPIONSHIP -> listOf(
                 TournamentRound.L128, TournamentRound.L64, TournamentRound.L32,
                 TournamentRound.L16, TournamentRound.QF, TournamentRound.SF, TournamentRound.F
+            )
+            TournamentEvent.QUALIFIER_ET -> listOf(
+                TournamentRound.L64, TournamentRound.L32
+            )
+            TournamentEvent.QUALIFIER_GRAND_SLAM -> listOf(
+                TournamentRound.L32, TournamentRound.L16
             )
         }
     }

@@ -13,16 +13,16 @@ import org.junit.Test
 class GenerateSeasonCalendarUseCaseTest {
 
     @Test
-    fun testGenerateSeasonCalendarCreates57TournamentsInOrder() = runBlocking {
+    fun testGenerateSeasonCalendarCreates73TournamentsInOrder() = runBlocking {
         val fakeTournamentDao = FakeTournamentDao()
         val useCase = GenerateSeasonCalendarUseCase(fakeTournamentDao)
 
         val tournaments = useCase(seasonId = 1L)
 
-        // Total count must be 57 (34 PC + 15 ET + 8 Majors)
-        assertEquals(57, tournaments.size)
+        // Total count must be 73 (34 PC + 15 ET + 15 QUALIFIER_ET + 8 Majors + 1 QUALIFIER_GRAND_SLAM)
+        assertEquals(73, tournaments.size)
 
-        // Verify order from 1 to 57
+        // Verify order from 1 to 73
         tournaments.forEachIndexed { index, tournament ->
             assertEquals(index + 1, tournament.order)
             assertEquals(1L, tournament.seasonId)
@@ -30,6 +30,8 @@ class GenerateSeasonCalendarUseCaseTest {
 
         val pcCount = tournaments.count { it.type == TournamentEvent.PLAYERS_CHAMPIONSHIP.name }
         val etCount = tournaments.count { it.type == TournamentEvent.EUROPEAN_TOUR.name }
+        val qualEtCount = tournaments.count { it.type == TournamentEvent.QUALIFIER_ET.name }
+        val qualGsCount = tournaments.count { it.type == TournamentEvent.QUALIFIER_GRAND_SLAM.name }
         val majorTypes = setOf(
             TournamentEvent.UK_OPEN.name,
             TournamentEvent.EUROPEAN_OPEN.name,
@@ -44,6 +46,8 @@ class GenerateSeasonCalendarUseCaseTest {
 
         assertEquals(34, pcCount)
         assertEquals(15, etCount)
+        assertEquals(15, qualEtCount)
+        assertEquals(1, qualGsCount)
         assertEquals(8, majorCount)
 
         // Verify first and last event names
@@ -52,7 +56,7 @@ class GenerateSeasonCalendarUseCaseTest {
 
         // Verify idempotency: calling invoke again returns existing list
         val repeatedTournaments = useCase(seasonId = 1L)
-        assertEquals(57, repeatedTournaments.size)
+        assertEquals(73, repeatedTournaments.size)
     }
 
     private class FakeTournamentDao : TournamentDao {

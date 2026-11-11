@@ -10,14 +10,16 @@ enum class TournamentEvent(val totalPrizeFund: Double) {
     EUROPEAN_CHAMPIONSHIP(750_000.0),
     GRAND_SLAM_OF_DARTS(1_000_000.0),
     PLAYERS_CHAMPIONSHIP_FINALS(750_000.0),
-    WORLD_CHAMPIONSHIP(5_000_000.0);
+    WORLD_CHAMPIONSHIP(5_000_000.0),
+    QUALIFIER_ET(0.0),
+    QUALIFIER_GRAND_SLAM(0.0);
 
     /**
      * Liefert die offizielle Match-Distanz (Best-of-Legs oder Best-of-Sets) für die jeweilige Runde.
      */
     fun getMatchDistance(round: TournamentRound): MatchDistance {
         return when (this) {
-            PLAYERS_CHAMPIONSHIP, EUROPEAN_TOUR -> when (round) {
+            PLAYERS_CHAMPIONSHIP, EUROPEAN_TOUR, QUALIFIER_ET -> when (round) {
                 TournamentRound.SF -> MatchDistance(13, MatchFormatType.LEGS, 1)
                 TournamentRound.F -> MatchDistance(15, MatchFormatType.LEGS, 1)
                 else -> MatchDistance(11, MatchFormatType.LEGS, 1) // L128/L48 bis QF
@@ -53,7 +55,7 @@ enum class TournamentEvent(val totalPrizeFund: Double) {
                 TournamentRound.F -> MatchDistance(21, MatchFormatType.LEGS, 1)
                 else -> MatchDistance(19, MatchFormatType.LEGS, 1) // L16 & QF
             }
-            GRAND_SLAM_OF_DARTS -> when (round) {
+            GRAND_SLAM_OF_DARTS, QUALIFIER_GRAND_SLAM -> when (round) {
                 TournamentRound.GROUP -> MatchDistance(9, MatchFormatType.LEGS, 1)
                 TournamentRound.L16 -> MatchDistance(19, MatchFormatType.LEGS, 1)
                 else -> MatchDistance(31, MatchFormatType.LEGS, 1) // QF, SF, F
@@ -172,6 +174,7 @@ enum class TournamentEvent(val totalPrizeFund: Double) {
                 TournamentRound.L128 -> 15_000.0
                 else -> 0.0
             }
+            QUALIFIER_ET, QUALIFIER_GRAND_SLAM -> 0.0
         }
     }
 }

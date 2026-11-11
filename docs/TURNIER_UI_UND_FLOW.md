@@ -32,14 +32,14 @@ Aus der bestehenden **Karriere-Detailansicht** heraus erhält der User Zugriff a
 * Matches mit Beteiligung des Users (`player1Id == USER_ID` oder `player2Id == USER_ID`, `USER_ID = -1L`) sind optisch hervorgehoben.
 
 ### 3.2 Steuerung für CPU-Matches
-* **„CPU-Matches dieser Runde simulieren“:** Simuliert alle offenen Matches der aktuellen Runde, an denen der User **nicht** beteiligt ist (`TournamentProgressionUseCase` / `SimulateCpuMatchUseCase`). Ist in der Konfiguration "Automatische Simulation" aktiviert(default=`true`), wird diese Funktion direkt ausgeführt.
-* **„Nächste Runde generieren“** : Sobald alle Matches einer Runde abgeschlossen sind, wird `AdvanceTournamentRoundUseCase` ausgeführt (vergibt Preisgelder in `tournament_placements` und erzeugt die Matches der Folgerunde). Ist in der Konfiguration "Automatisch zur nächsten Runde" aktiviert(default=`true`), wird die nächste Runde direkt generiert.
+* **„CPU-Matches dieser Runde simulieren“:** Simuliert alle offenen Matches der aktuellen Runde, an denen der User **nicht** beteiligt ist (`TournamentProgressionUseCase` / `SimulateCpuMatchUseCase`). Ist in der Konfiguration "Automatische Simulation" aktiviert (default=`true`, gehalten im ViewModel-State / SharedPreferences), wird diese Funktion direkt ausgeführt.
+* **„Nächste Runde generieren“** : Sobald alle Matches einer Runde abgeschlossen sind, wird `AdvanceTournamentRoundUseCase` ausgeführt (vergibt Preisgelder in `tournament_placements` und erzeugt die Matches der Folgerunde). Ist in der Konfiguration "Automatisch zur nächsten Runde" aktiviert (default=`true`, gehalten im ViewModel-State / SharedPreferences), wird die nächste Runde direkt generiert.
 
 ### 3.3 Die 3 Optionen für User-Matches (`USER_ID = -1L`)
 Ist ein offenes Match mit Beteiligung des Users an der Reihe, erhält der User drei Auswahlmöglichkeiten:
 1. **„Match simulieren (Skill/Zufall)“:** Simuliert das User-Match wie ein CPU-Match (nutzt `career.level` als Skill-Wert des Users). Ideal für schnelle Gesamttests.
-2. **„Sieger festlegen“:** Öffnet einen Dialog in dem man "Sieg" oder "Niederlage" auswählen kann. Das genau Ergebnis wird dann simuliert.
-3. **„Ergebnis manuell eingeben“:** Öffnet einen Dialog zur direkten Eingabe der gewonnenen Legs/Sets (z. B. `6 : 4`). Validiert anhand von `TournamentEvent.getMatchDistance(round)`, dass ein gültiger Sieger feststeht, speichert das Ergebnis in `tournament_matches` und triggert den Rundenfortschritt.
+2. **„Sieger festlegen“:** Öffnet einen Dialog in dem man "Sieg" oder "Niederlage" auswählen kann. Das genaue Ergebnis wird dann simuliert.
+3. **„Ergebnis manuell eingeben“:** Öffnet einen Dialog zur direkten Eingabe der gewonnenen Legs/Sets (z. B. `6 : 4`). Validiert gegen `TournamentEvent.getMatchDistance(round)` (dass ein gültiger Sieger feststeht), speichert das Ergebnis in `tournament_matches` und triggert den Rundenfortschritt.
 4. **„Live spielen (GameEngine)“:** Übergibt Match-ID und `MatchDistance` (`bestOf`, `legsPerSet`, `twoClearLegsRule`, `SETS_DOUBLE_IN_OUT`) an die bestehende Match-/Scolia-Engine (vorerst als Schnittstellen-Callback vorbereitet, bis die automatische Scolia-Anbindung verknüpft wird).
 
 ---
