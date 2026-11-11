@@ -27,6 +27,18 @@ Aus der bestehenden **Karriere-Detailansicht** heraus erhält der User Zugriff a
 
 ## 🎯 3. Turnieransicht & Match-Steuerung (`TournamentDetailScreen`)
 
+### 3.0 Die 3 Zustände des `TournamentDetailScreen`
+Jedes Turnier im Saisonkalender ist anklickbar und öffnet den `TournamentDetailScreen` in einem von drei Modi:
+1. **Vorschau-Modus (`isCompleted == false` und noch keine Matches generiert):**
+  - Zeigt Turnier-Metadaten (Name, Turniertyp, Austragungsland `hostCountry`, Gesamtpreisgeld `totalPrizeFund`) sowie die **Preisgeld-Tabelle pro Runde** (über `TournamentEvent.getRankingPrizeMoney(...)`) und die Spielformate (`getMatchDistance(...)`) an.
+  - Falls es das nächste anstehende Turnier im Kalender ist, wird der Button **„Turnier jetzt starten & auslosen“** angezeigt (`GenerateBracketUseCase`).
+2. **Aktiver Turnier-Modus (`isCompleted == false` und Matches vorhanden):**
+  - Zeigt die Matches der aktuellen Runde (bzw. Gruppenphase) mit voller Interaktions-Steuerung (CPU-Simulation, Rundenfortschritt und die 4 User-Match-Optionen).
+  - Ermöglicht über einen Runden-Umschalter auch den Blick auf bereits gespielte Vorrunden dieses Turniers.
+3. **Rückblick-Modus (`isCompleted == true`):**
+  - Nutzt dieselbe Runden-/Gruppen-Ansicht wie der aktive Modus (read-only ohne Simulations-Buttons).
+  - Zeigt zusätzlich oben eine Zusammenfassung: **Turniersieger**, **Final-Ergebnis**, **Abschneiden des Users** (`reachedRound`) und das **gewonnene Preisgeld** (`prizeMoney` aus `tournament_placements`).
+
 ### 3.1 Runden- & Gruppenansicht
 * Zeigt die Matches der aktuellen Runde (oder bei `MAJOR_GROUP` die 16 Gruppen A–P mit Tabelle und Spieltagen).
 * Matches mit Beteiligung des Users (`player1Id == USER_ID` oder `player2Id == USER_ID`, `USER_ID = -1L`) sind optisch hervorgehoben.
