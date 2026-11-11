@@ -23,6 +23,7 @@ Ausführliche Fachkonzepte, Forschungsberichte und Architekturbeschreibungen bef
 - 📊 **[Scolia Match 501 Guest Analysis](docs/scolia_match_501_guest_analysis.md)**: Detaillierte Auswertung von Test-Matches und Event-Mustern.
 - 🎯 **[Saisons & Tour Cards](docs/SAISON_LOGIK.md)**: Turnierlogik und Saisonsystem.
 - 📅 **[Saisonkalender, Turniere & Preisgeld](docs/SAISON_KALENDER_UND_TURNIERE.md)**: Detailliertes Fachkonzept der Pro Tour und Major-Turniere, K.o.- & Gruppen-Systeme, Setzlisten-Logik, Use-Case-Architektur und PDC-Preisgeldsonderregeln.
+- 📱 **[Turnier-UI, Simulation & Ranglisten-Ansicht](docs/TURNIER_UI_UND_FLOW.md)**: Benutzeroberfläche, Interaktions-Flow, Test-Modi und Order of Merit Ansicht.
 
 ---
 
