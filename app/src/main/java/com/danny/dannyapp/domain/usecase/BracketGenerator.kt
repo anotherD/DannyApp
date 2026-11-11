@@ -61,13 +61,11 @@ object BracketGenerator {
                 ranks33To64Oom = oomSortedIds.drop(32).take(32),
                 remaining64 = qualifierIds.take(64)
             )
-            TournamentEvent.QUALIFIER_ET -> generateStrictSeededRound1(
-                round = TournamentRound.L64,
-                seededIds = oomSortedIds.take(40)
-            )
-            TournamentEvent.QUALIFIER_GRAND_SLAM -> generateStrictSeededRound1(
-                round = TournamentRound.L32,
-                seededIds = oomSortedIds.take(32)
+            TournamentEvent.QUALIFIER_ET,
+            TournamentEvent.QUALIFIER_GRAND_SLAM,
+            TournamentEvent.QUALIFIER_WM -> generateQualifierInitialMatches(
+                event = event,
+                oomSortedIds = oomSortedIds
             )
         }
     }
@@ -221,6 +219,68 @@ object BracketGenerator {
                 player1Id = seedId,
                 player2Id = unseeded64.getOrElse(index) { 0L }
             )
+        }
+    }
+
+    /**
+     * Erzeugt die Erstrunden-Paarungen für Qualifier-Turniere (QUALIFIER_ET, QUALIFIER_GRAND_SLAM, QUALIFIER_WM).
+     * Unterstützt unbegrenzt/dynamisch alle Teilnehmer N (mit Vorrunde/Freilosen bei Auffüllung auf Ziel-Zweierpotenz).
+     */
+    fun generateQualifierInitialMatches(
+        event: TournamentEvent,
+        oomSortedIds: List<Long>
+    ): List<MatchPairing> {
+        val targetWinners = when (event) {
+            TournamentEvent.QUALIFIER_ET -> 10
+            TournamentEvent.QUALIFIER_GRAND_SLAM -> 8
+            TournamentEvent.QUALIFIER_WM -> 4
+            else -> 4
+        }
+
+        val N = oomSortedIds.size
+        if (N == 0) return emptyList()
+
+        var M = 2 * targetWinners
+        while (M < N) {
+            M *= 2
+        }
+
+        val initialMatchCount = if (N < M) N - M / 2 else M / 2
+        val round = getQualifierRoundForMatchCount(initialMatchCount)
+
+        return if (N == M || N <= 2 * targetWinners) {
+            val matchCount = N / 2
+            (0 until matchCount).map { i ->
+                MatchPairing(
+                    round = round,
+                    matchIndex = i,
+                    player1Id = oomSortedIds[i],
+                    player2Id = oomSortedIds[N - 1 - i]
+                )
+            }
+        } else {
+            val P = N - M / 2
+            val prelimPlayers = oomSortedIds.drop(M - N)
+            (0 until P).map { i ->
+                MatchPairing(
+                    round = round,
+                    matchIndex = i,
+                    player1Id = prelimPlayers[i],
+                    player2Id = prelimPlayers[2 * P - 1 - i]
+                )
+            }
+        }
+    }
+
+    fun getQualifierRoundForMatchCount(matchCount: Int): TournamentRound {
+        return when {
+            matchCount > 32 -> TournamentRound.L128
+            matchCount > 16 -> TournamentRound.L64
+            matchCount > 8 -> TournamentRound.L32
+            matchCount > 4 -> TournamentRound.L16
+            matchCount > 2 -> TournamentRound.QF
+            matchCount > 1 -> TournamentRound.SF
+            else -> TournamentRound.F
         }
     }
 }

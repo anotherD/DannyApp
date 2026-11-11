@@ -64,27 +64,73 @@ class AdvanceTournamentRoundUseCase(
             return@withContext false // Not all matches in current round are finished yet
         }
 
-        // Special handling for qualifier tournaments (QUALIFIER_ET and QUALIFIER_GRAND_SLAM)
-        if (event == TournamentEvent.QUALIFIER_ET || event == TournamentEvent.QUALIFIER_GRAND_SLAM) {
-            val isFinalQualifierRound = (event == TournamentEvent.QUALIFIER_ET && currentRoundEnum == TournamentRound.L32) ||
-                    (event == TournamentEvent.QUALIFIER_GRAND_SLAM && currentRoundEnum == TournamentRound.L16)
+        // Special handling for qualifier tournaments (QUALIFIER_ET, QUALIFIER_GRAND_SLAM, QUALIFIER_WM)
+        if (event == TournamentEvent.QUALIFIER_ET || event == TournamentEvent.QUALIFIER_GRAND_SLAM || event == TournamentEvent.QUALIFIER_WM) {
+            val targetWinners = when (event) {
+                TournamentEvent.QUALIFIER_ET -> 10
+                TournamentEvent.QUALIFIER_GRAND_SLAM -> 8
+                TournamentEvent.QUALIFIER_WM -> 4
+                else -> 4
+            }
 
-            if (isFinalQualifierRound) {
+            if (currentRoundMatches.size == targetWinners) {
                 tournamentDao.updateTournament(tournament.copy(isCompleted = true))
                 return@withContext true
             }
 
-            val currentIdx = roundSequence.indexOf(currentRoundEnum)
-            if (currentIdx != -1 && currentIdx < roundSequence.size - 1) {
-                val nextRoundEnum = roundSequence[currentIdx + 1]
-                val sortedCurrentMatches = currentRoundMatches.sortedBy { it.matchIndex }
-                val winners = sortedCurrentMatches.mapNotNull { it.winnerId }
-                val nextMatches = generateStandardKoMatches(tournamentId, nextRoundEnum, winners)
-                if (nextMatches.isNotEmpty()) {
-                    tournamentMatchDao.insertMatches(nextMatches)
-                }
-                return@withContext true
+            val season = seasonDao.getSeasonById(tournament.seasonId)
+                ?: throw IllegalArgumentException("Season not found for tournament: ${tournament.seasonId}")
+            val careerId = season.careerId
+
+            val tourCardsWithPlayer = tourCardDao.getTourCardsListForSeason(season.id)
+            val tourCardPlayerIds = tourCardsWithPlayer.map { it.tourCard.playerId }.distinct()
+            val allPlayers = playerDao.getAllPlayersList()
+
+            val oomEntries = getOrderOfMeritUseCase(careerId, OrderOfMeritType.OOM)
+            val ptOomEntries = getOrderOfMeritUseCase(careerId, OrderOfMeritType.PT_OOM)
+
+            val nonPreqTc = getNonPrequalifiedTcHoldersForQualifier(
+                event = event,
+                tourCardPlayerIds = tourCardPlayerIds,
+                oomList = oomEntries,
+                ptOomList = ptOomEntries,
+                allPlayers = allPlayers
+            )
+
+            val N = nonPreqTc.size
+            var M = 2 * targetWinners
+            while (M < N) {
+                M *= 2
             }
+
+            val roundsPresent = allMatches.map { it.round }.distinct()
+            val isPrelimRoundCompleted = roundsPresent.size == 1 && N < M && currentRoundMatches.size == (N - M / 2)
+
+            val nextRoundPlayers = if (isPrelimRoundCompleted) {
+                val byeCount = M - N
+                val byePlayers = nonPreqTc.take(byeCount)
+                val prelimWinners = currentRoundMatches.sortedBy { it.matchIndex }.mapNotNull { it.winnerId }
+                byePlayers + prelimWinners
+            } else {
+                currentRoundMatches.sortedBy { it.matchIndex }.mapNotNull { it.winnerId }
+            }
+
+            val nextMatchCount = nextRoundPlayers.size / 2
+            val nextRoundEnum = BracketGenerator.getQualifierRoundForMatchCount(nextMatchCount)
+            val nextMatches = (0 until nextMatchCount).map { i ->
+                TournamentMatch(
+                    tournamentId = tournamentId,
+                    round = nextRoundEnum.name,
+                    matchIndex = i,
+                    player1Id = nextRoundPlayers[2 * i],
+                    player2Id = nextRoundPlayers[2 * i + 1]
+                )
+            }
+
+            if (nextMatches.isNotEmpty()) {
+                tournamentMatchDao.insertMatches(nextMatches)
+            }
+            return@withContext true
         }
 
         val season = seasonDao.getSeasonById(tournament.seasonId)
@@ -458,12 +504,42 @@ class AdvanceTournamentRoundUseCase(
                 TournamentRound.L16, TournamentRound.QF, TournamentRound.SF, TournamentRound.F
             )
             TournamentEvent.QUALIFIER_ET -> listOf(
-                TournamentRound.L64, TournamentRound.L32
+                TournamentRound.L128, TournamentRound.L64, TournamentRound.L32, TournamentRound.L16
             )
             TournamentEvent.QUALIFIER_GRAND_SLAM -> listOf(
-                TournamentRound.L32, TournamentRound.L16
+                TournamentRound.L64, TournamentRound.L32, TournamentRound.L16, TournamentRound.QF
+            )
+            TournamentEvent.QUALIFIER_WM -> listOf(
+                TournamentRound.L32, TournamentRound.L16, TournamentRound.QF, TournamentRound.SF
             )
         }
+    }
+
+    private fun getNonPrequalifiedTcHoldersForQualifier(
+        event: TournamentEvent,
+        tourCardPlayerIds: List<Long>,
+        oomList: List<OrderOfMeritEntry>,
+        ptOomList: List<OrderOfMeritEntry>,
+        allPlayers: List<Player>
+    ): List<Long> {
+        val sortedOomTc = getPlayerListSortedByOom(tourCardPlayerIds, oomList, allPlayers)
+        val top16Oom = sortedOomTc.take(16)
+        val remainingTcAfterOom = tourCardPlayerIds.filterNot { it in top16Oom }
+        val top16PtOom = getPlayerListSortedByOom(remainingTcAfterOom, ptOomList, allPlayers).take(16)
+
+        val preQualified: Set<Long> = when (event) {
+            TournamentEvent.QUALIFIER_ET, TournamentEvent.QUALIFIER_GRAND_SLAM -> (top16Oom + top16PtOom).toSet()
+            TournamentEvent.QUALIFIER_WM -> {
+                val top40Oom = sortedOomTc.take(40)
+                val remainingAfterTop40Oom = tourCardPlayerIds.filterNot { it in top40Oom }
+                val top40PtOom = getPlayerListSortedByOom(remainingAfterTop40Oom, ptOomList, allPlayers).take(40)
+                (top40Oom + top40PtOom).toSet()
+            }
+            else -> emptySet()
+        }
+
+        val nonPreq = tourCardPlayerIds.filterNot { it in preQualified }
+        return getPlayerListSortedByOom(nonPreq, oomList, allPlayers)
     }
 
     private fun getPlayerListSortedByOom(

@@ -124,10 +124,9 @@ class GenerateBracketUseCase(
 
             TournamentEvent.QUALIFIER_ET -> {
                 val sortedNonPreq = getPlayerListSortedByOom(nonPreqEtTc, oomEntries)
-                val participants = fillToTargetCount(sortedNonPreq, 40, tourCardPlayerIds, oomEntries)
                 BracketGenerator.generateInitialMatches(
                     event = event,
-                    oomSortedIds = participants
+                    oomSortedIds = sortedNonPreq
                 )
             }
 
@@ -217,10 +216,10 @@ class GenerateBracketUseCase(
                 val remainingForPt = tourCardPlayerIds.filterNot { it in top16Oom }
                 val gsPreq = top16Oom + getPlayerListSortedByOom(remainingForPt, ptOomEntries).take(16)
                 val nonPreqGsTc = tourCardPlayerIds.filterNot { it in gsPreq }
-                val participants = fillToTargetCount(getPlayerListSortedByOom(nonPreqGsTc, oomEntries), 32, tourCardPlayerIds, oomEntries)
+                val sortedNonPreq = getPlayerListSortedByOom(nonPreqGsTc, oomEntries)
                 BracketGenerator.generateInitialMatches(
                     event = event,
-                    oomSortedIds = participants
+                    oomSortedIds = sortedNonPreq
                 )
             }
 
@@ -255,11 +254,25 @@ class GenerateBracketUseCase(
                 )
             }
 
-            TournamentEvent.WORLD_CHAMPIONSHIP -> {
-                val sortedOom = getPlayerListSortedByOom(allPlayerIds, oomEntries)
-                val top40Oom = sortedOom.take(40)
+            TournamentEvent.QUALIFIER_WM -> {
+                val sortedTcOom = getPlayerListSortedByOom(tourCardPlayerIds, oomEntries)
+                val top40Oom = sortedTcOom.take(40)
+                val remainingTcAfterTop40Oom = tourCardPlayerIds.filterNot { it in top40Oom }
+                val top40PtOom = getPlayerListSortedByOom(remainingTcAfterTop40Oom, ptOomEntries).take(40)
+                val wmPreQualified = (top40Oom + top40PtOom).toSet()
+                val nonPreqWmTc = tourCardPlayerIds.filterNot { it in wmPreQualified }
+                val sortedNonPreq = getPlayerListSortedByOom(nonPreqWmTc, oomEntries)
+                BracketGenerator.generateInitialMatches(
+                    event = event,
+                    oomSortedIds = sortedNonPreq
+                )
+            }
 
-                val remainingForPt = allPlayerIds.filterNot { it in top40Oom }
+            TournamentEvent.WORLD_CHAMPIONSHIP -> {
+                val sortedOomTc = getPlayerListSortedByOom(tourCardPlayerIds, oomEntries)
+                val top40Oom = sortedOomTc.take(40)
+
+                val remainingForPt = tourCardPlayerIds.filterNot { it in top40Oom }
                 val top40Pt = getPlayerListSortedByOom(remainingForPt, ptOomEntries).take(40)
 
                 val tc80 = top40Oom + top40Pt
@@ -268,9 +281,22 @@ class GenerateBracketUseCase(
                 val ranks33To64 = sortedTc80ByOom.drop(32).take(32)
                 val remaining16 = sortedTc80ByOom.drop(64)
 
+                val nonPreqWmTc = tourCardPlayerIds.filterNot { it in tc80 }
+                var wmTchqWinners = getQualifierWinnersFromPreceding(4)
+                if (wmTchqWinners.size < 4) {
+                    wmTchqWinners = fillToTargetCount(wmTchqWinners, 4, nonPreqWmTc, oomEntries)
+                }
+
                 val nonTcPlayerIds = allPlayerIds.filterNot { it in tourCardPlayerIds || it in tc80 }
-                val nonTc48 = getPlayerListSortedByOom(nonTcPlayerIds, oomEntries).take(48)
-                val remaining64Pool = fillToTargetCount(remaining16 + nonTc48, 64, allPlayerIds.filterNot { it in top32Oom || it in ranks33To64 }, oomEntries)
+                val nonTc44 = getPlayerListSortedByOom(nonTcPlayerIds, oomEntries).take(44)
+                val nonTc44Full = fillToTargetCount(nonTc44, 44, nonTcPlayerIds, oomEntries)
+
+                val remaining64Pool = fillToTargetCount(
+                    remaining16 + wmTchqWinners + nonTc44Full,
+                    64,
+                    allPlayerIds.filterNot { it in top32Oom || it in ranks33To64 },
+                    oomEntries
+                )
 
                 BracketGenerator.generateInitialMatches(
                     event = event,

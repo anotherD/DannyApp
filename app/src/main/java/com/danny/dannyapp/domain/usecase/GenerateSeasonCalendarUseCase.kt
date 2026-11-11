@@ -15,6 +15,8 @@ class GenerateSeasonCalendarUseCase(
         AppDatabase.getDatabase(context.applicationContext).tournamentDao()
     )
 
+    private data class EtEventInfo(val name: String, val hostCountry: String)
+
     suspend operator fun invoke(seasonId: Long): List<Tournament> = withContext(Dispatchers.IO) {
         val existing = tournamentDao.getTournamentsListForSeason(seasonId)
         if (existing.isNotEmpty()) {
@@ -27,25 +29,51 @@ class GenerateSeasonCalendarUseCase(
     }
 
     fun createSeasonCalendar(seasonId: Long): List<Tournament> {
-        val rawList = mutableListOf<Triple<String, String, String?>>() // name, type, hostCountry
+        val rawList = mutableListOf<Triple<String, String, String>>() // name, type, hostCountry
         var pcIndex = 1
         var etIndex = 1
 
-        val etHostCountries = listOf(
-            "GER", "GER", "AUT", "NED", "BEL",
-            "GER", "CZE", "HUN", "SUI", "GER",
-            "AUT", "NED", "BEL", "GER", "GER"
+        val pcHostCountries = listOf(
+            "ENG", "ENG",               // PC 01 – 02 (Milton Keynes)
+            "ENG", "ENG", "ENG", "ENG", // PC 03 – 06 (Wigan)
+            "ENG", "ENG",               // PC 07 – 08 (Leicester)
+            "ENG", "ENG", "ENG", "ENG", // PC 09 – 12 (Wigan / Leicester)
+            "GER", "ENG", "GER", "ENG", "GER", // PC 13 – 17 (Hildesheim / Wigan)
+            "ENG", "GER", "ENG",        // PC 18 – 20 (Wigan / Hildesheim)
+            "ENG", "GER", "ENG", "GER", // PC 21 – 24 (Leicester / Hildesheim)
+            "ENG", "ENG",               // PC 25 – 26 (Leicester)
+            "ENG", "NED", "ENG", "NED", // PC 27 – 30 (Leicester / Den Bosch)
+            "ENG", "NED", "ENG", "NED"  // PC 31 – 34 (Wigan / Den Bosch)
+        )
+
+        val etList = listOf(
+            EtEventInfo("Belgian Darts Open", "BEL"),
+            EtEventInfo("German Darts Championship", "GER"),
+            EtEventInfo("Austrian Darts Open", "AUT"),
+            EtEventInfo("International Darts Open", "GER"),
+            EtEventInfo("European Darts Grand Prix", "GER"),
+            EtEventInfo("Dutch Darts Championship", "NED"),
+            EtEventInfo("European Darts Open", "GER"),
+            EtEventInfo("French Darts Open", "FRA"),
+            EtEventInfo("Baltic Sea Darts Open", "GER"),
+            EtEventInfo("Hungarian Darts Trophy", "HUN"),
+            EtEventInfo("Czech Darts Open", "CZE"),
+            EtEventInfo("Swiss Darts Trophy", "SUI"),
+            EtEventInfo("German Darts Grand Prix", "GER"),
+            EtEventInfo("Elten Safety Darts Trophy", "GER"),
+            EtEventInfo("Flanders Darts Trophy", "BEL")
         )
 
         fun addPc() {
-            rawList.add(Triple("Players Championship $pcIndex", TournamentEvent.PLAYERS_CHAMPIONSHIP.name, null))
+            val host = pcHostCountries.getOrElse(pcIndex - 1) { "ENG" }
+            rawList.add(Triple("Players Championship $pcIndex", TournamentEvent.PLAYERS_CHAMPIONSHIP.name, host))
             pcIndex++
         }
 
         fun addEt() {
-            val host = etHostCountries.getOrElse(etIndex - 1) { "GER" }
-            rawList.add(Triple("ET $etIndex Tour Card Qualifier", TournamentEvent.QUALIFIER_ET.name, host))
-            rawList.add(Triple("European Tour $etIndex", TournamentEvent.EUROPEAN_TOUR.name, host))
+            val info = etList.getOrElse(etIndex - 1) { EtEventInfo("European Tour $etIndex", "GER") }
+            rawList.add(Triple("${info.name} Qualifier", TournamentEvent.QUALIFIER_ET.name, info.hostCountry))
+            rawList.add(Triple(info.name, TournamentEvent.EUROPEAN_TOUR.name, info.hostCountry))
             etIndex++
         }
 
@@ -57,10 +85,10 @@ class GenerateSeasonCalendarUseCase(
         addPc()
         addEt()
 
-        // 7: UK Open (Major)
+        // UK Open (Major)
         rawList.add(Triple("UK Open", TournamentEvent.UK_OPEN.name, "ENG"))
 
-        // 8..15: PC 5..10, ET 3..4
+        // PC 5..10, ET 3..4
         addPc()
         addPc()
         addEt()
@@ -70,10 +98,10 @@ class GenerateSeasonCalendarUseCase(
         addPc()
         addPc()
 
-        // 16: European Open (Major)
+        // European Open (Major)
         rawList.add(Triple("European Open", TournamentEvent.EUROPEAN_OPEN.name, "AUT"))
 
-        // 17..26: ET 5..8, PC 11..16
+        // ET 5..8, PC 11..16
         addEt()
         addPc()
         addPc()
@@ -85,10 +113,10 @@ class GenerateSeasonCalendarUseCase(
         addPc()
         addEt()
 
-        // 27: World Matchplay (Major)
+        // World Matchplay (Major)
         rawList.add(Triple("World Matchplay", TournamentEvent.WORLD_MATCHPLAY.name, "ENG"))
 
-        // 28..39: PC 17..24, ET 9..12
+        // PC 17..24, ET 9..12
         addPc()
         addPc()
         addEt()
@@ -102,39 +130,40 @@ class GenerateSeasonCalendarUseCase(
         addPc()
         addEt()
 
-        // 40: World Grand Prix (Major)
-        rawList.add(Triple("World Grand Prix", TournamentEvent.WORLD_GRAND_PRIX.name, "IRL"))
+        // World Grand Prix (Major)
+        rawList.add(Triple("World Grand Prix", TournamentEvent.WORLD_GRAND_PRIX.name, "ENG"))
 
-        // 41..45: PC 25..28, ET 13
+        // PC 25..28, ET 13
         addPc()
         addPc()
         addEt()
         addPc()
         addPc()
 
-        // 46: European Championship (Major)
+        // European Championship (Major)
         rawList.add(Triple("European Championship", TournamentEvent.EUROPEAN_CHAMPIONSHIP.name, "GER"))
 
-        // 47..49: ET 14, PC 29..30
+        // ET 14, PC 29..30
         addEt()
         addPc()
         addPc()
 
-        // 50: Grand Slam of Darts (Major) - preceded by qualifier
+        // Grand Slam of Darts (Major) - preceded by qualifier
         rawList.add(Triple("Grand Slam Qualifier", TournamentEvent.QUALIFIER_GRAND_SLAM.name, "ENG"))
         rawList.add(Triple("Grand Slam of Darts", TournamentEvent.GRAND_SLAM_OF_DARTS.name, "ENG"))
 
-        // 51..55: ET 15, PC 31..34
+        // ET 15, PC 31..34
         addEt()
         addPc()
         addPc()
         addPc()
         addPc()
 
-        // 56: Players Championship Finals (Major)
+        // Players Championship Finals (Major)
         rawList.add(Triple("Players Championship Finals", TournamentEvent.PLAYERS_CHAMPIONSHIP_FINALS.name, "ENG"))
 
-        // 57: World Championship (Major)
+        // World Championship Qualifier (QUALIFIER_WM) & World Championship (Major)
+        rawList.add(Triple("World Championship Qualifier", TournamentEvent.QUALIFIER_WM.name, "ENG"))
         rawList.add(Triple("World Championship", TournamentEvent.WORLD_CHAMPIONSHIP.name, "ENG"))
 
         return rawList.mapIndexed { index, (name, type, host) ->

@@ -8,30 +8,33 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Test
 
 class GenerateSeasonCalendarUseCaseTest {
 
     @Test
-    fun testGenerateSeasonCalendarCreates73TournamentsInOrder() = runBlocking {
+    fun testGenerateSeasonCalendarCreates74TournamentsInOrder() = runBlocking {
         val fakeTournamentDao = FakeTournamentDao()
         val useCase = GenerateSeasonCalendarUseCase(fakeTournamentDao)
 
         val tournaments = useCase(seasonId = 1L)
 
-        // Total count must be 73 (34 PC + 15 ET + 15 QUALIFIER_ET + 8 Majors + 1 QUALIFIER_GRAND_SLAM)
-        assertEquals(73, tournaments.size)
+        // Total count must be 74 (34 PC + 15 ET + 15 QUALIFIER_ET + 8 Majors + 1 QUALIFIER_GRAND_SLAM + 1 QUALIFIER_WM)
+        assertEquals(74, tournaments.size)
 
-        // Verify order from 1 to 73
+        // Verify order from 1 to 74 and that EVERY tournament has a hostCountry
         tournaments.forEachIndexed { index, tournament ->
             assertEquals(index + 1, tournament.order)
             assertEquals(1L, tournament.seasonId)
+            assertNotNull(tournament.hostCountry)
         }
 
         val pcCount = tournaments.count { it.type == TournamentEvent.PLAYERS_CHAMPIONSHIP.name }
         val etCount = tournaments.count { it.type == TournamentEvent.EUROPEAN_TOUR.name }
         val qualEtCount = tournaments.count { it.type == TournamentEvent.QUALIFIER_ET.name }
         val qualGsCount = tournaments.count { it.type == TournamentEvent.QUALIFIER_GRAND_SLAM.name }
+        val qualWmCount = tournaments.count { it.type == TournamentEvent.QUALIFIER_WM.name }
         val majorTypes = setOf(
             TournamentEvent.UK_OPEN.name,
             TournamentEvent.EUROPEAN_OPEN.name,
@@ -48,7 +51,13 @@ class GenerateSeasonCalendarUseCaseTest {
         assertEquals(15, etCount)
         assertEquals(15, qualEtCount)
         assertEquals(1, qualGsCount)
+        assertEquals(1, qualWmCount)
         assertEquals(8, majorCount)
+
+        // Verify French Darts Open event exists (new in 2027)
+        val frenchEvent = tournaments.find { it.name == "French Darts Open" }
+        assertNotNull(frenchEvent)
+        assertEquals("FRA", frenchEvent?.hostCountry)
 
         // Verify first and last event names
         assertEquals("Players Championship 1", tournaments.first().name)
@@ -56,7 +65,7 @@ class GenerateSeasonCalendarUseCaseTest {
 
         // Verify idempotency: calling invoke again returns existing list
         val repeatedTournaments = useCase(seasonId = 1L)
-        assertEquals(73, repeatedTournaments.size)
+        assertEquals(74, repeatedTournaments.size)
     }
 
     private class FakeTournamentDao : TournamentDao {
