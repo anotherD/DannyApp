@@ -464,7 +464,6 @@ enum class TournamentEvent(val totalPrizeFund: Double) {
             }
             UK_OPEN, EUROPEAN_OPEN -> when (round) {
                 TournamentRound.R1_160,
-                TournamentRound.R1_128,
                 TournamentRound.R2_128,
                 TournamentRound.R3_96 -> MatchDistance(11, MatchFormatType.LEGS, 1)
                 TournamentRound.SF,
@@ -667,7 +666,7 @@ object BracketGenerator {
             )
             TournamentEvent.GRAND_SLAM_OF_DARTS -> generateGrandSlamGroups(
                 top16OomHeads = oomSortedIds.take(16),
-                pot2MajorQualifiers = proTourSortedIds.take(16),
+                pot2MajorQualifiers = proTourSortedIds.take(16), // in der Gruppen-Entität zwischengespeichert,  in der Gruppen-Entität zwischengespeichert werden muss, damit nach Abschluss von Tag 1 die Spiele für Tag 2 und Tag 3 generiert werden können.
                 pot3Qualifiers = qualifierIds.take(16)
             )
             TournamentEvent.WORLD_GRAND_PRIX -> generateWorldGrandPrixRound1(
@@ -783,7 +782,7 @@ object BracketGenerator {
         return (0 until 16).map { groupIdx ->
             val groupLetter = ('A' + groupIdx).toString()
             MatchPairing(
-                round = TournamentRound.GROUP_3RD, // Kennzeichnet Gruppenspiel-Phase
+                round = TournamentRound.GROUP, // Kennzeichnet Gruppenspiel-Phase
                 matchIndex = groupIdx,
                 player1Id = top16OomHeads[groupIdx],
                 player2Id = shuffledPot3[groupIdx],
