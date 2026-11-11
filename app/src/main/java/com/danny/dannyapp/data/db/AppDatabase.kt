@@ -5,11 +5,62 @@ import android.util.Log
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.danny.dannyapp.data.Country
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+
+val MIGRATION_12_13 = object : Migration(12, 13) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("""
+            CREATE TABLE IF NOT EXISTS `tournaments` (
+                `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                `season_id` INTEGER NOT NULL,
+                `name` TEXT NOT NULL,
+                `type` TEXT NOT NULL,
+                `order` INTEGER NOT NULL,
+                `is_completed` INTEGER NOT NULL,
+                FOREIGN KEY(`season_id`) REFERENCES `seasons`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE
+            )
+        """)
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_tournaments_season_id` ON `tournaments` (`season_id`)")
+
+        db.execSQL("""
+            CREATE TABLE IF NOT EXISTS `tournament_matches` (
+                `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                `tournament_id` INTEGER NOT NULL,
+                `round` TEXT NOT NULL,
+                `match_index` INTEGER NOT NULL,
+                `player_1_id` INTEGER NOT NULL,
+                `player_2_id` INTEGER NOT NULL,
+                `player_1_score` INTEGER NOT NULL,
+                `player_2_score` INTEGER NOT NULL,
+                `winner_id` INTEGER,
+                `is_completed` INTEGER NOT NULL,
+                `group_name` TEXT,
+                FOREIGN KEY(`tournament_id`) REFERENCES `tournaments`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE
+            )
+        """)
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_tournament_matches_tournament_id` ON `tournament_matches` (`tournament_id`)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_tournament_matches_player_1_id` ON `tournament_matches` (`player_1_id`)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_tournament_matches_player_2_id` ON `tournament_matches` (`player_2_id`)")
+
+        db.execSQL("""
+            CREATE TABLE IF NOT EXISTS `tournament_placements` (
+                `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                `tournament_id` INTEGER NOT NULL,
+                `player_id` INTEGER NOT NULL,
+                `reached_round` TEXT NOT NULL,
+                `prize_money` REAL NOT NULL,
+                FOREIGN KEY(`tournament_id`) REFERENCES `tournaments`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE
+            )
+        """)
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_tournament_placements_tournament_id` ON `tournament_placements` (`tournament_id`)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_tournament_placements_player_id` ON `tournament_placements` (`player_id`)")
+    }
+}
 
 @Database(
     entities = [
@@ -17,9 +68,12 @@ import kotlinx.coroutines.launch
         Career::class,
         UserProfile::class,
         Season::class,
-        TourCard::class
+        TourCard::class,
+        Tournament::class,
+        TournamentMatch::class,
+        TournamentPlacement::class
     ],
-    version = 12,
+    version = 13,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -29,6 +83,9 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun userProfileDao(): UserProfileDao
     abstract fun seasonDao(): SeasonDao
     abstract fun tourCardDao(): TourCardDao
+    abstract fun tournamentDao(): TournamentDao
+    abstract fun tournamentMatchDao(): TournamentMatchDao
+    abstract fun tournamentPlacementDao(): TournamentPlacementDao
 
     companion object {
         @Volatile
@@ -41,6 +98,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "danny_app_database"
                 )
+                .addMigrations(MIGRATION_12_13)
                 // TODO: Implement proper database migrations before production release to avoid data loss
                 .fallbackToDestructiveMigration(true)
                 .addCallback(DatabaseCallback(context.applicationContext))
