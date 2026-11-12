@@ -1,6 +1,8 @@
 package com.danny.dannyapp.ui
 
+import android.content.Intent
 import android.os.Bundle
+import android.widget.Button
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.lifecycle.Lifecycle
@@ -27,6 +29,22 @@ class CareerDetailActivity : BaseActivity() {
         )
 
         val tvDetails: TextView = findViewById(R.id.tvCareerDetails)
+        val btnTournaments: Button = findViewById(R.id.btnTournaments)
+        val btnOrderOfMerit: Button = findViewById(R.id.btnOrderOfMerit)
+
+        btnTournaments.setOnClickListener {
+            val intent = Intent(this, TournamentCalendarActivity::class.java).apply {
+                putExtra(TournamentCalendarActivity.EXTRA_CAREER_ID, careerId)
+            }
+            startActivity(intent)
+        }
+
+        btnOrderOfMerit.setOnClickListener {
+            val intent = Intent(this, OrderOfMeritActivity::class.java).apply {
+                putExtra(OrderOfMeritActivity.EXTRA_CAREER_ID, careerId)
+            }
+            startActivity(intent)
+        }
 
         viewModel.loadCareer(careerId)
 

@@ -61,4 +61,21 @@
     <string name="player_country_format">Land: %s</string>
     <string name="player_prize_money_format">Preisgeld: £%.1fk</string>
     <string name="player_tour_card_icon">🎟️</string>
+    <string name="tournament_calendar">Saisonkalender</string>
+    <string name="order_of_merit">Ranglisten (Order of Merit)</string>
+    <string name="tournament_detail">Turnieransicht</string>
+    <string name="tournament_start">Turnier starten</string>
+    <string name="tournament_simulate_complete">Komplettes Turnier simulieren</string>
+    <string name="tournament_simulate_season_complete">Ganze Saison simulieren</string>
+    <string name="tournament_status_completed">Abgeschlossen</string>
+    <string name="tournament_status_active">Aktiv</string>
+    <string name="tournament_status_planned">Geplant</string>
+    <string name="oom_tab_oom">Order of Merit</string>
+    <string name="oom_tab_pt">Pro Tour</string>
+    <string name="oom_tab_pc">Players Champ.</string>
+    <string name="oom_tab_et">European Tour</string>
+    <string name="prize_money_format">£%,.0f</string>
+    <string name="rank_format">#%d</string>
+    <string name="career_tournaments_btn">Saisonkalender</string>
+    <string name="career_oom_btn">Ranglisten (OOM)</string>
 </resources>
