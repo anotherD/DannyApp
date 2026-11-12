@@ -5,8 +5,8 @@ import android.os.Bundle
 import android.view.View
 import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
 
 class TournamentCalendarFragment : Fragment(R.layout.fragment_tournament_calendar) {
 
-    private val viewModel: TournamentCalendarViewModel by activityViewModels()
+    private lateinit var viewModel: TournamentCalendarViewModel
     private lateinit var adapter: TournamentCalendarAdapter
     private lateinit var rvTournaments: RecyclerView
     private lateinit var tvEmptyTournaments: TextView
@@ -30,6 +30,8 @@ class TournamentCalendarFragment : Fragment(R.layout.fragment_tournament_calenda
 
         careerId = arguments?.getLong(ARG_CAREER_ID, -1L) ?: -1L
         careerName = arguments?.getString(ARG_CAREER_NAME) ?: ""
+
+        viewModel = ViewModelProvider(requireActivity())[TournamentCalendarViewModel::class.java]
 
         rvTournaments = view.findViewById(R.id.rvTournaments)
         tvEmptyTournaments = view.findViewById(R.id.tvEmptyTournaments)
@@ -47,13 +49,15 @@ class TournamentCalendarFragment : Fragment(R.layout.fragment_tournament_calenda
                 startActivity(intent)
             },
             onStartTournamentClick = { model ->
-                viewModel.startTournament(model.tournament.id, careerId)
-                val intent = Intent(requireContext(), TournamentDetailActivity::class.java).apply {
-                    putExtra(TournamentDetailActivity.EXTRA_TOURNAMENT_ID, model.tournament.id)
-                    putExtra(TournamentDetailActivity.EXTRA_CAREER_ID, careerId)
-                    putExtra(TournamentDetailActivity.EXTRA_CAREER_NAME, careerName)
+                viewLifecycleOwner.lifecycleScope.launch {
+                    viewModel.startTournament(model.tournament.id)
+                    val intent = Intent(requireContext(), TournamentDetailActivity::class.java).apply {
+                        putExtra(TournamentDetailActivity.EXTRA_TOURNAMENT_ID, model.tournament.id)
+                        putExtra(TournamentDetailActivity.EXTRA_CAREER_ID, careerId)
+                        putExtra(TournamentDetailActivity.EXTRA_CAREER_NAME, careerName)
+                    }
+                    startActivity(intent)
                 }
-                startActivity(intent)
             }
         )
         rvTournaments.adapter = adapter
@@ -80,10 +84,12 @@ class TournamentCalendarFragment : Fragment(R.layout.fragment_tournament_calenda
                                 if (!hasScrolledToActive && state.tournaments.isNotEmpty()) {
                                     val targetIndex = state.tournaments.indexOfFirst { it.status == TournamentStatus.ACTIVE || it.isNextPlanned }
                                     if (targetIndex != -1) {
-                                        (rvTournaments.layoutManager as? LinearLayoutManager)?.scrollToPositionWithOffset(
-                                            targetIndex,
-                                            rvTournaments.height / 2 - 100
-                                        )
+                                        val lm = rvTournaments.layoutManager as? LinearLayoutManager
+                                        if (targetIndex in 0..2) {
+                                            lm?.scrollToPositionWithOffset(0, 0)
+                                        } else {
+                                            lm?.scrollToPositionWithOffset(targetIndex, rvTournaments.height / 2 - 100)
+                                        }
                                         hasScrolledToActive = true
                                     }
                                 }

@@ -163,16 +163,15 @@ class TournamentCalendarViewModel(application: Application) : AndroidViewModel(a
         }
     }
 
-    fun startTournament(tournamentId: Long, careerId: Long) {
-        viewModelScope.launch {
-            try {
-                val matches = tournamentMatchDao.getMatchesListForTournament(tournamentId)
-                if (matches.isEmpty()) {
-                    generateBracketUseCase(tournamentId)
-                }
-            } catch (e: Exception) {
-                // handle error
+    suspend fun startTournament(tournamentId: Long): Boolean = withContext(Dispatchers.IO) {
+        try {
+            val matches = tournamentMatchDao.getMatchesListForTournament(tournamentId)
+            if (matches.isEmpty()) {
+                generateBracketUseCase(tournamentId)
             }
+            true
+        } catch (e: Exception) {
+            false
         }
     }
 }

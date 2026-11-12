@@ -75,11 +75,11 @@ class TournamentDetailActivity : BaseActivity() {
 
         tournamentId = intent.getLongExtra(EXTRA_TOURNAMENT_ID, -1L)
         careerId = intent.getLongExtra(EXTRA_CAREER_ID, -1L)
-        careerName = intent.getStringExtra(EXTRA_CAREER_NAME) ?: "Karriere"
+        careerName = intent.getStringExtra(EXTRA_CAREER_NAME) ?: ""
 
         setupToolbar(
             titleText = getString(R.string.tournament_detail),
-            subtitleText = getString(R.string.breadcrumb_format, careerName),
+            subtitleText = getString(R.string.breadcrumb_format, careerName.ifBlank { getString(R.string.career) }),
             showBack = true,
             rootViewId = R.id.tournamentDetailMain
         )
@@ -98,8 +98,9 @@ class TournamentDetailActivity : BaseActivity() {
 
     override fun onResume() {
         super.onResume()
-        if (::btnSimulateCpuMatches.isInitialized) {
-            btnSimulateCpuMatches.visibility = if (debugMode) View.VISIBLE else View.GONE
+        if (::btnSimulateCpuMatches.isInitialized && viewModel.uiState.value is TournamentDetailState.Active) {
+            val state = viewModel.uiState.value as TournamentDetailState.Active
+            btnSimulateCpuMatches.visibility = if (debugMode && state.isSelectedRoundPlayable) View.VISIBLE else View.GONE
         }
     }
 
@@ -197,9 +198,10 @@ class TournamentDetailActivity : BaseActivity() {
                 layoutActiveContainer.visibility = View.GONE
                 layoutReviewContainer.visibility = View.GONE
 
+                val activeCareerName = state.careerName.ifBlank { careerName }
                 setupToolbar(
                     titleText = state.tournament.name,
-                    subtitleText = getString(R.string.breadcrumb_format, careerName),
+                    subtitleText = getString(R.string.breadcrumb_format, activeCareerName),
                     showBack = true,
                     rootViewId = R.id.tournamentDetailMain
                 )
@@ -225,14 +227,18 @@ class TournamentDetailActivity : BaseActivity() {
                 layoutActiveContainer.visibility = View.VISIBLE
                 layoutReviewContainer.visibility = View.GONE
 
+                val activeCareerName = state.careerName.ifBlank { careerName }
                 setupToolbar(
                     titleText = state.tournament.name,
-                    subtitleText = getString(R.string.breadcrumb_format, careerName),
+                    subtitleText = getString(R.string.breadcrumb_format, activeCareerName),
                     showBack = true,
                     rootViewId = R.id.tournamentDetailMain
                 )
 
-                btnSimulateCpuMatches.visibility = if (debugMode) View.VISIBLE else View.GONE
+                val canPlay = state.isSelectedRoundPlayable
+                btnSimulateCpuMatches.visibility = if (debugMode && canPlay) View.VISIBLE else View.GONE
+                btnAdvanceRound.visibility = if (canPlay && state.isCurrentRoundCompleted) View.VISIBLE else View.GONE
+                btnAdvanceRound.isEnabled = canPlay && state.isCurrentRoundCompleted
 
                 tvStatusBadgeActive.text = getString(R.string.tournament_status_active)
                 tvStatusBadgeActive.backgroundTintList = ContextCompat.getColorStateList(this, R.color.status_active)
@@ -291,9 +297,10 @@ class TournamentDetailActivity : BaseActivity() {
                 layoutActiveContainer.visibility = View.GONE
                 layoutReviewContainer.visibility = View.VISIBLE
 
+                val activeCareerName = state.careerName.ifBlank { careerName }
                 setupToolbar(
                     titleText = state.tournament.name,
-                    subtitleText = getString(R.string.breadcrumb_format, careerName),
+                    subtitleText = getString(R.string.breadcrumb_format, activeCareerName),
                     showBack = true,
                     rootViewId = R.id.tournamentDetailMain
                 )
@@ -336,7 +343,7 @@ class TournamentDetailActivity : BaseActivity() {
             }
 
             is TournamentDetailState.Error -> {
-                pbLoading.visibility = View.GONE
+                pbLoading.visibility = View.VISIBLE
                 Toast.makeText(this, state.message, Toast.LENGTH_LONG).show()
             }
         }

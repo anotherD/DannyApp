@@ -61,7 +61,11 @@ class CareerDetailActivity : BaseActivity() {
                     when (state) {
                         is CareerDetailState.Success -> {
                             val career = state.careerWithProfile.career
-                            careerName = career.name
+                            val newName = career.name
+                            if (newName != careerName) {
+                                careerName = newName
+                                viewPagerCareer.adapter = CareerDetailPagerAdapter(this@CareerDetailActivity, careerId, careerName)
+                            }
                             setupToolbar(
                                 titleText = career.name,
                                 subtitleText = getString(R.string.breadcrumb_format, careerName),

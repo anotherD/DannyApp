@@ -101,6 +101,7 @@
     <string name="tournament_simulate_complete">Komplettes Turnier simulieren</string>
     <string name="tournament_simulate_season_complete">Ganze Saison simulieren</string>
     <string name="tournament_status_completed">Abgeschlossen</string>
+    <string name="tournament_status_winner_format">🏆 %s</string>
     <string name="tournament_status_active">Aktiv</string>
     <string name="tournament_status_planned">Geplant</string>
     <string name="oom_tab_oom">Order of Merit</string>

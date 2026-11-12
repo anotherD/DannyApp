@@ -61,7 +61,7 @@ def normalize_country_code(raw_code):
     if not code:
         return ""
     
-    # 1. Prüfen, ob ein Darts-Sonderkürzel vorliegt (z. B. GB-ENG -> ENG, DE -> GER)
+    # 1. Prüfen, ob ein Darts-Sonderkürzel vorliegt (z. B. GB-ENG -> ENG, DE -> DEU)
     if code in SPORT_OVERRIDES:
         return SPORT_OVERRIDES[code]
     

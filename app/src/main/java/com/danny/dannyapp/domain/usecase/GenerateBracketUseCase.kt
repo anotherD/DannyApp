@@ -137,7 +137,7 @@ class GenerateBracketUseCase(
                 }
 
                 val nonTcPlayerIds = allPlayerIds.filterNot { it in tourCardPlayerIds }
-                val hostCountry = tournament.hostCountry ?: "GER"
+                val hostCountry = tournament.hostCountry ?: "DEU"
                 val hostCountryNonTc = nonTcPlayerIds.filter { id ->
                     val player = allPlayers.find { it.id == id }
                     player?.countryCode == hostCountry && player.tourCardYear == 0
