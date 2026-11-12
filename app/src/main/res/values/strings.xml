@@ -123,4 +123,8 @@
     <string name="group_selection_label">Gruppe:</string>
     <string name="tournament_preview_prizes_title">Preisgelder &amp; Match-Distanzen pro Runde</string>
     <string name="tournament_start_and_draw">Turnier jetzt starten &amp; auslosen</string>
+    <string name="tournament_venue_format">Austragungsort: %1$s %2$s</string>
+    <string name="btn_simulate_cpu">CPU simulieren</string>
+    <string name="btn_advance_round">Nächste Runde</string>
+    <string name="dialog_close">Schließen</string>
 </resources>

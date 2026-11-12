@@ -44,12 +44,14 @@ sealed interface TournamentDetailState {
     data class Active(
         val tournament: Tournament,
         val event: TournamentEvent,
+        val activeRoundDisplayName: String,
         val availableRounds: List<String>,
         val availableRoundDisplayNames: List<String>,
         val selectedRoundIndex: Int,
         val availableGroups: List<String>,
         val selectedGroupIndex: Int,
         val matches: List<MatchUiModel>,
+        val prizeMoneyItems: List<PrizeMoneyItem>,
         val autoSimulateCpu: Boolean,
         val autoAdvanceRound: Boolean,
         val isCurrentRoundCompleted: Boolean,
@@ -74,6 +76,7 @@ sealed interface TournamentDetailState {
         val availableGroups: List<String>,
         val selectedGroupIndex: Int,
         val matches: List<MatchUiModel>,
+        val prizeMoneyItems: List<PrizeMoneyItem>,
         val careerName: String
     ) : TournamentDetailState
 
@@ -160,24 +163,9 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         }
     }
 
-    private suspend fun buildPreviewState(
-        tournament: Tournament,
-        event: TournamentEvent,
-        allTournaments: List<Tournament>,
-        careerName: String
-    ) {
-        val host = tournament.hostCountry ?: "ENG"
-        val flag = Country.getFlagEmoji(host)
-        val hostText = "Austragungsland: $host $flag • Typ: ${tournament.type}"
-
-        val totalPrize = if (event.totalPrizeFund > 0) {
-            "Gesamtpreisgeld: £%,d".format(Locale.US, event.totalPrizeFund.toLong())
-        } else {
-            "Qualifikations-Turnier (kein Ranglisten-Preisgeld)"
-        }
-
+    private fun getPrizeMoneyItems(event: TournamentEvent): List<PrizeMoneyItem> {
         val sequence = getRoundSequence(event)
-        val items = sequence.map { round ->
+        return sequence.map { round ->
             val prize = event.getRankingPrizeMoney(round)
             val prizeText = if (prize > 0) "£%,d".format(Locale.US, prize.toLong()) else "£0"
             val dist = event.getMatchDistance(round)
@@ -187,6 +175,28 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
                 prizeMoneyText = prizeText
             )
         }
+    }
+
+    private suspend fun buildPreviewState(
+        tournament: Tournament,
+        event: TournamentEvent,
+        allTournaments: List<Tournament>,
+        careerName: String
+    ) {
+        val host = tournament.hostCountry ?: "ENG"
+        val city = TournamentUiHelper.getTournamentCity(host, tournament.name)
+        val flag = Country.getFlagEmoji(host)
+        val typeBadgeInfo = TournamentUiHelper.getTournamentTypeBadgeInfo(getApplication(), tournament.type)
+        val venueFormat = getApplication<Application>().getString(R.string.tournament_venue_format, city, flag)
+        val hostText = "$venueFormat\n${typeBadgeInfo.text}"
+
+        val totalPrize = if (event.totalPrizeFund > 0) {
+            "Gesamtpreisgeld: £%,d".format(Locale.US, event.totalPrizeFund.toLong())
+        } else {
+            "Qualifikations-Turnier (kein Ranglisten-Preisgeld)"
+        }
+
+        val items = getPrizeMoneyItems(event)
 
         val sortedTournaments = allTournaments.sortedBy { it.order }
         val hasActiveTournament = sortedTournaments.any { t -> !t.isCompleted && tournamentMatchDao.getMatchesListForTournament(t.id).isNotEmpty() }
@@ -219,6 +229,8 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         }?.name ?: sequence.lastOrNull { r ->
             allMatches.any { it.round == r.name }
         }?.name ?: availableRounds.firstOrNull() ?: ""
+
+        val activeRoundDisplayName = TournamentUiHelper.getDisplayRoundName(activeRoundKeyInDb, getApplication())
 
         if (selectedRoundIndex !in availableRounds.indices) {
             val activeIdx = availableRounds.indexOf(activeRoundKeyInDb)
@@ -268,6 +280,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
 
         val isCurrentRoundCompleted = dbMatchesForRound.isNotEmpty() && dbMatchesForRound.all { it.isCompleted }
         val isSelectedRoundPlayable = dbMatchesForRound.isNotEmpty() && dbMatchesForRound.any { !it.isCompleted }
+        val prizeMoneyItems = getPrizeMoneyItems(event)
 
         // Trigger Auto-Simulate if needed
         if (autoSimulateCpu && isSelectedRoundPlayable && dbMatchesForRound.any { !it.isCompleted && it.player1Id != USER_ID && it.player2Id != USER_ID }) {
@@ -297,12 +310,14 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         _uiState.value = TournamentDetailState.Active(
             tournament = tournament,
             event = event,
+            activeRoundDisplayName = activeRoundDisplayName,
             availableRounds = availableRounds,
             availableRoundDisplayNames = availableRoundDisplayNames,
             selectedRoundIndex = selectedRoundIndex,
             availableGroups = availableGroups,
             selectedGroupIndex = selectedGroupIndex,
             matches = matchUiModels,
+            prizeMoneyItems = prizeMoneyItems,
             autoSimulateCpu = autoSimulateCpu,
             autoAdvanceRound = autoAdvanceRound,
             isCurrentRoundCompleted = isCurrentRoundCompleted,
@@ -394,6 +409,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         val matchUiModels = filteredMatches.map { m ->
             createMatchUiModel(m, userName, userCountryCode, userLevel, allPlayersMap, currentRoundKey, event)
         }
+        val prizeMoneyItems = getPrizeMoneyItems(event)
 
         _uiState.value = TournamentDetailState.Review(
             tournament = tournament,
@@ -411,6 +427,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             availableGroups = availableGroups,
             selectedGroupIndex = selectedGroupIndex,
             matches = matchUiModels,
+            prizeMoneyItems = prizeMoneyItems,
             careerName = careerName
         )
     }
@@ -555,6 +572,65 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
     fun simulateCpuMatches() {
         viewModelScope.launch {
             simulateCpuMatchUseCase.simulateAllCpuMatches(currentTournamentId)
+        }
+    }
+
+    fun simulateCompleteTournament() {
+        viewModelScope.launch {
+            _uiState.value = TournamentDetailState.Loading
+            while (true) {
+                val tournament = tournamentDao.getTournamentById(currentTournamentId) ?: break
+                if (tournament.isCompleted) break
+
+                val matches = tournamentMatchDao.getMatchesListForTournament(currentTournamentId)
+                if (matches.isEmpty()) break
+
+                val uncompleted = matches.filter { !it.isCompleted }
+                if (uncompleted.isNotEmpty()) {
+                    val careerWithProfile = careerRepository.getCareerById(currentCareerId)
+                    val userLevel = careerWithProfile?.career?.level?.coerceIn(1, 10) ?: 5
+                    val allPlayersMap = playerDao.getAllPlayersList().associateBy { it.id }
+
+                    for (match in uncompleted) {
+                        val event = TournamentEvent.valueOf(tournament.type)
+                        val round = TournamentRound.valueOf(match.round)
+                        val dist = event.getMatchDistance(round)
+
+                        if (match.player1Id == USER_ID || match.player2Id == USER_ID) {
+                            val isP1User = (match.player1Id == USER_ID)
+                            val oppId = if (isP1User) match.player2Id else match.player1Id
+                            val oppPlayer = allPlayersMap[oppId]
+                            val oppSkill = (oppPlayer?.skill ?: 5).coerceIn(1, 10)
+
+                            val p1Skill = if (isP1User) userLevel else oppSkill
+                            val p2Skill = if (isP1User) oppSkill else userLevel
+
+                            val p1WinProb = p1Skill.toDouble() / (p1Skill + p2Skill)
+                            val userWins = Random.nextDouble() < p1WinProb
+
+                            val (p1Score, p2Score, winnerId) = generateScoresForWinner(
+                                isP1Winner = userWins,
+                                player1Id = match.player1Id,
+                                player2Id = match.player2Id,
+                                dist = dist
+                            )
+
+                            val updated = match.copy(
+                                player1Score = p1Score,
+                                player2Score = p2Score,
+                                winnerId = winnerId,
+                                isCompleted = true
+                            )
+                            tournamentMatchDao.updateMatch(updated)
+                        } else {
+                            simulateCpuMatchUseCase(match)
+                        }
+                    }
+                }
+
+                val advanced = advanceTournamentRoundUseCase(currentTournamentId)
+                if (!advanced) break
+            }
         }
     }
 

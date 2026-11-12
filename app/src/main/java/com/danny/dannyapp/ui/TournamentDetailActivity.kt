@@ -41,13 +41,15 @@ class TournamentDetailActivity : BaseActivity() {
 
     // Active
     private lateinit var layoutActiveContainer: View
-    private lateinit var tvRoundLabel: TextView
+    private lateinit var tvActiveTitle: TextView
+    private lateinit var btnPrizeInfoActive: View
     private lateinit var tvStatusBadgeActive: TextView
     private lateinit var scrollRoundPills: HorizontalScrollView
     private lateinit var chipGroupRounds: ChipGroup
     private lateinit var layoutGroupSelector: View
     private lateinit var chipGroupGroups: ChipGroup
     private lateinit var btnSimulateCpuMatches: Button
+    private lateinit var btnSimulateComplete: Button
     private lateinit var btnAdvanceRound: Button
     private lateinit var rvMatches: RecyclerView
     private lateinit var activeMatchesAdapter: TournamentMatchAdapter
@@ -55,11 +57,11 @@ class TournamentDetailActivity : BaseActivity() {
     // Review
     private lateinit var layoutReviewContainer: View
     private lateinit var tvReviewWinner: TextView
+    private lateinit var btnPrizeInfoReview: View
     private lateinit var tvStatusBadgeReview: TextView
     private lateinit var tvReviewFinalScore: TextView
     private lateinit var tvReviewUserRound: TextView
     private lateinit var tvReviewUserPrize: TextView
-    private lateinit var tvReviewRoundLabel: TextView
     private lateinit var scrollReviewRoundPills: HorizontalScrollView
     private lateinit var chipGroupReviewRounds: ChipGroup
     private lateinit var rvReviewMatches: RecyclerView
@@ -68,6 +70,7 @@ class TournamentDetailActivity : BaseActivity() {
     private var tournamentId: Long = -1L
     private var careerId: Long = -1L
     private var careerName: String = ""
+    private var currentPrizeMoneyItems: List<PrizeMoneyItem> = emptyList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -100,7 +103,9 @@ class TournamentDetailActivity : BaseActivity() {
         super.onResume()
         if (::btnSimulateCpuMatches.isInitialized && viewModel.uiState.value is TournamentDetailState.Active) {
             val state = viewModel.uiState.value as TournamentDetailState.Active
-            btnSimulateCpuMatches.visibility = if (debugMode && state.isSelectedRoundPlayable) View.VISIBLE else View.GONE
+            val canPlay = state.isSelectedRoundPlayable
+            btnSimulateCpuMatches.visibility = if (debugMode && canPlay) View.VISIBLE else View.GONE
+            btnSimulateComplete.visibility = if (debugMode && canPlay) View.VISIBLE else View.GONE
         }
     }
 
@@ -118,24 +123,26 @@ class TournamentDetailActivity : BaseActivity() {
 
         // Active
         layoutActiveContainer = findViewById(R.id.layoutActiveContainer)
-        tvRoundLabel = findViewById(R.id.tvRoundLabel)
+        tvActiveTitle = findViewById(R.id.tvActiveTitle)
+        btnPrizeInfoActive = findViewById(R.id.btnPrizeInfoActive)
         tvStatusBadgeActive = findViewById(R.id.tvStatusBadgeActive)
         scrollRoundPills = findViewById(R.id.scrollRoundPills)
         chipGroupRounds = findViewById(R.id.chipGroupRounds)
         layoutGroupSelector = findViewById(R.id.layoutGroupSelector)
         chipGroupGroups = findViewById(R.id.chipGroupGroups)
         btnSimulateCpuMatches = findViewById(R.id.btnSimulateCpuMatches)
+        btnSimulateComplete = findViewById(R.id.btnSimulateComplete)
         btnAdvanceRound = findViewById(R.id.btnAdvanceRound)
         rvMatches = findViewById(R.id.rvMatches)
 
         // Review
         layoutReviewContainer = findViewById(R.id.layoutReviewContainer)
         tvReviewWinner = findViewById(R.id.tvReviewWinner)
+        btnPrizeInfoReview = findViewById(R.id.btnPrizeInfoReview)
         tvStatusBadgeReview = findViewById(R.id.tvStatusBadgeReview)
         tvReviewFinalScore = findViewById(R.id.tvReviewFinalScore)
         tvReviewUserRound = findViewById(R.id.tvReviewUserRound)
         tvReviewUserPrize = findViewById(R.id.tvReviewUserPrize)
-        tvReviewRoundLabel = findViewById(R.id.tvReviewRoundLabel)
         scrollReviewRoundPills = findViewById(R.id.scrollReviewRoundPills)
         chipGroupReviewRounds = findViewById(R.id.chipGroupReviewRounds)
         rvReviewMatches = findViewById(R.id.rvReviewMatches)
@@ -168,8 +175,20 @@ class TournamentDetailActivity : BaseActivity() {
             viewModel.simulateCpuMatches()
         }
 
+        btnSimulateComplete.setOnClickListener {
+            viewModel.simulateCompleteTournament()
+        }
+
         btnAdvanceRound.setOnClickListener {
             viewModel.advanceRound()
+        }
+
+        btnPrizeInfoActive.setOnClickListener {
+            showPrizeMoneyDialog()
+        }
+
+        btnPrizeInfoReview.setOnClickListener {
+            showPrizeMoneyDialog()
         }
     }
 
@@ -237,14 +256,15 @@ class TournamentDetailActivity : BaseActivity() {
 
                 val canPlay = state.isSelectedRoundPlayable
                 btnSimulateCpuMatches.visibility = if (debugMode && canPlay) View.VISIBLE else View.GONE
+                btnSimulateComplete.visibility = if (debugMode && canPlay) View.VISIBLE else View.GONE
                 btnAdvanceRound.visibility = if (canPlay && state.isCurrentRoundCompleted) View.VISIBLE else View.GONE
                 btnAdvanceRound.isEnabled = canPlay && state.isCurrentRoundCompleted
 
-                tvStatusBadgeActive.text = getString(R.string.tournament_status_active)
+                tvActiveTitle.text = state.tournament.name
+                tvStatusBadgeActive.text = state.activeRoundDisplayName
                 tvStatusBadgeActive.backgroundTintList = ContextCompat.getColorStateList(this, R.color.status_active)
 
-                val currentRoundDisplayName = state.availableRoundDisplayNames.getOrNull(state.selectedRoundIndex) ?: ""
-                tvRoundLabel.text = getString(R.string.round_label_current, currentRoundDisplayName)
+                currentPrizeMoneyItems = state.prizeMoneyItems
 
                 // Round Chips setup
                 chipGroupRounds.removeAllViews()
@@ -265,7 +285,8 @@ class TournamentDetailActivity : BaseActivity() {
                 }
                 selectedChip?.let { chip ->
                     chip.post {
-                        scrollRoundPills.smoothScrollTo(chip.left - 32, 0)
+                        val scrollX = chip.left - (scrollRoundPills.width - chip.width) / 2
+                        scrollRoundPills.smoothScrollTo(scrollX.coerceAtLeast(0), 0)
                     }
                 }
 
@@ -313,8 +334,7 @@ class TournamentDetailActivity : BaseActivity() {
                 tvReviewUserRound.text = getString(R.string.tournament_review_user_round, state.userReachedRoundText)
                 tvReviewUserPrize.text = getString(R.string.tournament_review_user_prize, state.userEarnedPrizeMoneyText)
 
-                val currentRoundDisplayName = state.availableRoundDisplayNames.getOrNull(state.selectedRoundIndex) ?: ""
-                tvReviewRoundLabel.text = getString(R.string.round_label_current, currentRoundDisplayName)
+                currentPrizeMoneyItems = state.prizeMoneyItems
 
                 // Round Chips
                 chipGroupReviewRounds.removeAllViews()
@@ -335,7 +355,8 @@ class TournamentDetailActivity : BaseActivity() {
                 }
                 selectedReviewChip?.let { chip ->
                     chip.post {
-                        scrollReviewRoundPills.smoothScrollTo(chip.left - 32, 0)
+                        val scrollX = chip.left - (scrollReviewRoundPills.width - chip.width) / 2
+                        scrollReviewRoundPills.smoothScrollTo(scrollX.coerceAtLeast(0), 0)
                     }
                 }
 
@@ -347,6 +368,21 @@ class TournamentDetailActivity : BaseActivity() {
                 Toast.makeText(this, state.message, Toast.LENGTH_LONG).show()
             }
         }
+    }
+
+    private fun showPrizeMoneyDialog() {
+        if (currentPrizeMoneyItems.isEmpty()) return
+        val rv = RecyclerView(this).apply {
+            layoutManager = LinearLayoutManager(this@TournamentDetailActivity)
+            adapter = PrizeMoneyAdapter().apply { submitList(currentPrizeMoneyItems) }
+            setPadding(32, 16, 32, 16)
+        }
+
+        AlertDialog.Builder(this)
+            .setTitle(getString(R.string.tournament_preview_prizes_title))
+            .setView(rv)
+            .setPositiveButton(getString(R.string.dialog_close), null)
+            .show()
     }
 
     private fun showUserMatchOptionsDialog(matchModel: MatchUiModel) {

@@ -101,13 +101,13 @@
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toBottomOf="@id/tvPreviewTitle"
-                            tools:text="Austragungsland: ENG 🏴󠁧󠁢󠁥󠁮󠁧󠁿 • Typ: WORLD_MATCHPLAY" />
+                            tools:text="Austragungsort: Blackpool 🏴󠁧󠁢󠁥󠁮󠁧󠁿&#10;Major" />
 
                         <TextView
                             android:id="@+id/tvPreviewPrizeFund"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
+                            android:layout_marginTop="6dp"
                             android:textColor="?attr/colorPrimary"
                             android:textSize="16sp"
                             android:textStyle="bold"
@@ -182,21 +182,37 @@
                 android:layout_height="wrap_content"
                 android:padding="12dp">
 
-                <!-- Round Selector Chips Label -->
                 <TextView
-                    android:id="@+id/tvRoundLabel"
+                    android:id="@+id/tvActiveTitle"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
-                    android:text="@string/round_label"
                     android:textColor="?attr/colorOnSurface"
-                    android:textSize="14sp"
+                    android:textSize="18sp"
                     android:textStyle="bold"
-                    app:layout_constraintEnd_toStartOf="@id/tvStatusBadgeActive"
+                    app:layout_constraintBottom_toBottomOf="@id/tvStatusBadgeActive"
+                    app:layout_constraintEnd_toStartOf="@id/btnPrizeInfoActive"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="@id/tvStatusBadgeActive"
+                    tools:text="World Matchplay" />
 
-                <!-- Status Badge Top Right -->
+                <!-- Info Icon -->
+                <ImageView
+                    android:id="@+id/btnPrizeInfoActive"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:contentDescription="@string/tournament_preview_prizes_title"
+                    android:focusable="true"
+                    android:src="@drawable/ic_info"
+                    app:layout_constraintBottom_toBottomOf="@id/tvStatusBadgeActive"
+                    app:layout_constraintEnd_toStartOf="@id/tvStatusBadgeActive"
+                    app:layout_constraintTop_toTopOf="@id/tvStatusBadgeActive"
+                    app:tint="?attr/colorOnSurfaceVariant" />
+
+                <!-- Status Badge Top Right (shows active round name) -->
                 <TextView
                     android:id="@+id/tvStatusBadgeActive"
                     android:layout_width="wrap_content"
@@ -209,112 +225,133 @@
                     android:textStyle="bold"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    tools:text="Aktiv" />
-
-                <HorizontalScrollView
-                    android:id="@+id/scrollRoundPills"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:scrollbars="none"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/tvRoundLabel">
-
-                    <com.google.android.material.chip.ChipGroup
-                        android:id="@+id/chipGroupRounds"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        app:selectionRequired="true"
-                        app:singleLine="true"
-                        app:singleSelection="true" />
-                </HorizontalScrollView>
-
-                <!-- Group Selector Chips (for Grand Slam) -->
-                <LinearLayout
-                    android:id="@+id/layoutGroupSelector"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:orientation="vertical"
-                    android:visibility="gone"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/scrollRoundPills"
-                    tools:visibility="visible">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/group_selection_label"
-                        android:textColor="?attr/colorOnSurface"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
-
-                    <HorizontalScrollView
-                        android:id="@+id/scrollGroupPills"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:scrollbars="none">
-
-                        <com.google.android.material.chip.ChipGroup
-                            android:id="@+id/chipGroupGroups"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            app:selectionRequired="true"
-                            app:singleLine="true"
-                            app:singleSelection="true" />
-                    </HorizontalScrollView>
-                </LinearLayout>
+                    tools:text="Achtelfinale" />
 
                 <!-- Action Buttons -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:orientation="horizontal"
+                    android:layout_marginTop="10dp"
+                    android:orientation="vertical"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/layoutGroupSelector">
+                    app:layout_constraintTop_toBottomOf="@id/tvActiveTitle">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <Button
+                            android:id="@+id/btnSimulateCpuMatches"
+                            style="@style/Widget.Material3.Button.OutlinedButton"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="4dp"
+                            android:layout_weight="1"
+                            android:text="@string/btn_simulate_cpu"
+                            android:textSize="12sp" />
+
+                        <Button
+                            android:id="@+id/btnAdvanceRound"
+                            style="@style/Widget.Material3.Button"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="4dp"
+                            android:layout_weight="1"
+                            android:text="@string/btn_advance_round"
+                            android:textSize="12sp" />
+                    </LinearLayout>
 
                     <Button
-                        android:id="@+id/btnSimulateCpuMatches"
+                        android:id="@+id/btnSimulateComplete"
                         style="@style/Widget.Material3.Button.OutlinedButton"
-                        android:layout_width="0dp"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginEnd="6dp"
-                        android:layout_weight="1"
-                        android:text="CPU simulieren"
-                        android:textSize="12sp" />
-
-                    <Button
-                        android:id="@+id/btnAdvanceRound"
-                        style="@style/Widget.Material3.Button"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="6dp"
-                        android:layout_weight="1"
-                        android:text="Nächste Runde"
-                        android:textSize="12sp" />
+                        android:layout_marginTop="4dp"
+                        android:text="@string/tournament_simulate_complete"
+                        android:textSize="12sp"
+                        android:visibility="gone"
+                        tools:visibility="visible" />
                 </LinearLayout>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Matches RecyclerView with explicit marginTop="12dp" spacing from control card -->
+        <!-- Round Selector Chips (Outside & directly below upper Card) -->
+        <HorizontalScrollView
+            android:id="@+id/scrollRoundPills"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:clipToPadding="false"
+            android:paddingHorizontal="12dp"
+            android:scrollbars="none"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/cardActiveControls">
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chipGroupRounds"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:selectionRequired="true"
+                app:singleLine="true"
+                app:singleSelection="true" />
+        </HorizontalScrollView>
+
+        <!-- Group Selector Chips (for Grand Slam) -->
+        <LinearLayout
+            android:id="@+id/layoutGroupSelector"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:orientation="vertical"
+            android:paddingHorizontal="12dp"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/scrollRoundPills"
+            tools:visibility="visible">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/group_selection_label"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <HorizontalScrollView
+                android:id="@+id/scrollGroupPills"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:scrollbars="none">
+
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/chipGroupGroups"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:selectionRequired="true"
+                    app:singleLine="true"
+                    app:singleSelection="true" />
+            </HorizontalScrollView>
+        </LinearLayout>
+
+        <!-- Matches RecyclerView -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvMatches"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="6dp"
             android:clipToPadding="false"
             android:paddingHorizontal="12dp"
             android:paddingBottom="12dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/cardActiveControls" />
+            app:layout_constraintTop_toBottomOf="@id/layoutGroupSelector" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -357,10 +394,27 @@
                     android:textColor="?attr/colorPrimary"
                     android:textSize="18sp"
                     android:textStyle="bold"
-                    app:layout_constraintEnd_toStartOf="@id/tvStatusBadgeReview"
+                    app:layout_constraintBottom_toBottomOf="@id/tvStatusBadgeReview"
+                    app:layout_constraintEnd_toStartOf="@id/btnPrizeInfoReview"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/tvStatusBadgeReview"
                     tools:text="🏆 Turniersieger: Luke Humphries" />
+
+                <!-- Info Icon -->
+                <ImageView
+                    android:id="@+id/btnPrizeInfoReview"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:contentDescription="@string/tournament_preview_prizes_title"
+                    android:focusable="true"
+                    android:src="@drawable/ic_info"
+                    app:layout_constraintBottom_toBottomOf="@id/tvStatusBadgeReview"
+                    app:layout_constraintEnd_toStartOf="@id/tvStatusBadgeReview"
+                    app:layout_constraintTop_toTopOf="@id/tvStatusBadgeReview"
+                    app:tint="?attr/colorOnSurfaceVariant" />
 
                 <TextView
                     android:id="@+id/tvStatusBadgeReview"
@@ -380,7 +434,7 @@
                     android:id="@+id/tvReviewFinalScore"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
+                    android:layout_marginTop="4dp"
                     android:textColor="?attr/colorOnSurface"
                     android:textSize="14sp"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -412,55 +466,44 @@
                     app:layout_constraintTop_toBottomOf="@id/tvReviewUserRound"
                     tools:text="Gewonnenes Preisgeld: £35,000" />
 
-                <!-- Review Round Selector Chips -->
-                <TextView
-                    android:id="@+id/tvReviewRoundLabel"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:text="@string/round_label"
-                    android:textColor="?attr/colorOnSurface"
-                    android:textSize="13sp"
-                    android:textStyle="bold"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/tvReviewUserPrize" />
-
-                <HorizontalScrollView
-                    android:id="@+id/scrollReviewRoundPills"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:scrollbars="none"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/tvReviewRoundLabel">
-
-                    <com.google.android.material.chip.ChipGroup
-                        android:id="@+id/chipGroupReviewRounds"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        app:selectionRequired="true"
-                        app:singleLine="true"
-                        app:singleSelection="true" />
-                </HorizontalScrollView>
-
             </androidx.constraintlayout.widget.ConstraintLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Review Matches RecyclerView with explicit marginTop="12dp" spacing -->
+        <!-- Review Round Selector Chips (Outside & directly below summary Card) -->
+        <HorizontalScrollView
+            android:id="@+id/scrollReviewRoundPills"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:clipToPadding="false"
+            android:paddingHorizontal="12dp"
+            android:scrollbars="none"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/cardReviewSummary">
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chipGroupReviewRounds"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:selectionRequired="true"
+                app:singleLine="true"
+                app:singleSelection="true" />
+        </HorizontalScrollView>
+
+        <!-- Review Matches RecyclerView -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvReviewMatches"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="6dp"
             android:clipToPadding="false"
             android:paddingHorizontal="12dp"
             android:paddingBottom="12dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/cardReviewSummary" />
+            app:layout_constraintTop_toBottomOf="@id/scrollReviewRoundPills" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
