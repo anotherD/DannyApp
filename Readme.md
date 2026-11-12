@@ -24,6 +24,7 @@ Ausführliche Fachkonzepte, Forschungsberichte und Architekturbeschreibungen bef
 - 🎯 **[Saisons & Tour Cards](docs/SAISON_LOGIK.md)**: Turnierlogik und Saisonsystem.
 - 📅 **[Saisonkalender, Turniere & Preisgeld](docs/SAISON_KALENDER_UND_TURNIERE.md)**: Detailliertes Fachkonzept der Pro Tour und Major-Turniere, K.o.- & Gruppen-Systeme, Setzlisten-Logik, Use-Case-Architektur und PDC-Preisgeldsonderregeln.
 - 📱 **[Turnier-UI, Simulation & Ranglisten-Ansicht](docs/TURNIER_UI_UND_FLOW.md)**: Benutzeroberfläche, Interaktions-Flow, Test-Modi und Order of Merit Ansicht.
+- 🔍 **[PDC-Regel- & Kalender-Update-Checkliste](docs/PDC_REGEL_UPDATE_CHECKLISTE.md)**: Offene 2027er Reformen und Prompt-Vorlage für zukünftige PDC-Regelprüfungen.
 
 ---
 
@@ -36,15 +37,16 @@ Die Scolia-Anbindung ist erfolgreich konzipiert und befindet sich in der aktiven
 - [x] Karrieren anlegen und mit Profil verknüpfen
 - [ ] Karriere: Saisons anlegen (Status: initial fertig, es Fehlen aber noch details, siehe weiter Punkte)
 - [x] Saision: Spieler hinzufügen (TourcardHolder initial)
-- [ ] Saision: Spieler hinzufügen (TourcardHolder bei folgesaisons)
-- [ ] Saision: Turniere hinzufügen
+- [ ] Saision: Spieler hinzufügen (TourcardHolder bei Folgesaisons)
+- [X] Saision: Turniere hinzufügen
 - [ ] Statistiken erfassen
 - [ ] Statistiken Anzeige und Auswertungen
 - [ ] Statistiken
 - [ ] JSON-Parser & Event-Auswertung (Sektor, Ring, Koordinaten).
 - [ ] Caller Engine (SoundPool Latenzfreie Sprachausgabe).
-- [ ] Match-Simulation
+- [X] Match-Simulation (rudimentär, nur Ergebnis nach skill, keine Details)
 - [ ] Bot-Simulation
+- [ ] Match-Simulation detailliert (Bot-Simulation CPU vs CPU)
 
 ---
 
