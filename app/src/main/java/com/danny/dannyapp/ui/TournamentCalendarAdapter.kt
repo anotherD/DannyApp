@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
+import com.danny.dannyapp.domain.model.TournamentEvent
 
 class TournamentCalendarAdapter(
     private val onTournamentClick: (TournamentUiModel) -> Unit,
@@ -17,6 +18,7 @@ class TournamentCalendarAdapter(
 
     class TournamentViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val tvTournamentOrder: TextView = view.findViewById(R.id.tvTournamentOrder)
+        val tvTournamentTypeBadge: TextView = view.findViewById(R.id.tvTournamentTypeBadge)
         val tvTournamentName: TextView = view.findViewById(R.id.tvTournamentName)
         val tvTournamentStatus: TextView = view.findViewById(R.id.tvTournamentStatus)
         val tvTournamentDetails: TextView = view.findViewById(R.id.tvTournamentDetails)
@@ -36,10 +38,34 @@ class TournamentCalendarAdapter(
         holder.tvTournamentOrder.text = "#${tournament.order}"
         holder.tvTournamentName.text = tournament.name
 
+        val event = try { TournamentEvent.valueOf(tournament.type) } catch (e: Exception) { null }
+        val isMajor = event in listOf(
+            TournamentEvent.UK_OPEN, TournamentEvent.EUROPEAN_OPEN, TournamentEvent.WORLD_MATCHPLAY,
+            TournamentEvent.WORLD_GRAND_PRIX, TournamentEvent.EUROPEAN_CHAMPIONSHIP,
+            TournamentEvent.GRAND_SLAM_OF_DARTS, TournamentEvent.PLAYERS_CHAMPIONSHIP_FINALS,
+            TournamentEvent.WORLD_CHAMPIONSHIP
+        )
+        val isQualifier = event in listOf(
+            TournamentEvent.QUALIFIER_ET, TournamentEvent.QUALIFIER_GRAND_SLAM, TournamentEvent.QUALIFIER_WM
+        )
+
+        if (isMajor) {
+            holder.tvTournamentTypeBadge.visibility = View.VISIBLE
+            holder.tvTournamentTypeBadge.text = "MAJOR"
+            holder.tvTournamentTypeBadge.setBackgroundResource(R.drawable.bg_major_badge)
+        } else if (isQualifier) {
+            holder.tvTournamentTypeBadge.visibility = View.VISIBLE
+            holder.tvTournamentTypeBadge.text = "QUALIFIER"
+            holder.tvTournamentTypeBadge.setBackgroundResource(R.drawable.bg_qualifier_badge)
+        } else {
+            holder.tvTournamentTypeBadge.visibility = View.GONE
+        }
+
         val statusText = when (model.status) {
             TournamentStatus.COMPLETED -> {
                 val winner = if (model.winnerName != null) " • Sieger: ${model.winnerName}" else ""
-                "Abgeschlossen$winner"
+                val userRound = if (!model.userReachedRound.isNullOrBlank()) " • Deine Runde: ${model.userReachedRound}" else ""
+                "Abgeschlossen$winner$userRound"
             }
             TournamentStatus.ACTIVE -> "Aktiv"
             TournamentStatus.PLANNED -> "Geplant"

@@ -42,6 +42,7 @@ class TournamentCalendarViewModel(application: Application) : AndroidViewModel(a
     private val db = AppDatabase.getDatabase(application)
     private val tournamentDao = db.tournamentDao()
     private val tournamentMatchDao = db.tournamentMatchDao()
+    private val tournamentPlacementDao = db.tournamentPlacementDao()
     private val seasonDao = db.seasonDao()
     private val playerDao = db.playerDao()
     private val careerRepository = CareerRepository(application)
@@ -112,6 +113,12 @@ class TournamentCalendarViewModel(application: Application) : AndroidViewModel(a
                     val winnerId = finalMatch.winnerId!!
                     winnerName = if (winnerId == USER_ID) "Du" else allPlayers[winnerId]?.name ?: "CPU"
                 }
+
+                val placements = tournamentPlacementDao.getPlacementsListForTournament(tournament.id)
+                val userPlacement = placements.find { it.playerId == USER_ID }
+                if (userPlacement != null) {
+                    userReachedRound = getDisplayRoundName(userPlacement.reachedRound)
+                }
             }
 
             TournamentUiModel(
@@ -121,6 +128,27 @@ class TournamentCalendarViewModel(application: Application) : AndroidViewModel(a
                 winnerName = winnerName,
                 userReachedRound = userReachedRound
             )
+        }
+    }
+
+    private fun getDisplayRoundName(roundKey: String): String {
+        return when (roundKey) {
+            "WINNER" -> "Turniersieger"
+            "F" -> "Runner-Up (Finale)"
+            "SF" -> "Halbfinale"
+            "QF" -> "Viertelfinale"
+            "L16" -> "Achtelfinale"
+            "L32" -> "Last 32"
+            "L48" -> "Last 48"
+            "L64" -> "Last 64"
+            "L128" -> "Last 128"
+            "R3_96" -> "Runde 3"
+            "R2_128" -> "Runde 2"
+            "R1_160" -> "Runde 1"
+            "GROUP_2ND" -> "Gruppenphase (Platz 2)"
+            "GROUP_3RD" -> "Gruppenphase (Platz 3)"
+            "GROUP" -> "Gruppenphase"
+            else -> roundKey
         }
     }
 

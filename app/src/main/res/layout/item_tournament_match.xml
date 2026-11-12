@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cardMatch"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    app:cardBackgroundColor="?attr/colorSurface"
+    app:cardCornerRadius="12dp"
+    app:strokeColor="?attr/colorOutlineVariant"
+    app:strokeWidth="1dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="12dp">
+
+        <TextView
+            android:id="@+id/tvMatchRoundIndex"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textSize="11sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Match #1" />
+
+        <TextView
+            android:id="@+id/tvMatchStatusBadge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_skill_badge"
+            android:paddingHorizontal="6dp"
+            android:paddingVertical="2dp"
+            android:textColor="@color/white"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="DEIN MATCH" />
+
+        <!-- Player 1 -->
+        <TextView
+            android:id="@+id/tvPlayer1Flag"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textSize="16sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvMatchRoundIndex"
+            tools:text="🏴󠁧󠁢󠁥󠁮󠁧󠁿" />
+
+        <TextView
+            android:id="@+id/tvPlayer1Name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:layout_marginEnd="6dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="@id/tvPlayer1Flag"
+            app:layout_constraintEnd_toStartOf="@id/tvPlayer1Score"
+            app:layout_constraintStart_toEndOf="@id/tvPlayer1Flag"
+            app:layout_constraintTop_toTopOf="@id/tvPlayer1Flag"
+            tools:text="Luke Humphries" />
+
+        <TextView
+            android:id="@+id/tvPlayer1Skill"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textSize="11sp"
+            app:layout_constraintStart_toStartOf="@id/tvPlayer1Name"
+            app:layout_constraintTop_toBottomOf="@id/tvPlayer1Name"
+            tools:text="Skill: 9" />
+
+        <!-- Score Center -->
+        <TextView
+            android:id="@+id/tvPlayer1Score"
+            android:layout_width="28dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/tvScoreDivider"
+            app:layout_constraintTop_toBottomOf="@id/tvMatchRoundIndex"
+            tools:text="6" />
+
+        <TextView
+            android:id="@+id/tvScoreDivider"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=":"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvMatchRoundIndex" />
+
+        <TextView
+            android:id="@+id/tvPlayer2Score"
+            android:layout_width="28dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@id/tvScoreDivider"
+            app:layout_constraintTop_toBottomOf="@id/tvMatchRoundIndex"
+            tools:text="4" />
+
+        <!-- Player 2 -->
+        <TextView
+            android:id="@+id/tvPlayer2Flag"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvMatchRoundIndex"
+            tools:text="🇳🇱" />
+
+        <TextView
+            android:id="@+id/tvPlayer2Name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:layout_marginEnd="6dp"
+            android:ellipsize="end"
+            android:gravity="end"
+            android:maxLines="1"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="@id/tvPlayer2Flag"
+            app:layout_constraintEnd_toStartOf="@id/tvPlayer2Flag"
+            app:layout_constraintStart_toEndOf="@id/tvPlayer2Score"
+            app:layout_constraintTop_toTopOf="@id/tvPlayer2Flag"
+            tools:text="Michael van Gerwen" />
+
+        <TextView
+            android:id="@+id/tvPlayer2Skill"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textSize="11sp"
+            app:layout_constraintEnd_toEndOf="@id/tvPlayer2Name"
+            app:layout_constraintTop_toBottomOf="@id/tvPlayer2Name"
+            tools:text="Skill: 9" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>

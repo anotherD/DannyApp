@@ -26,6 +26,24 @@
             tools:text="#1" />
 
         <TextView
+            android:id="@+id/tvTournamentTypeBadge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:background="@drawable/bg_major_badge"
+            android:paddingHorizontal="6dp"
+            android:paddingVertical="2dp"
+            android:textColor="@color/white"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@id/tvTournamentOrder"
+            app:layout_constraintStart_toEndOf="@id/tvTournamentOrder"
+            app:layout_constraintTop_toTopOf="@id/tvTournamentOrder"
+            tools:text="MAJOR"
+            tools:visibility="visible" />
+
+        <TextView
             android:id="@+id/tvTournamentName"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -35,7 +53,7 @@
             android:textSize="16sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toStartOf="@id/tvTournamentStatus"
-            app:layout_constraintStart_toEndOf="@id/tvTournamentOrder"
+            app:layout_constraintStart_toEndOf="@id/tvTournamentTypeBadge"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="Players Championship 1" />
 
@@ -60,7 +78,7 @@
             android:textColor="?attr/colorOnSurfaceVariant"
             android:textSize="14sp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@id/tvTournamentName"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvTournamentName"
             tools:text="Host: ENG | Prize Fund: £150,000" />
 
