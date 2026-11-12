@@ -50,8 +50,10 @@ Ausführliche Fachkonzepte, Forschungsberichte und Architekturbeschreibungen bef
     - [ ] UK Open & European Open: Runden 1–3 vorab auslosen, ab Runde 4 verdeckte/schrittweise „Live-Auslosung“ pro Runde.
     - [ ] Turnier-Beschreibungen in der Vorschau um Qualifikations-Boni ergänzen (z. B. *„Sieger qualifiziert sich für Grand Slam of Darts“*).
 - [ ] **UI-Polish & Branding:**
-    - [ ] Eigenes App-Icon (Launcher-Icon & Startseiten-Logo).
+    - [ ] Eigenes App-Icon (Launcher-Icon & Startseiten-Logo finalisieren).
     - [ ] Toasts durch einheitliche UI-Hinweise (z. B. Material `Snackbar` oder eigene Status-Banner) ersetzen (portierbar & moderner).
+- [ ] **Spieler-Detailansicht:** Klick auf einen Spielernamen (in Turnieren, Ranglisten oder Spielerliste) öffnet die Detailseite mit Karriere-Stats und Erfolgen.
+- [ ] **Match-Detailansicht:** Klick auf ein abgeschlossenes oder laufendes Match öffnet die Match-Statistiken (Leg-/Set-Verlauf, Averages, Checkouts).
 
 ---
 

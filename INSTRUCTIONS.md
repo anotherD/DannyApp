@@ -12,3 +12,8 @@ Dieses Referenz-Projekt heißt "MDT" oder "My Dart Training".
 - **Quellen-Prüfung:** Prüfe Änderungen immer gegen offizielle PDC-Verlautbarungen (`pdc.tv` / *PDC Rankings Rules*) sowie aktuelle Turnierpläne und rechne Preisgeldsummen gegen den Gesamttopf (Prize Fund) gegen.
 - **Unvollständige Ankündigungen:** Hat die PDC eine Reform angekündigt (z. B. Teilnehmer-Erweiterung), aber noch keine Runden-Preisgelder oder Setzlisten veröffentlicht, darf **nicht** geraten werden. Behalte das bisherige verifizierte Schema im Code bei und dokumentiere die angekündigte Reform ausschließlich als `TODO`-Kommentar im Code und als Hinweis in `docs/SAISON_KALENDER_UND_TURNIERE.md`.
 - **Ausnahmen immer prüfen:** Erfasse neben Standard-Preisgeldern immer Ranglisten-Sonderregeln (z. B. £0 bei Auftaktniederlage gesetzter Spieler auf der European Tour, £0 in Runde 1 bei PC/UK Open, Freilos- und Nachrücker-Regeln).
+
+# UI-, Navigation- & Code-Standards (Verbindlich)
+- **Strings-Pflicht:** Alle sichtbaren UI-Texte, Labels, Turniertypen und Status-Bezeichnungen müssen zwingend in `app/src/main/res/values/strings.xml` gepflegt werden (keine hartcodierten deutschen Texte im Kotlin-Code).
+- **Top-Bar Breadcrumb-Standard:** Jede Unterseite zeigt als `titleText` exakt den Namen des aufrufenden Buttons/Bereichs (z. B. `Saisonkalender`, `Ranglisten`, `Turnieransicht`) und als `subtitleText` den vollständigen Breadcrumb-Pfad (z. B. `Karrieren > <Karrierename>`).
+- **Debug-Modus:** Alle Schnell-Simulations-Buttons (`Komplettes Turnier simulieren`, `CPU simulieren`, `Match simulieren`) dürfen nur sichtbar sein, wenn in den Einstellungen (`SettingsManager`) `debugMode == true` ist (Default: `true`).
