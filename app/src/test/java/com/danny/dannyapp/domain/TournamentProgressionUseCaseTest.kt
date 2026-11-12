@@ -395,6 +395,7 @@ class TournamentProgressionUseCaseTest {
         override suspend fun getPlacementsListForTournament(tournamentId: Long): List<TournamentPlacement> = placements.filter { it.tournamentId == tournamentId }
         override fun getPlacementsForPlayer(playerId: Long): Flow<List<TournamentPlacement>> = flowOf(placements.filter { it.playerId == playerId })
         override suspend fun getPlacementsForSeasons(seasonIds: List<Long>): List<TournamentPlacement> = placements
+        override fun getPlacementsFlowForSeasons(seasonIds: List<Long>): Flow<List<TournamentPlacement>> = flowOf(placements)
         override suspend fun insertPlacement(placement: TournamentPlacement): Long {
             val assignedId = if (placement.id == 0L) idCounter++ else placement.id
             val item = placement.copy(id = assignedId)
@@ -445,6 +446,9 @@ class TournamentProgressionUseCaseTest {
 
         override suspend fun getMatchesListForTournament(tournamentId: Long): List<TournamentMatch> =
             matches.filter { it.tournamentId == tournamentId }
+
+        override fun getMatchesFlowForSeason(seasonId: Long): Flow<List<TournamentMatch>> =
+            flowOf(matches)
 
         override suspend fun getMatchById(id: Long): TournamentMatch? = matches.find { it.id == id }
 

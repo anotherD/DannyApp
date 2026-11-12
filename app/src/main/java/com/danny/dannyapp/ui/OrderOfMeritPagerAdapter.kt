@@ -5,7 +5,9 @@ import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.danny.dannyapp.domain.model.OrderOfMeritType
 
-class OrderOfMeritPagerAdapter(activity: FragmentActivity) : FragmentStateAdapter(activity) {
+class OrderOfMeritPagerAdapter : FragmentStateAdapter {
+    constructor(activity: FragmentActivity) : super(activity)
+    constructor(fragment: Fragment) : super(fragment)
 
     private val types = listOf(
         OrderOfMeritType.OOM,

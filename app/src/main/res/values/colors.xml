@@ -31,18 +31,13 @@
 
     <color name="eingabe_hint">#FF757575</color>
 
-    <!-- Das edle Rot-Konzept (Satter & Kräftiger, kein Orange) -->
-<!--    <color name="rot">#E50914</color>             &lt;!&ndash; Sattes, kräftiges Rubinrot für Hauptbuttons &ndash;&gt;-->
-<!--    <color name="rot_dunkel">#990000</color>      &lt;!&ndash; Sattes dunkles Rot für gedrückte Zustände &ndash;&gt;-->
-<!--    <color name="rot_hell">#FF1A1A</color>        &lt;!&ndash; Kräftiges Signalrot für Highlights &ndash;&gt;-->
-
-    <!-- Das edle Schwarz/Anthrazit-Konzept -->
-<!--    <color name="bg_amoled">#000000</color>            &lt;!&ndash; Der eigentliche App-Hintergrund &ndash;&gt;-->
-<!--    <color name="surface_anthrazit">#1E1E1E</color>    &lt;!&ndash; Karten, Eingabefelder, Bottom Sheets &ndash;&gt;-->
-<!--    <color name="surface_grau_heller">#2D2D2D</color>  &lt;!&ndash; Für feine Linien, Rahmen oder Trenner (Borders) &ndash;&gt;-->
-
-    <!-- Knallharte Textfarben-Zuweisung -->
-<!--    <color name="text_primar">#FFFFFF</color>          &lt;!&ndash; Überschriften, wichtiger Text (Immer Weiß) &ndash;&gt;-->
-<!--    <color name="text_sekundar">#B3B3B3</color>        &lt;!&ndash; Beschreibungstexte, Labels (Edles Mattgrau) &ndash;&gt;-->
-<!--    <color name="text_deaktiviert">#666666</color>     &lt;!&ndash; Für ausgegraute, inaktive Elemente &ndash;&gt;-->
+    <!-- Badge & Status Colors -->
+    <color name="badge_major">#D49B1A</color>
+    <color name="badge_major_qualifier">#6E520A</color>
+    <color name="badge_et_qualifier">#5C1414</color>
+    <color name="badge_european_tour">#B71C1C</color>
+    <color name="badge_players_championship">#383838</color>
+    <color name="status_active">#C62828</color>
+    <color name="status_completed">#383838</color>
+    <color name="status_planned">#5C1414</color>
 </resources>

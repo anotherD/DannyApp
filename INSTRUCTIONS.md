@@ -17,3 +17,12 @@
 - **Strings-Pflicht:** Alle sichtbaren UI-Texte, Labels, Turniertypen und Status-Bezeichnungen müssen zwingend in `app/src/main/res/values/strings.xml` gepflegt werden (keine hartcodierten deutschen Texte im Kotlin-Code).
 - **Top-Bar Breadcrumb-Standard:** Jede Unterseite zeigt als `titleText` exakt den Namen des aufrufenden Buttons/Bereichs (z. B. `Saisonkalender`, `Ranglisten`, `Turnieransicht`) und als `subtitleText` den vollständigen Breadcrumb-Pfad (z. B. `Karrieren > <Karrierename>`).
 - **Debug-Modus:** Alle Schnell-Simulations-Buttons (`Komplettes Turnier simulieren`, `CPU simulieren`, `Match simulieren`) dürfen nur sichtbar sein, wenn in den Einstellungen (`SettingsManager`) `debugMode == true` ist (Default: `true`).
+- **Reaktive Datenströme (Room `Flow` & `DiffUtil`):** Beobachte Datenbankänderungen konsequent über reaktive Room-`Flow`s und `ListAdapter` (`DiffUtil`), statt Listen manuell neu zu laden – so aktualisiert sich die UI bei Rücknavigation automatisch und effizient.
+- **Zentrales Farbschema (`colors.xml`):** Alle UI- und Badge-Farben müssen zentral in `app/src/main/res/values/colors.xml` definiert werden (keine hartcodierten Hex-Codes im Kotlin-Code).
+- **Farbkodierung der Turniertyp-Badges (über `colors.xml`):**
+  - `MAJOR`: Gold-Ton
+  - `QUALIFIER_GRAND_SLAM`, `QUALIFIER_WM` (Major-Qualifier): Dunkelgold
+  - `QUALIFIER_ET` (ET-Qualifier): Dunkelrot
+  - `EUROPEAN_TOUR`: Rubinrot
+  - `PLAYERS_CHAMPIONSHIP`: Neutrales Dunkelgrau
+

@@ -16,46 +16,17 @@
         android:padding="12dp">
 
         <TextView
-            android:id="@+id/tvTournamentOrder"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="?attr/colorOnSurfaceVariant"
-            android:textSize="12sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="#1" />
-
-        <TextView
-            android:id="@+id/tvTournamentTypeBadge"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="6dp"
-            android:background="@drawable/bg_major_badge"
-            android:paddingHorizontal="6dp"
-            android:paddingVertical="2dp"
-            android:textColor="@color/white"
-            android:textSize="10sp"
-            android:textStyle="bold"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="@id/tvTournamentOrder"
-            app:layout_constraintStart_toEndOf="@id/tvTournamentOrder"
-            app:layout_constraintTop_toTopOf="@id/tvTournamentOrder"
-            tools:text="MAJOR"
-            tools:visibility="visible" />
-
-        <TextView
             android:id="@+id/tvTournamentName"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
             android:textColor="?attr/colorOnSurface"
             android:textSize="16sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toStartOf="@id/tvTournamentStatus"
-            app:layout_constraintStart_toEndOf="@id/tvTournamentTypeBadge"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="Players Championship 1" />
+            tools:text="#1 Players Championship 1" />
 
         <TextView
             android:id="@+id/tvTournamentStatus"
@@ -68,43 +39,44 @@
             android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="Aktiv" />
+            tools:text="Aktiv • Achtelfinale" />
 
         <TextView
-            android:id="@+id/tvTournamentDetails"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:textColor="?attr/colorOnSurfaceVariant"
-            android:textSize="14sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvTournamentName"
-            tools:text="Host: ENG | Prize Fund: £150,000" />
-
-        <Button
-            android:id="@+id/btnSimulateTournament"
-            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:id="@+id/tvTournamentTypeBadge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:visibility="gone"
-            app:layout_constraintEnd_toStartOf="@id/btnStartTournament"
-            app:layout_constraintTop_toBottomOf="@id/tvTournamentDetails"
-            tools:text="Turnier simulieren"
-            tools:visibility="visible" />
+            android:background="@drawable/bg_major_badge"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="4dp"
+            android:textColor="@color/white"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvTournamentName"
+            tools:text="Major" />
+
+        <TextView
+            android:id="@+id/tvTournamentDetails"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvTournamentName"
+            tools:text="🇩🇪 Hildesheim" />
 
         <Button
             android:id="@+id/btnStartTournament"
             style="@style/Widget.Material3.Button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="10dp"
             android:text="@string/tournament_start"
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvTournamentDetails"
+            app:layout_constraintTop_toBottomOf="@id/tvTournamentTypeBadge"
             tools:visibility="visible" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

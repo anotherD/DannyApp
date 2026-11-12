@@ -166,6 +166,7 @@ class GetOrderOfMeritUseCaseTest {
         override suspend fun getPlacementsListForTournament(tournamentId: Long): List<TournamentPlacement> = placements.filter { it.tournamentId == tournamentId }
         override fun getPlacementsForPlayer(playerId: Long): Flow<List<TournamentPlacement>> = flowOf(placements.filter { it.playerId == playerId })
         override suspend fun getPlacementsForSeasons(seasonIds: List<Long>): List<TournamentPlacement> = placements
+        override fun getPlacementsFlowForSeasons(seasonIds: List<Long>): Flow<List<TournamentPlacement>> = flowOf(placements)
         override suspend fun insertPlacement(placement: TournamentPlacement): Long = 1L
         override suspend fun insertPlacements(placements: List<TournamentPlacement>) {}
         override suspend fun updatePlacement(placement: TournamentPlacement) {}

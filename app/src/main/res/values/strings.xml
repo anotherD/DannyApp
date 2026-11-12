@@ -17,6 +17,7 @@
     <string name="career_current_format">Aktuelle Karriere:\n%s\nLevel: %d</string>
     <string name="career">Karrieren</string>
     <string name="breadcrumb_format">Karrieren > %s</string>
+    <string name="tab_overview">Übersicht</string>
     <string name="tab_calendar">Saisonkalender</string>
     <string name="tab_tournament_view">Turnieransicht</string>
     <string name="tab_oom">Ranglisten</string>
@@ -24,6 +25,27 @@
     <string name="tournament_type_european_tour">European Tour</string>
     <string name="tournament_type_major">Major</string>
     <string name="tournament_type_qualifier">Qualifier</string>
+    <string name="tournament_type_major_qualifier">Major-Qualifier</string>
+    <string name="tournament_type_et_qualifier">ET-Qualifier</string>
+    <string name="current_or_next_tournament">Aktuelles / Nächstes Turnier</string>
+    <string name="no_active_or_next_tournament">Kein aktives oder nächstes Turnier vorhanden.</string>
+    <string name="tournament_status_active_format">Aktiv • %s</string>
+
+    <string name="round_winner">Turniersieger</string>
+    <string name="round_f">Finale</string>
+    <string name="round_sf">Halbfinale</string>
+    <string name="round_qf">Viertelfinale</string>
+    <string name="round_l16">Achtelfinale</string>
+    <string name="round_l32">Last 32</string>
+    <string name="round_l48">Last 48</string>
+    <string name="round_l64">Last 64</string>
+    <string name="round_l128">Last 128</string>
+    <string name="round_r3_96">Runde 3</string>
+    <string name="round_r2_128">Runde 2</string>
+    <string name="round_r1_160">Runde 1</string>
+    <string name="round_group_2nd">Gruppenphase (Platz 2)</string>
+    <string name="round_group_3rd">Gruppenphase (Platz 3)</string>
+    <string name="round_group">Gruppenphase</string>
     <string name="career_level_format">Level %d</string>
     <string name="career_delete_title">Karriere löschen</string>
     <string name="career_delete_message">Möchtest du die Karriere \'%s\' wirklich löschen?</string>
