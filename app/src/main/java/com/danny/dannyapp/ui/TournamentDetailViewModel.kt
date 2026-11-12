@@ -539,33 +539,30 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         }
     }
 
-    fun setManualUserMatchScore(matchId: Long, p1Score: Int, p2Score: Int): String? {
-        var validationError: String? = null
-        viewModelScope.launch {
-            val match = tournamentMatchDao.getMatchById(matchId) ?: return@launch
-            if (match.isCompleted) return@launch
+    suspend fun setManualUserMatchScore(matchId: Long, p1Score: Int, p2Score: Int): String? {
+        val match = tournamentMatchDao.getMatchById(matchId) ?: return "Match nicht gefunden."
+        if (match.isCompleted) return "Match ist bereits beendet."
 
-            val tournament = tournamentDao.getTournamentById(match.tournamentId) ?: return@launch
-            val event = TournamentEvent.valueOf(tournament.type)
-            val round = TournamentRound.valueOf(match.round)
-            val dist = event.getMatchDistance(round)
+        val tournament = tournamentDao.getTournamentById(match.tournamentId) ?: return "Turnier nicht gefunden."
+        val event = TournamentEvent.valueOf(tournament.type)
+        val round = TournamentRound.valueOf(match.round)
+        val dist = event.getMatchDistance(round)
 
-            validationError = validateMatchScore(p1Score, p2Score, dist)
-            if (validationError != null) return@launch
+        val validationError = validateMatchScore(p1Score, p2Score, dist)
+        if (validationError != null) return validationError
 
-            val winnerId = if (p1Score > p2Score) match.player1Id else match.player2Id
+        val winnerId = if (p1Score > p2Score) match.player1Id else match.player2Id
 
-            val updated = match.copy(
-                player1Score = p1Score,
-                player2Score = p2Score,
-                winnerId = winnerId,
-                isCompleted = true
-            )
+        val updated = match.copy(
+            player1Score = p1Score,
+            player2Score = p2Score,
+            winnerId = winnerId,
+            isCompleted = true
+        )
 
-            tournamentMatchDao.updateMatch(updated)
-            refreshState()
-        }
-        return validationError
+        tournamentMatchDao.updateMatch(updated)
+        refreshState()
+        return null
     }
 
     private fun generateScoresForWinner(
@@ -576,7 +573,11 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
     ): Triple<Int, Int, Long> {
         val target = (dist.bestOf / 2) + 1
         val loserScore = Random.nextInt(0, target)
-        val winnerScore = target
+        var winnerScore = target
+
+        if (dist.format == MatchFormatType.LEGS && dist.twoClearLegsRule && loserScore == target - 1) {
+            winnerScore = target + 1
+        }
 
         val p1Score = if (isP1Winner) winnerScore else loserScore
         val p2Score = if (isP1Winner) loserScore else winnerScore

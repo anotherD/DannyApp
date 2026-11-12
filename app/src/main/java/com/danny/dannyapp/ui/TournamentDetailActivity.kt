@@ -269,8 +269,16 @@ class TournamentDetailActivity : BaseActivity() {
                 }
 
                 // Switches
+                switchAutoSimulateCpu.setOnCheckedChangeListener(null)
+                switchAutoAdvanceRound.setOnCheckedChangeListener(null)
                 switchAutoSimulateCpu.isChecked = state.autoSimulateCpu
                 switchAutoAdvanceRound.isChecked = state.autoAdvanceRound
+                switchAutoSimulateCpu.setOnCheckedChangeListener { _, isChecked ->
+                    viewModel.updateAutoSimulateCpu(isChecked)
+                }
+                switchAutoAdvanceRound.setOnCheckedChangeListener { _, isChecked ->
+                    viewModel.updateAutoAdvanceRound(isChecked)
+                }
 
                 activeMatchesAdapter.submitList(state.matches)
             }
@@ -371,23 +379,32 @@ class TournamentDetailActivity : BaseActivity() {
         layout.addView(etP1)
         layout.addView(etP2)
 
-        AlertDialog.Builder(this)
+        val dialog = AlertDialog.Builder(this)
             .setTitle("Ergebnis manuell eingeben")
             .setView(layout)
-            .setPositiveButton("Speichern") { _, _ ->
+            .setPositiveButton("Speichern", null)
+            .setNegativeButton("Abbrechen", null)
+            .create()
+
+        dialog.setOnShowListener {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
                 val p1 = etP1.text.toString().toIntOrNull() ?: -1
                 val p2 = etP2.text.toString().toIntOrNull() ?: -1
                 if (p1 < 0 || p2 < 0) {
                     Toast.makeText(this, "Bitte gültige Zahlen eingeben.", Toast.LENGTH_SHORT).show()
-                    return@setPositiveButton
+                    return@setOnClickListener
                 }
-                val error = viewModel.setManualUserMatchScore(matchModel.match.id, p1, p2)
-                if (error != null) {
-                    Toast.makeText(this, error, Toast.LENGTH_LONG).show()
+                lifecycleScope.launch {
+                    val error = viewModel.setManualUserMatchScore(matchModel.match.id, p1, p2)
+                    if (error != null) {
+                        Toast.makeText(this@TournamentDetailActivity, error, Toast.LENGTH_LONG).show()
+                    } else {
+                        dialog.dismiss()
+                    }
                 }
             }
-            .setNegativeButton("Abbrechen", null)
-            .show()
+        }
+        dialog.show()
     }
 
     private fun showLiveGameEnginePlaceholder() {
