@@ -2,38 +2,107 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
-    android:viewportWidth="108"
-    android:viewportHeight="108">
+    android:viewportWidth="512"
+    android:viewportHeight="512">
 
-    <path
-        android:fillColor="#D32F2F"
-        android:pathData="M54,28 L33,44 L37,65 L54,58 Z" />
+    <group
+        android:pivotX="256"
+        android:pivotY="256"
+        android:scaleX="0.72"
+        android:scaleY="0.72">
 
-    <path
-        android:fillColor="#9A0007"
-        android:pathData="M54,28 L75,44 L71,65 L54,58 Z" />
+        <!-- Aufsteigende Statistik-Balken in abgestuften Grautönen -->
+        <path
+            android:fillColor="#222222"
+            android:pathData="M110,320 h36 v105 h-36 z" />
+        <path
+            android:fillColor="#2C2C2C"
+            android:pathData="M160,275 h36 v150 h-36 z" />
+        <path
+            android:fillColor="#383838"
+            android:pathData="M316,225 h36 v200 h-36 z" />
+        <path
+            android:fillColor="#444444"
+            android:pathData="M366,170 h36 v255 h-36 z" />
 
-    <path
-        android:fillColor="#FFD700"
-        android:pathData="M52.5,25 L55.5,25 L55.5,73 L52.5,73 Z" />
+        <!-- Größerer Pokal: Henkel, Schaft & Sockel -->
+        <path
+            android:fillColor="#00000000"
+            android:pathData="M148,185 C96,185 96,280 158,285"
+            android:strokeWidth="16"
+            android:strokeColor="#FFD700"
+            android:strokeLineCap="round" />
+        <path
+            android:fillColor="#00000000"
+            android:pathData="M364,185 C416,185 416,280 354,285"
+            android:strokeWidth="16"
+            android:strokeColor="#FFD700"
+            android:strokeLineCap="round" />
+        <path
+            android:fillColor="#FFD700"
+            android:pathData="M238,325 h36 v60 h-36 z" />
+        <path
+            android:fillColor="#D49B1A"
+            android:pathData="M180,385 L332,385 L348,425 L164,425 Z" />
+        <!-- Rubinrote Zierleiste am Pokalsockel -->
+        <path
+            android:fillColor="#D32F2F"
+            android:pathData="M204,398 h104 v12 h-104 z" />
 
-    <path
-        android:fillColor="#F5F5F5"
-        android:pathData="M51.5,58 L56.5,58 L56,74 L52,74 Z" />
-    <path
-        android:fillColor="#757575"
-        android:pathData="M51.8,62 L56.2,62 L56.2,63.5 L51.8,63.5 Z" />
-    <path
-        android:fillColor="#757575"
-        android:pathData="M51.9,66 L56.1,66 L56.1,67.5 L51.9,67.5 Z" />
+        <!-- Vergrößerte Dartscheibe als Pokalkopf -->
+        <path
+            android:fillColor="#141414"
+            android:pathData="M256,104 A114,114 0 1,1 255.9,104 Z"
+            android:strokeWidth="8"
+            android:strokeColor="#FFD700" />
 
-    <path
-        android:fillColor="#BDBDBD"
-        android:pathData="M53,74 L55,74 L54,84 Z" />
+        <!-- Cremeweiße Sektoren -->
+        <path
+            android:fillColor="#F4F1EA"
+            android:pathData="M256,218 L289,113 A110,110 0 0,1 320,129 Z" />
+        <path
+            android:fillColor="#F4F1EA"
+            android:pathData="M256,218 L348,160 A110,110 0 0,1 364,195 Z" />
+        <path
+            android:fillColor="#F4F1EA"
+            android:pathData="M256,218 L364,241 A110,110 0 0,1 348,276 Z" />
+        <path
+            android:fillColor="#F4F1EA"
+            android:pathData="M256,218 L320,307 A110,110 0 0,1 289,323 Z" />
+        <path
+            android:fillColor="#F4F1EA"
+            android:pathData="M256,218 L223,323 A110,110 0 0,1 192,307 Z" />
+        <path
+            android:fillColor="#F4F1EA"
+            android:pathData="M256,218 L164,276 A110,110 0 0,1 148,241 Z" />
+        <path
+            android:fillColor="#F4F1EA"
+            android:pathData="M256,218 L148,195 A110,110 0 0,1 164,160 Z" />
+        <path
+            android:fillColor="#F4F1EA"
+            android:pathData="M256,218 L192,129 A110,110 0 0,1 223,113 Z" />
 
-    <path
-        android:fillColor="#00000000"
-        android:pathData="M45,84 A9,3.5 0 1,0 63,84 A9,3.5 0 1,0 44,85 Z"
-        android:strokeWidth="1.5"
-        android:strokeColor="#FFD700" />
+        <!-- Double- und Triple-Ringe (Rubinrot) -->
+        <path
+            android:fillColor="#00000000"
+            android:pathData="M256,118 A100,100 0 1,1 255.9,118 Z"
+            android:strokeWidth="10"
+            android:strokeColor="#D32F2F" />
+        <path
+            android:fillColor="#00000000"
+            android:pathData="M256,156 A62,62 0 1,1 255.9,156 Z"
+            android:strokeWidth="10"
+            android:strokeColor="#D32F2F" />
+
+        <!-- Bull & Bullseye -->
+        <path
+            android:fillColor="#7F0000"
+            android:pathData="M256,200 A18,18 0 1,1 255.9,200 Z"
+            android:strokeWidth="2.5"
+            android:strokeColor="#FFD700" />
+        <path
+            android:fillColor="#FF1744"
+            android:pathData="M256,210 A8,8 0 1,1 255.9,210 Z" />
+
+    </group>
 </vector>
