@@ -47,7 +47,8 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
     *   PC 21 – 24 (Leicester / Hildesheim): `"ENG"`, `"GER"`, `"ENG"`, `"GER"`
     *   PC 25 – 26 (Leicester, England): `"ENG"` (2x)
     *   PC 27 – 30 (Leicester / Den Bosch): `"ENG"`, `"NED"`, `"ENG"`, `"NED"`
-    *   PC 31 – 34 (Wigan / Den Bosch): `"ENG"`, `"NED"`, `"ENG"`, `"NED"`
+    *   PC 27 – 30 (Leicester / Den Bosch): `"ENG"`, `"NED"`, `"ENG"`, `"NED"`
+    *   PC 31 – 34 (Wigan / Maastricht): `"ENG"`, `"NED"`, `"NED"`, `"NED"`
 *   **Auslosung:** Top 32 der *Pro Tour Order of Merit* sind gesetzt und werden im Bracket verteilt. Die restlichen 96 Spieler werden frei zugelost. Da beim Start einer Karriere die *Pro Tour Order of Merit* noch leer ist, werden hierfür die Top 32 zufällig ermittelt.
 *   **Preisgeldaufschlüsselung (Gesamt: £150.000 pro Event):**
 
@@ -70,22 +71,22 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
 
 ### 2.2 European Tour (ET) & ET Tour Card Holder Qualifier (`QUALIFIER_ET`)
 *   **ET Qualifier (`QUALIFIER_ET`):** Vor jedem der 15 European Tour Events findet ein Tour Card Holder Qualifier statt (`hostCountry` identisch zum Hauptturnier). Daran nehmen **alle** nicht-vorqualifizierten Tour-Card-Inhaber (inkl. `USER_ID = -1L`) teil. Das Turnier läuft im K.o.-Modus (Best of 11 Legs, mit Vorrunde/Freilosen bei auffüllender Zweierpotenz), bis exakt 10 Sieger (Qualifikanten) feststehen (£0 Preisgeld).
-*   **Die 15 European Tour Events (Stand 2027 inklusive Frankreich):**
-    1. Belgian Darts Open (`"BEL"`)
-    2. German Darts Championship (`"GER"`)
-    3. Austrian Darts Open (`"AUT"`)
-    4. International Darts Open (`"GER"`)
-    5. European Darts Grand Prix (`"GER"`)
-    6. Dutch Darts Championship (`"NED"`)
-    7. European Darts Open (`"GER"`)
-    8. French Darts Open (`"FRA"`) – *Neues Event 2027*
-    9. Baltic Sea Darts Open (`"GER"`)
-    10. Hungarian Darts Trophy (`"HUN"`)
-    11. Czech Darts Open (`"CZE"`)
-    12. Swiss Darts Trophy (`"SUI"`)
-    13. German Darts Grand Prix (`"GER"`)
-    14. Elten Safety Darts Trophy (`"GER"`)
-    15. Flanders Darts Trophy (`"BEL"`)
+*   **Die 15 European Tour Events (exakte offizielle Reihenfolge 2027 inklusive Frankreich und Slowakei):**
+    1. Baltic Sea Darts Open (`"GER"`)
+    2. Poland Darts Open (`"POL"`)
+    3. International Darts Open (`"GER"`)
+    4. Darts Grand Prix de France (`"FRA"`) – *Neues Event 2027*
+    5. German Darts Grand Prix (`"GER"`)
+    6. European Darts Grand Prix (`"GER"`)
+    7. European Darts Trophy (`"GER"`)
+    8. Austrian Darts Open (`"AUT"`)
+    9. Czech Darts Open (`"CZE"`)
+    10. German Darts Open (`"GER"`)
+    11. Slovak Darts Open (`"SVK"`) – *Neues Event 2027*
+    12. Belgian Darts Open (`"BEL"`)
+    13. Swiss Darts Trophy (`"SUI"`)
+    14. Hungarian Darts Trophy (`"HUN"`)
+    15. Dutch Darts Championship (`"NED"`)
 *   **Teilnehmer (European Tour):** 48 Spieler.
 *   **Zusammensetzung & Qualifikation:**
     1. Top 16 der Order of Merit
@@ -241,7 +242,7 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
 | **Letzte 32 (R1-Verlierer)** | `L32` | 16 | £7.500 |
 
 *   **Ausnahmen & Besonderheiten:** Alle 32 Teilnehmer erhalten bei regulärer Teilnahme mindestens £7.500 voll für die Order of Merit angerechnet.
-*   *(Hinweis für zukünftige Saison-Updates: Für 2026 gilt das obige 32er-Feld mit £750.000; ab Herbst 2027 erweitert die PDC die European Championship auf 48 Spieler und £1.000.000 Preisgeld).*
+*   **Wichtiger Hinweis zu 2027er Reformen (Bestätigt durch PDC-Ankündigung vom 25.09.2026):** Die European Championship wird ab Herbst 2027 auf 48 Spieler und £1.000.000 Preisgeld in Dortmund erweitert. Detaillierte Preisgeld-Aufschlüsselung pro Runde und der exakte Qualifikationsschlüssel für das 48er-Feld sind von der PDC noch nicht veröffentlicht – daher wird in der App vorerst das bestehende 32er-Schema beibehalten.
 
 #### 2.6 Grand Slam of Darts (MAJOR_GROUP) & Qualifier (`QUALIFIER_GRAND_SLAM`)
 *   **Gastgeberland:** England (`"ENG"`)
@@ -324,7 +325,7 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
 | **Letzte 64 (R1-Verlierer)** | `L64` | 32 | £4.000 |
 
 *   **Ausnahmen & Besonderheiten:** Alle 64 Teilnehmer erhalten bei regulärer Teilnahme mindestens £4.000 voll für die Order of Merit angerechnet.
-*   *(Hinweis für zukünftige Saison-Updates: Für 2026 gilt das 64er-Feld; ab 2027 plant die PDC eine Erweiterung der Players Championship Finals auf 128 Spieler).*
+*   **Wichtiger Hinweis zu 2027er Reformen (Bestätigt durch PDC-Ankündigung vom 25.09.2026):** Die Players Championship Finals werden ab 2027 auf 128 Spieler im Mehrbrett-Modus in Minehead erweitert. Detaillierte Preisgeldverteilung und Setzlisten-Regeln für das 128er-Feld sind von der PDC noch nicht veröffentlicht – daher wird in der App vorerst das bestehende 64er-Schema beibehalten.
 
 #### 2.8 World Championship (MAJOR_SET) & Qualifier (`QUALIFIER_WM`)
 *   **Gastgeberland:** England (`"ENG"`)

@@ -43,25 +43,25 @@ class GenerateSeasonCalendarUseCase(
             "ENG", "GER", "ENG", "GER", // PC 21 – 24 (Leicester / Hildesheim)
             "ENG", "ENG",               // PC 25 – 26 (Leicester)
             "ENG", "NED", "ENG", "NED", // PC 27 – 30 (Leicester / Den Bosch)
-            "ENG", "NED", "ENG", "NED"  // PC 31 – 34 (Wigan / Den Bosch)
+            "ENG", "NED", "NED", "NED"  // PC 31 – 34 (Wigan / Maastricht)
         )
 
         val etList = listOf(
-            EtEventInfo("Belgian Darts Open", "BEL"),
-            EtEventInfo("German Darts Championship", "GER"),
-            EtEventInfo("Austrian Darts Open", "AUT"),
-            EtEventInfo("International Darts Open", "GER"),
-            EtEventInfo("European Darts Grand Prix", "GER"),
-            EtEventInfo("Dutch Darts Championship", "NED"),
-            EtEventInfo("European Darts Open", "GER"),
-            EtEventInfo("French Darts Open", "FRA"),
             EtEventInfo("Baltic Sea Darts Open", "GER"),
-            EtEventInfo("Hungarian Darts Trophy", "HUN"),
-            EtEventInfo("Czech Darts Open", "CZE"),
-            EtEventInfo("Swiss Darts Trophy", "SUI"),
+            EtEventInfo("Poland Darts Open", "POL"),
+            EtEventInfo("International Darts Open", "GER"),
+            EtEventInfo("Darts Grand Prix de France", "FRA"),
             EtEventInfo("German Darts Grand Prix", "GER"),
-            EtEventInfo("Elten Safety Darts Trophy", "GER"),
-            EtEventInfo("Flanders Darts Trophy", "BEL")
+            EtEventInfo("European Darts Grand Prix", "GER"),
+            EtEventInfo("European Darts Trophy", "GER"),
+            EtEventInfo("Austrian Darts Open", "AUT"),
+            EtEventInfo("Czech Darts Open", "CZE"),
+            EtEventInfo("German Darts Open", "GER"),
+            EtEventInfo("Slovak Darts Open", "SVK"),
+            EtEventInfo("Belgian Darts Open", "BEL"),
+            EtEventInfo("Swiss Darts Trophy", "SUI"),
+            EtEventInfo("Hungarian Darts Trophy", "HUN"),
+            EtEventInfo("Dutch Darts Championship", "NED")
         )
 
         fun addPc() {

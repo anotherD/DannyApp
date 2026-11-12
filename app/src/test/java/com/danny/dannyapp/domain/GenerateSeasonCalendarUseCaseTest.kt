@@ -54,8 +54,8 @@ class GenerateSeasonCalendarUseCaseTest {
         assertEquals(1, qualWmCount)
         assertEquals(8, majorCount)
 
-        // Verify French Darts Open event exists (new in 2027)
-        val frenchEvent = tournaments.find { it.name == "French Darts Open" }
+        // Verify Darts Grand Prix de France event exists (new in 2027)
+        val frenchEvent = tournaments.find { it.name == "Darts Grand Prix de France" }
         assertNotNull(frenchEvent)
         assertEquals("FRA", frenchEvent?.hostCountry)
 

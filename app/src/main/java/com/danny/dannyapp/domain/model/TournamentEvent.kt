@@ -7,8 +7,10 @@ enum class TournamentEvent(val totalPrizeFund: Double) {
     EUROPEAN_OPEN(750_000.0),
     WORLD_MATCHPLAY(1_000_000.0),
     WORLD_GRAND_PRIX(750_000.0),
+    // 2027-Update angekündigt (PDC 25.09.2026): Erweiterung auf 48 Spieler und £1.000.000 Preisgeld in Dortmund. Detaillierte Preisgeld-Aufschlüsselung pro Runde und Qualifikationsschlüssel sind von der PDC noch nicht veröffentlicht – daher vorerst 32er-Schema.
     EUROPEAN_CHAMPIONSHIP(750_000.0),
     GRAND_SLAM_OF_DARTS(1_000_000.0),
+    // 2027-Update angekündigt (PDC 25.09.2026): Erweiterung auf 128 Spieler im Mehrbrett-Modus in Minehead. Detaillierte Preisgeldverteilung und Setzlisten-Regeln für 128 Spieler sind von der PDC noch nicht veröffentlicht – daher vorerst 64er-Schema.
     PLAYERS_CHAMPIONSHIP_FINALS(750_000.0),
     WORLD_CHAMPIONSHIP(5_000_000.0),
     QUALIFIER_ET(0.0),
