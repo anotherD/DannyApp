@@ -49,15 +49,12 @@ class ConfigPlayerAdapter : ListAdapter<Player, ConfigPlayerAdapter.PlayerViewHo
         }
         holder.tvPlayerSkill.text = "L${player.skill}"
         
-        // 10-stufiges Farbschema für Level 1 bis 10 (Dark-Mode optimiert)
-        val skillColor = getSkillColor(player.skill)
+        val skillColor = getSkillColor(context, player.skill)
         holder.tvPlayerSkill.setTextColor(skillColor)
         (holder.itemView as? com.google.android.material.card.MaterialCardView)?.strokeColor = skillColor
 
         if (player.hasTourCard) {
             holder.layoutTourCards.visibility = View.VISIBLE
-            // tourCardYear == 1 ist das 1. Jahr -> 2 Tickets gestapelt (zweites Ticket sichtbar)
-            // tourCardYear == 2 ist das 2. Jahr -> 1 Ticket (zweites Ticket ausgeblendet)
             if (player.tourCardYear == 1) {
                 holder.tvTourCardSecond.visibility = View.VISIBLE
             } else {
@@ -68,24 +65,20 @@ class ConfigPlayerAdapter : ListAdapter<Player, ConfigPlayerAdapter.PlayerViewHo
         }
     }
 
-    private fun getSkillColor(level: Int): Int {
-        val index = (level - 1).coerceIn(0, SKILL_COLORS.size - 1)
-        return SKILL_COLORS[index]
-    }
-
-    companion object {
-        private val SKILL_COLORS = intArrayOf(
-            android.graphics.Color.parseColor("#4FC3F7"), // Level 1: Cyan
-            android.graphics.Color.parseColor("#26A69A"), // Level 2: Teal
-            android.graphics.Color.parseColor("#66BB6A"), // Level 3: Green
-            android.graphics.Color.parseColor("#9CCC65"), // Level 4: Light Green
-            android.graphics.Color.parseColor("#FFEE58"), // Level 5: Yellow
-            android.graphics.Color.parseColor("#FFA726"), // Level 6: Orange
-            android.graphics.Color.parseColor("#FF7043"), // Level 7: Deep Orange
-            android.graphics.Color.parseColor("#FF1744"), // Level 8: Vivid Red (Stärkerer Kontrast zu Orange)
-            android.graphics.Color.parseColor("#AB47BC"), // Level 9: Purple
-            android.graphics.Color.parseColor("#FFD700")  // Level 10: Gold
-        )
+    private fun getSkillColor(context: android.content.Context, level: Int): Int {
+        val resId = when (level.coerceIn(1, 10)) {
+            1 -> R.color.skill_level_1
+            2 -> R.color.skill_level_2
+            3 -> R.color.skill_level_3
+            4 -> R.color.skill_level_4
+            5 -> R.color.skill_level_5
+            6 -> R.color.skill_level_6
+            7 -> R.color.skill_level_7
+            8 -> R.color.skill_level_8
+            9 -> R.color.skill_level_9
+            else -> R.color.skill_level_10
+        }
+        return androidx.core.content.ContextCompat.getColor(context, resId)
     }
 
     private class VerticalCenteredImageSpan(
@@ -105,7 +98,6 @@ class ConfigPlayerAdapter : ListAdapter<Player, ConfigPlayerAdapter.PlayerViewHo
         ) {
             val b = drawable
             canvas.save()
-            // y ist die Baseline des Textes. Wir verschieben das Bild um verticalOffsetPx nach unten.
             canvas.translate(x, (y - b.bounds.height() + verticalOffsetPx).toFloat())
             b.draw(canvas)
             canvas.restore()

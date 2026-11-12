@@ -165,8 +165,9 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         }
 
         val allTournaments = tournamentDao.getTournamentsListForSeason(tournament.seasonId).sortedBy { it.order }
-        val earliestPlanned = allTournaments.firstOrNull { !it.isCompleted && tournamentMatchDao.getMatchesListForTournament(it.id).isEmpty() }
-        val isNextPlanned = earliestPlanned?.id == tournament.id
+        val hasActiveTournament = allTournaments.any { t -> !t.isCompleted && tournamentMatchDao.getMatchesListForTournament(t.id).isNotEmpty() }
+        val earliestPlanned = allTournaments.firstOrNull { t -> !t.isCompleted && tournamentMatchDao.getMatchesListForTournament(t.id).isEmpty() }
+        val isNextPlanned = !hasActiveTournament && (earliestPlanned?.id == tournament.id)
 
         _uiState.value = TournamentDetailState.Preview(
             tournament = tournament,
@@ -438,8 +439,11 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
                 Pair(p?.name ?: "CPU #${m.player1Id}", Country.getFlagEmoji(p?.countryCode ?: "ENG"))
             }
         }
-        val p1Skill = if (isP1User) userLevel else allPlayersMap[m.player1Id]?.skill ?: 5
-
+        val p1CountryCode = when (m.player1Id) {
+            USER_ID -> userCountryCode
+            -998L, -999L -> "ENG"
+            else -> allPlayersMap[m.player1Id]?.countryCode ?: "ENG"
+        }
         val (p2Name, p2Flag) = when (m.player2Id) {
             USER_ID -> Pair(userName, Country.getFlagEmoji(userCountryCode))
             -998L -> Pair(app.getString(R.string.tournament_placeholder_unknown), "")
@@ -455,6 +459,13 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
                 Pair(p?.name ?: "CPU #${m.player2Id}", Country.getFlagEmoji(p?.countryCode ?: "ENG"))
             }
         }
+        val p2CountryCode = when (m.player2Id) {
+            USER_ID -> userCountryCode
+            -998L, -999L -> "ENG"
+            else -> allPlayersMap[m.player2Id]?.countryCode ?: "ENG"
+        }
+
+        val p1Skill = if (isP1User) userLevel else allPlayersMap[m.player1Id]?.skill ?: 5
         val p2Skill = if (isP2User) userLevel else allPlayersMap[m.player2Id]?.skill ?: 5
 
         val scoreText = if (m.isCompleted) "${m.player1Score} : ${m.player2Score}" else "- : -"
@@ -465,9 +476,11 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             match = m,
             player1Name = p1Name,
             player1Flag = p1Flag,
+            player1CountryCode = p1CountryCode,
             player1Skill = p1Skill,
             player2Name = p2Name,
             player2Flag = p2Flag,
+            player2CountryCode = p2CountryCode,
             player2Skill = p2Skill,
             isUserMatch = isUserMatch,
             isCompleted = m.isCompleted,

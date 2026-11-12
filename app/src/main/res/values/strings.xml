@@ -118,5 +118,8 @@
     <string name="tournament_review_user_prize">Gewonnenes Preisgeld: %s</string>
     <string name="group_label">Gruppe %s</string>
     <string name="round_label">Runde:</string>
+    <string name="round_label_current">Runde: (Aktuell: %s)</string>
     <string name="group_selection_label">Gruppe:</string>
+    <string name="tournament_preview_prizes_title">Preisgelder &amp; Match-Distanzen pro Runde</string>
+    <string name="tournament_start_and_draw">Turnier jetzt starten &amp; auslosen</string>
 </resources>

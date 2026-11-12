@@ -5,6 +5,7 @@
     android:id="@+id/cardMatch"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_marginTop="8dp"
     android:layout_marginBottom="8dp"
     app:cardBackgroundColor="?attr/colorSurface"
     app:cardCornerRadius="12dp"
@@ -14,38 +15,32 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="12dp">
+        android:paddingHorizontal="12dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="12dp">
 
+        <!-- Match Index Badge centered on top border -->
         <TextView
             android:id="@+id/tvMatchRoundIndex"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="?attr/colorOnSurfaceVariant"
+            android:background="@drawable/bg_match_index_badge"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="2dp"
+            android:textColor="?attr/colorOnSurface"
             android:textSize="11sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="Match #1" />
-
-        <TextView
-            android:id="@+id/tvMatchStatusBadge"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/bg_skill_badge"
-            android:paddingHorizontal="6dp"
-            android:paddingVertical="2dp"
-            android:textColor="@color/white"
-            android:textSize="10sp"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="DEIN MATCH" />
 
         <!-- Player 1 -->
         <TextView
             android:id="@+id/tvPlayer1Flag"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="12dp"
             android:textSize="16sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvMatchRoundIndex"
@@ -113,7 +108,7 @@
             android:id="@+id/tvPlayer2Flag"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="12dp"
             android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvMatchRoundIndex"

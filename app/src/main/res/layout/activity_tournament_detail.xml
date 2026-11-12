@@ -25,11 +25,10 @@
         app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
     <!-- 1. VORSCHAU-MODUS (Geplantes Turnier ohne Matches) -->
-    <ScrollView
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/layoutPreviewContainer"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:padding="16dp"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -37,83 +36,120 @@
         app:layout_constraintTop_toBottomOf="@id/toolbar"
         tools:visibility="gone">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+        <ScrollView
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:padding="16dp"
+            app:layout_constraintBottom_toTopOf="@id/btnStartTournamentPreview"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-            <com.google.android.material.card.MaterialCardView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardBackgroundColor="?attr/colorSurface"
-                app:cardCornerRadius="12dp"
-                app:strokeColor="?attr/colorOutlineVariant"
-                app:strokeWidth="1dp">
+                android:orientation="vertical">
 
-                <LinearLayout
+                <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
+                    android:layout_marginBottom="16dp"
+                    app:cardBackgroundColor="?attr/colorSurface"
+                    app:cardCornerRadius="12dp"
+                    app:strokeColor="?attr/colorOutlineVariant"
+                    app:strokeWidth="1dp">
 
-                    <TextView
-                        android:id="@+id/tvPreviewTitle"
+                    <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textColor="?attr/colorOnSurface"
-                        android:textSize="20sp"
-                        android:textStyle="bold"
-                        tools:text="World Matchplay" />
+                        android:padding="16dp">
 
-                    <TextView
-                        android:id="@+id/tvPreviewHostAndType"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:textColor="?attr/colorOnSurfaceVariant"
-                        android:textSize="14sp"
-                        tools:text="Austragungsland: ENG 🏴󠁧󠁢󠁥󠁮󠁧󠁿 • Typ: WORLD_MATCHPLAY" />
+                        <TextView
+                            android:id="@+id/tvPreviewTitle"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="8dp"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textSize="20sp"
+                            android:textStyle="bold"
+                            app:layout_constraintEnd_toStartOf="@id/tvStatusBadgePreview"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            tools:text="World Matchplay" />
 
-                    <TextView
-                        android:id="@+id/tvPreviewPrizeFund"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:textColor="?attr/colorPrimary"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        tools:text="Gesamtpreisgeld: £1,000,000" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
+                        <TextView
+                            android:id="@+id/tvStatusBadgePreview"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/bg_skill_badge"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="3dp"
+                            android:textColor="@color/white"
+                            android:textSize="11sp"
+                            android:textStyle="bold"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            tools:text="Geplant" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:text="Preisgelder &amp; Match-Distanzen pro Runde"
-                android:textColor="?attr/colorOnSurface"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                        <TextView
+                            android:id="@+id/tvPreviewHostAndType"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:textColor="?attr/colorOnSurfaceVariant"
+                            android:textSize="14sp"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/tvPreviewTitle"
+                            tools:text="Austragungsland: ENG 🏴󠁧󠁢󠁥󠁮󠁧󠁿 • Typ: WORLD_MATCHPLAY" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvPreviewPrizeMoney"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false" />
+                        <TextView
+                            android:id="@+id/tvPreviewPrizeFund"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:textColor="?attr/colorPrimary"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/tvPreviewHostAndType"
+                            tools:text="Gesamtpreisgeld: £1,000,000" />
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+                </com.google.android.material.card.MaterialCardView>
 
-            <Button
-                android:id="@+id/btnStartTournamentPreview"
-                style="@style/Widget.Material3.Button"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="Turnier jetzt starten &amp; auslosen"
-                android:visibility="gone"
-                tools:visibility="visible" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="@string/tournament_preview_prizes_title"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
 
-        </LinearLayout>
-    </ScrollView>
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvPreviewPrizeMoney"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false" />
+
+            </LinearLayout>
+        </ScrollView>
+
+        <Button
+            android:id="@+id/btnStartTournamentPreview"
+            style="@style/Widget.Material3.Button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:text="@string/tournament_start_and_draw"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:visibility="visible" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- 2. AKTIVER MODUS (Laufendes Turnier) -->
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -141,27 +177,49 @@
             app:strokeColor="?attr/colorOutlineVariant"
             app:strokeWidth="1dp">
 
-            <LinearLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
                 android:padding="12dp">
 
-                <!-- Round Selector Chips -->
+                <!-- Round Selector Chips Label -->
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:id="@+id/tvRoundLabel"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
                     android:text="@string/round_label"
                     android:textColor="?attr/colorOnSurface"
                     android:textSize="14sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toStartOf="@id/tvStatusBadgeActive"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <!-- Status Badge Top Right -->
+                <TextView
+                    android:id="@+id/tvStatusBadgeActive"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_skill_badge"
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="3dp"
+                    android:textColor="@color/white"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="Aktiv" />
 
                 <HorizontalScrollView
                     android:id="@+id/scrollRoundPills"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:scrollbars="none">
+                    android:scrollbars="none"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tvRoundLabel">
 
                     <com.google.android.material.chip.ChipGroup
                         android:id="@+id/chipGroupRounds"
@@ -175,11 +233,14 @@
                 <!-- Group Selector Chips (for Grand Slam) -->
                 <LinearLayout
                     android:id="@+id/layoutGroupSelector"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="6dp"
                     android:orientation="vertical"
                     android:visibility="gone"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/scrollRoundPills"
                     tools:visibility="visible">
 
                     <TextView
@@ -207,14 +268,15 @@
                     </HorizontalScrollView>
                 </LinearLayout>
 
-
-
                 <!-- Action Buttons -->
                 <LinearLayout
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/layoutGroupSelector">
 
                     <Button
                         android:id="@+id/btnSimulateCpuMatches"
@@ -237,14 +299,15 @@
                         android:textSize="12sp" />
                 </LinearLayout>
 
-            </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Matches RecyclerView -->
+        <!-- Matches RecyclerView with explicit marginTop="12dp" spacing from control card -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvMatches"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:layout_marginTop="12dp"
             android:clipToPadding="false"
             android:paddingHorizontal="12dp"
             android:paddingBottom="12dp"
@@ -281,64 +344,97 @@
             app:strokeColor="?attr/colorOutlineVariant"
             app:strokeWidth="1dp">
 
-            <LinearLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
                 android:padding="14dp">
 
                 <TextView
                     android:id="@+id/tvReviewWinner"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
                     android:textColor="?attr/colorPrimary"
                     android:textSize="18sp"
                     android:textStyle="bold"
+                    app:layout_constraintEnd_toStartOf="@id/tvStatusBadgeReview"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
                     tools:text="🏆 Turniersieger: Luke Humphries" />
 
                 <TextView
+                    android:id="@+id/tvStatusBadgeReview"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_skill_badge"
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="3dp"
+                    android:textColor="@color/white"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="Abgeschlossen" />
+
+                <TextView
                     android:id="@+id/tvReviewFinalScore"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
                     android:textColor="?attr/colorOnSurface"
                     android:textSize="14sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tvReviewWinner"
                     tools:text="Final-Ergebnis: 10 : 7" />
 
                 <TextView
                     android:id="@+id/tvReviewUserRound"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="6dp"
                     android:textColor="?attr/colorOnSurfaceVariant"
                     android:textSize="14sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tvReviewFinalScore"
                     tools:text="Deine erreichte Runde: Viertelfinale" />
 
                 <TextView
                     android:id="@+id/tvReviewUserPrize"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
                     android:textColor="?attr/colorOnSurfaceVariant"
                     android:textSize="14sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tvReviewUserRound"
                     tools:text="Gewonnenes Preisgeld: £35,000" />
 
                 <!-- Review Round Selector Chips -->
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:id="@+id/tvReviewRoundLabel"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
                     android:text="@string/round_label"
                     android:textColor="?attr/colorOnSurface"
                     android:textSize="13sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tvReviewUserPrize" />
 
                 <HorizontalScrollView
                     android:id="@+id/scrollReviewRoundPills"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:scrollbars="none">
+                    android:scrollbars="none"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tvReviewRoundLabel">
 
                     <com.google.android.material.chip.ChipGroup
                         android:id="@+id/chipGroupReviewRounds"
@@ -349,14 +445,15 @@
                         app:singleSelection="true" />
                 </HorizontalScrollView>
 
-            </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Review Matches RecyclerView -->
+        <!-- Review Matches RecyclerView with explicit marginTop="12dp" spacing -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvReviewMatches"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:layout_marginTop="12dp"
             android:clipToPadding="false"
             android:paddingHorizontal="12dp"
             android:paddingBottom="12dp"

@@ -1,7 +1,5 @@
 package com.danny.dannyapp.ui
 
-import android.content.res.ColorStateList
-import android.graphics.Color
 import android.graphics.Typeface
 import android.view.LayoutInflater
 import android.view.View
@@ -12,6 +10,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
+import com.danny.dannyapp.data.Country
 import com.danny.dannyapp.data.db.TournamentMatch
 import com.google.android.material.card.MaterialCardView
 
@@ -19,9 +18,11 @@ data class MatchUiModel(
     val match: TournamentMatch,
     val player1Name: String,
     val player1Flag: String,
+    val player1CountryCode: String,
     val player1Skill: Int,
     val player2Name: String,
     val player2Flag: String,
+    val player2CountryCode: String,
     val player2Skill: Int,
     val isUserMatch: Boolean,
     val isCompleted: Boolean,
@@ -37,7 +38,6 @@ class TournamentMatchAdapter(
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val cardMatch: MaterialCardView = view.findViewById(R.id.cardMatch)
         val tvMatchRoundIndex: TextView = view.findViewById(R.id.tvMatchRoundIndex)
-        val tvMatchStatusBadge: TextView = view.findViewById(R.id.tvMatchStatusBadge)
         val tvPlayer1Flag: TextView = view.findViewById(R.id.tvPlayer1Flag)
         val tvPlayer1Name: TextView = view.findViewById(R.id.tvPlayer1Name)
         val tvPlayer1Score: TextView = view.findViewById(R.id.tvPlayer1Score)
@@ -58,12 +58,12 @@ class TournamentMatchAdapter(
         val context = holder.itemView.context
 
         val groupPrefix = if (!match.groupName.isNullOrBlank()) "Gruppe ${match.groupName} • " else ""
-        holder.tvMatchRoundIndex.text = "${groupPrefix}Match #${match.matchIndex + 1}"
+        holder.tvMatchRoundIndex.text = "${groupPrefix}#${match.matchIndex + 1}"
 
-        holder.tvPlayer1Flag.text = item.player1Flag
+        bindPlayerFlag(context, holder.tvPlayer1Flag, item.player1CountryCode, item.player1Flag)
         holder.tvPlayer1Name.text = item.player1Name
 
-        holder.tvPlayer2Flag.text = item.player2Flag
+        bindPlayerFlag(context, holder.tvPlayer2Flag, item.player2CountryCode, item.player2Flag)
         holder.tvPlayer2Name.text = item.player2Name
 
         if (item.isCompleted) {
@@ -84,26 +84,20 @@ class TournamentMatchAdapter(
                 holder.tvPlayer1Name.setTypeface(null, Typeface.NORMAL)
                 holder.tvPlayer2Name.setTypeface(null, Typeface.NORMAL)
             }
-
-            holder.tvMatchStatusBadge.visibility = View.VISIBLE
-            holder.tvMatchStatusBadge.text = "Beendet"
-            holder.tvMatchStatusBadge.setBackgroundResource(R.drawable.bg_skill_badge)
         } else {
             holder.tvPlayer1Score.text = "-"
             holder.tvPlayer2Score.text = "-"
             holder.tvPlayer1Name.setTypeface(null, Typeface.NORMAL)
             holder.tvPlayer2Name.setTypeface(null, Typeface.NORMAL)
-
-            if (item.isUserMatch) {
-                holder.tvMatchStatusBadge.visibility = View.VISIBLE
-                holder.tvMatchStatusBadge.text = "DEIN MATCH"
-                holder.tvMatchStatusBadge.setBackgroundResource(R.drawable.bg_major_badge)
-            } else {
-                holder.tvMatchStatusBadge.visibility = View.GONE
-            }
         }
 
-        if (item.isUserMatch && !item.isCompleted) {
+        if (item.isCompleted) {
+            holder.cardMatch.setCardBackgroundColor(ContextCompat.getColor(context, R.color.anthrazit_flaeche))
+        } else {
+            holder.cardMatch.setCardBackgroundColor(ContextCompat.getColor(context, R.color.surface_grau_heller))
+        }
+
+        if (item.isUserMatch) {
             holder.cardMatch.strokeColor = ContextCompat.getColor(context, R.color.rot_hell)
             holder.cardMatch.strokeWidth = (2 * context.resources.displayMetrics.density).toInt()
         } else {
@@ -113,6 +107,49 @@ class TournamentMatchAdapter(
 
         holder.itemView.setOnClickListener {
             onMatchClick(item)
+        }
+    }
+
+    private fun bindPlayerFlag(context: android.content.Context, tvFlag: TextView, countryCode: String, fallbackEmoji: String) {
+        val flagResId = Country.getFlagResId(countryCode)
+        if (flagResId != null) {
+            val spanBuilder = android.text.SpannableStringBuilder(" ")
+            val drawable = ContextCompat.getDrawable(context, flagResId)!!
+            val heightPx = (tvFlag.textSize * 1.17f).toInt()
+            val widthPx = if (drawable.intrinsicWidth > 0 && drawable.intrinsicHeight > 0) {
+                (heightPx * drawable.intrinsicWidth.toFloat() / drawable.intrinsicHeight.toFloat()).toInt()
+            } else {
+                (heightPx * 1.5f).toInt()
+            }
+            drawable.setBounds(0, 0, widthPx, heightPx)
+            val imageSpan = VerticalCenteredImageSpan(drawable, verticalOffsetPx = 9)
+            spanBuilder.setSpan(imageSpan, 0, 1, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            tvFlag.text = spanBuilder
+        } else {
+            tvFlag.text = fallbackEmoji
+        }
+    }
+
+    private class VerticalCenteredImageSpan(
+        drawable: android.graphics.drawable.Drawable,
+        private val verticalOffsetPx: Int = 3
+    ) : android.text.style.ImageSpan(drawable, ALIGN_BASELINE) {
+        override fun draw(
+            canvas: android.graphics.Canvas,
+            text: CharSequence?,
+            start: Int,
+            end: Int,
+            x: Float,
+            top: Int,
+            y: Int,
+            bottom: Int,
+            paint: android.graphics.Paint
+        ) {
+            val b = drawable
+            canvas.save()
+            canvas.translate(x, (y - b.bounds.height() + verticalOffsetPx).toFloat())
+            b.draw(canvas)
+            canvas.restore()
         }
     }
 

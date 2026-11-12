@@ -22,6 +22,9 @@
     <color name="anthrazit_container_hoechst">#FF333333</color>
     <color name="anthrazit_sekundaer">#FF373737</color>
 
+    <!-- Spezifische Oberflächen -->
+    <color name="surface_grau_heller">#FF222222</color>
+
     <!-- Text- & Rahmengrau (reines Neutralgrau) -->
     <color name="grau_rahmen_dunkel">#FF383838</color>
     <color name="grau_rahmen">#FF616161</color>
@@ -40,4 +43,16 @@
     <color name="status_active">#C62828</color>
     <color name="status_completed">#383838</color>
     <color name="status_planned">#5C1414</color>
+
+    <!-- Skill Level Colors (1 to 10) -->
+    <color name="skill_level_1">#FF4FC3F7</color>
+    <color name="skill_level_2">#FF26A69A</color>
+    <color name="skill_level_3">#FF66BB6A</color>
+    <color name="skill_level_4">#FF9CCC65</color>
+    <color name="skill_level_5">#FFFFEE58</color>
+    <color name="skill_level_6">#FFFFA726</color>
+    <color name="skill_level_7">#FFFF7043</color>
+    <color name="skill_level_8">#FFFF1744</color>
+    <color name="skill_level_9">#FFAB47BC</color>
+    <color name="skill_level_10">#FFFFD700</color>
 </resources>
