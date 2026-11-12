@@ -1,6 +1,7 @@
 # 🎯 Fachkonzept: Saisonkalender, Turniertypen & Ranglisten (Pro Tour & Majors)
 
 Dieses Dokument definiert die Architektur, die Datenstrukturen und die Fachlogiken für den Turnier-, Kalender- und Match-Simulationsmodus der **Danny Darts App**.
+Wichtig: Es sollen die Regeln/Name/Pläne für die PDC Pro-Tour für das jahr 2027 simuliert werden. Es ist darauf zu achten, dass keine veralteten Regeln genutzt werden.  
 
 ---
 
