@@ -25,28 +25,14 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
-    <Button
-        android:id="@+id/btnTournaments"
-        style="@style/Widget.Material3.Button"
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tabLayoutCareer"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="32dp"
         android:layout_marginTop="24dp"
-        android:text="@string/career_tournaments_btn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvCareerDetails" />
-
-    <Button
-        android:id="@+id/btnOrderOfMerit"
-        style="@style/Widget.Material3.Button.TonalButton"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="32dp"
-        android:layout_marginTop="12dp"
-        android:text="@string/career_oom_btn"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnTournaments" />
+        app:layout_constraintTop_toBottomOf="@id/tvCareerDetails"
+        app:tabMode="fixed" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -18,10 +18,11 @@ class OrderOfMeritActivity : BaseActivity() {
         setContentView(R.layout.activity_order_of_merit)
 
         val careerId = intent.getLongExtra(EXTRA_CAREER_ID, -1L)
+        val careerName = intent.getStringExtra(EXTRA_CAREER_NAME) ?: "Karriere"
 
         setupToolbar(
             titleText = getString(R.string.order_of_merit),
-            subtitleText = null,
+            subtitleText = getString(R.string.breadcrumb_format, careerName),
             showBack = true,
             rootViewId = R.id.orderOfMeritMain
         )
@@ -49,5 +50,6 @@ class OrderOfMeritActivity : BaseActivity() {
 
     companion object {
         const val EXTRA_CAREER_ID = "extra_career_id"
+        const val EXTRA_CAREER_NAME = "extra_career_name"
     }
 }

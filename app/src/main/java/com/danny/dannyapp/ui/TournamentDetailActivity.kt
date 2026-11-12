@@ -63,6 +63,7 @@ class TournamentDetailActivity : BaseActivity() {
 
     private var tournamentId: Long = -1L
     private var careerId: Long = -1L
+    private var careerName: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,10 +71,11 @@ class TournamentDetailActivity : BaseActivity() {
 
         tournamentId = intent.getLongExtra(EXTRA_TOURNAMENT_ID, -1L)
         careerId = intent.getLongExtra(EXTRA_CAREER_ID, -1L)
+        careerName = intent.getStringExtra(EXTRA_CAREER_NAME) ?: "Karriere"
 
         setupToolbar(
             titleText = getString(R.string.tournament_detail),
-            subtitleText = "ID: $tournamentId",
+            subtitleText = getString(R.string.breadcrumb_format, careerName),
             showBack = true,
             rootViewId = R.id.tournamentDetailMain
         )
@@ -393,5 +395,6 @@ class TournamentDetailActivity : BaseActivity() {
     companion object {
         const val EXTRA_TOURNAMENT_ID = "extra_tournament_id"
         const val EXTRA_CAREER_ID = "extra_career_id"
+        const val EXTRA_CAREER_NAME = "extra_career_name"
     }
 }

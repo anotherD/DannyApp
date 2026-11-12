@@ -22,16 +22,18 @@ class TournamentCalendarActivity : BaseActivity() {
     private lateinit var btnSimulateSeason: Button
 
     private var careerId: Long = -1L
+    private var careerName: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_tournament_calendar)
 
         careerId = intent.getLongExtra(EXTRA_CAREER_ID, -1L)
+        careerName = intent.getStringExtra(EXTRA_CAREER_NAME) ?: "Karriere"
 
         setupToolbar(
             titleText = getString(R.string.tournament_calendar),
-            subtitleText = null,
+            subtitleText = getString(R.string.breadcrumb_format, careerName),
             showBack = true,
             rootViewId = R.id.tournamentCalendarMain
         )
@@ -46,11 +48,15 @@ class TournamentCalendarActivity : BaseActivity() {
                 val intent = Intent(this, TournamentDetailActivity::class.java).apply {
                     putExtra(TournamentDetailActivity.EXTRA_TOURNAMENT_ID, model.tournament.id)
                     putExtra(TournamentDetailActivity.EXTRA_CAREER_ID, careerId)
+                    putExtra(TournamentDetailActivity.EXTRA_CAREER_NAME, careerName)
                 }
                 startActivity(intent)
             },
             onStartTournamentClick = { model ->
                 viewModel.startTournament(model.tournament.id, careerId)
+            },
+            onSimulateTournamentClick = { model ->
+                viewModel.simulateTournament(model.tournament.id, careerId)
             }
         )
         rvTournaments.adapter = adapter
@@ -102,5 +108,6 @@ class TournamentCalendarActivity : BaseActivity() {
 
     companion object {
         const val EXTRA_CAREER_ID = "extra_career_id"
+        const val EXTRA_CAREER_NAME = "extra_career_name"
     }
 }

@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.random.Random
 
 enum class TournamentStatus {
     COMPLETED, ACTIVE, PLANNED
@@ -80,8 +81,14 @@ class TournamentCalendarViewModel(application: Application) : AndroidViewModel(a
 
     private suspend fun buildTournamentUiModels(seasonId: Long, tournaments: List<Tournament>): List<TournamentUiModel> = withContext(Dispatchers.IO) {
         val sorted = tournaments.sortedBy { it.order }
-        var nextPlannedFound = false
         val allPlayers = playerDao.getAllPlayersList().associateBy { it.id }
+
+        // Strict Tournament Locking: Check if any tournament is active (not completed and has matches)
+        val hasActiveTournament = sorted.any { t ->
+            !t.isCompleted && tournamentMatchDao.getMatchesListForTournament(t.id).isNotEmpty()
+        }
+
+        var nextAssigned = false
 
         sorted.map { tournament ->
             val matches = tournamentMatchDao.getMatchesListForTournament(tournament.id)
@@ -96,9 +103,9 @@ class TournamentCalendarViewModel(application: Application) : AndroidViewModel(a
                 isNextPlanned = false
             } else {
                 status = TournamentStatus.PLANNED
-                if (!nextPlannedFound) {
+                if (!hasActiveTournament && !nextAssigned) {
                     isNextPlanned = true
-                    nextPlannedFound = true
+                    nextAssigned = true
                 } else {
                     isNextPlanned = false
                 }
@@ -166,6 +173,63 @@ class TournamentCalendarViewModel(application: Application) : AndroidViewModel(a
         }
     }
 
+    fun simulateTournament(tournamentId: Long, careerId: Long) {
+        viewModelScope.launch {
+            _uiState.value = TournamentCalendarState.Loading
+            try {
+                val tournament = tournamentDao.getTournamentById(tournamentId) ?: return@launch
+                if (tournament.isCompleted) {
+                    loadTournaments(careerId)
+                    return@launch
+                }
+
+                var matches = tournamentMatchDao.getMatchesListForTournament(tournament.id)
+                if (matches.isEmpty()) {
+                    generateBracketUseCase(tournament.id)
+                }
+
+                val career = careerRepository.getCareerById(careerId)?.career
+                val userSkill = career?.level?.coerceIn(1, 10) ?: 5
+
+                while (tournamentDao.getTournamentById(tournament.id)?.isCompleted != true) {
+                    simulateCpuMatchUseCase.simulateAllCpuMatches(tournament.id)
+
+                    val currentMatches = tournamentMatchDao.getMatchesListForTournament(tournament.id)
+                    val uncompletedUserMatches = currentMatches.filter {
+                        !it.isCompleted && (it.player1Id == USER_ID || it.player2Id == USER_ID)
+                    }
+
+                    for (umatch in uncompletedUserMatches) {
+                        val oppId = if (umatch.player1Id == USER_ID) umatch.player2Id else umatch.player1Id
+                        val opp = playerDao.getPlayerById(oppId)
+                        val oppSkill = (opp?.skill ?: 5).coerceIn(1, 10)
+                        val userWinProb = userSkill.toDouble() / (userSkill + oppSkill)
+
+                        val p1Wins = Random.nextDouble() < userWinProb
+                        val p1Score = if (p1Wins) 6 else 4
+                        val p2Score = if (p1Wins) 4 else 6
+                        val winnerId = if (p1Wins) USER_ID else oppId
+
+                        val updated = umatch.copy(
+                            player1Score = p1Score,
+                            player2Score = p2Score,
+                            winnerId = winnerId,
+                            isCompleted = true
+                        )
+                        tournamentMatchDao.updateMatch(updated)
+                    }
+
+                    val advanced = advanceTournamentRoundUseCase(tournament.id)
+                    if (!advanced) break
+                }
+
+                loadTournaments(careerId)
+            } catch (e: Exception) {
+                loadTournaments(careerId)
+            }
+        }
+    }
+
     fun simulateCompleteSeason(careerId: Long) {
         viewModelScope.launch {
             _uiState.value = TournamentCalendarState.Loading
@@ -197,7 +261,7 @@ class TournamentCalendarViewModel(application: Application) : AndroidViewModel(a
                             val oppSkill = (opp?.skill ?: 5).coerceIn(1, 10)
                             val userWinProb = userSkill.toDouble() / (userSkill + oppSkill)
 
-                            val p1Wins = kotlin.random.Random.nextDouble() < userWinProb
+                            val p1Wins = Random.nextDouble() < userWinProb
                             val p1Score = if (p1Wins) 6 else 4
                             val p2Score = if (p1Wins) 4 else 6
                             val winnerId = if (p1Wins) USER_ID else oppId

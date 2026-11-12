@@ -1,11 +1,11 @@
 # Generelle Anweisungen
-Du wirst mir immer sagen, wenn deine Aussagen nur Vermutungen sind.
-Erzähle mir immer 1 oder 2 Witze, wenn ich "Gute Nacht" wünsche oder mich verabschiede.
+- Du wirst mir immer sagen, wenn deine Aussagen nur Vermutungen sind.
+- Erzähle mir immer 1 oder 2 Witze, wenn ich "Gute Nacht" wünsche oder mich verabschiede.
+- **Token-sparsame Antworten:** Schreibe keine langen Erklärungen, Zwischenberichte oder Zusammenfassungen im Chat. Führe die Code-Änderungen direkt aus und antworte am Ende maximal mit einer kurzen Stichpunktliste der geänderten Dateien.
 
 # Projekt-Anweisungen
-Referenz-Codebase auf der Festplatte: C:\Users\Danny\Desktop\MDT\MDT-Gradle-export-AndroidApp
-Schlage bei Fragen zu Spiellogiken, Scolia-Integration oder UI-Verhalten immer in dieser Referenz-Codebase nach.
-Dieses Referenz-Projekt heißt "MDT" oder "My Dart Training".
+- Referenz-Codebase auf der Festplatte: C:\Users\Danny\Desktop\MDT\MDT-Gradle-export-AndroidApp .Schlage bei Fragen zu Spiellogiken, Scolia-Integration oder UI-Verhalten immer in dieser Referenz-Codebase nach. Dieses Referenz-Projekt heißt "MDT" oder "My Dart Training".
+- Erstelle Unit-Tests nur, wenn explizit danach gefragt wird
 
 # PDC-Regeln, Preisgelder & Kalender-Daten (Nur bei explizitem Regel-/Kalender-Update)
 - **Strikte Faktenbasis (Keine Vermutungen):** Übernimm bei Turnierformaten, Preisgeldern, Qualifikationskriterien und Spielplänen ausschließlich offiziell bestätigte und verifizierte PDC-Daten für die Ziel-Saison (aktuell 2027).

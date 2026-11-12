@@ -15,7 +15,16 @@
     <string name="careers_create_profile_hint">Profil auswählen</string>
     <string name="careers_create_error_empty_profile">Bitte wähle ein Profil aus.</string>
     <string name="career_current_format">Aktuelle Karriere:\n%s\nLevel: %d</string>
-    <string name="career">Karriere</string>
+    <string name="career">Karrieren</string>
+    <string name="breadcrumb_format">Karrieren > %s</string>
+    <string name="tab_calendar">Saisonkalender</string>
+    <string name="tab_tournament_view">Turnieransicht</string>
+    <string name="tab_oom">Ranglisten</string>
+    <string name="tournament_type_players_championship">Players Championship</string>
+    <string name="tournament_type_european_tour">European Tour</string>
+    <string name="tournament_type_major">Major</string>
+    <string name="tournament_type_qualifier">Qualifier</string>
+    <string name="tournament_simulate_active">Komplettes Turnier simulieren: %s</string>
     <string name="career_level_format">Level %d</string>
     <string name="career_delete_title">Karriere löschen</string>
     <string name="career_delete_message">Möchtest du die Karriere \'%s\' wirklich löschen?</string>
