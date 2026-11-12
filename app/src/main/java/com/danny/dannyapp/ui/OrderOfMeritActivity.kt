@@ -21,7 +21,7 @@ class OrderOfMeritActivity : BaseActivity() {
         val careerName = intent.getStringExtra(EXTRA_CAREER_NAME) ?: "Karriere"
 
         setupToolbar(
-            titleText = getString(R.string.order_of_merit),
+            titleText = getString(R.string.tab_oom),
             subtitleText = getString(R.string.breadcrumb_format, careerName),
             showBack = true,
             rootViewId = R.id.orderOfMeritMain

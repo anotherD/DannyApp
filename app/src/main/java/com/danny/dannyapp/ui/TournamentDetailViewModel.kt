@@ -778,7 +778,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
     private fun getDisplayRoundName(roundKey: String): String {
         return when (roundKey) {
             "WINNER" -> "Turniersieger"
-            "F" -> "Runner-Up (Finale)"
+            "F" -> "Finale"
             "SF" -> "Halbfinale"
             "QF" -> "Viertelfinale"
             "L16" -> "Achtelfinale"

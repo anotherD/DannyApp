@@ -38,30 +38,30 @@ class GenerateSeasonCalendarUseCase(
             "ENG", "ENG", "ENG", "ENG", // PC 03 – 06 (Wigan)
             "ENG", "ENG",               // PC 07 – 08 (Leicester)
             "ENG", "ENG", "ENG", "ENG", // PC 09 – 12 (Wigan / Leicester)
-            "GER", "ENG", "GER", "ENG", "GER", // PC 13 – 17 (Hildesheim / Wigan)
-            "ENG", "GER", "ENG",        // PC 18 – 20 (Wigan / Hildesheim)
-            "ENG", "GER", "ENG", "GER", // PC 21 – 24 (Leicester / Hildesheim)
+            "DEU", "ENG", "DEU", "ENG", "DEU", // PC 13 – 17 (Hildesheim / Wigan)
+            "ENG", "DEU", "ENG",        // PC 18 – 20 (Wigan / Hildesheim)
+            "ENG", "DEU", "ENG", "DEU", // PC 21 – 24 (Leicester / Hildesheim)
             "ENG", "ENG",               // PC 25 – 26 (Leicester)
-            "ENG", "NED", "ENG", "NED", // PC 27 – 30 (Leicester / Den Bosch)
-            "ENG", "NED", "NED", "NED"  // PC 31 – 34 (Wigan / Maastricht)
+            "ENG", "NLD", "ENG", "NLD", // PC 27 – 30 (Leicester / Den Bosch)
+            "ENG", "NLD", "NLD", "NLD"  // PC 31 – 34 (Wigan / Maastricht)
         )
 
         val etList = listOf(
-            EtEventInfo("Baltic Sea Darts Open", "GER"),
+            EtEventInfo("Baltic Sea Darts Open", "DEU"),
             EtEventInfo("Poland Darts Open", "POL"),
-            EtEventInfo("International Darts Open", "GER"),
+            EtEventInfo("International Darts Open", "DEU"),
             EtEventInfo("Darts Grand Prix de France", "FRA"),
-            EtEventInfo("German Darts Grand Prix", "GER"),
-            EtEventInfo("European Darts Grand Prix", "GER"),
-            EtEventInfo("European Darts Trophy", "GER"),
+            EtEventInfo("German Darts Grand Prix", "DEU"),
+            EtEventInfo("European Darts Grand Prix", "DEU"),
+            EtEventInfo("European Darts Trophy", "DEU"),
             EtEventInfo("Austrian Darts Open", "AUT"),
             EtEventInfo("Czech Darts Open", "CZE"),
-            EtEventInfo("German Darts Open", "GER"),
+            EtEventInfo("German Darts Open", "DEU"),
             EtEventInfo("Slovak Darts Open", "SVK"),
             EtEventInfo("Belgian Darts Open", "BEL"),
             EtEventInfo("Swiss Darts Trophy", "SUI"),
             EtEventInfo("Hungarian Darts Trophy", "HUN"),
-            EtEventInfo("Dutch Darts Championship", "NED")
+            EtEventInfo("Dutch Darts Championship", "NLD")
         )
 
         fun addPc() {
@@ -71,7 +71,7 @@ class GenerateSeasonCalendarUseCase(
         }
 
         fun addEt() {
-            val info = etList.getOrElse(etIndex - 1) { EtEventInfo("European Tour $etIndex", "GER") }
+            val info = etList.getOrElse(etIndex - 1) { EtEventInfo("European Tour $etIndex", "DEU") }
             rawList.add(Triple("${info.name} Qualifier", TournamentEvent.QUALIFIER_ET.name, info.hostCountry))
             rawList.add(Triple(info.name, TournamentEvent.EUROPEAN_TOUR.name, info.hostCountry))
             etIndex++
@@ -141,7 +141,7 @@ class GenerateSeasonCalendarUseCase(
         addPc()
 
         // European Championship (Major)
-        rawList.add(Triple("European Championship", TournamentEvent.EUROPEAN_CHAMPIONSHIP.name, "GER"))
+        rawList.add(Triple("European Championship", TournamentEvent.EUROPEAN_CHAMPIONSHIP.name, "DEU"))
 
         // ET 14, PC 29..30
         addEt()

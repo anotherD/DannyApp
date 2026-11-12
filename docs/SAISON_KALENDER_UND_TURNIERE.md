@@ -16,7 +16,7 @@ Um Nullable-Fremdschlüssel-Probleme und komplexe Boolean-Flags zu vermeiden, er
 
 Die Tabellenstrukturen für den Turnierbetrieb wurden wie folgt implementiert:
 
-*   **`Tournament` (`tournaments`)**: Speichert Saisonturniere mit `id`, `season_id`, `name`, `type` (`PLAYERS_CHAMPIONSHIP`, `EUROPEAN_TOUR`, `UK_OPEN`, `EUROPEAN_OPEN`, `WORLD_MATCHPLAY`, `WORLD_GRAND_PRIX`, `EUROPEAN_CHAMPIONSHIP`, `GRAND_SLAM_OF_DARTS`, `PLAYERS_CHAMPIONSHIP_FINALS`, `WORLD_CHAMPIONSHIP`, `QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIFIER_WM`), `order` (1–74), `is_completed` und `host_country` (`host_country`, ISO-3-Code, z. B. `"ENG"`, `"GER"`, `"AUT"`, `"NED"`, `"BEL"`, `"HUN"`, `"CZE"`, `"SUI"`, `"FRA"`, `"POL"`). Jedes Turnier im Kalender verfügt zwingend über einen gültigen ISO-3 `host_country`.
+*   **`Tournament` (`tournaments`)**: Speichert Saisonturniere mit `id`, `season_id`, `name`, `type` (`PLAYERS_CHAMPIONSHIP`, `EUROPEAN_TOUR`, `UK_OPEN`, `EUROPEAN_OPEN`, `WORLD_MATCHPLAY`, `WORLD_GRAND_PRIX`, `EUROPEAN_CHAMPIONSHIP`, `GRAND_SLAM_OF_DARTS`, `PLAYERS_CHAMPIONSHIP_FINALS`, `WORLD_CHAMPIONSHIP`, `QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIFIER_WM`), `order` (1–74), `is_completed` und `host_country` (`host_country`, ISO-3-Code, z. B. `"ENG"`, `"DEU"`, `"AUT"`, `"NDL"`, `"BEL"`, `"HUN"`, `"CZE"`, `"SUI"`, `"FRA"`, `"POL"`). Jedes Turnier im Kalender verfügt zwingend über einen gültigen ISO-3 `host_country`.
 *   **`TournamentMatch` (`tournament_matches`)**: Verwaltet alle Einzelpartien mit `id`, `tournament_id`, `round`, `match_index`, `player_1_id`, `player_2_id` (jeweils Spieler-ID oder `USER_ID = -1L`), Scores, `winner_id` und `is_completed`.
 *   **`TournamentPlacement` (`tournament_placements`)**: Erfasst die errungenen Platzierungen und Preisgelder pro Spieler zur Berechnung der Ranglisten (`id`, `tournament_id`, `player_id`, `reached_round`, `prize_money`).
 
@@ -37,17 +37,17 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
 *   **Teilnehmer:** 128 Spieler.
 *   **Zusammensetzung & Qualifikation:**
     1. Alle 128 Tour-Card-Inhaber (inklusive User mit ID `-1L`).
-*   **Gastgeberländer & Austragungsorte (2027):** Die 34 Players Championships folgen exakt dem offiziellen Spielplan an den Standorten England (Milton Keynes, Wigan, Leicester; `"ENG"`), Deutschland (Hildesheim; `"GER"`) und Niederlande (Den Bosch; `"NED"`):
+*   **Gastgeberländer & Austragungsorte (2027):** Die 34 Players Championships folgen exakt dem offiziellen Spielplan an den Standorten England (Milton Keynes, Wigan, Leicester; `"ENG"`), Deutschland (Hildesheim; `"DEU"`) und Niederlande (Den Bosch; `"NDL"`):
     *   PC 01 – 02 (Milton Keynes, England): `"ENG"` / `"ENG"`
     *   PC 03 – 06 (Wigan, England): `"ENG"` (4x)
     *   PC 07 – 08 (Leicester, England): `"ENG"` (2x)
     *   PC 09 – 12 (Wigan / Leicester, England): `"ENG"` (4x)
-    *   PC 13 – 17 (Hildesheim / Wigan): `"GER"`, `"ENG"`, `"GER"`, `"ENG"`, `"GER"`
-    *   PC 18 – 20 (Wigan / Hildesheim): `"ENG"`, `"GER"`, `"ENG"`
-    *   PC 21 – 24 (Leicester / Hildesheim): `"ENG"`, `"GER"`, `"ENG"`, `"GER"`
+    *   PC 13 – 17 (Hildesheim / Wigan): `"DEU"`, `"ENG"`, `"DEU"`, `"ENG"`, `"DEU"`
+    *   PC 18 – 20 (Wigan / Hildesheim): `"ENG"`, `"DEU"`, `"ENG"`
+    *   PC 21 – 24 (Leicester / Hildesheim): `"ENG"`, `"DEU"`, `"ENG"`, `"DEU"`
     *   PC 25 – 26 (Leicester, England): `"ENG"` (2x)
-    *   PC 27 – 30 (Leicester / Den Bosch): `"ENG"`, `"NED"`, `"ENG"`, `"NED"`
-    *   PC 31 – 34 (Wigan / Maastricht): `"ENG"`, `"NED"`, `"NED"`, `"NED"`
+    *   PC 27 – 30 (Leicester / Den Bosch): `"ENG"`, `"NDL"`, `"ENG"`, `"NDL"`
+    *   PC 31 – 34 (Wigan / Maastricht): `"ENG"`, `"NDL"`, `"NDL"`, `"NDL"`
 *   **Auslosung:** Top 32 der *Pro Tour Order of Merit* sind gesetzt und werden im Bracket verteilt. Die restlichen 96 Spieler werden frei zugelost. Da beim Start einer Karriere die *Pro Tour Order of Merit* noch leer ist, werden hierfür die Top 32 zufällig ermittelt.
 *   **Preisgeldaufschlüsselung (Gesamt: £150.000 pro Event):**
 
@@ -71,21 +71,21 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
 ### 2.2 European Tour (ET) & ET Tour Card Holder Qualifier (`QUALIFIER_ET`)
 *   **ET Qualifier (`QUALIFIER_ET`):** Vor jedem der 15 European Tour Events findet ein Tour Card Holder Qualifier statt (`hostCountry` identisch zum Hauptturnier). Daran nehmen **alle** nicht-vorqualifizierten Tour-Card-Inhaber (inkl. `USER_ID = -1L`) teil. Das Turnier läuft im K.o.-Modus (Best of 11 Legs, mit Vorrunde/Freilosen bei auffüllender Zweierpotenz), bis exakt 10 Sieger (Qualifikanten) feststehen (£0 Preisgeld).
 *   **Die 15 European Tour Events (exakte offizielle Reihenfolge 2027 inklusive Frankreich und Slowakei):**
-    1. Baltic Sea Darts Open (`"GER"`)
+    1. Baltic Sea Darts Open (`"DEU"`)
     2. Poland Darts Open (`"POL"`)
-    3. International Darts Open (`"GER"`)
+    3. International Darts Open (`"DEU"`)
     4. Darts Grand Prix de France (`"FRA"`) – *Neues Event 2027*
-    5. German Darts Grand Prix (`"GER"`)
-    6. European Darts Grand Prix (`"GER"`)
-    7. European Darts Trophy (`"GER"`)
+    5. German Darts Grand Prix (`"DEU"`)
+    6. European Darts Grand Prix (`"DEU"`)
+    7. European Darts Trophy (`"DEU"`)
     8. Austrian Darts Open (`"AUT"`)
     9. Czech Darts Open (`"CZE"`)
-    10. German Darts Open (`"GER"`)
+    10. German Darts Open (`"DEU"`)
     11. Slovak Darts Open (`"SVK"`) – *Neues Event 2027*
     12. Belgian Darts Open (`"BEL"`)
     13. Swiss Darts Trophy (`"SUI"`)
     14. Hungarian Darts Trophy (`"HUN"`)
-    15. Dutch Darts Championship (`"NED"`)
+    15. Dutch Darts Championship (`"NDL"`)
 *   **Teilnehmer (European Tour):** 48 Spieler.
 *   **Zusammensetzung & Qualifikation:**
     1. Top 16 der Order of Merit
@@ -220,7 +220,7 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
 *   *(Keine App-Vereinfachung nötig: Teilnehmerfeld und Preisgelder entsprechen 1:1 dem offiziellen PDC-Regelwerk).*
 
 #### 2.5 European Championship (MAJOR_LEG)
-*   **Gastgeberland:** Deutschland (`"GER"`)
+*   **Gastgeberland:** Deutschland (`"DEU"`)
 *   **Teilnehmer:** 32.
 *   **Zusammensetzung & Qualifikation:**
     1. Top 32 der European Tour Order of Merit der laufenden Saison.

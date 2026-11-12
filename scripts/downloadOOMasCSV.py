@@ -21,7 +21,7 @@ SPORT_OVERRIDES = {
     "gb-nir": "NIR",
     "ie": "IRL",   # WorldCup nutzt IRE statt IRL  IOC/FIFA/ISO nutzen alle IRL
     "ire": "IRL",   # WorldCup nutzt IRE statt IRL  IOC/FIFA/ISO nutzen alle IRL
-    "ger": "DEU",
+    "DEU": "DEU",
     "ned": "NLD",
     "sui": "CHE",
     "den": "DNK",
@@ -37,7 +37,7 @@ SPORT_OVERRIDES = {
     "bah": "BHS",
     "crc": "CRI",
 
-#    "de": "GER",   # ISO wäre DEU
+#    "de": "DEU",   # ISO wäre DEU
 #    "nl": "NED",   # ISO wäre NLD
 #    "ch": "SUI",   # ISO wäre CHE
 #    "ie": "IRL",   # WorldCup nutzt IRE statt IRL  IOC/FIFA/ISO nutzen alle IRL

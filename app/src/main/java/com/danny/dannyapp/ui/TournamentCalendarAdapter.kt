@@ -109,7 +109,7 @@ class TournamentCalendarAdapter(
         val showSimulateButton = settingsManager.debugMode && (model.status == TournamentStatus.ACTIVE || (model.status == TournamentStatus.PLANNED && model.isNextPlanned))
         if (showSimulateButton) {
             holder.btnSimulateTournament.visibility = View.VISIBLE
-            holder.btnSimulateTournament.text = context.getString(R.string.tournament_simulate_active, tournament.name)
+            holder.btnSimulateTournament.text = context.getString(R.string.tournament_simulate_complete)
             holder.btnSimulateTournament.setOnClickListener { onSimulateTournamentClick(model) }
         } else {
             holder.btnSimulateTournament.visibility = View.GONE
@@ -147,8 +147,8 @@ class TournamentCalendarAdapter(
         }
         return when (hostCountry.uppercase()) {
             "ENG" -> "Wigan"
-            "GER" -> "Hildesheim"
-            "NED" -> "Den Bosch"
+            "DEU" -> "Hildesheim"
+            "NDL" -> "Den Bosch"
             "AUT" -> "Graz"
             "CZE" -> "Prag"
             "SVK" -> "Bratislava"

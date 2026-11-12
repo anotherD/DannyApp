@@ -24,7 +24,6 @@
     <string name="tournament_type_european_tour">European Tour</string>
     <string name="tournament_type_major">Major</string>
     <string name="tournament_type_qualifier">Qualifier</string>
-    <string name="tournament_simulate_active">Komplettes Turnier simulieren: %s</string>
     <string name="career_level_format">Level %d</string>
     <string name="career_delete_title">Karriere löschen</string>
     <string name="career_delete_message">Möchtest du die Karriere \'%s\' wirklich löschen?</string>
@@ -89,9 +88,8 @@
     <string name="prize_money_format">£%,.0f</string>
     <string name="rank_format">#%d</string>
     <string name="career_tournaments_btn">Saisonkalender</string>
-    <string name="career_oom_btn">Ranglisten (OOM)</string>
     <string name="tournament_placeholder_winner">Sieger #%d</string>
-    <string name="tournament_placeholder_unknown">\\?</string>
+    <string name="tournament_placeholder_unknown">wird ausgelost</string>
     <string name="tournament_review_winner">Sieger: %s %s</string>
     <string name="tournament_review_final_score">Finale: %s vs. %s %s</string>
     <string name="tournament_review_user_round">Deine erreichte Runde: %s</string>
@@ -99,5 +97,4 @@
     <string name="group_label">Gruppe %s</string>
     <string name="round_label">Runde:</string>
     <string name="group_selection_label">Gruppe:</string>
-    <string name="round_scroll_label">Runde durchblättern:</string>
 </resources>

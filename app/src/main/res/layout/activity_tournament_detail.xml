@@ -328,7 +328,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
-                    android:text="@string/round_scroll_label"
+                    android:text="@string/round_label"
                     android:textColor="?attr/colorOnSurface"
                     android:textSize="13sp"
                     android:textStyle="bold" />
