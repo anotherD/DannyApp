@@ -33,8 +33,9 @@ class ProfilesViewModel(application: Application) : AndroidViewModel(application
         return careerRepository.getCareerCountForProfile(profileId)
     }
 
-    suspend fun saveUserProfile(name: String, description: String): SaveProfileResult {
+    suspend fun saveUserProfile(name: String, playerName: String, countryCode: String, description: String): SaveProfileResult {
         val trimmedName = name.trim()
+        val trimmedPlayerName = playerName.trim().ifEmpty { trimmedName }
         val existing = userProfileRepository.getProfileByName(trimmedName)
         if (existing != null) {
             return SaveProfileResult.DuplicateName(trimmedName)
@@ -42,6 +43,8 @@ class ProfilesViewModel(application: Application) : AndroidViewModel(application
 
         val newProfile = UserProfile(
             name = trimmedName,
+            playerName = trimmedPlayerName,
+            countryCode = countryCode.ifEmpty { "DEU" },
             description = description.trim()
         )
 
@@ -60,8 +63,9 @@ class ProfilesViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    suspend fun updateUserProfile(profile: UserProfile, newName: String, newDescription: String): SaveProfileResult {
+    suspend fun updateUserProfile(profile: UserProfile, newName: String, newPlayerName: String, newCountryCode: String, newDescription: String): SaveProfileResult {
         val trimmedName = newName.trim()
+        val trimmedPlayerName = newPlayerName.trim().ifEmpty { trimmedName }
         if (trimmedName.isEmpty()) {
             return SaveProfileResult.Error("Name darf nicht leer sein")
         }
@@ -75,6 +79,8 @@ class ProfilesViewModel(application: Application) : AndroidViewModel(application
 
         val updatedProfile = profile.copy(
             name = trimmedName,
+            playerName = trimmedPlayerName,
+            countryCode = newCountryCode.ifEmpty { "DEU" },
             description = newDescription.trim()
         )
 

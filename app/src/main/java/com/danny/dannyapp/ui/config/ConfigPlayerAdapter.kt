@@ -31,9 +31,7 @@ class ConfigPlayerAdapter : ListAdapter<Player, ConfigPlayerAdapter.PlayerViewHo
         val context = holder.itemView.context
         val flagResId = Country.getFlagResId(player.countryCode)
         if (flagResId != null) {
-            // Sonderfall für Nordirland (NIR): Da Android keine native Emoji-Flagge dafür hat,
-            // wird ein eigenes Flaggen-Bild per ImageSpan inline hinter dem Namen gerendert.
-            val spanBuilder = android.text.SpannableStringBuilder("${player.name}  ")
+            val spanBuilder = android.text.SpannableStringBuilder("   ${player.name}")
             val drawable = androidx.core.content.ContextCompat.getDrawable(context, flagResId)!!
             val heightPx = (holder.tvPlayerName.textSize * 1.17f).toInt()
             val widthPx = if (drawable.intrinsicWidth > 0 && drawable.intrinsicHeight > 0) {
@@ -42,13 +40,12 @@ class ConfigPlayerAdapter : ListAdapter<Player, ConfigPlayerAdapter.PlayerViewHo
                 (heightPx * 1.5f).toInt()
             }
             drawable.setBounds(0, 0, widthPx, heightPx)
-            // Verwenden eines angepassten ImageSpan mit vertikalem Offset (etwas tiefer)
             val imageSpan = VerticalCenteredImageSpan(drawable, verticalOffsetPx = 9)
-            spanBuilder.setSpan(imageSpan, spanBuilder.length - 1, spanBuilder.length, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            spanBuilder.setSpan(imageSpan, 0, 1, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             holder.tvPlayerName.text = spanBuilder
         } else {
             val flagEmoji = Country.getFlagEmoji(player.countryCode)
-            holder.tvPlayerName.text = "${player.name} $flagEmoji"
+            holder.tvPlayerName.text = "$flagEmoji ${player.name}"
         }
         holder.tvPlayerSkill.text = "L${player.skill}"
         

@@ -5,6 +5,7 @@ import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.danny.dannyapp.data.Country
+import com.danny.dannyapp.data.SettingsManager
 import com.danny.dannyapp.data.db.AppDatabase
 import com.danny.dannyapp.data.db.CareerRepository
 import com.danny.dannyapp.data.db.Tournament
@@ -41,10 +42,10 @@ sealed interface TournamentDetailState {
     data class Active(
         val tournament: Tournament,
         val event: TournamentEvent,
-        val availableRounds: List<String>, // List of round keys present e.g. ["GROUP", "L16"]
+        val availableRounds: List<String>,
         val availableRoundDisplayNames: List<String>,
         val selectedRoundIndex: Int,
-        val availableGroups: List<String>, // ["A", "B", ... "P"] if Grand Slam group stage
+        val availableGroups: List<String>,
         val selectedGroupIndex: Int,
         val matches: List<MatchUiModel>,
         val autoSimulateCpu: Boolean,
@@ -73,7 +74,7 @@ sealed interface TournamentDetailState {
 
 class TournamentDetailViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val prefs = application.getSharedPreferences("tournament_detail_prefs", Context.MODE_PRIVATE)
+    private val settingsManager = SettingsManager(application)
 
     private val db = AppDatabase.getDatabase(application)
     private val tournamentDao = db.tournamentDao()
@@ -97,10 +98,10 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
     private var selectedGroupIndex: Int = 0
 
     val autoSimulateCpu: Boolean
-        get() = prefs.getBoolean("auto_simulate_cpu", true)
+        get() = settingsManager.autoSimulateCpu
 
     val autoAdvanceRound: Boolean
-        get() = prefs.getBoolean("auto_advance_round", true)
+        get() = settingsManager.autoAdvanceRound
 
     fun loadTournament(tournamentId: Long, careerId: Long) {
         this.currentTournamentId = tournamentId
@@ -214,12 +215,13 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
 
         val careerWithProfile = careerRepository.getCareerById(currentCareerId)
         val userLevel = careerWithProfile?.career?.level?.coerceIn(1, 10) ?: 5
-        val userName = careerWithProfile?.career?.name ?: "Du"
+        val userName = careerWithProfile?.playerName?.ifBlank { null } ?: careerWithProfile?.profileName ?: careerWithProfile?.career?.name ?: "Du"
+        val userCountryCode = careerWithProfile?.countryCode ?: "DEU"
 
         val allPlayersMap = playerDao.getAllPlayersList().associateBy { it.id }
 
         val matchUiModels = filteredMatches.map { m ->
-            createMatchUiModel(m, userName, userLevel, allPlayersMap, currentRoundKey, event)
+            createMatchUiModel(m, userName, userCountryCode, userLevel, allPlayersMap, currentRoundKey, event)
         }
 
         val isCurrentRoundCompleted = currentRoundMatches.isNotEmpty() && currentRoundMatches.all { it.isCompleted }
@@ -259,7 +261,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             } else updatedRoundMatches
 
             val updatedModels = updatedFiltered.map { m ->
-                createMatchUiModel(m, userName, userLevel, allPlayersMap, currentRoundKey, event)
+                createMatchUiModel(m, userName, userCountryCode, userLevel, allPlayersMap, currentRoundKey, event)
             }
 
             _uiState.value = TournamentDetailState.Active(
@@ -303,9 +305,14 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         val finalMatch = allMatches.find { it.round == TournamentRound.F.name } ?: allMatches.lastOrNull()
         val allPlayersMap = playerDao.getAllPlayersList().associateBy { it.id }
 
+        val careerWithProfile = careerRepository.getCareerById(currentCareerId)
+        val userLevel = careerWithProfile?.career?.level?.coerceIn(1, 10) ?: 5
+        val userName = careerWithProfile?.playerName?.ifBlank { null } ?: careerWithProfile?.profileName ?: careerWithProfile?.career?.name ?: "Du"
+        val userCountryCode = careerWithProfile?.countryCode ?: "DEU"
+
         val winnerName = if (finalMatch?.winnerId != null) {
             val wId = finalMatch.winnerId!!
-            if (wId == USER_ID) "Du" else allPlayersMap[wId]?.name ?: "Unbekannt"
+            if (wId == USER_ID) userName else allPlayersMap[wId]?.name ?: "Unbekannt"
         } else "Unbekannt"
 
         val finalScoreText = if (finalMatch != null) "${finalMatch.player1Score} : ${finalMatch.player2Score}" else "-"
@@ -346,12 +353,8 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             currentRoundMatches.filter { it.groupName == availableGroups[selectedGroupIndex] }
         } else currentRoundMatches
 
-        val careerWithProfile = careerRepository.getCareerById(currentCareerId)
-        val userLevel = careerWithProfile?.career?.level?.coerceIn(1, 10) ?: 5
-        val userName = careerWithProfile?.career?.name ?: "Du"
-
         val matchUiModels = filteredMatches.map { m ->
-            createMatchUiModel(m, userName, userLevel, allPlayersMap, currentRoundKey, event)
+            createMatchUiModel(m, userName, userCountryCode, userLevel, allPlayersMap, currentRoundKey, event)
         }
 
         _uiState.value = TournamentDetailState.Review(
@@ -373,6 +376,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
     private fun createMatchUiModel(
         m: TournamentMatch,
         userName: String,
+        userCountryCode: String,
         userLevel: Int,
         allPlayersMap: Map<Long, com.danny.dannyapp.data.db.Player>,
         roundKey: String,
@@ -382,13 +386,13 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         val isP2User = (m.player2Id == USER_ID)
         val isUserMatch = isP1User || isP2User
 
-        val p1Name = if (isP1User) "Du ($userName)" else allPlayersMap[m.player1Id]?.name ?: "CPU #${m.player1Id}"
-        val p1CountryCode = if (isP1User) "GER" else allPlayersMap[m.player1Id]?.countryCode ?: "ENG"
+        val p1Name = if (isP1User) userName else allPlayersMap[m.player1Id]?.name ?: "CPU #${m.player1Id}"
+        val p1CountryCode = if (isP1User) userCountryCode else allPlayersMap[m.player1Id]?.countryCode ?: "ENG"
         val p1Flag = Country.getFlagEmoji(p1CountryCode)
         val p1Skill = if (isP1User) userLevel else allPlayersMap[m.player1Id]?.skill ?: 5
 
-        val p2Name = if (isP2User) "Du ($userName)" else allPlayersMap[m.player2Id]?.name ?: "CPU #${m.player2Id}"
-        val p2CountryCode = if (isP2User) "GER" else allPlayersMap[m.player2Id]?.countryCode ?: "ENG"
+        val p2Name = if (isP2User) userName else allPlayersMap[m.player2Id]?.name ?: "CPU #${m.player2Id}"
+        val p2CountryCode = if (isP2User) userCountryCode else allPlayersMap[m.player2Id]?.countryCode ?: "ENG"
         val p2Flag = Country.getFlagEmoji(p2CountryCode)
         val p2Skill = if (isP2User) userLevel else allPlayersMap[m.player2Id]?.skill ?: 5
 
@@ -429,20 +433,6 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
 
     fun selectGroup(index: Int) {
         selectedGroupIndex = index
-        viewModelScope.launch {
-            refreshState()
-        }
-    }
-
-    fun updateAutoSimulateCpu(enabled: Boolean) {
-        prefs.edit().putBoolean("auto_simulate_cpu", enabled).apply()
-        viewModelScope.launch {
-            refreshState()
-        }
-    }
-
-    fun updateAutoAdvanceRound(enabled: Boolean) {
-        prefs.edit().putBoolean("auto_advance_round", enabled).apply()
         viewModelScope.launch {
             refreshState()
         }

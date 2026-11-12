@@ -16,10 +16,17 @@ data class UserProfile(
     val name: String,
     @ColumnInfo(name = "description")
     val description: String = "",
+    @ColumnInfo(name = "player_name")
+    val playerName: String = "",
+    @ColumnInfo(name = "country_code")
+    val countryCode: String = "DEU",
     @ColumnInfo(name = "created_at")
     val createdAt: Long = System.currentTimeMillis()
 ) {
     init {
         require(name.isNotBlank()) { "Name darf nicht leer sein" }
     }
+
+    val displayPlayerName: String
+        get() = playerName.ifBlank { name }
 }

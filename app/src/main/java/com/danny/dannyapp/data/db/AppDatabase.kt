@@ -68,6 +68,14 @@ val MIGRATION_13_14 = object : Migration(13, 14) {
     }
 }
 
+val MIGRATION_14_15 = object : Migration(14, 15) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE user_profiles ADD COLUMN player_name TEXT NOT NULL DEFAULT ''")
+        db.execSQL("ALTER TABLE user_profiles ADD COLUMN country_code TEXT NOT NULL DEFAULT 'DEU'")
+        db.execSQL("UPDATE user_profiles SET player_name = name WHERE player_name = '' OR player_name IS NULL")
+    }
+}
+
 @Database(
     entities = [
         Player::class,
@@ -79,7 +87,7 @@ val MIGRATION_13_14 = object : Migration(13, 14) {
         TournamentMatch::class,
         TournamentPlacement::class
     ],
-    version = 14,
+    version = 15,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -104,7 +112,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "danny_app_database"
                 )
-                .addMigrations(MIGRATION_12_13, MIGRATION_13_14)
+                .addMigrations(MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15)
                 // TODO: Implement proper database migrations before production release to avoid data loss
                 .fallbackToDestructiveMigration(true)
                 .addCallback(DatabaseCallback(context.applicationContext))

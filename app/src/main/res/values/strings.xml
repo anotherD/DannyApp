@@ -46,9 +46,12 @@
     <string name="profile_delete_warning_with_careers">Achtung: Das Profil \'%1$s\' ist mit %2$d Karriere(n) verknüpft.\n\nBeim Löschen werden auch alle zugehörigen Karrieren unwiderruflich gelöscht!\n\nMöchtest du das Profil trotzdem löschen?</string>
     <string name="profile_delete_confirm">Löschen</string>
     <string name="profile_deleted_msg">Profil \'%s\' gelöscht.</string>
+    <string name="profiles_create_player_name_hint">Spielername</string>
+    <string name="profiles_create_country_hint">Land / Nationalität</string>
     <string name="config_title">Konfiguration</string>
-    <string name="config_dummy_config_1">Dummy Config 1</string>
-    <string name="config_dummy_config_2">Dummy Config 2</string>
+    <string name="config_debug_mode">Debug-Modus</string>
+    <string name="config_auto_simulate_cpu">Automatische Simulation</string>
+    <string name="config_auto_advance_round">Automatisch zur nächsten Runde</string>
     <string name="config_saved">Konfiguration gespeichert</string>
     <string name="config_players">Spieler</string>
     <string name="config_players_empty_state">Keine Spieler vorhanden.</string>

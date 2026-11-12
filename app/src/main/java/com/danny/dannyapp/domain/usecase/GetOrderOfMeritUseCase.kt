@@ -46,7 +46,8 @@ class GetOrderOfMeritUseCase(
         val playerMap = allPlayers.associateBy { it.id }
 
         val careerWithProfile = careerDao.getCareerById(careerId)
-        val userName = careerWithProfile?.profileName ?: careerWithProfile?.career?.name ?: "User"
+        val userName = careerWithProfile?.playerName?.ifBlank { null } ?: careerWithProfile?.profileName ?: careerWithProfile?.career?.name ?: "User"
+        val userCountryCode = careerWithProfile?.countryCode ?: "DEU"
         val userSkill = careerWithProfile?.career?.level ?: 5
 
         val seasonMap = seasons.associateBy { it.id }
@@ -114,7 +115,7 @@ class GetOrderOfMeritUseCase(
 
             if (isUser) {
                 name = userName
-                countryCode = "GER"
+                countryCode = userCountryCode
                 skill = userSkill
             } else {
                 val player = playerMap[playerId]

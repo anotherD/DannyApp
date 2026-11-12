@@ -3,11 +3,8 @@ package com.danny.dannyapp.ui
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.danny.dannyapp.R
@@ -20,16 +17,22 @@ abstract class BaseActivity : AppCompatActivity() {
     protected var toolbar: MaterialToolbar? = null
     protected val settingsManager by lazy { SettingsManager(this) }
 
-    protected var config1Checked: Boolean
-        get() = settingsManager.config1Checked
+    protected var debugMode: Boolean
+        get() = settingsManager.debugMode
         set(value) {
-            settingsManager.config1Checked = value
+            settingsManager.debugMode = value
         }
 
-    protected var config2Checked: Boolean
-        get() = settingsManager.config2Checked
+    protected var autoSimulateCpu: Boolean
+        get() = settingsManager.autoSimulateCpu
         set(value) {
-            settingsManager.config2Checked = value
+            settingsManager.autoSimulateCpu = value
+        }
+
+    protected var autoAdvanceRound: Boolean
+        get() = settingsManager.autoAdvanceRound
+        set(value) {
+            settingsManager.autoAdvanceRound = value
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {

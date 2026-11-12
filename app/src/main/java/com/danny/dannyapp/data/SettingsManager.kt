@@ -9,28 +9,22 @@ class SettingsManager(context: Context) {
     private val prefs: SharedPreferences =
         context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
-    var config1Checked: Boolean
-        get() = prefs.getBoolean(KEY_CONFIG_1, false)
-        set(value) {
-            prefs.edit { putBoolean(KEY_CONFIG_1, value) }
-        }
+    var debugMode: Boolean
+        get() = prefs.getBoolean(KEY_DEBUG_MODE, true)
+        set(value) { prefs.edit { putBoolean(KEY_DEBUG_MODE, value) } }
 
-    var config2Checked: Boolean
-        get() = prefs.getBoolean(KEY_CONFIG_2, false)
-        set(value) {
-            prefs.edit { putBoolean(KEY_CONFIG_2, value) }
-        }
+    var autoSimulateCpu: Boolean
+        get() = prefs.getBoolean(KEY_AUTO_SIMULATE_CPU, true)
+        set(value) { prefs.edit { putBoolean(KEY_AUTO_SIMULATE_CPU, value) } }
 
-    fun saveConfigs(config1: Boolean, config2: Boolean) {
-        prefs.edit {
-            putBoolean(KEY_CONFIG_1, config1)
-                .putBoolean(KEY_CONFIG_2, config2)
-        }
-    }
+    var autoAdvanceRound: Boolean
+        get() = prefs.getBoolean(KEY_AUTO_ADVANCE_ROUND, true)
+        set(value) { prefs.edit { putBoolean(KEY_AUTO_ADVANCE_ROUND, value) } }
 
     companion object {
         private const val PREFS_NAME = "danny_app_settings"
-        private const val KEY_CONFIG_1 = "key_config_1"
-        private const val KEY_CONFIG_2 = "key_config_2"
+        private const val KEY_DEBUG_MODE = "key_debug_mode"
+        private const val KEY_AUTO_SIMULATE_CPU = "key_auto_simulate_cpu"
+        private const val KEY_AUTO_ADVANCE_ROUND = "key_auto_advance_round"
     }
 }

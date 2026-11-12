@@ -21,7 +21,6 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
-import com.google.android.material.materialswitch.MaterialSwitch
 import kotlinx.coroutines.launch
 
 class TournamentDetailActivity : BaseActivity() {
@@ -44,8 +43,6 @@ class TournamentDetailActivity : BaseActivity() {
     private lateinit var spinnerRound: Spinner
     private lateinit var layoutGroupSelector: LinearLayout
     private lateinit var spinnerGroup: Spinner
-    private lateinit var switchAutoSimulateCpu: MaterialSwitch
-    private lateinit var switchAutoAdvanceRound: MaterialSwitch
     private lateinit var btnSimulateCpuMatches: Button
     private lateinit var btnAdvanceRound: Button
     private lateinit var rvMatches: RecyclerView
@@ -109,8 +106,6 @@ class TournamentDetailActivity : BaseActivity() {
         spinnerRound = findViewById(R.id.spinnerRound)
         layoutGroupSelector = findViewById(R.id.layoutGroupSelector)
         spinnerGroup = findViewById(R.id.spinnerGroup)
-        switchAutoSimulateCpu = findViewById(R.id.switchAutoSimulateCpu)
-        switchAutoAdvanceRound = findViewById(R.id.switchAutoAdvanceRound)
         btnSimulateCpuMatches = findViewById(R.id.btnSimulateCpuMatches)
         btnAdvanceRound = findViewById(R.id.btnAdvanceRound)
         rvMatches = findViewById(R.id.rvMatches)
@@ -146,14 +141,6 @@ class TournamentDetailActivity : BaseActivity() {
     private fun setupListeners() {
         btnStartTournamentPreview.setOnClickListener {
             viewModel.startTournament()
-        }
-
-        switchAutoSimulateCpu.setOnCheckedChangeListener { _, isChecked ->
-            viewModel.updateAutoSimulateCpu(isChecked)
-        }
-
-        switchAutoAdvanceRound.setOnCheckedChangeListener { _, isChecked ->
-            viewModel.updateAutoAdvanceRound(isChecked)
         }
 
         btnSimulateCpuMatches.setOnClickListener {
@@ -266,18 +253,6 @@ class TournamentDetailActivity : BaseActivity() {
                     isSpinningGroupInternal = false
                 } else {
                     layoutGroupSelector.visibility = View.GONE
-                }
-
-                // Switches
-                switchAutoSimulateCpu.setOnCheckedChangeListener(null)
-                switchAutoAdvanceRound.setOnCheckedChangeListener(null)
-                switchAutoSimulateCpu.isChecked = state.autoSimulateCpu
-                switchAutoAdvanceRound.isChecked = state.autoAdvanceRound
-                switchAutoSimulateCpu.setOnCheckedChangeListener { _, isChecked ->
-                    viewModel.updateAutoSimulateCpu(isChecked)
-                }
-                switchAutoAdvanceRound.setOnCheckedChangeListener { _, isChecked ->
-                    viewModel.updateAutoAdvanceRound(isChecked)
                 }
 
                 activeMatchesAdapter.submitList(state.matches)

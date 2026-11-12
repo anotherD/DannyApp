@@ -1,6 +1,8 @@
 package com.danny.dannyapp.ui
 
 import android.os.Bundle
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
@@ -12,6 +14,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
+import com.danny.dannyapp.data.Country
 import com.danny.dannyapp.data.db.UserProfile
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
@@ -95,7 +98,26 @@ class ProfilesActivity : BaseActivity() {
     private fun showNewProfileDialog() {
         val dialogView = layoutInflater.inflate(R.layout.dialog_new_profile, null)
         val etProfileName = dialogView.findViewById<TextInputEditText>(R.id.etProfileName)
+        val etPlayerName = dialogView.findViewById<TextInputEditText>(R.id.etPlayerName)
+        val actvCountry = dialogView.findViewById<AutoCompleteTextView>(R.id.actvCountry)
         val etProfileDescription = dialogView.findViewById<TextInputEditText>(R.id.etProfileDescription)
+
+        val countries = Country.getAllCountries()
+        val countryDisplayList = countries.map { "${it.flagEmoji}  ${it.displayName}" }
+        val countryAdapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, countryDisplayList)
+        actvCountry.setAdapter(countryAdapter)
+
+        // Default to Germany (DEU) if present
+        var selectedCountryCode = "DEU"
+        val defaultCountryIndex = countries.indexOfFirst { it.code.equals("DEU", ignoreCase = true) }
+        if (defaultCountryIndex >= 0) {
+            actvCountry.setText(countryDisplayList[defaultCountryIndex], false)
+            selectedCountryCode = countries[defaultCountryIndex].code
+        }
+
+        actvCountry.setOnItemClickListener { _, _, position, _ ->
+            selectedCountryCode = countries.getOrNull(position)?.code ?: "DEU"
+        }
 
         val dialog = MaterialAlertDialogBuilder(this)
             .setView(dialogView)
@@ -110,9 +132,10 @@ class ProfilesActivity : BaseActivity() {
                 if (profileName.isEmpty()) {
                     Toast.makeText(this, getString(R.string.profiles_create_error_empty_name), Toast.LENGTH_SHORT).show()
                 } else {
+                    val playerName = etPlayerName.text.toString().trim().ifEmpty { profileName }
                     val profileDescription = etProfileDescription.text.toString().trim()
                     lifecycleScope.launch {
-                        val result = viewModel.saveUserProfile(profileName, profileDescription)
+                        val result = viewModel.saveUserProfile(profileName, playerName, selectedCountryCode, profileDescription)
                         when (result) {
                             is SaveProfileResult.Success -> {
                                 Toast.makeText(this@ProfilesActivity, getString(R.string.profile_created_msg, result.profileName), Toast.LENGTH_SHORT).show()
@@ -139,10 +162,28 @@ class ProfilesActivity : BaseActivity() {
         tvDialogTitle?.text = getString(R.string.profile_edit_title)
 
         val etProfileName = dialogView.findViewById<TextInputEditText>(R.id.etProfileName)
+        val etPlayerName = dialogView.findViewById<TextInputEditText>(R.id.etPlayerName)
+        val actvCountry = dialogView.findViewById<AutoCompleteTextView>(R.id.actvCountry)
         val etProfileDescription = dialogView.findViewById<TextInputEditText>(R.id.etProfileDescription)
 
         etProfileName.setText(profile.name)
+        etPlayerName.setText(profile.playerName)
         etProfileDescription.setText(profile.description)
+
+        val countries = Country.getAllCountries()
+        val countryDisplayList = countries.map { "${it.flagEmoji}  ${it.displayName}" }
+        val countryAdapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, countryDisplayList)
+        actvCountry.setAdapter(countryAdapter)
+
+        var selectedCountryCode = profile.countryCode
+        val currentCountryIndex = countries.indexOfFirst { it.code.equals(profile.countryCode, ignoreCase = true) }
+        if (currentCountryIndex >= 0) {
+            actvCountry.setText(countryDisplayList[currentCountryIndex], false)
+        }
+
+        actvCountry.setOnItemClickListener { _, _, position, _ ->
+            selectedCountryCode = countries.getOrNull(position)?.code ?: "DEU"
+        }
 
         val dialog = MaterialAlertDialogBuilder(this)
             .setView(dialogView)
@@ -157,9 +198,10 @@ class ProfilesActivity : BaseActivity() {
                 if (profileName.isEmpty()) {
                     Toast.makeText(this, getString(R.string.profiles_create_error_empty_name), Toast.LENGTH_SHORT).show()
                 } else {
+                    val playerName = etPlayerName.text.toString().trim().ifEmpty { profileName }
                     val profileDescription = etProfileDescription.text.toString().trim()
                     lifecycleScope.launch {
-                        val result = viewModel.updateUserProfile(profile, profileName, profileDescription)
+                        val result = viewModel.updateUserProfile(profile, profileName, playerName, selectedCountryCode, profileDescription)
                         when (result) {
                             is SaveProfileResult.Success -> {
                                 Toast.makeText(this@ProfilesActivity, getString(R.string.profile_updated_msg, result.profileName), Toast.LENGTH_SHORT).show()

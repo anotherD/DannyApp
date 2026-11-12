@@ -10,8 +10,9 @@ import com.google.android.material.materialswitch.MaterialSwitch
 
 class ConfigActivity : BaseActivity() {
 
-    private lateinit var switchConfig1: MaterialSwitch
-    private lateinit var switchConfig2: MaterialSwitch
+    private lateinit var switchDebugMode: MaterialSwitch
+    private lateinit var switchAutoSimulateCpu: MaterialSwitch
+    private lateinit var switchAutoAdvanceRound: MaterialSwitch
     private lateinit var cardPlayers: MaterialCardView
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -19,20 +20,27 @@ class ConfigActivity : BaseActivity() {
         setContentView(R.layout.activity_config)
         setupToolbar(getString(R.string.config_title), showBack = true, rootViewId = R.id.configurationMain)
 
-        switchConfig1 = findViewById(R.id.switchConfig1)
-        switchConfig2 = findViewById(R.id.switchConfig2)
+        switchDebugMode = findViewById(R.id.switchDebugMode)
+        switchAutoSimulateCpu = findViewById(R.id.switchAutoSimulateCpu)
+        switchAutoAdvanceRound = findViewById(R.id.switchAutoAdvanceRound)
         cardPlayers = findViewById(R.id.cardPlayers)
 
-        switchConfig1.isChecked = config1Checked
-        switchConfig2.isChecked = config2Checked
+        switchDebugMode.isChecked = debugMode
+        switchAutoSimulateCpu.isChecked = autoSimulateCpu
+        switchAutoAdvanceRound.isChecked = autoAdvanceRound
 
-        switchConfig1.setOnCheckedChangeListener { _, isChecked ->
-            config1Checked = isChecked
+        switchDebugMode.setOnCheckedChangeListener { _, isChecked ->
+            debugMode = isChecked
             Toast.makeText(this, getString(R.string.config_saved), Toast.LENGTH_SHORT).show()
         }
 
-        switchConfig2.setOnCheckedChangeListener { _, isChecked ->
-            config2Checked = isChecked
+        switchAutoSimulateCpu.setOnCheckedChangeListener { _, isChecked ->
+            autoSimulateCpu = isChecked
+            Toast.makeText(this, getString(R.string.config_saved), Toast.LENGTH_SHORT).show()
+        }
+
+        switchAutoAdvanceRound.setOnCheckedChangeListener { _, isChecked ->
+            autoAdvanceRound = isChecked
             Toast.makeText(this, getString(R.string.config_saved), Toast.LENGTH_SHORT).show()
         }
 

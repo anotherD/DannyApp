@@ -195,23 +195,7 @@
                         android:layout_weight="1" />
                 </LinearLayout>
 
-                <!-- Switches -->
-                <com.google.android.material.materialswitch.MaterialSwitch
-                    android:id="@+id/switchAutoSimulateCpu"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:checked="true"
-                    android:text="Automatische Simulation (CPU)"
-                    android:textSize="13sp" />
 
-                <com.google.android.material.materialswitch.MaterialSwitch
-                    android:id="@+id/switchAutoAdvanceRound"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:checked="true"
-                    android:text="Automatisch zur nächsten Runde"
-                    android:textSize="13sp" />
 
                 <!-- Action Buttons -->
                 <LinearLayout

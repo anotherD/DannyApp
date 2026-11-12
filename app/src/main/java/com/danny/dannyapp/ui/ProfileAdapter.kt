@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
+import com.danny.dannyapp.data.Country
 import com.danny.dannyapp.data.db.UserProfile
 
 class ProfileAdapter(
@@ -17,6 +18,7 @@ class ProfileAdapter(
 
     class ProfileViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val tvProfileName: TextView = view.findViewById(R.id.tvProfileName)
+        val tvPlayerNameAndFlag: TextView = view.findViewById(R.id.tvPlayerNameAndFlag)
         val tvProfileDescription: TextView = view.findViewById(R.id.tvProfileDescription)
     }
 
@@ -29,6 +31,10 @@ class ProfileAdapter(
     override fun onBindViewHolder(holder: ProfileViewHolder, position: Int) {
         val profile = getItem(position)
         holder.tvProfileName.text = profile.name
+
+        val flagEmoji = Country.getFlagEmoji(profile.countryCode)
+        holder.tvPlayerNameAndFlag.text = "$flagEmoji ${profile.playerName}"
+
         if (profile.description.isNotBlank()) {
             holder.tvProfileDescription.text = profile.description
             holder.tvProfileDescription.visibility = View.VISIBLE

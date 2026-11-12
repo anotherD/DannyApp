@@ -11,19 +11,21 @@ import kotlinx.coroutines.flow.Flow
 
 data class CareerWithProfile(
     @Embedded val career: Career,
-    @ColumnInfo(name = "profile_name") val profileName: String?
+    @ColumnInfo(name = "profile_name") val profileName: String? = null,
+    @ColumnInfo(name = "player_name") val playerName: String? = null,
+    @ColumnInfo(name = "country_code") val countryCode: String? = null
 )
 
 @Dao
 interface CareerDao {
 
-    @Query("SELECT c.*, p.name as profile_name FROM careers c LEFT JOIN user_profiles p ON c.profile_id = p.id ORDER BY c.created_at DESC")
+    @Query("SELECT c.*, p.name as profile_name, p.player_name as player_name, p.country_code as country_code FROM careers c LEFT JOIN user_profiles p ON c.profile_id = p.id ORDER BY c.created_at DESC")
     fun getAllCareers(): Flow<List<CareerWithProfile>>
 
-    @Query("SELECT c.*, p.name as profile_name FROM careers c LEFT JOIN user_profiles p ON c.profile_id = p.id ORDER BY c.created_at DESC")
+    @Query("SELECT c.*, p.name as profile_name, p.player_name as player_name, p.country_code as country_code FROM careers c LEFT JOIN user_profiles p ON c.profile_id = p.id ORDER BY c.created_at DESC")
     suspend fun getAllCareersList(): List<CareerWithProfile>
 
-    @Query("SELECT c.*, p.name as profile_name FROM careers c LEFT JOIN user_profiles p ON c.profile_id = p.id WHERE c.id = :id")
+    @Query("SELECT c.*, p.name as profile_name, p.player_name as player_name, p.country_code as country_code FROM careers c LEFT JOIN user_profiles p ON c.profile_id = p.id WHERE c.id = :id")
     suspend fun getCareerById(id: Long): CareerWithProfile?
 
     @Query("SELECT COUNT(*) FROM careers WHERE profile_id = :profileId")
