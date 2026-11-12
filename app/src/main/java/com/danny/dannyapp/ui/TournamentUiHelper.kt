@@ -13,6 +13,7 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.danny.dannyapp.R
 import com.danny.dannyapp.data.Country
+import com.danny.dannyapp.data.db.Tournament
 import com.danny.dannyapp.domain.model.TournamentEvent
 
 object TournamentUiHelper {
@@ -236,5 +237,30 @@ object TournamentUiHelper {
         }
 
         itemView.setOnClickListener { onTournamentClick(model) }
+    }
+
+    fun bindTournamentHeader(
+        context: Context,
+        tvTitle: TextView,
+        tvStatusBadge: TextView,
+        tvTypeBadge: TextView,
+        tvHost: TextView,
+        tournament: Tournament,
+        statusText: String,
+        statusColorResId: Int
+    ) {
+        tvTitle.text = tournament.name
+
+        tvStatusBadge.text = statusText
+        tvStatusBadge.backgroundTintList = ContextCompat.getColorStateList(context, statusColorResId)
+
+        val typeBadgeInfo = getTournamentTypeBadgeInfo(context, tournament.type)
+        tvTypeBadge.visibility = View.VISIBLE
+        tvTypeBadge.text = typeBadgeInfo.text
+        tvTypeBadge.backgroundTintList = ContextCompat.getColorStateList(context, typeBadgeInfo.colorResId)
+
+        val host = tournament.hostCountry ?: "ENG"
+        val city = getTournamentCity(host, tournament.name)
+        formatFlagAndText(context, tvHost, host, city)
     }
 }

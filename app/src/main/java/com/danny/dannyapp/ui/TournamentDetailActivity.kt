@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 
 class TournamentDetailActivity : BaseActivity() {
@@ -33,7 +34,8 @@ class TournamentDetailActivity : BaseActivity() {
     private lateinit var layoutPreviewContainer: View
     private lateinit var tvPreviewTitle: TextView
     private lateinit var tvStatusBadgePreview: TextView
-    private lateinit var tvPreviewHostAndType: TextView
+    private lateinit var tvPreviewTypeBadge: TextView
+    private lateinit var tvPreviewHost: TextView
     private lateinit var tvPreviewPrizeFund: TextView
     private lateinit var rvPreviewPrizeMoney: RecyclerView
     private lateinit var btnStartTournamentPreview: Button
@@ -44,6 +46,8 @@ class TournamentDetailActivity : BaseActivity() {
     private lateinit var tvActiveTitle: TextView
     private lateinit var btnPrizeInfoActive: View
     private lateinit var tvStatusBadgeActive: TextView
+    private lateinit var tvActiveTypeBadge: TextView
+    private lateinit var tvActiveHost: TextView
     private lateinit var scrollRoundPills: HorizontalScrollView
     private lateinit var chipGroupRounds: ChipGroup
     private lateinit var layoutGroupSelector: View
@@ -56,6 +60,9 @@ class TournamentDetailActivity : BaseActivity() {
 
     // Review
     private lateinit var layoutReviewContainer: View
+    private lateinit var tvReviewTitle: TextView
+    private lateinit var tvReviewTypeBadge: TextView
+    private lateinit var tvReviewHost: TextView
     private lateinit var tvReviewWinner: TextView
     private lateinit var btnPrizeInfoReview: View
     private lateinit var tvStatusBadgeReview: TextView
@@ -116,7 +123,8 @@ class TournamentDetailActivity : BaseActivity() {
         layoutPreviewContainer = findViewById(R.id.layoutPreviewContainer)
         tvPreviewTitle = findViewById(R.id.tvPreviewTitle)
         tvStatusBadgePreview = findViewById(R.id.tvStatusBadgePreview)
-        tvPreviewHostAndType = findViewById(R.id.tvPreviewHostAndType)
+        tvPreviewTypeBadge = findViewById(R.id.tvPreviewTypeBadge)
+        tvPreviewHost = findViewById(R.id.tvPreviewHost)
         tvPreviewPrizeFund = findViewById(R.id.tvPreviewPrizeFund)
         rvPreviewPrizeMoney = findViewById(R.id.rvPreviewPrizeMoney)
         btnStartTournamentPreview = findViewById(R.id.btnStartTournamentPreview)
@@ -126,6 +134,8 @@ class TournamentDetailActivity : BaseActivity() {
         tvActiveTitle = findViewById(R.id.tvActiveTitle)
         btnPrizeInfoActive = findViewById(R.id.btnPrizeInfoActive)
         tvStatusBadgeActive = findViewById(R.id.tvStatusBadgeActive)
+        tvActiveTypeBadge = findViewById(R.id.tvActiveTypeBadge)
+        tvActiveHost = findViewById(R.id.tvActiveHost)
         scrollRoundPills = findViewById(R.id.scrollRoundPills)
         chipGroupRounds = findViewById(R.id.chipGroupRounds)
         layoutGroupSelector = findViewById(R.id.layoutGroupSelector)
@@ -137,6 +147,9 @@ class TournamentDetailActivity : BaseActivity() {
 
         // Review
         layoutReviewContainer = findViewById(R.id.layoutReviewContainer)
+        tvReviewTitle = findViewById(R.id.tvReviewTitle)
+        tvReviewTypeBadge = findViewById(R.id.tvReviewTypeBadge)
+        tvReviewHost = findViewById(R.id.tvReviewHost)
         tvReviewWinner = findViewById(R.id.tvReviewWinner)
         btnPrizeInfoReview = findViewById(R.id.btnPrizeInfoReview)
         tvStatusBadgeReview = findViewById(R.id.tvStatusBadgeReview)
@@ -225,11 +238,11 @@ class TournamentDetailActivity : BaseActivity() {
                     rootViewId = R.id.tournamentDetailMain
                 )
 
-                tvPreviewTitle.text = state.tournament.name
-                tvStatusBadgePreview.text = getString(R.string.tournament_status_planned)
-                tvStatusBadgePreview.backgroundTintList = ContextCompat.getColorStateList(this, R.color.status_planned)
+                TournamentUiHelper.bindTournamentHeader(
+                    this, tvPreviewTitle, tvStatusBadgePreview, tvPreviewTypeBadge, tvPreviewHost,
+                    state.tournament, getString(R.string.tournament_status_planned), R.color.status_planned
+                )
 
-                tvPreviewHostAndType.text = state.hostCountryText
                 tvPreviewPrizeFund.text = state.totalPrizeFundText
                 prizeMoneyAdapter.submitList(state.prizeMoneyItems)
 
@@ -254,15 +267,16 @@ class TournamentDetailActivity : BaseActivity() {
                     rootViewId = R.id.tournamentDetailMain
                 )
 
+                TournamentUiHelper.bindTournamentHeader(
+                    this, tvActiveTitle, tvStatusBadgeActive, tvActiveTypeBadge, tvActiveHost,
+                    state.tournament, state.activeRoundDisplayName, R.color.status_active
+                )
+
                 val canPlay = state.isSelectedRoundPlayable
                 btnSimulateCpuMatches.visibility = if (debugMode && canPlay) View.VISIBLE else View.GONE
                 btnSimulateComplete.visibility = if (debugMode && canPlay) View.VISIBLE else View.GONE
-                btnAdvanceRound.visibility = if (canPlay && state.isCurrentRoundCompleted) View.VISIBLE else View.GONE
-                btnAdvanceRound.isEnabled = canPlay && state.isCurrentRoundCompleted
-
-                tvActiveTitle.text = state.tournament.name
-                tvStatusBadgeActive.text = state.activeRoundDisplayName
-                tvStatusBadgeActive.backgroundTintList = ContextCompat.getColorStateList(this, R.color.status_active)
+                btnAdvanceRound.visibility = if (state.canAdvanceRound) View.VISIBLE else View.GONE
+                btnAdvanceRound.isEnabled = state.canAdvanceRound
 
                 currentPrizeMoneyItems = state.prizeMoneyItems
 
@@ -326,10 +340,12 @@ class TournamentDetailActivity : BaseActivity() {
                     rootViewId = R.id.tournamentDetailMain
                 )
 
-                tvReviewWinner.text = getString(R.string.tournament_review_winner, state.winnerFlag, state.winnerName)
-                tvStatusBadgeReview.text = getString(R.string.tournament_status_completed)
-                tvStatusBadgeReview.backgroundTintList = ContextCompat.getColorStateList(this, R.color.status_completed)
+                TournamentUiHelper.bindTournamentHeader(
+                    this, tvReviewTitle, tvStatusBadgeReview, tvReviewTypeBadge, tvReviewHost,
+                    state.tournament, getString(R.string.tournament_status_completed), R.color.status_completed
+                )
 
+                tvReviewWinner.text = getString(R.string.tournament_review_winner, state.winnerFlag, state.winnerName)
                 tvReviewFinalScore.text = getString(R.string.tournament_review_final_score, state.finalScoreText, state.opponentFlag, state.opponentName)
                 tvReviewUserRound.text = getString(R.string.tournament_review_user_round, state.userReachedRoundText)
                 tvReviewUserPrize.text = getString(R.string.tournament_review_user_prize, state.userEarnedPrizeMoneyText)
@@ -378,7 +394,7 @@ class TournamentDetailActivity : BaseActivity() {
             setPadding(32, 16, 32, 16)
         }
 
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle(getString(R.string.tournament_preview_prizes_title))
             .setView(rv)
             .setPositiveButton(getString(R.string.dialog_close), null)

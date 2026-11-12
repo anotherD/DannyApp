@@ -98,9 +98,12 @@ class AdvanceTournamentRoundUseCase(
             )
 
             val N = nonPreqTc.size
-            var M = 2 * targetWinners
-            while (M < N) {
-                M *= 2
+            val M = when {
+                N > 64 -> 128
+                N > 32 -> 64
+                N > 16 -> 32
+                N > 8 -> 16
+                else -> 2 * targetWinners
             }
 
             val roundsPresent = allMatches.map { it.round }.distinct()

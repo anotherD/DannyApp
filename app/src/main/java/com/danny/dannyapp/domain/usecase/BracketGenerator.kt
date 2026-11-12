@@ -240,13 +240,16 @@ object BracketGenerator {
         val N = oomSortedIds.size
         if (N == 0) return emptyList()
 
-        var M = 2 * targetWinners
-        while (M < N) {
-            M *= 2
+        val M = when {
+            N > 64 -> 128
+            N > 32 -> 64
+            N > 16 -> 32
+            N > 8 -> 16
+            else -> 2 * targetWinners
         }
 
         val initialMatchCount = if (N < M) N - M / 2 else M / 2
-        val round = getQualifierRoundForMatchCount(initialMatchCount)
+        val round = if (N > 64) TournamentRound.L128 else getQualifierRoundForMatchCount(initialMatchCount)
 
         return if (N == M || N <= 2 * targetWinners) {
             val matchCount = N / 2

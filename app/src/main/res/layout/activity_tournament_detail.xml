@@ -70,7 +70,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginEnd="8dp"
                             android:textColor="?attr/colorOnSurface"
-                            android:textSize="20sp"
+                            android:textSize="18sp"
                             android:textStyle="bold"
                             app:layout_constraintEnd_toStartOf="@id/tvStatusBadgePreview"
                             app:layout_constraintStart_toStartOf="parent"
@@ -92,28 +92,42 @@
                             tools:text="Geplant" />
 
                         <TextView
-                            android:id="@+id/tvPreviewHostAndType"
-                            android:layout_width="0dp"
+                            android:id="@+id/tvPreviewTypeBadge"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="6dp"
+                            android:layout_marginTop="8dp"
+                            android:background="@drawable/bg_major_badge"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="3dp"
+                            android:textColor="@color/white"
+                            android:textSize="11sp"
+                            android:textStyle="bold"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/tvPreviewTitle"
+                            tools:text="Major" />
+
+                        <TextView
+                            android:id="@+id/tvPreviewHost"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
                             android:textColor="?attr/colorOnSurfaceVariant"
                             android:textSize="14sp"
                             app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toBottomOf="@id/tvPreviewTitle"
-                            tools:text="Austragungsort: Blackpool 🏴󠁧󠁢󠁥󠁮󠁧󠁿&#10;Major" />
+                            tools:text="🏴󠁧󠁢󠁥󠁮󠁧󠁿 Blackpool" />
 
                         <TextView
                             android:id="@+id/tvPreviewPrizeFund"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="6dp"
+                            android:layout_marginTop="8dp"
                             android:textColor="?attr/colorPrimary"
                             android:textSize="16sp"
                             android:textStyle="bold"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@id/tvPreviewHostAndType"
+                            app:layout_constraintTop_toBottomOf="@id/tvPreviewTypeBadge"
                             tools:text="Gesamtpreisgeld: £1,000,000" />
                     </androidx.constraintlayout.widget.ConstraintLayout>
                 </com.google.android.material.card.MaterialCardView>
@@ -227,6 +241,32 @@
                     app:layout_constraintTop_toTopOf="parent"
                     tools:text="Achtelfinale" />
 
+                <TextView
+                    android:id="@+id/tvActiveTypeBadge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/bg_major_badge"
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="3dp"
+                    android:textColor="@color/white"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tvActiveTitle"
+                    tools:text="Major" />
+
+                <TextView
+                    android:id="@+id/tvActiveHost"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:textSize="14sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tvActiveTitle"
+                    tools:text="🏴󠁧󠁢󠁥󠁮󠁧󠁿 Blackpool" />
+
                 <!-- Action Buttons -->
                 <LinearLayout
                     android:layout_width="0dp"
@@ -235,7 +275,7 @@
                     android:orientation="vertical"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/tvActiveTitle">
+                    app:layout_constraintTop_toBottomOf="@id/tvActiveTypeBadge">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -387,18 +427,18 @@
                 android:padding="14dp">
 
                 <TextView
-                    android:id="@+id/tvReviewWinner"
+                    android:id="@+id/tvReviewTitle"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
-                    android:textColor="?attr/colorPrimary"
+                    android:textColor="?attr/colorOnSurface"
                     android:textSize="18sp"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="@id/tvStatusBadgeReview"
                     app:layout_constraintEnd_toStartOf="@id/btnPrizeInfoReview"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="@id/tvStatusBadgeReview"
-                    tools:text="🏆 Turniersieger: Luke Humphries" />
+                    tools:text="World Matchplay" />
 
                 <!-- Info Icon -->
                 <ImageView
@@ -429,6 +469,45 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     tools:text="Abgeschlossen" />
+
+                <TextView
+                    android:id="@+id/tvReviewTypeBadge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/bg_major_badge"
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="3dp"
+                    android:textColor="@color/white"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tvReviewTitle"
+                    tools:text="Major" />
+
+                <TextView
+                    android:id="@+id/tvReviewHost"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:textSize="14sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tvReviewTitle"
+                    tools:text="🏴󠁧󠁢󠁥󠁮󠁧󠁿 Blackpool" />
+
+                <TextView
+                    android:id="@+id/tvReviewWinner"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:textColor="?attr/colorPrimary"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tvReviewTypeBadge"
+                    tools:text="🏆 Turniersieger: Luke Humphries" />
 
                 <TextView
                     android:id="@+id/tvReviewFinalScore"

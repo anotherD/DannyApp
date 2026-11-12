@@ -56,6 +56,7 @@ sealed interface TournamentDetailState {
         val autoAdvanceRound: Boolean,
         val isCurrentRoundCompleted: Boolean,
         val isSelectedRoundPlayable: Boolean,
+        val canAdvanceRound: Boolean,
         val userLevel: Int,
         val careerName: String
     ) : TournamentDetailState
@@ -106,6 +107,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
 
     private var selectedRoundIndex: Int = 0
     private var selectedGroupIndex: Int = 0
+    private var hasUserSelectedRound: Boolean = false
 
     private val selectedRoundIndexFlow = MutableStateFlow(0)
     private val selectedGroupIndexFlow = MutableStateFlow(0)
@@ -121,6 +123,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
     fun loadTournament(tournamentId: Long, careerId: Long) {
         this.currentTournamentId = tournamentId
         this.currentCareerId = careerId
+        hasUserSelectedRound = false
 
         loadJob?.cancel()
         loadJob = viewModelScope.launch {
@@ -282,6 +285,10 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         val isSelectedRoundPlayable = dbMatchesForRound.isNotEmpty() && dbMatchesForRound.any { !it.isCompleted }
         val prizeMoneyItems = getPrizeMoneyItems(event)
 
+        val nextRoundKey = availableRounds.getOrNull(selectedRoundIndex + 1)
+        val isNextRoundGenerated = nextRoundKey != null && allMatches.any { it.round == nextRoundKey }
+        val canAdvanceRound = dbMatchesForRound.isNotEmpty() && isCurrentRoundCompleted && !isNextRoundGenerated
+
         // Trigger Auto-Simulate if needed
         if (autoSimulateCpu && isSelectedRoundPlayable && dbMatchesForRound.any { !it.isCompleted && it.player1Id != USER_ID && it.player2Id != USER_ID }) {
             simulateCpuMatchUseCase.simulateAllCpuMatches(currentTournamentId)
@@ -322,6 +329,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             autoAdvanceRound = autoAdvanceRound,
             isCurrentRoundCompleted = isCurrentRoundCompleted,
             isSelectedRoundPlayable = isSelectedRoundPlayable,
+            canAdvanceRound = canAdvanceRound,
             userLevel = userLevel,
             careerName = careerName
         )
@@ -379,9 +387,9 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         val sequence = getRoundSequence(event, allMatches)
         val availableRounds = sequence.map { it.name }
 
-        if (selectedRoundIndex !in availableRounds.indices) {
-            selectedRoundIndex = 0
-            selectedRoundIndexFlow.value = 0
+        if (!hasUserSelectedRound || selectedRoundIndex !in availableRounds.indices) {
+            selectedRoundIndex = availableRounds.lastIndex.coerceAtLeast(0)
+            selectedRoundIndexFlow.value = selectedRoundIndex
         }
 
         val currentRoundKey = availableRounds.getOrNull(selectedRoundIndex) ?: ""
@@ -560,6 +568,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
     }
 
     fun selectRound(index: Int) {
+        hasUserSelectedRound = true
         selectedRoundIndex = index
         selectedRoundIndexFlow.value = index
     }
@@ -818,56 +827,16 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         event: TournamentEvent,
         allMatches: List<TournamentMatch> = emptyList()
     ): List<TournamentRound> {
-        if (event == TournamentEvent.QUALIFIER_ET ||
-            event == TournamentEvent.QUALIFIER_GRAND_SLAM ||
-            event == TournamentEvent.QUALIFIER_WM
-        ) {
-            val targetWinners = when (event) {
-                TournamentEvent.QUALIFIER_ET -> 10
-                TournamentEvent.QUALIFIER_GRAND_SLAM -> 8
-                TournamentEvent.QUALIFIER_WM -> 4
-                else -> 4
-            }
-
-            val roundsInDb = allMatches.map { it.round }.distinct()
-            val initialRoundKey = roundsInDb.firstOrNull()
-            val initialMatchCount = if (initialRoundKey != null) {
-                allMatches.filter { it.round == initialRoundKey }.size
-            } else {
-                when (event) {
-                    TournamentEvent.QUALIFIER_ET -> 16
-                    TournamentEvent.QUALIFIER_GRAND_SLAM -> 16
-                    TournamentEvent.QUALIFIER_WM -> 8
-                    else -> 8
-                }
-            }
-
-            val sequence = mutableListOf<TournamentRound>()
-            val firstRound = BracketGenerator.getQualifierRoundForMatchCount(initialMatchCount)
-            sequence.add(firstRound)
-
-            var curMatches = when (firstRound) {
-                TournamentRound.L128 -> 40
-                TournamentRound.L64 -> 20
-                TournamentRound.L32 -> 10
-                else -> initialMatchCount / 2
-            }
-
-            while (curMatches >= targetWinners && sequence.size < 6) {
-                val round = BracketGenerator.getQualifierRoundForMatchCount(curMatches)
-                if (!sequence.contains(round)) {
-                    sequence.add(round)
-                }
-                if (curMatches == targetWinners) break
-                curMatches /= 2
-            }
-
-            return sequence.ifEmpty {
-                listOf(TournamentRound.L32, TournamentRound.L16)
-            }
-        }
-
-        return when (event) {
+        val fullSequence = when (event) {
+            TournamentEvent.QUALIFIER_ET -> listOf(
+                TournamentRound.L128, TournamentRound.L64, TournamentRound.L32, TournamentRound.L16
+            )
+            TournamentEvent.QUALIFIER_GRAND_SLAM -> listOf(
+                TournamentRound.L64, TournamentRound.L32, TournamentRound.L16, TournamentRound.QF
+            )
+            TournamentEvent.QUALIFIER_WM -> listOf(
+                TournamentRound.L32, TournamentRound.L16, TournamentRound.QF, TournamentRound.SF
+            )
             TournamentEvent.PLAYERS_CHAMPIONSHIP -> listOf(
                 TournamentRound.L128, TournamentRound.L64, TournamentRound.L32,
                 TournamentRound.L16, TournamentRound.QF, TournamentRound.SF, TournamentRound.F
@@ -899,5 +868,11 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             )
             else -> listOf(TournamentRound.L32, TournamentRound.L16)
         }
+
+        if (allMatches.isEmpty()) return fullSequence
+
+        val firstMatchRound = allMatches.firstOrNull()?.round ?: return fullSequence
+        val startIndex = fullSequence.indexOfFirst { it.name == firstMatchRound }
+        return if (startIndex != -1) fullSequence.subList(startIndex, fullSequence.size) else fullSequence
     }
 }
