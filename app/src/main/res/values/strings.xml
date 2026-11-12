@@ -90,4 +90,14 @@
     <string name="rank_format">#%d</string>
     <string name="career_tournaments_btn">Saisonkalender</string>
     <string name="career_oom_btn">Ranglisten (OOM)</string>
+    <string name="tournament_placeholder_winner">Sieger #%d</string>
+    <string name="tournament_placeholder_unknown">\\?</string>
+    <string name="tournament_review_winner">Sieger: %s %s</string>
+    <string name="tournament_review_final_score">Finale: %s vs. %s %s</string>
+    <string name="tournament_review_user_round">Deine erreichte Runde: %s</string>
+    <string name="tournament_review_user_prize">Gewonnenes Preisgeld: %s</string>
+    <string name="group_label">Gruppe %s</string>
+    <string name="round_label">Runde:</string>
+    <string name="group_selection_label">Gruppe:</string>
+    <string name="round_scroll_label">Runde durchblättern:</string>
 </resources>

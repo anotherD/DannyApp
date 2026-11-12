@@ -2,6 +2,7 @@ package com.danny.dannyapp.ui
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import androidx.activity.viewModels
@@ -72,6 +73,11 @@ class TournamentCalendarActivity : BaseActivity() {
         if (careerId > 0L) {
             viewModel.loadTournaments(careerId)
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        btnSimulateSeason.visibility = if (debugMode) View.VISIBLE else View.GONE
     }
 
     private fun observeState() {

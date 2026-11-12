@@ -147,52 +147,64 @@
                 android:orientation="vertical"
                 android:padding="12dp">
 
-                <!-- Round Selector Spinner -->
-                <LinearLayout
+                <!-- Round Selector Chips -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/round_label"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <HorizontalScrollView
+                    android:id="@+id/scrollRoundPills"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
+                    android:layout_marginTop="4dp"
+                    android:scrollbars="none">
 
-                    <TextView
+                    <com.google.android.material.chip.ChipGroup
+                        android:id="@+id/chipGroupRounds"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Runde: "
-                        android:textColor="?attr/colorOnSurface"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
+                        app:selectionRequired="true"
+                        app:singleLine="true"
+                        app:singleSelection="true" />
+                </HorizontalScrollView>
 
-                    <Spinner
-                        android:id="@+id/spinnerRound"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1" />
-                </LinearLayout>
-
-                <!-- Group Selector Spinner (for Grand Slam) -->
+                <!-- Group Selector Chips (for Grand Slam) -->
                 <LinearLayout
                     android:id="@+id/layoutGroupSelector"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="6dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
+                    android:orientation="vertical"
                     android:visibility="gone"
                     tools:visibility="visible">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Gruppe: "
+                        android:text="@string/group_selection_label"
                         android:textColor="?attr/colorOnSurface"
                         android:textSize="14sp"
                         android:textStyle="bold" />
 
-                    <Spinner
-                        android:id="@+id/spinnerGroup"
-                        android:layout_width="0dp"
+                    <HorizontalScrollView
+                        android:id="@+id/scrollGroupPills"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1" />
+                        android:layout_marginTop="4dp"
+                        android:scrollbars="none">
+
+                        <com.google.android.material.chip.ChipGroup
+                            android:id="@+id/chipGroupGroups"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:selectionRequired="true"
+                            app:singleLine="true"
+                            app:singleSelection="true" />
+                    </HorizontalScrollView>
                 </LinearLayout>
 
 
@@ -311,28 +323,31 @@
                     android:textSize="14sp"
                     tools:text="Gewonnenes Preisgeld: £35,000" />
 
-                <!-- Review Round Selector -->
-                <LinearLayout
-                    android:layout_width="match_parent"
+                <!-- Review Round Selector Chips -->
+                <TextView
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
+                    android:text="@string/round_scroll_label"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
 
-                    <TextView
+                <HorizontalScrollView
+                    android:id="@+id/scrollReviewRoundPills"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:scrollbars="none">
+
+                    <com.google.android.material.chip.ChipGroup
+                        android:id="@+id/chipGroupReviewRounds"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Runde durchblättern: "
-                        android:textColor="?attr/colorOnSurface"
-                        android:textSize="13sp"
-                        android:textStyle="bold" />
-
-                    <Spinner
-                        android:id="@+id/spinnerReviewRound"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1" />
-                </LinearLayout>
+                        app:selectionRequired="true"
+                        app:singleLine="true"
+                        app:singleSelection="true" />
+                </HorizontalScrollView>
 
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>

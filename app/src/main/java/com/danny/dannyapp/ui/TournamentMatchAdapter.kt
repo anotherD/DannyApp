@@ -40,11 +40,9 @@ class TournamentMatchAdapter(
         val tvMatchStatusBadge: TextView = view.findViewById(R.id.tvMatchStatusBadge)
         val tvPlayer1Flag: TextView = view.findViewById(R.id.tvPlayer1Flag)
         val tvPlayer1Name: TextView = view.findViewById(R.id.tvPlayer1Name)
-        val tvPlayer1Skill: TextView = view.findViewById(R.id.tvPlayer1Skill)
         val tvPlayer1Score: TextView = view.findViewById(R.id.tvPlayer1Score)
         val tvPlayer2Flag: TextView = view.findViewById(R.id.tvPlayer2Flag)
         val tvPlayer2Name: TextView = view.findViewById(R.id.tvPlayer2Name)
-        val tvPlayer2Skill: TextView = view.findViewById(R.id.tvPlayer2Skill)
         val tvPlayer2Score: TextView = view.findViewById(R.id.tvPlayer2Score)
     }
 
@@ -64,11 +62,9 @@ class TournamentMatchAdapter(
 
         holder.tvPlayer1Flag.text = item.player1Flag
         holder.tvPlayer1Name.text = item.player1Name
-        holder.tvPlayer1Skill.text = "Skill: ${item.player1Skill}"
 
         holder.tvPlayer2Flag.text = item.player2Flag
         holder.tvPlayer2Name.text = item.player2Name
-        holder.tvPlayer2Skill.text = "Skill: ${item.player2Skill}"
 
         if (item.isCompleted) {
             holder.tvPlayer1Score.text = match.player1Score.toString()

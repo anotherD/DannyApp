@@ -3,14 +3,11 @@ package com.danny.dannyapp.ui
 import android.os.Bundle
 import android.text.InputType
 import android.view.View
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.ScrollView
-import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -21,6 +18,8 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
+import com.google.android.material.chip.Chip
+import com.google.android.material.chip.ChipGroup
 import kotlinx.coroutines.launch
 
 class TournamentDetailActivity : BaseActivity() {
@@ -40,9 +39,9 @@ class TournamentDetailActivity : BaseActivity() {
 
     // Active
     private lateinit var layoutActiveContainer: View
-    private lateinit var spinnerRound: Spinner
-    private lateinit var layoutGroupSelector: LinearLayout
-    private lateinit var spinnerGroup: Spinner
+    private lateinit var chipGroupRounds: ChipGroup
+    private lateinit var layoutGroupSelector: View
+    private lateinit var chipGroupGroups: ChipGroup
     private lateinit var btnSimulateCpuMatches: Button
     private lateinit var btnAdvanceRound: Button
     private lateinit var rvMatches: RecyclerView
@@ -54,12 +53,9 @@ class TournamentDetailActivity : BaseActivity() {
     private lateinit var tvReviewFinalScore: TextView
     private lateinit var tvReviewUserRound: TextView
     private lateinit var tvReviewUserPrize: TextView
-    private lateinit var spinnerReviewRound: Spinner
+    private lateinit var chipGroupReviewRounds: ChipGroup
     private lateinit var rvReviewMatches: RecyclerView
     private lateinit var reviewMatchesAdapter: TournamentMatchAdapter
-
-    private var isSpinningRoundInternal = false
-    private var isSpinningGroupInternal = false
 
     private var tournamentId: Long = -1L
     private var careerId: Long = -1L
@@ -92,6 +88,13 @@ class TournamentDetailActivity : BaseActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        if (::btnSimulateCpuMatches.isInitialized) {
+            btnSimulateCpuMatches.visibility = if (debugMode) View.VISIBLE else View.GONE
+        }
+    }
+
     private fun initViews() {
         pbLoading = findViewById(R.id.pbLoading)
 
@@ -105,9 +108,9 @@ class TournamentDetailActivity : BaseActivity() {
 
         // Active
         layoutActiveContainer = findViewById(R.id.layoutActiveContainer)
-        spinnerRound = findViewById(R.id.spinnerRound)
+        chipGroupRounds = findViewById(R.id.chipGroupRounds)
         layoutGroupSelector = findViewById(R.id.layoutGroupSelector)
-        spinnerGroup = findViewById(R.id.spinnerGroup)
+        chipGroupGroups = findViewById(R.id.chipGroupGroups)
         btnSimulateCpuMatches = findViewById(R.id.btnSimulateCpuMatches)
         btnAdvanceRound = findViewById(R.id.btnAdvanceRound)
         rvMatches = findViewById(R.id.rvMatches)
@@ -118,7 +121,7 @@ class TournamentDetailActivity : BaseActivity() {
         tvReviewFinalScore = findViewById(R.id.tvReviewFinalScore)
         tvReviewUserRound = findViewById(R.id.tvReviewUserRound)
         tvReviewUserPrize = findViewById(R.id.tvReviewUserPrize)
-        spinnerReviewRound = findViewById(R.id.spinnerReviewRound)
+        chipGroupReviewRounds = findViewById(R.id.chipGroupReviewRounds)
         rvReviewMatches = findViewById(R.id.rvReviewMatches)
     }
 
@@ -152,33 +155,6 @@ class TournamentDetailActivity : BaseActivity() {
         btnAdvanceRound.setOnClickListener {
             viewModel.advanceRound()
         }
-
-        spinnerRound.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                if (!isSpinningRoundInternal) {
-                    viewModel.selectRound(position)
-                }
-            }
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
-        }
-
-        spinnerGroup.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                if (!isSpinningGroupInternal) {
-                    viewModel.selectGroup(position)
-                }
-            }
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
-        }
-
-        spinnerReviewRound.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                if (!isSpinningRoundInternal) {
-                    viewModel.selectRound(position)
-                }
-            }
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
-        }
     }
 
     private fun observeState() {
@@ -206,6 +182,13 @@ class TournamentDetailActivity : BaseActivity() {
                 layoutActiveContainer.visibility = View.GONE
                 layoutReviewContainer.visibility = View.GONE
 
+                setupToolbar(
+                    titleText = state.tournament.name,
+                    subtitleText = getString(R.string.breadcrumb_format, careerName),
+                    showBack = true,
+                    rootViewId = R.id.tournamentDetailMain
+                )
+
                 tvPreviewTitle.text = state.tournament.name
                 tvPreviewHostAndType.text = state.hostCountryText
                 tvPreviewPrizeFund.text = state.totalPrizeFundText
@@ -224,35 +207,44 @@ class TournamentDetailActivity : BaseActivity() {
                 layoutActiveContainer.visibility = View.VISIBLE
                 layoutReviewContainer.visibility = View.GONE
 
-                // Round Spinner setup
-                isSpinningRoundInternal = true
-                val roundAdapter = ArrayAdapter(
-                    this,
-                    android.R.layout.simple_spinner_item,
-                    state.availableRoundDisplayNames
+                setupToolbar(
+                    titleText = state.tournament.name,
+                    subtitleText = getString(R.string.breadcrumb_format, careerName),
+                    showBack = true,
+                    rootViewId = R.id.tournamentDetailMain
                 )
-                roundAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                spinnerRound.adapter = roundAdapter
-                if (state.selectedRoundIndex in state.availableRoundDisplayNames.indices) {
-                    spinnerRound.setSelection(state.selectedRoundIndex, false)
-                }
-                isSpinningRoundInternal = false
 
-                // Group Spinner setup
+                btnSimulateCpuMatches.visibility = if (debugMode) View.VISIBLE else View.GONE
+
+                // Round Chips setup
+                chipGroupRounds.removeAllViews()
+                state.availableRoundDisplayNames.forEachIndexed { index, displayName ->
+                    val chip = Chip(this).apply {
+                        text = displayName
+                        isCheckable = true
+                        isChecked = (index == state.selectedRoundIndex)
+                        setOnClickListener {
+                            viewModel.selectRound(index)
+                        }
+                    }
+                    chipGroupRounds.addView(chip)
+                }
+
+                // Group Chips setup
                 if (state.availableGroups.isNotEmpty()) {
                     layoutGroupSelector.visibility = View.VISIBLE
-                    isSpinningGroupInternal = true
-                    val groupAdapter = ArrayAdapter(
-                        this,
-                        android.R.layout.simple_spinner_item,
-                        state.availableGroups.map { "Gruppe $it" }
-                    )
-                    groupAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                    spinnerGroup.adapter = groupAdapter
-                    if (state.selectedGroupIndex in state.availableGroups.indices) {
-                        spinnerGroup.setSelection(state.selectedGroupIndex, false)
+                    chipGroupGroups.removeAllViews()
+                    state.availableGroups.forEachIndexed { index, groupLetter ->
+                        val chip = Chip(this).apply {
+                            text = getString(R.string.group_label, groupLetter)
+                            isCheckable = true
+                            isChecked = (index == state.selectedGroupIndex)
+                            setOnClickListener {
+                                viewModel.selectGroup(index)
+                            }
+                        }
+                        chipGroupGroups.addView(chip)
                     }
-                    isSpinningGroupInternal = false
                 } else {
                     layoutGroupSelector.visibility = View.GONE
                 }
@@ -266,24 +258,31 @@ class TournamentDetailActivity : BaseActivity() {
                 layoutActiveContainer.visibility = View.GONE
                 layoutReviewContainer.visibility = View.VISIBLE
 
-                tvReviewWinner.text = "🏆 Turniersieger: ${state.winnerName}"
-                tvReviewFinalScore.text = "Final-Ergebnis: ${state.finalScoreText}"
-                tvReviewUserRound.text = "Deine erreichte Runde: ${state.userReachedRoundText}"
-                tvReviewUserPrize.text = "Gewonnenes Preisgeld: ${state.userEarnedPrizeMoneyText}"
-
-                // Round Spinner
-                isSpinningRoundInternal = true
-                val reviewRoundAdapter = ArrayAdapter(
-                    this,
-                    android.R.layout.simple_spinner_item,
-                    state.availableRoundDisplayNames
+                setupToolbar(
+                    titleText = state.tournament.name,
+                    subtitleText = getString(R.string.breadcrumb_format, careerName),
+                    showBack = true,
+                    rootViewId = R.id.tournamentDetailMain
                 )
-                reviewRoundAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                spinnerReviewRound.adapter = reviewRoundAdapter
-                if (state.selectedRoundIndex in state.availableRoundDisplayNames.indices) {
-                    spinnerReviewRound.setSelection(state.selectedRoundIndex, false)
+
+                tvReviewWinner.text = getString(R.string.tournament_review_winner, state.winnerFlag, state.winnerName)
+                tvReviewFinalScore.text = getString(R.string.tournament_review_final_score, state.finalScoreText, state.opponentFlag, state.opponentName)
+                tvReviewUserRound.text = getString(R.string.tournament_review_user_round, state.userReachedRoundText)
+                tvReviewUserPrize.text = getString(R.string.tournament_review_user_prize, state.userEarnedPrizeMoneyText)
+
+                // Round Chips
+                chipGroupReviewRounds.removeAllViews()
+                state.availableRoundDisplayNames.forEachIndexed { index, displayName ->
+                    val chip = Chip(this).apply {
+                        text = displayName
+                        isCheckable = true
+                        isChecked = (index == state.selectedRoundIndex)
+                        setOnClickListener {
+                            viewModel.selectRound(index)
+                        }
+                    }
+                    chipGroupReviewRounds.addView(chip)
                 }
-                isSpinningRoundInternal = false
 
                 reviewMatchesAdapter.submitList(state.matches)
             }
@@ -296,21 +295,29 @@ class TournamentDetailActivity : BaseActivity() {
     }
 
     private fun showUserMatchOptionsDialog(matchModel: MatchUiModel) {
-        val options = arrayOf(
-            "1. Match simulieren (Skill/Zufall)",
-            "2. Sieger festlegen (Sieg/Niederlage)",
-            "3. Ergebnis manuell eingeben",
-            "4. Live spielen (GameEngine)"
-        )
+        val options = if (debugMode) {
+            arrayOf(
+                "Match simulieren (Skill/Zufall)",
+                "Sieger festlegen (Sieg/Niederlage)",
+                "Ergebnis manuell eingeben",
+                "Live spielen (GameEngine)"
+            )
+        } else {
+            arrayOf(
+                "Ergebnis manuell eingeben",
+                "Live spielen (GameEngine)"
+            )
+        }
 
         AlertDialog.Builder(this)
             .setTitle("User-Match Steuerung")
             .setItems(options) { _, which ->
-                when (which) {
-                    0 -> viewModel.simulateUserMatch(matchModel.match.id)
-                    1 -> showSetWinnerDialog(matchModel)
-                    2 -> showManualScoreInputDialog(matchModel)
-                    3 -> showLiveGameEnginePlaceholder()
+                val selectedOption = options[which]
+                when {
+                    selectedOption.startsWith("Match simulieren") -> viewModel.simulateUserMatch(matchModel.match.id)
+                    selectedOption.startsWith("Sieger festlegen") -> showSetWinnerDialog(matchModel)
+                    selectedOption.startsWith("Ergebnis manuell") -> showManualScoreInputDialog(matchModel)
+                    selectedOption.startsWith("Live spielen") -> showLiveGameEnginePlaceholder()
                 }
             }
             .setNegativeButton("Abbrechen", null)

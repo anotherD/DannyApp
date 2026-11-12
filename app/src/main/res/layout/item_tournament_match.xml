@@ -68,16 +68,6 @@
             app:layout_constraintTop_toTopOf="@id/tvPlayer1Flag"
             tools:text="Luke Humphries" />
 
-        <TextView
-            android:id="@+id/tvPlayer1Skill"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="?attr/colorOnSurfaceVariant"
-            android:textSize="11sp"
-            app:layout_constraintStart_toStartOf="@id/tvPlayer1Name"
-            app:layout_constraintTop_toBottomOf="@id/tvPlayer1Name"
-            tools:text="Skill: 9" />
-
         <!-- Score Center -->
         <TextView
             android:id="@+id/tvPlayer1Score"
@@ -146,16 +136,6 @@
             app:layout_constraintStart_toEndOf="@id/tvPlayer2Score"
             app:layout_constraintTop_toTopOf="@id/tvPlayer2Flag"
             tools:text="Michael van Gerwen" />
-
-        <TextView
-            android:id="@+id/tvPlayer2Skill"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="?attr/colorOnSurfaceVariant"
-            android:textSize="11sp"
-            app:layout_constraintEnd_toEndOf="@id/tvPlayer2Name"
-            app:layout_constraintTop_toBottomOf="@id/tvPlayer2Name"
-            tools:text="Skill: 9" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>

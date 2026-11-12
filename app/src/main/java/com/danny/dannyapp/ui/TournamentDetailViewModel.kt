@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.danny.dannyapp.R
 import com.danny.dannyapp.data.Country
 import com.danny.dannyapp.data.SettingsManager
 import com.danny.dannyapp.data.db.AppDatabase
@@ -58,7 +59,10 @@ sealed interface TournamentDetailState {
         val tournament: Tournament,
         val event: TournamentEvent,
         val winnerName: String,
+        val winnerFlag: String,
         val finalScoreText: String,
+        val opponentName: String,
+        val opponentFlag: String,
         val userReachedRoundText: String,
         val userEarnedPrizeMoneyText: String,
         val availableRounds: List<String>,
@@ -180,20 +184,29 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         allMatches: List<TournamentMatch>
     ) {
         val sequence = getRoundSequence(event)
-        val roundKeysInMatches = allMatches.map { it.round }.distinct()
-        val availableRounds = sequence.map { it.name }.filter { it in roundKeysInMatches }
-            .ifEmpty { roundKeysInMatches }
+        val availableRounds = sequence.map { it.name }
+
+        val activeRoundKeyInDb = sequence.firstOrNull { r ->
+            val matches = allMatches.filter { it.round == r.name }
+            matches.isNotEmpty() && matches.any { !it.isCompleted }
+        }?.name ?: sequence.lastOrNull { r ->
+            allMatches.any { it.round == r.name }
+        }?.name ?: availableRounds.firstOrNull() ?: ""
 
         if (selectedRoundIndex !in availableRounds.indices) {
-            selectedRoundIndex = availableRounds.lastIndex.coerceAtLeast(0)
+            val activeIdx = availableRounds.indexOf(activeRoundKeyInDb)
+            selectedRoundIndex = if (activeIdx != -1) activeIdx else availableRounds.lastIndex.coerceAtLeast(0)
         }
 
         val currentRoundKey = availableRounds.getOrNull(selectedRoundIndex) ?: ""
-        val availableRoundDisplayNames = availableRounds.map { key ->
-            try { TournamentRound.valueOf(key).displayName } catch (_: Exception) { key }
-        }
+        val availableRoundDisplayNames = availableRounds.map { getDisplayRoundName(it) }
 
-        val currentRoundMatches = allMatches.filter { it.round == currentRoundKey }
+        val dbMatchesForRound = allMatches.filter { it.round == currentRoundKey }
+        val currentRoundMatches = if (dbMatchesForRound.isNotEmpty()) {
+            dbMatchesForRound
+        } else {
+            generatePreviewMatchesForRound(currentTournamentId, currentRoundKey, event)
+        }
 
         val isGrandSlamGroup = (event == TournamentEvent.GRAND_SLAM_OF_DARTS && currentRoundKey == TournamentRound.GROUP.name)
         val availableGroups = if (isGrandSlamGroup) {
@@ -224,11 +237,11 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             createMatchUiModel(m, userName, userCountryCode, userLevel, allPlayersMap, currentRoundKey, event)
         }
 
-        val isCurrentRoundCompleted = currentRoundMatches.isNotEmpty() && currentRoundMatches.all { it.isCompleted }
+        val isCurrentRoundCompleted = dbMatchesForRound.isNotEmpty() && dbMatchesForRound.all { it.isCompleted }
 
         // Trigger Auto-Simulate if needed
         var stateNeedsRefresh = false
-        if (autoSimulateCpu && currentRoundMatches.any { !it.isCompleted && it.player1Id != USER_ID && it.player2Id != USER_ID }) {
+        if (autoSimulateCpu && dbMatchesForRound.any { !it.isCompleted && it.player1Id != USER_ID && it.player2Id != USER_ID }) {
             simulateCpuMatchUseCase.simulateAllCpuMatches(currentTournamentId)
             stateNeedsRefresh = true
         }
@@ -245,8 +258,8 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
                     buildReviewState(reloadedTournament, event, newMatches)
                     return
                 } else {
-                    val newSequenceRounds = sequence.map { it.name }.filter { r -> newMatches.any { it.round == r } }
-                    selectedRoundIndex = newSequenceRounds.lastIndex.coerceAtLeast(0)
+                    val latestGen = sequence.lastOrNull { r -> newMatches.any { it.round == r.name } }
+                    selectedRoundIndex = if (latestGen != null) availableRounds.indexOf(latestGen.name).coerceAtLeast(0) else 0
                     buildActiveState(reloadedTournament ?: tournament, event, newMatches)
                     return
                 }
@@ -310,10 +323,28 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         val userName = careerWithProfile?.playerName?.ifBlank { null } ?: careerWithProfile?.profileName ?: careerWithProfile?.career?.name ?: "Du"
         val userCountryCode = careerWithProfile?.countryCode ?: "DEU"
 
-        val winnerName = if (finalMatch?.winnerId != null) {
-            val wId = finalMatch.winnerId!!
-            if (wId == USER_ID) userName else allPlayersMap[wId]?.name ?: "Unbekannt"
-        } else "Unbekannt"
+        val winnerId = finalMatch?.winnerId
+        val (winnerName, winnerFlag) = if (winnerId != null) {
+            if (winnerId == USER_ID) {
+                Pair(userName, Country.getFlagEmoji(userCountryCode))
+            } else {
+                val p = allPlayersMap[winnerId]
+                Pair(p?.name ?: "Unbekannt", Country.getFlagEmoji(p?.countryCode ?: "ENG"))
+            }
+        } else Pair("Unbekannt", "🏳️")
+
+        val opponentId = if (winnerId != null && finalMatch != null) {
+            if (finalMatch.player1Id == winnerId) finalMatch.player2Id else finalMatch.player1Id
+        } else null
+
+        val (opponentName, opponentFlag) = if (opponentId != null) {
+            if (opponentId == USER_ID) {
+                Pair(userName, Country.getFlagEmoji(userCountryCode))
+            } else {
+                val p = allPlayersMap[opponentId]
+                Pair(p?.name ?: "Unbekannt", Country.getFlagEmoji(p?.countryCode ?: "ENG"))
+            }
+        } else Pair("Unbekannt", "🏳️")
 
         val finalScoreText = if (finalMatch != null) "${finalMatch.player1Score} : ${finalMatch.player2Score}" else "-"
 
@@ -328,20 +359,22 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         } else "£0"
 
         val sequence = getRoundSequence(event)
-        val roundKeysInMatches = allMatches.map { it.round }.distinct()
-        val availableRounds = sequence.map { it.name }.filter { it in roundKeysInMatches }
-            .ifEmpty { roundKeysInMatches }
+        val availableRounds = sequence.map { it.name }
 
         if (selectedRoundIndex !in availableRounds.indices) {
             selectedRoundIndex = 0
         }
 
         val currentRoundKey = availableRounds.getOrNull(selectedRoundIndex) ?: ""
-        val availableRoundDisplayNames = availableRounds.map { key ->
-            try { TournamentRound.valueOf(key).displayName } catch (_: Exception) { key }
+        val availableRoundDisplayNames = availableRounds.map { getDisplayRoundName(it) }
+
+        val dbMatchesForRound = allMatches.filter { it.round == currentRoundKey }
+        val currentRoundMatches = if (dbMatchesForRound.isNotEmpty()) {
+            dbMatchesForRound
+        } else {
+            generatePreviewMatchesForRound(tournament.id, currentRoundKey, event)
         }
 
-        val currentRoundMatches = allMatches.filter { it.round == currentRoundKey }
         val isGrandSlamGroup = (event == TournamentEvent.GRAND_SLAM_OF_DARTS && currentRoundKey == TournamentRound.GROUP.name)
         val availableGroups = if (isGrandSlamGroup) ('A'..'P').map { it.toString() } else emptyList()
 
@@ -361,7 +394,10 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             tournament = tournament,
             event = event,
             winnerName = winnerName,
+            winnerFlag = winnerFlag,
             finalScoreText = finalScoreText,
+            opponentName = opponentName,
+            opponentFlag = opponentFlag,
             userReachedRoundText = userReachedRoundText,
             userEarnedPrizeMoneyText = userEarnedPrizeMoneyText,
             availableRounds = availableRounds,
@@ -382,18 +418,43 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         roundKey: String,
         event: TournamentEvent
     ): MatchUiModel {
+        val app = getApplication<Application>()
         val isP1User = (m.player1Id == USER_ID)
         val isP2User = (m.player2Id == USER_ID)
         val isUserMatch = isP1User || isP2User
 
-        val p1Name = if (isP1User) userName else allPlayersMap[m.player1Id]?.name ?: "CPU #${m.player1Id}"
-        val p1CountryCode = if (isP1User) userCountryCode else allPlayersMap[m.player1Id]?.countryCode ?: "ENG"
-        val p1Flag = Country.getFlagEmoji(p1CountryCode)
+        val (p1Name, p1Flag) = when (m.player1Id) {
+            USER_ID -> Pair(userName, Country.getFlagEmoji(userCountryCode))
+            -998L -> Pair(app.getString(R.string.tournament_placeholder_unknown), "")
+            -999L -> {
+                if (event == TournamentEvent.EUROPEAN_TOUR && roundKey == TournamentRound.L32.name) {
+                    Pair("Top 16 Seed #${m.matchIndex + 1}", "")
+                } else {
+                    Pair(app.getString(R.string.tournament_placeholder_winner, 2 * m.matchIndex + 1), "")
+                }
+            }
+            else -> {
+                val p = allPlayersMap[m.player1Id]
+                Pair(p?.name ?: "CPU #${m.player1Id}", Country.getFlagEmoji(p?.countryCode ?: "ENG"))
+            }
+        }
         val p1Skill = if (isP1User) userLevel else allPlayersMap[m.player1Id]?.skill ?: 5
 
-        val p2Name = if (isP2User) userName else allPlayersMap[m.player2Id]?.name ?: "CPU #${m.player2Id}"
-        val p2CountryCode = if (isP2User) userCountryCode else allPlayersMap[m.player2Id]?.countryCode ?: "ENG"
-        val p2Flag = Country.getFlagEmoji(p2CountryCode)
+        val (p2Name, p2Flag) = when (m.player2Id) {
+            USER_ID -> Pair(userName, Country.getFlagEmoji(userCountryCode))
+            -998L -> Pair(app.getString(R.string.tournament_placeholder_unknown), "")
+            -999L -> {
+                if (event == TournamentEvent.EUROPEAN_TOUR && roundKey == TournamentRound.L32.name) {
+                    Pair("Sieger Match #${16 - m.matchIndex}", "")
+                } else {
+                    Pair(app.getString(R.string.tournament_placeholder_winner, 2 * m.matchIndex + 2), "")
+                }
+            }
+            else -> {
+                val p = allPlayersMap[m.player2Id]
+                Pair(p?.name ?: "CPU #${m.player2Id}", Country.getFlagEmoji(p?.countryCode ?: "ENG"))
+            }
+        }
         val p2Skill = if (isP2User) userLevel else allPlayersMap[m.player2Id]?.skill ?: 5
 
         val scoreText = if (m.isCompleted) "${m.player1Score} : ${m.player2Score}" else "- : -"
@@ -414,6 +475,46 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             scoreText = scoreText,
             roundDisplayName = roundEnum.displayName
         )
+    }
+
+    private fun generatePreviewMatchesForRound(
+        tournamentId: Long,
+        roundKey: String,
+        event: TournamentEvent
+    ): List<TournamentMatch> {
+        val roundEnum = try { TournamentRound.valueOf(roundKey) } catch (_: Exception) { TournamentRound.F }
+        val matchCount = when (roundEnum) {
+            TournamentRound.F -> 1
+            TournamentRound.SF -> 2
+            TournamentRound.QF -> 4
+            TournamentRound.L16 -> 8
+            TournamentRound.L32 -> 16
+            TournamentRound.L64 -> 32
+            TournamentRound.L128 -> 64
+            TournamentRound.L48 -> 24
+            TournamentRound.R1_160, TournamentRound.R2_128, TournamentRound.R3_96 -> 32
+            TournamentRound.GROUP -> 16
+            else -> 1
+        }
+
+        val isUkOrEuropeanOpenLiveDraw = (event == TournamentEvent.UK_OPEN || event == TournamentEvent.EUROPEAN_OPEN) &&
+                (roundEnum == TournamentRound.L64 || roundEnum == TournamentRound.L32 || roundEnum == TournamentRound.L16 ||
+                 roundEnum == TournamentRound.QF || roundEnum == TournamentRound.SF || roundEnum == TournamentRound.F)
+
+        val placeholderPlayerId = if (isUkOrEuropeanOpenLiveDraw) -998L else -999L
+
+        return (0 until matchCount).map { i ->
+            TournamentMatch(
+                id = -2000L - (roundEnum.ordinal * 100) - i,
+                tournamentId = tournamentId,
+                round = roundKey,
+                matchIndex = i,
+                player1Id = placeholderPlayerId,
+                player2Id = placeholderPlayerId,
+                groupName = if (roundEnum == TournamentRound.GROUP) ('A' + (i % 16)).toString() else null,
+                isCompleted = false
+            )
+        }
     }
 
     fun startTournament() {
@@ -450,6 +551,22 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         viewModelScope.launch {
             _uiState.value = TournamentDetailState.Loading
             advanceTournamentRoundUseCase(currentTournamentId)
+
+            val tournament = tournamentDao.getTournamentById(currentTournamentId)
+            if (tournament != null) {
+                val event = try { TournamentEvent.valueOf(tournament.type) } catch (_: Exception) { TournamentEvent.PLAYERS_CHAMPIONSHIP }
+                val sequence = getRoundSequence(event)
+                val availableRounds = sequence.map { it.name }
+                val matches = tournamentMatchDao.getMatchesListForTournament(currentTournamentId)
+                val roundKeysInMatches = matches.map { it.round }.distinct()
+                val latestRound = sequence.lastOrNull { it.name in roundKeysInMatches }
+                if (latestRound != null) {
+                    val newIdx = availableRounds.indexOf(latestRound.name)
+                    if (newIdx != -1) {
+                        selectedRoundIndex = newIdx
+                    }
+                }
+            }
             refreshState()
         }
     }
