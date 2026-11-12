@@ -47,7 +47,6 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
     *   PC 21 – 24 (Leicester / Hildesheim): `"ENG"`, `"GER"`, `"ENG"`, `"GER"`
     *   PC 25 – 26 (Leicester, England): `"ENG"` (2x)
     *   PC 27 – 30 (Leicester / Den Bosch): `"ENG"`, `"NED"`, `"ENG"`, `"NED"`
-    *   PC 27 – 30 (Leicester / Den Bosch): `"ENG"`, `"NED"`, `"ENG"`, `"NED"`
     *   PC 31 – 34 (Wigan / Maastricht): `"ENG"`, `"NED"`, `"NED"`, `"NED"`
 *   **Auslosung:** Top 32 der *Pro Tour Order of Merit* sind gesetzt und werden im Bracket verteilt. Die restlichen 96 Spieler werden frei zugelost. Da beim Start einer Karriere die *Pro Tour Order of Merit* noch leer ist, werden hierfür die Top 32 zufällig ermittelt.
 *   **Preisgeldaufschlüsselung (Gesamt: £150.000 pro Event):**
