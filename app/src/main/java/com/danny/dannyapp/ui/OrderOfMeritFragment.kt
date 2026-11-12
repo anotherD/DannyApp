@@ -73,6 +73,7 @@ class OrderOfMeritFragment : Fragment(R.layout.fragment_order_of_merit) {
     }
 
     fun updateStickyCard() {
+        if (!isResumed) return
         if (isAdded && ::rvOom.isInitialized) {
             val lm = rvOom.layoutManager as? LinearLayoutManager
             if (lm != null) {

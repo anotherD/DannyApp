@@ -5,13 +5,14 @@ import android.text.InputType
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
-import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -29,8 +30,9 @@ class TournamentDetailActivity : BaseActivity() {
     private lateinit var pbLoading: ProgressBar
 
     // Preview
-    private lateinit var layoutPreviewContainer: ScrollView
+    private lateinit var layoutPreviewContainer: View
     private lateinit var tvPreviewTitle: TextView
+    private lateinit var tvStatusBadgePreview: TextView
     private lateinit var tvPreviewHostAndType: TextView
     private lateinit var tvPreviewPrizeFund: TextView
     private lateinit var rvPreviewPrizeMoney: RecyclerView
@@ -39,6 +41,9 @@ class TournamentDetailActivity : BaseActivity() {
 
     // Active
     private lateinit var layoutActiveContainer: View
+    private lateinit var tvRoundLabel: TextView
+    private lateinit var tvStatusBadgeActive: TextView
+    private lateinit var scrollRoundPills: HorizontalScrollView
     private lateinit var chipGroupRounds: ChipGroup
     private lateinit var layoutGroupSelector: View
     private lateinit var chipGroupGroups: ChipGroup
@@ -50,9 +55,12 @@ class TournamentDetailActivity : BaseActivity() {
     // Review
     private lateinit var layoutReviewContainer: View
     private lateinit var tvReviewWinner: TextView
+    private lateinit var tvStatusBadgeReview: TextView
     private lateinit var tvReviewFinalScore: TextView
     private lateinit var tvReviewUserRound: TextView
     private lateinit var tvReviewUserPrize: TextView
+    private lateinit var tvReviewRoundLabel: TextView
+    private lateinit var scrollReviewRoundPills: HorizontalScrollView
     private lateinit var chipGroupReviewRounds: ChipGroup
     private lateinit var rvReviewMatches: RecyclerView
     private lateinit var reviewMatchesAdapter: TournamentMatchAdapter
@@ -101,6 +109,7 @@ class TournamentDetailActivity : BaseActivity() {
         // Preview
         layoutPreviewContainer = findViewById(R.id.layoutPreviewContainer)
         tvPreviewTitle = findViewById(R.id.tvPreviewTitle)
+        tvStatusBadgePreview = findViewById(R.id.tvStatusBadgePreview)
         tvPreviewHostAndType = findViewById(R.id.tvPreviewHostAndType)
         tvPreviewPrizeFund = findViewById(R.id.tvPreviewPrizeFund)
         rvPreviewPrizeMoney = findViewById(R.id.rvPreviewPrizeMoney)
@@ -108,6 +117,9 @@ class TournamentDetailActivity : BaseActivity() {
 
         // Active
         layoutActiveContainer = findViewById(R.id.layoutActiveContainer)
+        tvRoundLabel = findViewById(R.id.tvRoundLabel)
+        tvStatusBadgeActive = findViewById(R.id.tvStatusBadgeActive)
+        scrollRoundPills = findViewById(R.id.scrollRoundPills)
         chipGroupRounds = findViewById(R.id.chipGroupRounds)
         layoutGroupSelector = findViewById(R.id.layoutGroupSelector)
         chipGroupGroups = findViewById(R.id.chipGroupGroups)
@@ -118,9 +130,12 @@ class TournamentDetailActivity : BaseActivity() {
         // Review
         layoutReviewContainer = findViewById(R.id.layoutReviewContainer)
         tvReviewWinner = findViewById(R.id.tvReviewWinner)
+        tvStatusBadgeReview = findViewById(R.id.tvStatusBadgeReview)
         tvReviewFinalScore = findViewById(R.id.tvReviewFinalScore)
         tvReviewUserRound = findViewById(R.id.tvReviewUserRound)
         tvReviewUserPrize = findViewById(R.id.tvReviewUserPrize)
+        tvReviewRoundLabel = findViewById(R.id.tvReviewRoundLabel)
+        scrollReviewRoundPills = findViewById(R.id.scrollReviewRoundPills)
         chipGroupReviewRounds = findViewById(R.id.chipGroupReviewRounds)
         rvReviewMatches = findViewById(R.id.rvReviewMatches)
     }
@@ -190,6 +205,9 @@ class TournamentDetailActivity : BaseActivity() {
                 )
 
                 tvPreviewTitle.text = state.tournament.name
+                tvStatusBadgePreview.text = getString(R.string.tournament_status_planned)
+                tvStatusBadgePreview.backgroundTintList = ContextCompat.getColorStateList(this, R.color.status_planned)
+
                 tvPreviewHostAndType.text = state.hostCountryText
                 tvPreviewPrizeFund.text = state.totalPrizeFundText
                 prizeMoneyAdapter.submitList(state.prizeMoneyItems)
@@ -216,8 +234,15 @@ class TournamentDetailActivity : BaseActivity() {
 
                 btnSimulateCpuMatches.visibility = if (debugMode) View.VISIBLE else View.GONE
 
+                tvStatusBadgeActive.text = getString(R.string.tournament_status_active)
+                tvStatusBadgeActive.backgroundTintList = ContextCompat.getColorStateList(this, R.color.status_active)
+
+                val currentRoundDisplayName = state.availableRoundDisplayNames.getOrNull(state.selectedRoundIndex) ?: ""
+                tvRoundLabel.text = getString(R.string.round_label_current, currentRoundDisplayName)
+
                 // Round Chips setup
                 chipGroupRounds.removeAllViews()
+                var selectedChip: Chip? = null
                 state.availableRoundDisplayNames.forEachIndexed { index, displayName ->
                     val chip = Chip(this).apply {
                         text = displayName
@@ -228,6 +253,14 @@ class TournamentDetailActivity : BaseActivity() {
                         }
                     }
                     chipGroupRounds.addView(chip)
+                    if (index == state.selectedRoundIndex) {
+                        selectedChip = chip
+                    }
+                }
+                selectedChip?.let { chip ->
+                    chip.post {
+                        scrollRoundPills.smoothScrollTo(chip.left - 32, 0)
+                    }
                 }
 
                 // Group Chips setup
@@ -266,12 +299,19 @@ class TournamentDetailActivity : BaseActivity() {
                 )
 
                 tvReviewWinner.text = getString(R.string.tournament_review_winner, state.winnerFlag, state.winnerName)
+                tvStatusBadgeReview.text = getString(R.string.tournament_status_completed)
+                tvStatusBadgeReview.backgroundTintList = ContextCompat.getColorStateList(this, R.color.status_completed)
+
                 tvReviewFinalScore.text = getString(R.string.tournament_review_final_score, state.finalScoreText, state.opponentFlag, state.opponentName)
                 tvReviewUserRound.text = getString(R.string.tournament_review_user_round, state.userReachedRoundText)
                 tvReviewUserPrize.text = getString(R.string.tournament_review_user_prize, state.userEarnedPrizeMoneyText)
 
+                val currentRoundDisplayName = state.availableRoundDisplayNames.getOrNull(state.selectedRoundIndex) ?: ""
+                tvReviewRoundLabel.text = getString(R.string.round_label_current, currentRoundDisplayName)
+
                 // Round Chips
                 chipGroupReviewRounds.removeAllViews()
+                var selectedReviewChip: Chip? = null
                 state.availableRoundDisplayNames.forEachIndexed { index, displayName ->
                     val chip = Chip(this).apply {
                         text = displayName
@@ -282,6 +322,14 @@ class TournamentDetailActivity : BaseActivity() {
                         }
                     }
                     chipGroupReviewRounds.addView(chip)
+                    if (index == state.selectedRoundIndex) {
+                        selectedReviewChip = chip
+                    }
+                }
+                selectedReviewChip?.let { chip ->
+                    chip.post {
+                        scrollReviewRoundPills.smoothScrollTo(chip.left - 32, 0)
+                    }
                 }
 
                 reviewMatchesAdapter.submitList(state.matches)
