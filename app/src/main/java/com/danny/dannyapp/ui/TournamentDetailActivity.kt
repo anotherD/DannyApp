@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.widget.ImageView
 import com.google.android.material.color.MaterialColors
 import android.text.InputType
+import android.view.Gravity
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
@@ -390,6 +391,7 @@ class TournamentDetailActivity : BaseActivity() {
                                 text = group.title
                                 textSize = 14f
                                 setTypeface(null, Typeface.BOLD)
+                                gravity = Gravity.CENTER_HORIZONTAL
                                 val typedValue = android.util.TypedValue()
                                 theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurface, typedValue, true)
                                 if (typedValue.resourceId != 0) {
@@ -398,8 +400,8 @@ class TournamentDetailActivity : BaseActivity() {
                             }
                             layoutEntrantsContainer.addView(tvGroupTitle)
 
-                            group.players.forEach { player ->
-                                val tvPlayer = TextView(this).apply {
+                            group.players.chunked(2).forEach { rowPlayers ->
+                                val rowLayout = LinearLayout(this).apply {
                                     layoutParams = LinearLayout.LayoutParams(
                                         LinearLayout.LayoutParams.MATCH_PARENT,
                                         LinearLayout.LayoutParams.WRAP_CONTENT
@@ -407,20 +409,45 @@ class TournamentDetailActivity : BaseActivity() {
                                         topMargin = (2 * resources.displayMetrics.density).toInt()
                                         bottomMargin = (2 * resources.displayMetrics.density).toInt()
                                     }
-                                    textSize = 13f
-                                    val typedValue = android.util.TypedValue()
-                                    theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurfaceVariant, typedValue, true)
-                                    if (typedValue.resourceId != 0) {
-                                        setTextColor(ContextCompat.getColor(this@TournamentDetailActivity, typedValue.resourceId))
+                                    orientation = LinearLayout.HORIZONTAL
+                                    weightSum = 2f
+                                }
+
+                                rowPlayers.forEach { player ->
+                                    val tvPlayer = TextView(this).apply {
+                                        layoutParams = LinearLayout.LayoutParams(
+                                            0,
+                                            LinearLayout.LayoutParams.WRAP_CONTENT,
+                                            1f
+                                        )
+                                        textSize = 13f
+                                        val typedValue = android.util.TypedValue()
+                                        theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurfaceVariant, typedValue, true)
+                                        if (typedValue.resourceId != 0) {
+                                            setTextColor(ContextCompat.getColor(this@TournamentDetailActivity, typedValue.resourceId))
+                                        }
                                     }
+                                    val displayText = if (player.seed != null) {
+                                        getString(R.string.player_with_seed, player.seed, player.name)
+                                    } else {
+                                        player.name
+                                    }
+                                    TournamentUiHelper.formatFlagAndText(this, tvPlayer, player.countryCode, displayText)
+                                    rowLayout.addView(tvPlayer)
                                 }
-                                val displayText = if (player.seed != null) {
-                                    getString(R.string.player_with_seed, player.seed, player.name)
-                                } else {
-                                    player.name
+
+                                if (rowPlayers.size == 1) {
+                                    val emptyView = View(this).apply {
+                                        layoutParams = LinearLayout.LayoutParams(
+                                            0,
+                                            0,
+                                            1f
+                                        )
+                                    }
+                                    rowLayout.addView(emptyView)
                                 }
-                                TournamentUiHelper.formatFlagAndText(this, tvPlayer, player.countryCode, displayText)
-                                layoutEntrantsContainer.addView(tvPlayer)
+
+                                layoutEntrantsContainer.addView(rowLayout)
                             }
                         }
                     } else {

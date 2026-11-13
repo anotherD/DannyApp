@@ -222,27 +222,53 @@ object TournamentUiHelper {
         } else {
             headerTextView.visibility = View.VISIBLE
             containerLayout.visibility = View.VISIBLE
-            winners.forEach { (name, countryCode) ->
-                val tvRow = TextView(context).apply {
+            winners.chunked(2).forEach { rowWinners ->
+                val rowLayout = android.widget.LinearLayout(context).apply {
                     layoutParams = android.widget.LinearLayout.LayoutParams(
                         android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
                         android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
                     ).apply {
                         topMargin = (2 * context.resources.displayMetrics.density).toInt()
+                        bottomMargin = (2 * context.resources.displayMetrics.density).toInt()
                     }
-                    textSize = textSizeSp
-                    if (textColorResId != null) {
-                        setTextColor(ContextCompat.getColor(context, textColorResId))
-                    } else {
-                        val typedValue = android.util.TypedValue()
-                        context.theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurfaceVariant, typedValue, true)
-                        if (typedValue.resourceId != 0) {
-                            setTextColor(ContextCompat.getColor(context, typedValue.resourceId))
+                    orientation = android.widget.LinearLayout.HORIZONTAL
+                    weightSum = 2f
+                }
+
+                rowWinners.forEach { (name, countryCode) ->
+                    val tvRow = TextView(context).apply {
+                        layoutParams = android.widget.LinearLayout.LayoutParams(
+                            0,
+                            android.widget.LinearLayout.LayoutParams.WRAP_CONTENT,
+                            1f
+                        )
+                        textSize = textSizeSp
+                        if (textColorResId != null) {
+                            setTextColor(ContextCompat.getColor(context, textColorResId))
+                        } else {
+                            val typedValue = android.util.TypedValue()
+                            context.theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurfaceVariant, typedValue, true)
+                            if (typedValue.resourceId != 0) {
+                                setTextColor(ContextCompat.getColor(context, typedValue.resourceId))
+                            }
                         }
                     }
+                    formatFlagAndText(context, tvRow, countryCode, name)
+                    rowLayout.addView(tvRow)
                 }
-                formatFlagAndText(context, tvRow, countryCode, name)
-                containerLayout.addView(tvRow)
+
+                if (rowWinners.size == 1) {
+                    val emptyView = View(context).apply {
+                        layoutParams = android.widget.LinearLayout.LayoutParams(
+                            0,
+                            0,
+                            1f
+                        )
+                    }
+                    rowLayout.addView(emptyView)
+                }
+
+                containerLayout.addView(rowLayout)
             }
         }
     }
