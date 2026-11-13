@@ -36,8 +36,8 @@ Dieses Dokument definiert die Benutzeroberfläche und den Interaktions-Flow für
 ### 3.0 Die 3 Zustände der Turnieransicht
 Jedes Turnier im Saisonkalender ist anklickbar und öffnet die Turnieransicht in einem von drei Modi:
 1. **Vorschau-Modus (`isCompleted == false` und noch keine Matches generiert):**
-  - Zeigt Turnier-Metadaten (Name, Turniertyp, `<Flagge> <Stadtname>`, Gesamtpreisgeld) sowie die **Preisgeld-Tabelle pro Runde** (über `TournamentEvent.getRankingPrizeMoney(...)`) und die Spielformate (`getMatchDistance(...)`) an.
-  - Falls es das nächste anstehende Turnier im Kalender ist und kein anderes Turnier aktiv läuft, wird der Button **„Turnier jetzt starten & auslosen“** angezeigt (`GenerateBracketUseCase`).
+  - Zeigt dieselbe einheitliche Turnier-Kopfzeile wie der aktive Modus (Turniername, Status-Badge „Geplant“, Turniertyp-Badge, `<Flagge> <Stadtname>` sowie das **Info-Icon** zum Öffnen des Preisgeld- & Distanz-Dialogs inkl. Gesamtpreisgeld und Sieger-Preisgeld `WINNER`).
+  - Falls es das nächste anstehende Turnier im Kalender ist und kein anderes Turnier aktiv läuft, wird unten der Button **„Turnier jetzt starten & auslosen“** angezeigt (`GenerateBracketUseCase`).
 2. **Aktiver Turnier-Modus (`isCompleted == false` und Matches vorhanden):**
   - **Runden-Auswahl:** Horizontale **Runden-Pills / Material Chips** (Single-Selection) statt eines Dropdowns (plus Gruppen-Auswahl `A–P` beim Grand Slam of Darts).
   - **Vorab-Turnierbaum (Folgerunden):** Bei Turnieren mit festem Turnierbaum sind alle Runden-Pills bereits vorab anwählbar und zeigen Platzhalter-Paarungen an (z. B. `Sieger #1 vs. Sieger #2`). Bei Turnieren mit Live-Auslosung ab Runde 4 (`UK Open`, `European Open`) werden noch nicht ausgeloste Runden als `? vs. ?` dargestellt.

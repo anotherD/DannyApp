@@ -72,10 +72,26 @@
                             android:textColor="?attr/colorOnSurface"
                             android:textSize="18sp"
                             android:textStyle="bold"
-                            app:layout_constraintEnd_toStartOf="@id/tvStatusBadgePreview"
+                            app:layout_constraintEnd_toStartOf="@id/btnPrizeInfoPreview"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
                             tools:text="World Matchplay" />
+
+                        <!-- Info Icon -->
+                        <ImageView
+                            android:id="@+id/btnPrizeInfoPreview"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_marginEnd="8dp"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:clickable="true"
+                            android:contentDescription="@string/tournament_preview_prizes_title"
+                            android:focusable="true"
+                            android:src="@drawable/ic_info"
+                            app:layout_constraintBottom_toBottomOf="@id/tvStatusBadgePreview"
+                            app:layout_constraintEnd_toStartOf="@id/tvStatusBadgePreview"
+                            app:layout_constraintTop_toTopOf="@id/tvStatusBadgePreview"
+                            app:tint="?attr/colorOnSurfaceVariant" />
 
                         <TextView
                             android:id="@+id/tvStatusBadgePreview"
@@ -131,21 +147,6 @@
                             tools:text="Gesamtpreisgeld: £1,000,000" />
                     </androidx.constraintlayout.widget.ConstraintLayout>
                 </com.google.android.material.card.MaterialCardView>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    android:text="@string/tournament_preview_prizes_title"
-                    android:textColor="?attr/colorOnSurface"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rvPreviewPrizeMoney"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:nestedScrollingEnabled="false" />
 
             </LinearLayout>
         </ScrollView>
@@ -204,10 +205,9 @@
                     android:textColor="?attr/colorOnSurface"
                     android:textSize="18sp"
                     android:textStyle="bold"
-                    app:layout_constraintBottom_toBottomOf="@id/tvStatusBadgeActive"
                     app:layout_constraintEnd_toStartOf="@id/btnPrizeInfoActive"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="@id/tvStatusBadgeActive"
+                    app:layout_constraintTop_toTopOf="parent"
                     tools:text="World Matchplay" />
 
                 <!-- Info Icon -->
@@ -434,10 +434,9 @@
                     android:textColor="?attr/colorOnSurface"
                     android:textSize="18sp"
                     android:textStyle="bold"
-                    app:layout_constraintBottom_toBottomOf="@id/tvStatusBadgeReview"
                     app:layout_constraintEnd_toStartOf="@id/btnPrizeInfoReview"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="@id/tvStatusBadgeReview"
+                    app:layout_constraintTop_toTopOf="parent"
                     tools:text="World Matchplay" />
 
                 <!-- Info Icon -->

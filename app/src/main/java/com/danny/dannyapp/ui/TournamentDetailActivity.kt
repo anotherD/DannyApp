@@ -1,6 +1,10 @@
 package com.danny.dannyapp.ui
 
+import android.graphics.Color
+import android.graphics.Typeface
 import android.os.Bundle
+import android.widget.ImageView
+import com.google.android.material.color.MaterialColors
 import android.text.InputType
 import android.view.View
 import android.widget.Button
@@ -37,9 +41,9 @@ class TournamentDetailActivity : BaseActivity() {
     private lateinit var tvPreviewTypeBadge: TextView
     private lateinit var tvPreviewHost: TextView
     private lateinit var tvPreviewPrizeFund: TextView
-    private lateinit var rvPreviewPrizeMoney: RecyclerView
+    private lateinit var btnPrizeInfoPreview: ImageView
     private lateinit var btnStartTournamentPreview: Button
-    private lateinit var prizeMoneyAdapter: PrizeMoneyAdapter
+    private var currentEvent: com.danny.dannyapp.domain.model.TournamentEvent? = null
 
     // Active
     private lateinit var layoutActiveContainer: View
@@ -126,7 +130,7 @@ class TournamentDetailActivity : BaseActivity() {
         tvPreviewTypeBadge = findViewById(R.id.tvPreviewTypeBadge)
         tvPreviewHost = findViewById(R.id.tvPreviewHost)
         tvPreviewPrizeFund = findViewById(R.id.tvPreviewPrizeFund)
-        rvPreviewPrizeMoney = findViewById(R.id.rvPreviewPrizeMoney)
+        btnPrizeInfoPreview = findViewById(R.id.btnPrizeInfoPreview)
         btnStartTournamentPreview = findViewById(R.id.btnStartTournamentPreview)
 
         // Active
@@ -162,10 +166,6 @@ class TournamentDetailActivity : BaseActivity() {
     }
 
     private fun setupAdapters() {
-        prizeMoneyAdapter = PrizeMoneyAdapter()
-        rvPreviewPrizeMoney.layoutManager = LinearLayoutManager(this)
-        rvPreviewPrizeMoney.adapter = prizeMoneyAdapter
-
         activeMatchesAdapter = TournamentMatchAdapter { matchModel ->
             if (!matchModel.isCompleted && matchModel.isUserMatch) {
                 showUserMatchOptionsDialog(matchModel)
@@ -194,6 +194,10 @@ class TournamentDetailActivity : BaseActivity() {
 
         btnAdvanceRound.setOnClickListener {
             viewModel.advanceRound()
+        }
+
+        btnPrizeInfoPreview.setOnClickListener {
+            showPrizeMoneyDialog()
         }
 
         btnPrizeInfoActive.setOnClickListener {
@@ -244,7 +248,8 @@ class TournamentDetailActivity : BaseActivity() {
                 )
 
                 tvPreviewPrizeFund.text = state.totalPrizeFundText
-                prizeMoneyAdapter.submitList(state.prizeMoneyItems)
+                currentEvent = state.event
+                currentPrizeMoneyItems = state.prizeMoneyItems
 
                 if (state.isNextPlanned) {
                     btnStartTournamentPreview.visibility = View.VISIBLE
@@ -271,6 +276,8 @@ class TournamentDetailActivity : BaseActivity() {
                     this, tvActiveTitle, tvStatusBadgeActive, tvActiveTypeBadge, tvActiveHost,
                     state.tournament, state.activeRoundDisplayName, R.color.status_active
                 )
+
+                currentEvent = state.event
 
                 val canPlay = state.isSelectedRoundPlayable
                 btnSimulateCpuMatches.visibility = if (debugMode && canPlay) View.VISIBLE else View.GONE
@@ -345,6 +352,8 @@ class TournamentDetailActivity : BaseActivity() {
                     state.tournament, getString(R.string.tournament_status_completed), R.color.status_completed
                 )
 
+                currentEvent = state.event
+
                 tvReviewWinner.text = getString(R.string.tournament_review_winner, state.winnerFlag, state.winnerName)
                 tvReviewFinalScore.text = getString(R.string.tournament_review_final_score, state.finalScoreText, state.opponentFlag, state.opponentName)
                 tvReviewUserRound.text = getString(R.string.tournament_review_user_round, state.userReachedRoundText)
@@ -388,15 +397,37 @@ class TournamentDetailActivity : BaseActivity() {
 
     private fun showPrizeMoneyDialog() {
         if (currentPrizeMoneyItems.isEmpty()) return
-        val rv = RecyclerView(this).apply {
-            layoutManager = LinearLayoutManager(this@TournamentDetailActivity)
-            adapter = PrizeMoneyAdapter().apply { submitList(currentPrizeMoneyItems) }
-            setPadding(32, 16, 32, 16)
+        val event = currentEvent
+        val totalPrize = if (event != null && event.totalPrizeFund > 0) {
+            getString(R.string.tournament_total_prize_fund_format, event.totalPrizeFund.toLong())
+        } else {
+            getString(R.string.tournament_qualifying_no_prize)
         }
 
-        MaterialAlertDialogBuilder(this)
+        val context = this
+        val layout = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(48, 24, 48, 24)
+        }
+
+        val tvHeader = TextView(context).apply {
+            text = totalPrize
+            textSize = 15f
+            setTypeface(null, Typeface.BOLD)
+            setTextColor(ContextCompat.getColor(context, R.color.rot_haupt))
+            setPadding(0, 0, 0, 16)
+        }
+        layout.addView(tvHeader)
+
+        val rv = RecyclerView(context).apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = PrizeMoneyAdapter().apply { submitList(currentPrizeMoneyItems) }
+        }
+        layout.addView(rv)
+
+        MaterialAlertDialogBuilder(context)
             .setTitle(getString(R.string.tournament_preview_prizes_title))
-            .setView(rv)
+            .setView(layout)
             .setPositiveButton(getString(R.string.dialog_close), null)
             .show()
     }

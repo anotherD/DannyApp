@@ -14,6 +14,6 @@ enum class TournamentRound(val displayName: String) {
     L16("Achtelfinale (Last 16)"),
     QF("Viertelfinale"),
     SF("Halbfinale"),
-    F("Finale / Finalist (Runner-Up)"),
+    F("Finale"),
     WINNER("Turniersieger")
 }

@@ -54,7 +54,7 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
 | Platzierung / Runde | Enum-Key | Anzahl Spieler | Preisgeld pro Spieler |
 | :--- | :--- | :--- | :--- |
 | **Sieger** | `WINNER` | 1 | £15.000 |
-| **Finalist (Runner-Up)** | `F` | 1 | £10.000 |
+| **Finale** | `F` | 1 | £10.000 |
 | **Halbfinale (SF)** | `SF` | 2 | £6.500 |
 | **Viertelfinale (QF)** | `QF` | 4 | £4.000 |
 | **Achtelfinale (L16 / R4)** | `L16` | 8 | £3.000 |
@@ -106,7 +106,7 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
 | Platzierung / Runde | Enum-Key | Anzahl Spieler | Preisgeld pro Spieler |
 | :--- | :--- | :--- | :--- |
 | **Sieger** | `WINNER` | 1 | £35.000 |
-| **Finalist (Runner-Up)** | `F` | 1 | £15.000 |
+| **Finale** | `F` | 1 | £15.000 |
 | **Halbfinale (SF)** | `SF` | 2 | £10.000 |
 | **Viertelfinale (QF)** | `QF` | 4 | £8.000 |
 | **Achtelfinale (L16 / R3)** | `L16` | 8 | £5.000 |
@@ -118,6 +118,19 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
     *   Qualifikanten (die 16 Spieler aus den Qualifiern) erhalten ihr Preisgeld auch bei einer Auftaktniederlage in Runde 1 (£2.000) voll für alle Ranglisten angerechnet.
 *   **Hinweis zur App-Vereinfachung vs. reale PDC-Regeln:**
     *   *Reale PDC:* Die 6 Nicht-Tourcard-Plätze (Punkte 4 & 5) teilen sich in der Realität auf in **4 Host Nation Qualifier**, **1 Nordic & Baltic Qualifier** sowie **1 East Europe Qualifier**. Im Konzept sind die beiden regionalen Tour-Qualifier (Nordic & Baltic / East Europe) aktuell zu „2 Gewinner anderer Qualifier“ ohne Nationsbindung zusammengefasst, da diese regionalen Toursysteme noch nicht abgebildet sind.
+
+#### Offizielles Board-System & Rundenablauf der Tour Card Holder Qualifier
+Alle Tour Card Holder Qualifier (`QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIFIER_WM`) werden als K.o.-Turnier auf **K Boards** gleichzeitig ausgetragen, wobei K der Anzahl der zu vergebenden Qualifikationsplätze entspricht:
+* **`QUALIFIER_ET`:** K = 10 Boards (10 Sieger) -> Hauptrunden: **80 -> 40 -> 20 -> 10 Sieger** (`QUAL_R1` [40 Matches] -> `QUAL_R2` [20 Matches] -> `QUAL_FINAL` [10 Matches]).
+* **`QUALIFIER_GRAND_SLAM`:** K = 8 Boards (8 Sieger) -> Hauptrunden: **64 -> 32 -> 16 -> 8 Sieger** (`QUAL_R1` [32 Matches] -> `QUAL_R2` [16 Matches] -> `QUAL_FINAL` [8 Matches]).
+* **`QUALIFIER_WM`:** K = 4 Boards (4 Sieger) -> Hauptrunden: **32 -> 16 -> 8 -> 4 Sieger** (`QUAL_R1` [16 Matches] -> `QUAL_R2` [8 Matches] -> `QUAL_FINAL` [4 Matches]).
+
+**Vorrunde & Freilose (Byes):**
+* Das Hauptfeld vor den letzten drei Runden umfasst exakt `8 * K` Startplätze (80 beim ET-Qualifier, 64 beim Grand-Slam-Qualifier, 32 beim WM-Qualifier).
+* Ist die Anzahl der teilnehmenden nicht-vorqualifizierten Tour-Card-Inhaber N größer als `8 * K` (z. B. N = 96 beim ET-Qualifier):
+    * Die obersten `16 * K - N` gesetzten Spieler (z. B. 160 - 96 = 64 Spieler) erhalten ein **Freilos (Bye)** und steigen direkt in `QUAL_R1` ein.
+    * Die übrigen `2 * (N - 8 * K)` Spieler (z. B. 2 * 16 = 32 Spieler) spielen in der **Vorrunde (`QUAL_PRELIM`)** `N - 8 * K` Matches (z. B. 16 Matches) um die restlichen Plätze in `QUAL_R1`.
+* **Qualifikations-Logging:** Bei jeder Auslosung (`GenerateBracketUseCase`) wird ein strukturierter Log-Bericht (`Log.i("TournamentQualification", ...)`) mit allen Teilnehmern, ihrem Qualifikationsweg und ihrer Platzierung ausgegeben.
 
 ### 2.3 Die Major-Turniere
 
@@ -142,7 +155,7 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
 | Platzierung / Runde | Enum-Key | Anzahl Spieler | Preisgeld pro Spieler |
 | :--- | :--- | :--- | :--- |
 | **Sieger** | `WINNER` | 1 | £120.000 |
-| **Finalist (Runner-Up)** | `F` | 1 | £60.000 |
+| **Finale** | `F` | 1 | £60.000 |
 | **Halbfinale (SF)** | `SF` | 2 | £35.000 |
 | **Viertelfinale (QF)** | `QF` | 4 | £20.000 |
 | **Achtelfinale (L16 / R6)** | `L16` | 8 | £12.500 |
@@ -182,7 +195,7 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
 | Platzierung / Runde | Enum-Key | Anzahl Spieler | Preisgeld pro Spieler |
 | :--- | :--- | :--- | :--- |
 | **Sieger** | `WINNER` | 1 | £225.000 |
-| **Finalist (Runner-Up)** | `F` | 1 | £125.000 |
+| **Finale** | `F` | 1 | £125.000 |
 | **Halbfinale (SF)** | `SF` | 2 | £65.000 |
 | **Viertelfinale (QF)** | `QF` | 4 | £35.000 |
 | **Achtelfinale (L16 / R2)** | `L16` | 8 | £22.500 |
@@ -210,7 +223,7 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
 | Platzierung / Runde | Enum-Key | Anzahl Spieler | Preisgeld pro Spieler |
 | :--- | :--- | :--- | :--- |
 | **Sieger** | `WINNER` | 1 | £150.000 |
-| **Finalist (Runner-Up)** | `F` | 1 | £80.000 |
+| **Finale** | `F` | 1 | £80.000 |
 | **Halbfinale (SF)** | `SF` | 2 | £50.000 |
 | **Viertelfinale (QF)** | `QF` | 4 | £35.000 |
 | **Achtelfinale (L16 / R2)** | `L16` | 8 | £20.000 |
@@ -234,7 +247,7 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
 | Platzierung / Runde | Enum-Key | Anzahl Spieler | Preisgeld pro Spieler |
 | :--- | :--- | :--- | :--- |
 | **Sieger** | `WINNER` | 1 | £150.000 |
-| **Finalist (Runner-Up)** | `F` | 1 | £80.000 |
+| **Finale** | `F` | 1 | £80.000 |
 | **Halbfinale (SF)** | `SF` | 2 | £50.000 |
 | **Viertelfinale (QF)** | `QF` | 4 | £35.000 |
 | **Achtelfinale (L16 / R2)** | `L16` | 8 | £20.000 |
@@ -291,7 +304,7 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
 | Platzierung / Runde | Enum-Key | Anzahl Spieler | Preisgeld pro Spieler |
 | :--- | :--- | :--- | :--- |
 | **Sieger** | `WINNER` | 1 | £200.000 |
-| **Finalist (Runner-Up)** | `F` | 1 | £100.000 |
+| **Finale** | `F` | 1 | £100.000 |
 | **Halbfinale (SF)** | `SF` | 2 | £60.000 |
 | **Viertelfinale (QF)** | `QF` | 4 | £35.000 |
 | **Achtelfinale (L16)** | `L16` | 8 | £20.000 |
@@ -316,7 +329,7 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
 | Platzierung / Runde | Enum-Key | Anzahl Spieler | Preisgeld pro Spieler |
 | :--- | :--- | :--- | :--- |
 | **Sieger** | `WINNER` | 1 | £130.000 |
-| **Finalist (Runner-Up)** | `F` | 1 | £70.000 |
+| **Finale** | `F` | 1 | £70.000 |
 | **Halbfinale (SF)** | `SF` | 2 | £40.000 |
 | **Viertelfinale (QF)** | `QF` | 4 | £27.500 |
 | **Achtelfinale (L16 / R3)** | `L16` | 8 | £15.000 |
@@ -349,7 +362,7 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
 | Platzierung / Runde | Enum-Key | Anzahl Spieler | Preisgeld pro Spieler |
 | :--- | :--- | :--- | :--- |
 | **Sieger** | `WINNER` | 1 | £1.000.000 |
-| **Finalist (Runner-Up)** | `F` | 1 | £400.000 |
+| **Finale** | `F` | 1 | £400.000 |
 | **Halbfinale (SF)** | `SF` | 2 | £200.000 |
 | **Viertelfinale (QF)** | `QF` | 4 | £100.000 |
 | **Achtelfinale (L16 / R4)** | `L16` | 8 | £60.000 |

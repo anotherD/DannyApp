@@ -167,8 +167,17 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
     }
 
     private fun getPrizeMoneyItems(event: TournamentEvent): List<PrizeMoneyItem> {
-        val sequence = getRoundSequence(event)
-        return sequence.map { round ->
+        val sequence = getRoundSequence(event).reversed()
+        val winnerPrize = event.getRankingPrizeMoney(TournamentRound.WINNER)
+        val winnerPrizeText = if (winnerPrize > 0) "£%,d".format(Locale.US, winnerPrize.toLong()) else "£0"
+        val winnerDist = event.getMatchDistance(TournamentRound.F)
+        val winnerItem = PrizeMoneyItem(
+            roundName = TournamentRound.WINNER.displayName,
+            matchDistanceText = formatMatchDistance(winnerDist),
+            prizeMoneyText = winnerPrizeText
+        )
+
+        val roundItems = sequence.map { round ->
             val prize = event.getRankingPrizeMoney(round)
             val prizeText = if (prize > 0) "£%,d".format(Locale.US, prize.toLong()) else "£0"
             val dist = event.getMatchDistance(round)
@@ -178,6 +187,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
                 prizeMoneyText = prizeText
             )
         }
+        return listOf(winnerItem) + roundItems
     }
 
     private suspend fun buildPreviewState(
@@ -194,9 +204,9 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         val hostText = "$venueFormat\n${typeBadgeInfo.text}"
 
         val totalPrize = if (event.totalPrizeFund > 0) {
-            "Gesamtpreisgeld: £%,d".format(Locale.US, event.totalPrizeFund.toLong())
+            getApplication<Application>().getString(R.string.tournament_total_prize_fund_format, event.totalPrizeFund.toLong())
         } else {
-            "Qualifikations-Turnier (kein Ranglisten-Preisgeld)"
+            getApplication<Application>().getString(R.string.tournament_qualifying_no_prize)
         }
 
         val items = getPrizeMoneyItems(event)
@@ -871,8 +881,10 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
 
         if (allMatches.isEmpty()) return fullSequence
 
-        val firstMatchRound = allMatches.firstOrNull()?.round ?: return fullSequence
-        val startIndex = fullSequence.indexOfFirst { it.name == firstMatchRound }
-        return if (startIndex != -1) fullSequence.subList(startIndex, fullSequence.size) else fullSequence
+        val startIndex = allMatches.mapNotNull { m ->
+            fullSequence.indexOfFirst { it.name == m.round }.takeIf { it >= 0 }
+        }.minOrNull() ?: 0
+
+        return fullSequence.subList(startIndex, fullSequence.size)
     }
 }
