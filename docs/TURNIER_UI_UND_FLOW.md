@@ -6,8 +6,8 @@ Dieses Dokument definiert die Benutzeroberfläche und den Interaktions-Flow für
 
 ## 🧭 1. Navigation & Einstieg aus der Karriere-Ansicht
 
-* **Top-Bar & Breadcrumbs:** Jede Unterseite zeigt als Titel exakt den Namen des gewählten Bereichs (z. B. `Saisonkalender`, `Turnieransicht`, `Ranglisten`)(Bei Bestimmten auswahlen, wie z.B. einer Karriere, ein Turnier, wird dessen Name angezeigtund als Subtitel den vollständigen Breadcrumb-Pfad (`Karrieren > <Karrierename>`).
-* **Tab-Navigation in der Karriere-Ansicht:** Statt einzelner dicker Buttons nutzt die `CareerDetailActivity` eine übersichtliche **Tab-Navigation** (bzw. einen integrierten Tab-Container) für die drei Kernbereiche:
+* **Top-Bar & Breadcrumbs:** Jede Unterseite zeigt als Titel exakt den Namen des gewählten Bereichs (z. B. `Saisonkalender`, `Turnieransicht`, `Ranglisten`). Bei bestimmten Auswahlen (wie z. B. einer Karriere oder einem Turnier) wird dessen Name angezeigt und als Subtitel der vollständige Breadcrumb-Pfad (`Karrieren > <Karrierename>`).
+* **Tab-Navigation in der Karriere-Ansicht:** Statt einzelner dicker Buttons nutzt die `CareerDetailActivity` eine übersichtliche **Tab-Navigation** für die drei Kernbereiche:
   1. **Saisonkalender:** Chronologische Übersicht aller 74 Turniere der aktiven Saison.
   2. **Turnieransicht:** Rundenübersicht, Gruppenphase (beim Grand Slam of Darts) und Match-Steuerung des aktiven oder ausgewählten Turniers.
   3. **Ranglisten:** Wischbare Ansicht (`ViewPager2`) für die 4 dynamischen Ranglisten (`OOM`, `PT OOM`, `PC OOM`, `ET OOM`).
@@ -18,15 +18,18 @@ Dieses Dokument definiert die Benutzeroberfläche und den Interaktions-Flow für
 
 * **Anzeige:** Liste aller Turniere der aktuellen Saison sortiert nach `order` (1 bis 74).
   * **Turniertypen & Bezeichnungen:** Alle Turniertypen und Labels kommen lokalisiert aus `strings.xml` (keine technischen Enum-Keys wie `PLAYERS_CHAMPIONSHIP` in der UI).
+  * **Runden-Namen:** Alle Rundenbezeichnungen werden zentral über `TournamentUiHelper.getDisplayRoundName(roundKey, context)` dynamisch anhand von `strings.xml` lokalisiert.
   * **Austragungsort:** Anzeige als `<Flagge> <Stadtname>` (ohne das Präfix „Austragungsland:“).
   * **Kennzeichnung:** Major-Turniere und Qualifier-Turniere (`QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIFIER_WM`) sind optisch durch Badges hervorgehoben.
 * **Strikte Turnier-Sperre (Sequenzieller Ablauf):**
   * Es darf immer **nur ein Turnier gleichzeitig aktiv** sein.
   * Ein neues Turnier kann erst gestartet werden, wenn das vorherige Turnier vollständig abgeschlossen ist (`isCompleted == true`).
-* **Status-Kennzeichnung:**
-  * `Abgeschlossen` (`isCompleted == true`): Zeigt den Turniersieger (inkl. Flagge) und die erreichte Runde des Users an.
-  * `Aktiv` (aktuell laufendes Turnier): Hervorgehoben mit **hellerem Rot** als Status-Hintergrund und Button **„Turnier öffnen“**.
-  * `Geplant` (`isCompleted == false`, noch keine Matches generiert): Hervorgehoben mit **Dunkelrot** als Status-Hintergrund. Nur das jeweils nächste anstehende Turnier (sofern kein anderes Turnier aktiv ist) bietet den Button **„Turnier starten“** (ruft `GenerateBracketUseCase` auf und öffnet die Turnieransicht).
+* **Status-Kennzeichnung & Multi-Sieger-Qualifier:**
+  * `Abgeschlossen` (`isCompleted == true`):
+    * **Einzelsieger-Turniere:** Zeigt den Turniersieger (inkl. Flagge) im Status-Badge und die erreichte Runde des Users an.
+    * **Multi-Sieger-Qualifier (`QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIFIER_WM`):** Zeigt im Status-Badge nur `Abgeschlossen` an (ohne Einzel-Pokal). Sämtliche Gewinner der Finalrunde (`QUAL_FINAL`) werden in einer eigenen Zeile (`tvQualifierWinners`) unterhalb des Typ-Badges als `Qualifier-Gewinner: <Gewinner-Liste>` dargestellt.
+  * `Aktiv` (aktuell laufendes Turnier): Hervorgehoben mit Status-Hintergrund und Button **„Turnier öffnen“**.
+  * `Geplant` (`isCompleted == false`, noch keine Matches generiert): Hervorgehoben mit Status-Hintergrund. Nur das jeweils nächste anstehende Turnier (sofern kein anderes Turnier aktiv ist) bietet den Button **„Turnier starten“** (ruft `GenerateBracketUseCase` auf und öffnet die Turnieransicht).
 * **Debug-Funktion (`debugMode == true`):** Ist der Debug-Modus in der Konfiguration aktiviert, erscheint beim aktiven bzw. nächsten Turnier der Button **„Komplettes Turnier simulieren“** (simuliert alle Runden dieses einen Turniers durch). Ist `debugMode == false`, wird der Button ausgeblendet.
 
 ---
@@ -40,12 +43,16 @@ Jedes Turnier im Saisonkalender ist anklickbar und öffnet die Turnieransicht in
   - Falls es das nächste anstehende Turnier im Kalender ist und kein anderes Turnier aktiv läuft, wird unten der Button **„Turnier jetzt starten & auslosen“** angezeigt (`GenerateBracketUseCase`).
 2. **Aktiver Turnier-Modus (`isCompleted == false` und Matches vorhanden):**
   - **Runden-Auswahl:** Horizontale **Runden-Pills / Material Chips** (Single-Selection) statt eines Dropdowns (plus Gruppen-Auswahl `A–P` beim Grand Slam of Darts).
-  - **Vorab-Turnierbaum (Folgerunden):** Bei Turnieren mit festem Turnierbaum sind alle Runden-Pills bereits vorab anwählbar und zeigen Platzhalter-Paarungen an (z. B. `Sieger #1 vs. Sieger #2`). Bei Turnieren mit Live-Auslosung ab Runde 4 (`UK Open`, `European Open`) werden noch nicht ausgeloste Runden als `? vs. ?` dargestellt.
+  - **Vorab-Turnierbaum & Freie Auslosung:**
+    - Bei Turnieren mit festem Turnierbaum sind alle Runden-Pills bereits vorab anwählbar und zeigen Platzhalter-Paarungen an (z. B. `Sieger #1 vs. Sieger #2`).
+    - Bei Qualifiern (`QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIFIER_WM`) sowie bei `UK_OPEN` und `EUROPEAN_OPEN` (in allen Folgerunden ab `R2_128`) wird für noch nicht ausgeloste Platzhalter-Matches stattdessen der Text `Freie Auslosung` (`R.string.match_tbd_open_draw`) angezeigt.
+  - **Seed-Nummern bei Spielernamen:** Ist ein Spieler im jeweiligen Turnier gesetzt (z. B. Top 32 PT OOM bei `PLAYERS_CHAMPIONSHIP`, Top 16 OOM + Top 16 PT OOM bei `EUROPEAN_TOUR`, Top 16 OOM bei `WORLD_MATCHPLAY`/`WORLD_GRAND_PRIX`/`GRAND_SLAM_OF_DARTS`, Top 32 OOM bei `WORLD_CHAMPIONSHIP`, Top 32 ET OOM bei `EUROPEAN_CHAMPIONSHIP`, Top 64 PC OOM bei `PLAYERS_CHAMPIONSHIP_FINALS`, Top 32 OOM bei `UK_OPEN`/`EUROPEAN_OPEN`, gesetzte OOM-Plätze bei Qualifiern), wird sein Name im Match-Adapter via `R.string.player_with_seed` als `(<Seed>) <Name>` formatiert.
   - **Match-Karten:** Zeigen Spielernamen (beim User seinen hinterlegten `playerName` samt Landesflagge) und das Ergebnis an (ohne `Skill: x`-Anzeige).
   - **Zentrale Steuerung:** Die Schalter **„Automatische Simulation“** und **„Automatisch zur nächsten Runde“** liegen zentral in der **Konfiguration (`ConfigActivity`)** und werden über `SettingsManager` gesteuert. Die manuellen Simulations-Buttons in der Turnieransicht sind nur bei `debugMode == true` sichtbar.
 3. **Rückblick-Modus (`isCompleted == true`):**
   - Nutzt dieselbe Runden-Pills-Ansicht wie der aktive Modus (read-only ohne Simulations-Buttons).
-  - Zeigt oben eine Zusammenfassung: **Sieger** (inkl. Landesflagge), **Final-Ergebnis** (inkl. Name & Flagge des Finalgegners), **Deine erreichte Runde** (`reachedRound`) und **Gewonnenes Preisgeld** (`prizeMoney` aus `tournament_placements`).
+  - **Einzelsieger-Turniere:** Zeigt oben die Zusammenfassung **Sieger** (inkl. Landesflagge), **Final-Ergebnis** (inkl. Name & Flagge des Finalgegners), **Deine erreichte Runde** (`reachedRound`) und **Gewonnenes Preisgeld** (`prizeMoney` aus `tournament_placements`).
+  - **Multi-Sieger-Qualifier:** Zeigt in `tvReviewWinner` die formatierte Gewinner-Liste (`Qualifier-Gewinner: <Gewinner-Liste>`) und blendet das Final-Ergebnis (`tvReviewFinalScore`) aus.
 
 ### 3.1 Die 4 Optionen für User-Matches (`USER_ID = -1L`)
 Ist ein offenes Match mit Beteiligung des Users an der Reihe, erhält der User beim Klick auf sein Match folgende Auswahlmöglichkeiten:

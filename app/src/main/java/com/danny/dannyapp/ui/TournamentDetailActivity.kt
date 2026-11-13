@@ -354,8 +354,14 @@ class TournamentDetailActivity : BaseActivity() {
 
                 currentEvent = state.event
 
-                tvReviewWinner.text = getString(R.string.tournament_review_winner, state.winnerFlag, state.winnerName)
-                tvReviewFinalScore.text = getString(R.string.tournament_review_final_score, state.finalScoreText, state.opponentFlag, state.opponentName)
+                if (state.isQualifier) {
+                    tvReviewWinner.text = state.qualifierWinnersText
+                    tvReviewFinalScore.visibility = View.GONE
+                } else {
+                    tvReviewWinner.text = getString(R.string.tournament_review_winner, state.winnerFlag, state.winnerName)
+                    tvReviewFinalScore.visibility = View.VISIBLE
+                    tvReviewFinalScore.text = getString(R.string.tournament_review_final_score, state.finalScoreText, state.opponentFlag, state.opponentName)
+                }
                 tvReviewUserRound.text = getString(R.string.tournament_review_user_round, state.userReachedRoundText)
                 tvReviewUserPrize.text = getString(R.string.tournament_review_user_prize, state.userEarnedPrizeMoneyText)
 

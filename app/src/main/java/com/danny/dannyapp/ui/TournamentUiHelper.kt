@@ -148,9 +148,12 @@ object TournamentUiHelper {
     data class StatusBadgeInfo(val text: String, val colorResId: Int)
 
     fun getStatusBadgeInfo(context: Context, model: TournamentUiModel): StatusBadgeInfo {
+        val isMultiWinnerQualifier = model.tournament.type in listOf(
+            "QUALIFIER_ET", "QUALIFIER_GRAND_SLAM", "QUALIFIER_WM"
+        )
         val text = when (model.status) {
             TournamentStatus.COMPLETED -> {
-                if (model.winnerName != null) {
+                if (!isMultiWinnerQualifier && model.winnerName != null) {
                     context.getString(R.string.tournament_status_winner_format, model.winnerName)
                 } else {
                     context.getString(R.string.tournament_status_completed)
@@ -214,6 +217,7 @@ object TournamentUiHelper {
 
         val tvTournamentName: TextView = itemView.findViewById(R.id.tvTournamentName)
         val tvTournamentTypeBadge: TextView = itemView.findViewById(R.id.tvTournamentTypeBadge)
+        val tvQualifierWinners: TextView = itemView.findViewById(R.id.tvQualifierWinners)
         val tvTournamentStatus: TextView = itemView.findViewById(R.id.tvTournamentStatus)
         val tvTournamentDetails: TextView = itemView.findViewById(R.id.tvTournamentDetails)
         val btnStartTournament: Button = itemView.findViewById(R.id.btnStartTournament)
@@ -224,6 +228,16 @@ object TournamentUiHelper {
         tvTournamentTypeBadge.visibility = View.VISIBLE
         tvTournamentTypeBadge.text = typeBadgeInfo.text
         tvTournamentTypeBadge.background?.setTint(ContextCompat.getColor(context, typeBadgeInfo.colorResId))
+
+        if (!model.qualifierWinners.isNullOrEmpty()) {
+            tvQualifierWinners.visibility = View.VISIBLE
+            tvQualifierWinners.text = context.getString(
+                R.string.qualifier_winners_prefix,
+                model.qualifierWinners.joinToString(", ")
+            )
+        } else {
+            tvQualifierWinners.visibility = View.GONE
+        }
 
         val statusBadgeInfo = getStatusBadgeInfo(context, model)
         tvTournamentStatus.text = statusBadgeInfo.text

@@ -57,6 +57,20 @@
             tools:text="Major" />
 
         <TextView
+            android:id="@+id/tvQualifierWinners"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textSize="13sp"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvTournamentTypeBadge"
+            tools:text="Qualifier-Gewinner: Spieler A, Spieler B"
+            tools:visibility="visible" />
+
+        <TextView
             android:id="@+id/tvTournamentDetails"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -76,7 +90,7 @@
             android:text="@string/tournament_start"
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvTournamentTypeBadge"
+            app:layout_constraintTop_toBottomOf="@id/tvQualifierWinners"
             tools:visibility="visible" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

@@ -133,4 +133,7 @@
     <string name="btn_simulate_cpu">CPU simulieren</string>
     <string name="btn_advance_round">Nächste Runde</string>
     <string name="dialog_close">Schließen</string>
+    <string name="qualifier_winners_prefix">Qualifier-Gewinner: %1$s</string>
+    <string name="match_tbd_open_draw">Freie Auslosung</string>
+    <string name="player_with_seed">(%1$d) %2$s</string>
 </resources>

@@ -17,6 +17,7 @@ import com.danny.dannyapp.domain.usecase.SimulateCpuMatchUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import com.danny.dannyapp.domain.model.TournamentRound
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
@@ -31,6 +32,7 @@ data class TournamentUiModel(
     val status: TournamentStatus,
     val isNextPlanned: Boolean,
     val winnerName: String?,
+    val qualifierWinners: List<String>?,
     val userReachedRound: String?,
     val activeRoundName: String?
 )
@@ -129,14 +131,25 @@ class TournamentCalendarViewModel(application: Application) : AndroidViewModel(a
             }
 
             var winnerName: String? = null
+            var qualifierWinners: List<String>? = null
             var userReachedRound: String? = null
             var activeRoundName: String? = null
 
+            val isMultiWinnerQualifier = tournament.type in listOf("QUALIFIER_ET", "QUALIFIER_GRAND_SLAM", "QUALIFIER_WM")
+
             if (status == TournamentStatus.COMPLETED) {
-                val finalMatch = matches.find { it.round == "F" || it.round == "FINAL" } ?: matches.lastOrNull()
-                if (finalMatch?.winnerId != null) {
-                    val winnerId = finalMatch.winnerId!!
-                    winnerName = if (winnerId == USER_ID) "Du" else allPlayers[winnerId]?.name ?: "CPU"
+                if (isMultiWinnerQualifier) {
+                    val qualFinalMatches = matches.filter { it.round == TournamentRound.QUAL_FINAL.name }.sortedBy { it.matchIndex }
+                    qualifierWinners = qualFinalMatches.mapNotNull { m ->
+                        val wId = m.winnerId ?: return@mapNotNull null
+                        if (wId == USER_ID) "Du" else allPlayers[wId]?.name ?: "CPU"
+                    }
+                } else {
+                    val finalMatch = matches.find { it.round == "F" || it.round == "FINAL" } ?: matches.lastOrNull()
+                    if (finalMatch?.winnerId != null) {
+                        val winnerId = finalMatch.winnerId!!
+                        winnerName = if (winnerId == USER_ID) "Du" else allPlayers[winnerId]?.name ?: "CPU"
+                    }
                 }
 
                 val placements = placementsByTournament[tournament.id] ?: emptyList()
@@ -157,6 +170,7 @@ class TournamentCalendarViewModel(application: Application) : AndroidViewModel(a
                 status = status,
                 isNextPlanned = isNextPlanned,
                 winnerName = winnerName,
+                qualifierWinners = qualifierWinners,
                 userReachedRound = userReachedRound,
                 activeRoundName = activeRoundName
             )
