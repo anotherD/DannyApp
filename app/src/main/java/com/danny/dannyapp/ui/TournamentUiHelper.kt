@@ -284,8 +284,6 @@ object TournamentUiHelper {
 
         val tvTournamentName: TextView = itemView.findViewById(R.id.tvTournamentName)
         val tvTournamentTypeBadge: TextView = itemView.findViewById(R.id.tvTournamentTypeBadge)
-        val tvQualifierWinnersHeader: TextView = itemView.findViewById(R.id.tvQualifierWinnersHeader)
-        val layoutQualifierWinnersList: android.widget.LinearLayout = itemView.findViewById(R.id.layoutQualifierWinnersList)
         val tvTournamentStatus: TextView = itemView.findViewById(R.id.tvTournamentStatus)
         val tvTournamentDetails: TextView = itemView.findViewById(R.id.tvTournamentDetails)
         val btnStartTournament: Button = itemView.findViewById(R.id.btnStartTournament)
@@ -296,8 +294,6 @@ object TournamentUiHelper {
         tvTournamentTypeBadge.visibility = View.VISIBLE
         tvTournamentTypeBadge.text = typeBadgeInfo.text
         tvTournamentTypeBadge.background?.setTint(ContextCompat.getColor(context, typeBadgeInfo.colorResId))
-
-        bindQualifierWinnersList(context, tvQualifierWinnersHeader, layoutQualifierWinnersList, model.qualifierWinners)
 
         val statusBadgeInfo = getStatusBadgeInfo(context, model)
         tvTournamentStatus.text = statusBadgeInfo.text

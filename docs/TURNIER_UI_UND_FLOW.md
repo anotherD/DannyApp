@@ -7,7 +7,12 @@ Dieses Dokument definiert die Benutzeroberfläche und den Interaktions-Flow für
 ## 🧭 1. Navigation & Einstieg aus der Karriere-Ansicht
 
 * **Top-Bar & Breadcrumbs:** Jede Unterseite zeigt als Titel exakt den Namen des gewählten Bereichs (z. B. `Saisonkalender`, `Turnieransicht`, `Ranglisten`). Bei Karrieren und Turnieren wird als Subtitel der vollständige Breadcrumb-Pfad im Format `Karrieren > <Karrierename> (Saison X)` (`breadcrumb_career_season_format`) angezeigt.
-* **Karrieren-Kacheln & Übersicht (`CareerAdapter`, `CareerOverviewFragment`):** Jede Karriere-Kachel und die Übersicht (`tvCareerOverviewDetails`) zeigen konsistent Level, Profilnamen, die aktuelle Saison (`Saison X`) sowie den Spielernamen inklusive Landesflagge (über `TournamentUiHelper.formatFlagAndText`) an.
+* **Karrieren-Kacheln & Übersicht (`CareerAdapter`, `CareerOverviewFragment`):** Jede Karriere-Kachel ist als kompaktes `ConstraintLayout` im 2x2-Raster aufgebaut (`item_career.xml`):
+  - Links oben: `tvCareerName` (fett, 18sp)
+  - Rechts oben: `tvCareerSeason` (`Saison X`, 14sp)
+  - Links unten (unter `tvCareerName`): `tvCareerPlayer` (`<Flagge> <Spielername>`) und darunter `tvCareerProfile` (`Profil: <Name>`)
+  - Rechts unten: `tvCareerLevel` (`Level X`, 14sp)
+  - Zudem zeigen die Kacheln und die Übersicht (`tvCareerOverviewDetails`) konsistent Level, Profilnamen, aktuelle Saison sowie Spielernamen inklusive Landesflagge (über `TournamentUiHelper.formatFlagAndText`) an.
 * **Tab-Navigation in der Karriere-Ansicht:** Statt einzelner dicker Buttons nutzt die `CareerDetailActivity` eine übersichtliche **Tab-Navigation** für die drei Kernbereiche:
   1. **Saisonkalender:** Chronologische Übersicht aller 74 Turniere der aktiven Saison.
   2. **Turnieransicht:** Rundenübersicht, Gruppenphase (beim Grand Slam of Darts) und Match-Steuerung des aktiven oder ausgewählten Turniers.
@@ -30,7 +35,7 @@ Dieses Dokument definiert die Benutzeroberfläche und den Interaktions-Flow für
 * **Status-Kennzeichnung & Multi-Sieger-Qualifier:**
   * `Abgeschlossen` (`isCompleted == true`):
     * **Einzelsieger-Turniere:** Zeigt den Turniersieger (inkl. Landesflagge) im Status-Badge und die erreichte Runde des Users an.
-    * **Multi-Sieger-Qualifier (`QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIFIER_WM`):** Zeigt im Status-Badge nur `Abgeschlossen` an (ohne Einzel-Pokal). Sämtliche Gewinner der Finalrunde (`QUAL_FINAL`) werden als vertikale, **2-spaltige** Liste unter der Überschrift `@string/qualifier_winners_header` (`Qualifier-Gewinner:`) dargestellt, wobei jede Zeile über `TournamentUiHelper.formatFlagAndText(...)` mit `<Flagge> <Spielername>` formatiert wird.
+    * **Multi-Sieger-Qualifier (`QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIFIER_WM`):** Zeigt im Status-Badge nur `Abgeschlossen` an (ohne Einzel-Pokal). Auf den **Kalender-Kacheln** (`item_tournament.xml`) sind die Qualifier-Gewinner zur Platzersparnis ausgeblendet (`tvQualifierWinnersHeader` / `layoutQualifierWinnersList` auf `GONE`). Im **Turnier-Rückblick** (`TournamentDetailActivity`) bleibt die 2-spaltige Gewinnerliste erhalten, wobei jede Zeile über `TournamentUiHelper.formatFlagAndText(...)` mit `<Flagge> <Spielername>` formatiert wird.
   * `Aktiv` (aktuell laufendes Turnier): Hervorgehoben mit Status-Hintergrund und Button **„Turnier öffnen“**.
   * `Geplant` (`isCompleted == false`, noch keine Matches generiert): Hervorgehoben mit Status-Hintergrund. Nur das jeweils nächste anstehende Turnier (sofern kein anderes Turnier aktiv ist) bietet den Button **„Turnier starten“** (ruft `GenerateBracketUseCase` auf und öffnet die Turnieransicht).
 * **Debug-Funktion (`debugMode == true`):** Ist der Debug-Modus in der Konfiguration aktiviert, erscheint beim aktiven bzw. nächsten Turnier der Button **„Komplettes Turnier simulieren“** (simuliert alle Runden dieses einen Turniers durch). Ist `debugMode == false`, wird der Button ausgeblendet.
@@ -63,7 +68,7 @@ Jedes Turnier im Saisonkalender ist anklickbar und öffnet die Turnieransicht in
 Ist ein offenes Match mit Beteiligung des Users an der Reihe, erhält der User beim Klick auf sein Match folgende Auswahlmöglichkeiten:
 1. **„Sieger festlegen (Sieg/Niederlage)“** *(nur sichtbar bei `debugMode == true`)*: Setzt direkt einen gültigen Sieg- oder Niederlagen-Spielstand passend zur `MatchDistance`.
 2. **„Ergebnis manuell eingeben“**: Öffnet einen Dialog zur direkten Eingabe der gewonnenen Legs/Sets (z. B. `6 : 4`). Validiert gegen `TournamentEvent.getMatchDistance(round)` (inkl. `twoClearLegsRule`), speichert das Ergebnis und triggert den Rundenfortschritt.
-3. **„Live spielen (GameEngine)“**: Übergibt Match-ID und `MatchDistance` (`bestOf`, `legsPerSet`, `twoClearLegsRule`, `SETS_DOUBLE_IN_OUT`) an die bestehende Match-/Scolia-Engine.
+3. **„Live spielen (GameEngine)`**: Übergibt Match-ID und `MatchDistance` (`bestOf`, `legsPerSet`, `twoClearLegsRule`, `SETS_DOUBLE_IN_OUT`) an die bestehende Match-/Scolia-Engine.
 
 ---
 
@@ -72,6 +77,7 @@ Ist ein offenes Match mit Beteiligung des Users an der Reihe, erhält der User b
 * **Wisch-Navigation (`ViewPager2`):** Flüssiges Wischen nach links und rechts zwischen den 4 Ranglisten (`Order of Merit (OOM)`, `Pro Tour (PT OOM)`, `Players Champ. (PC OOM)`, `European Tour (ET OOM)`).
 * **Datenquelle:** Ruft `GetOrderOfMeritUseCase(careerId, type)` auf (zeigt beim User seinen hinterlegten `playerName` und seine Landesflagge).
 * **Darstellung:** Tabelle mit Platzierung (`rank`), **Landesflagge** (statt Text-Kürzel), Spielername (`name`), Preisgeld (`prizeMoney` in `£`) und optischer Hervorhebung der eigenen Zeile (`isUser == true`).
+  - Um dreistellige Ränge wie `#100` oder `#128` einzeilig und ohne Umbruch darzustellen, haben `tvRank` in `item_order_of_merit.xml` sowie `tvStickyRankTop` und `tvStickyRankBottom` in `fragment_order_of_merit_container.xml` eine feste Breite von `52dp` und `android:maxLines="1"`.
 * **Dynamische Sticky-User-Karten & Auto-Scroll:**
   * Ist die Zeile des Users außerhalb des sichtbaren Bereichs platziert, wird dynamisch eine Sticky-User-Karte eingeblendet:
     * Steht der User weiter oben in der Tabelle (`userIndex < firstVisible`), erscheint `cardStickyUserTop` direkt unter der Tab-Leiste (im XML im Vordergrund über dem `ViewPager2` platziert).
