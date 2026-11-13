@@ -100,40 +100,100 @@ class AdvanceTournamentRoundUseCase(
             val N = nonPreqTc.size
             val K = targetWinners
 
-            val (nextRoundEnum, nextRoundPlayers) = when (currentRoundEnum) {
+            val nextMatches = when (currentRoundEnum) {
                 TournamentRound.QUAL_PRELIM -> {
                     val byeCount = (16 * K - N).coerceAtLeast(0)
                     val byePlayers = nonPreqTc.take(byeCount)
                     val prelimWinners = currentRoundMatches.sortedBy { it.matchIndex }.mapNotNull { it.winnerId }
-                    Pair(TournamentRound.QUAL_R1, byePlayers + prelimWinners)
+                    val mainFieldPlayers = byePlayers + prelimWinners
+
+                    val boardPlayers = mutableMapOf<Int, MutableList<Long>>()
+                    for (b in 0 until K) {
+                        boardPlayers[b] = mutableListOf()
+                    }
+                    mainFieldPlayers.forEachIndexed { index, id ->
+                        val boardIdx = index % K
+                        boardPlayers[boardIdx]?.add(id)
+                    }
+
+                    val r1Matches = mutableListOf<TournamentMatch>()
+                    for (b in 0 until K) {
+                        val list = boardPlayers[b] ?: mutableListOf()
+                        val seedId = nonPreqTc.getOrNull(b)
+                        if (seedId != null && seedId in list && list.first() != seedId) {
+                            list.remove(seedId)
+                            list.add(0, seedId)
+                        }
+                        for (mIdx in 0 until 4) {
+                            val p1 = list.getOrNull(2 * mIdx)
+                            val p2 = list.getOrNull(2 * mIdx + 1)
+                            if (p1 != null && p2 != null) {
+                                r1Matches.add(
+                                    TournamentMatch(
+                                        tournamentId = tournamentId,
+                                        round = TournamentRound.QUAL_R1.name,
+                                        matchIndex = 4 * b + mIdx,
+                                        player1Id = p1,
+                                        player2Id = p2
+                                    )
+                                )
+                            }
+                        }
+                    }
+                    r1Matches
                 }
                 TournamentRound.QUAL_R1 -> {
-                    val isFirstRound = allMatches.none { it.round == TournamentRound.QUAL_PRELIM.name }
-                    val byeCount = if (isFirstRound && N < 8 * K) (8 * K - N).coerceAtLeast(0) else 0
-                    val byePlayers = nonPreqTc.take(byeCount)
-                    val r1Winners = currentRoundMatches.sortedBy { it.matchIndex }.mapNotNull { it.winnerId }
-                    Pair(TournamentRound.QUAL_R2, byePlayers + r1Winners)
+                    val r1MatchesByBoard = currentRoundMatches.sortedBy { it.matchIndex }
+                    val r2Matches = mutableListOf<TournamentMatch>()
+                    for (b in 0 until K) {
+                        val boardMatches = r1MatchesByBoard.filter { it.matchIndex in (4 * b)..(4 * b + 3) }.sortedBy { it.matchIndex }
+                        val w0 = boardMatches.getOrNull(0)?.winnerId ?: 0L
+                        val w1 = boardMatches.getOrNull(1)?.winnerId ?: 0L
+                        val w2 = boardMatches.getOrNull(2)?.winnerId ?: 0L
+                        val w3 = boardMatches.getOrNull(3)?.winnerId ?: 0L
+
+                        r2Matches.add(
+                            TournamentMatch(
+                                tournamentId = tournamentId,
+                                round = TournamentRound.QUAL_R2.name,
+                                matchIndex = 2 * b,
+                                player1Id = w0,
+                                player2Id = w1
+                            )
+                        )
+                        r2Matches.add(
+                            TournamentMatch(
+                                tournamentId = tournamentId,
+                                round = TournamentRound.QUAL_R2.name,
+                                matchIndex = 2 * b + 1,
+                                player1Id = w2,
+                                player2Id = w3
+                            )
+                        )
+                    }
+                    r2Matches
                 }
                 TournamentRound.QUAL_R2 -> {
-                    val isFirstRound = allMatches.none { it.round == TournamentRound.QUAL_R1.name }
-                    val byeCount = if (isFirstRound && N < 4 * K) (4 * K - N).coerceAtLeast(0) else 0
-                    val byePlayers = nonPreqTc.take(byeCount)
-                    val r2Winners = currentRoundMatches.sortedBy { it.matchIndex }.mapNotNull { it.winnerId }
-                    Pair(TournamentRound.QUAL_FINAL, byePlayers + r2Winners)
-                }
-                else -> Pair(TournamentRound.QUAL_FINAL, currentRoundMatches.sortedBy { it.matchIndex }.mapNotNull { it.winnerId })
-            }
+                    val r2MatchesByBoard = currentRoundMatches.sortedBy { it.matchIndex }
+                    val finalMatches = mutableListOf<TournamentMatch>()
+                    for (b in 0 until K) {
+                        val boardMatches = r2MatchesByBoard.filter { it.matchIndex in (2 * b)..(2 * b + 1) }.sortedBy { it.matchIndex }
+                        val w0 = boardMatches.getOrNull(0)?.winnerId ?: 0L
+                        val w1 = boardMatches.getOrNull(1)?.winnerId ?: 0L
 
-            val nextMatchCount = nextRoundPlayers.size / 2
-            val totalNextPlayers = nextRoundPlayers.size
-            val nextMatches = (0 until nextMatchCount).map { i ->
-                TournamentMatch(
-                    tournamentId = tournamentId,
-                    round = nextRoundEnum.name,
-                    matchIndex = i,
-                    player1Id = nextRoundPlayers[i],
-                    player2Id = nextRoundPlayers[totalNextPlayers - 1 - i]
-                )
+                        finalMatches.add(
+                            TournamentMatch(
+                                tournamentId = tournamentId,
+                                round = TournamentRound.QUAL_FINAL.name,
+                                matchIndex = b,
+                                player1Id = w0,
+                                player2Id = w1
+                            )
+                        )
+                    }
+                    finalMatches
+                }
+                else -> emptyList()
             }
 
             if (nextMatches.isNotEmpty()) {

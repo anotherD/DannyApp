@@ -60,6 +60,10 @@ class TournamentDetailActivity : BaseActivity() {
     private lateinit var btnSimulateComplete: Button
     private lateinit var btnAdvanceRound: Button
     private lateinit var rvMatches: RecyclerView
+    private lateinit var layoutOpenDrawInfo: View
+    private lateinit var tvDrawAfterRoundInfo: TextView
+    private lateinit var tvQualifiedEntrantsHeader: TextView
+    private lateinit var layoutEntrantsContainer: LinearLayout
     private lateinit var activeMatchesAdapter: TournamentMatchAdapter
 
     // Review
@@ -159,6 +163,10 @@ class TournamentDetailActivity : BaseActivity() {
         btnSimulateComplete = findViewById(R.id.btnSimulateComplete)
         btnAdvanceRound = findViewById(R.id.btnAdvanceRound)
         rvMatches = findViewById(R.id.rvMatches)
+        layoutOpenDrawInfo = findViewById(R.id.layoutOpenDrawInfo)
+        tvDrawAfterRoundInfo = findViewById(R.id.tvDrawAfterRoundInfo)
+        tvQualifiedEntrantsHeader = findViewById(R.id.tvQualifiedEntrantsHeader)
+        layoutEntrantsContainer = findViewById(R.id.layoutEntrantsContainer)
 
         // Review
         layoutReviewContainer = findViewById(R.id.layoutReviewContainer)
@@ -351,7 +359,79 @@ class TournamentDetailActivity : BaseActivity() {
                     layoutGroupSelector.visibility = View.GONE
                 }
 
-                activeMatchesAdapter.submitList(state.matches)
+                if (state.isOpenDrawInfoVisible) {
+                    rvMatches.visibility = View.GONE
+                    layoutOpenDrawInfo.visibility = View.VISIBLE
+                    tvDrawAfterRoundInfo.text = getString(R.string.draw_after_round_info)
+                    if (state.openEntrantsGroups.isNotEmpty()) {
+                        tvQualifiedEntrantsHeader.visibility = View.VISIBLE
+                        layoutEntrantsContainer.visibility = View.VISIBLE
+                        layoutEntrantsContainer.removeAllViews()
+                        state.openEntrantsGroups.forEachIndexed { groupIndex, group ->
+                            if (groupIndex > 0) {
+                                val divider = com.google.android.material.divider.MaterialDivider(this).apply {
+                                    layoutParams = LinearLayout.LayoutParams(
+                                        LinearLayout.LayoutParams.MATCH_PARENT,
+                                        LinearLayout.LayoutParams.WRAP_CONTENT
+                                    ).apply {
+                                        topMargin = (8 * resources.displayMetrics.density).toInt()
+                                        bottomMargin = (8 * resources.displayMetrics.density).toInt()
+                                    }
+                                }
+                                layoutEntrantsContainer.addView(divider)
+                            }
+                            val tvGroupTitle = TextView(this).apply {
+                                layoutParams = LinearLayout.LayoutParams(
+                                    LinearLayout.LayoutParams.MATCH_PARENT,
+                                    LinearLayout.LayoutParams.WRAP_CONTENT
+                                ).apply {
+                                    bottomMargin = (4 * resources.displayMetrics.density).toInt()
+                                }
+                                text = group.title
+                                textSize = 14f
+                                setTypeface(null, Typeface.BOLD)
+                                val typedValue = android.util.TypedValue()
+                                theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurface, typedValue, true)
+                                if (typedValue.resourceId != 0) {
+                                    setTextColor(ContextCompat.getColor(this@TournamentDetailActivity, typedValue.resourceId))
+                                }
+                            }
+                            layoutEntrantsContainer.addView(tvGroupTitle)
+
+                            group.players.forEach { player ->
+                                val tvPlayer = TextView(this).apply {
+                                    layoutParams = LinearLayout.LayoutParams(
+                                        LinearLayout.LayoutParams.MATCH_PARENT,
+                                        LinearLayout.LayoutParams.WRAP_CONTENT
+                                    ).apply {
+                                        topMargin = (2 * resources.displayMetrics.density).toInt()
+                                        bottomMargin = (2 * resources.displayMetrics.density).toInt()
+                                    }
+                                    textSize = 13f
+                                    val typedValue = android.util.TypedValue()
+                                    theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurfaceVariant, typedValue, true)
+                                    if (typedValue.resourceId != 0) {
+                                        setTextColor(ContextCompat.getColor(this@TournamentDetailActivity, typedValue.resourceId))
+                                    }
+                                }
+                                val displayText = if (player.seed != null) {
+                                    getString(R.string.player_with_seed, player.seed, player.name)
+                                } else {
+                                    player.name
+                                }
+                                TournamentUiHelper.formatFlagAndText(this, tvPlayer, player.countryCode, displayText)
+                                layoutEntrantsContainer.addView(tvPlayer)
+                            }
+                        }
+                    } else {
+                        tvQualifiedEntrantsHeader.visibility = View.GONE
+                        layoutEntrantsContainer.visibility = View.GONE
+                    }
+                } else {
+                    rvMatches.visibility = View.VISIBLE
+                    layoutOpenDrawInfo.visibility = View.GONE
+                    activeMatchesAdapter.submitList(state.matches)
+                }
             }
 
             is TournamentDetailState.Review -> {

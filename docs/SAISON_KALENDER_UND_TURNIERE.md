@@ -125,11 +125,13 @@ Alle Tour Card Holder Qualifier (`QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIF
 * **`QUALIFIER_GRAND_SLAM`:** K = 8 Boards (8 Sieger) -> Hauptrunden: **64 -> 32 -> 16 -> 8 Sieger** (`QUAL_R1` [32 Matches] -> `QUAL_R2` [16 Matches] -> `QUAL_FINAL` [8 Matches]).
 * **`QUALIFIER_WM`:** K = 4 Boards (4 Sieger) -> Hauptrunden: **32 -> 16 -> 8 -> 4 Sieger** (`QUAL_R1` [16 Matches] -> `QUAL_R2` [8 Matches] -> `QUAL_FINAL` [4 Matches]).
 
-**Vorrunde & Freilose (Byes):**
-* Das Hauptfeld vor den letzten drei Runden umfasst exakt `8 * K` Startplätze (80 beim ET-Qualifier, 64 beim Grand-Slam-Qualifier, 32 beim WM-Qualifier).
-* Ist die Anzahl der teilnehmenden nicht-vorqualifizierten Tour-Card-Inhaber N größer als `8 * K` (z. B. N = 96 beim ET-Qualifier):
-    * Die obersten `16 * K - N` gesetzten Spieler (z. B. 160 - 96 = 64 Spieler) erhalten ein **Freilos (Bye)** und steigen direkt in `QUAL_R1` ein.
-    * Die übrigen `2 * (N - 8 * K)` Spieler (z. B. 2 * 16 = 32 Spieler) spielen in der **Vorrunde (`QUAL_PRELIM`)** `N - 8 * K` Matches (z. B. 16 Matches) um die restlichen Plätze in `QUAL_R1`.
+**Vorrunde, Gruppenköpfe & Freilose (Byes):**
+* **Offizielle Board-Setzliste:** Die Top `K` teilnehmenden Tour-Card-Inhaber (gemäß OOM) sind als Gruppenköpfe (`Seed 1..K`) der `K` Boards gesetzt, sodass sie erst im `QUAL_FINAL` aufeinandertreffen können.
+* Das Hauptfeld vor `QUAL_R1` ist als `K` getrennte 8er-Boards (insgesamt `8 * K` Startplätze) aufgebaut.
+* Ist die Anzahl der teilnehmenden Tour-Card-Inhaber N größer als `8 * K`:
+    * Die obersten `16 * K - N` gesetzten Spieler (inkl. `Seed 1..K`) erhalten ein Freilos in `QUAL_PRELIM` und stehen auf festen Board-Positionen in `QUAL_R1`.
+    * Nur die untersten `2 * (N - 8 * K)` Spieler spielen in `QUAL_PRELIM` (`QUAL_PRELIM`) um die restlichen freien Plätze der `K` Boards.
+* **Fester K.o.-Baum ab `QUAL_R1`:** Ab `QUAL_R1` läuft jedes Board als fester K.o.-Baum (`QUAL_R1` -> `QUAL_R2` -> `QUAL_FINAL`) ohne erneutes Mischen.
 * **Qualifikations-Logging:** Bei jeder Auslosung (`GenerateBracketUseCase`) wird ein strukturierter Log-Bericht (`Log.i("TournamentQualification", ...)`) mit allen Teilnehmern, ihrem Qualifikationsweg und ihrer Platzierung ausgegeben.
 
 ### 2.3 Die Major-Turniere

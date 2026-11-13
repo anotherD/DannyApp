@@ -243,26 +243,51 @@ object BracketGenerator {
         val N = oomSortedIds.size
         if (N == 0) return emptyList()
 
-        val (target, round) = when {
-            N > 8 * K -> Pair(8 * K, TournamentRound.QUAL_PRELIM)
-            N > 4 * K -> Pair(4 * K, TournamentRound.QUAL_R1)
-            N > 2 * K -> Pair(2 * K, TournamentRound.QUAL_R2)
-            else -> Pair(K, TournamentRound.QUAL_FINAL)
-        }
+        if (N > 8 * K) {
+            val prelimMatchCount = N - 8 * K
+            val prelimPlayers = oomSortedIds.takeLast(2 * prelimMatchCount)
+            return (0 until prelimMatchCount).map { i ->
+                MatchPairing(
+                    round = TournamentRound.QUAL_PRELIM,
+                    matchIndex = i,
+                    player1Id = prelimPlayers[i],
+                    player2Id = prelimPlayers[2 * prelimMatchCount - 1 - i]
+                )
+            }
+        } else {
+            val boardPlayers = mutableMapOf<Int, MutableList<Long>>()
+            for (b in 0 until K) {
+                boardPlayers[b] = mutableListOf()
+            }
+            oomSortedIds.forEachIndexed { index, id ->
+                val boardIdx = index % K
+                boardPlayers[boardIdx]?.add(id)
+            }
 
-        val matchCount = (N - target).coerceAtLeast(1)
-        val byeCount = (2 * target - N).coerceAtLeast(0)
-
-        val activePlayers = oomSortedIds.drop(byeCount)
-        val activeCount = activePlayers.size
-
-        return (0 until matchCount).map { i ->
-            MatchPairing(
-                round = round,
-                matchIndex = i,
-                player1Id = activePlayers[i],
-                player2Id = activePlayers[activeCount - 1 - i]
-            )
+            val pairings = mutableListOf<MatchPairing>()
+            for (b in 0 until K) {
+                val list = boardPlayers[b] ?: mutableListOf()
+                val seedId = oomSortedIds.getOrNull(b)
+                if (seedId != null && seedId in list && list.first() != seedId) {
+                    list.remove(seedId)
+                    list.add(0, seedId)
+                }
+                for (mIdx in 0 until 4) {
+                    val p1 = list.getOrNull(2 * mIdx)
+                    val p2 = list.getOrNull(2 * mIdx + 1)
+                    if (p1 != null && p2 != null) {
+                        pairings.add(
+                            MatchPairing(
+                                round = TournamentRound.QUAL_R1,
+                                matchIndex = 4 * b + mIdx,
+                                player1Id = p1,
+                                player2Id = p2
+                            )
+                        )
+                    }
+                }
+            }
+            return pairings
         }
     }
 

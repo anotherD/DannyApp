@@ -31,6 +31,18 @@ import kotlinx.coroutines.launch
 import java.util.Locale
 import kotlin.random.Random
 
+data class EntrantGroupInfo(
+    val title: String,
+    val players: List<EntrantPlayerInfo>
+)
+
+data class EntrantPlayerInfo(
+    val id: Long,
+    val name: String,
+    val countryCode: String,
+    val seed: Int?
+)
+
 sealed interface TournamentDetailState {
     object Loading : TournamentDetailState
 
@@ -63,7 +75,9 @@ sealed interface TournamentDetailState {
         val canAdvanceRound: Boolean,
         val userLevel: Int,
         val careerName: String,
-        val seasonNumber: Int
+        val seasonNumber: Int,
+        val isOpenDrawInfoVisible: Boolean = false,
+        val openEntrantsGroups: List<EntrantGroupInfo> = emptyList()
     ) : TournamentDetailState
 
     data class Review(
@@ -276,10 +290,28 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         val availableRoundDisplayNames = availableRounds.map { TournamentUiHelper.getDisplayRoundName(it, getApplication()) }
 
         val dbMatchesForRound = allMatches.filter { it.round == currentRoundKey }
+        val isUkOrEuropeanOpen = event == TournamentEvent.UK_OPEN || event == TournamentEvent.EUROPEAN_OPEN
+        val isUkOpenUngenerated = isUkOrEuropeanOpen && dbMatchesForRound.isEmpty() && currentRoundKey in listOf(
+            TournamentRound.R2_128.name, TournamentRound.R3_96.name, TournamentRound.L64.name,
+            TournamentRound.L32.name, TournamentRound.L16.name, TournamentRound.QF.name, TournamentRound.SF.name, TournamentRound.F.name
+        )
+
+        val season = seasonDao.getSeasonById(tournament.seasonId)
+        val careerId = season?.careerId ?: currentCareerId
+
+        val isOpenDrawInfoVisible = isUkOpenUngenerated
+        val openEntrantsGroups = if (isOpenDrawInfoVisible) {
+            getUkOpenEntrantGroups(careerId, currentRoundKey)
+        } else {
+            emptyList()
+        }
+
         val currentRoundMatches = if (dbMatchesForRound.isNotEmpty()) {
             dbMatchesForRound
+        } else if (isOpenDrawInfoVisible) {
+            emptyList()
         } else {
-            generatePreviewMatchesForRound(currentTournamentId, currentRoundKey, event)
+            generatePreviewMatchesWithPropagation(currentTournamentId, currentRoundKey, event, allMatches, tournament.seasonId)
         }
 
         val isGrandSlamGroup = (event == TournamentEvent.GRAND_SLAM_OF_DARTS && currentRoundKey == TournamentRound.GROUP.name)
@@ -364,7 +396,9 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             canAdvanceRound = canAdvanceRound,
             userLevel = userLevel,
             careerName = careerName,
-            seasonNumber = seasonNumber
+            seasonNumber = seasonNumber,
+            isOpenDrawInfoVisible = isOpenDrawInfoVisible,
+            openEntrantsGroups = openEntrantsGroups
         )
     }
 
@@ -1140,5 +1174,221 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
                 sortedNonPreq.take(seedCount).mapIndexed { idx, id -> id to (idx + 1) }.toMap()
             }
         }
+    }
+
+    private suspend fun generatePreviewMatchesWithPropagation(
+        tournamentId: Long,
+        roundKey: String,
+        event: TournamentEvent,
+        allMatches: List<TournamentMatch>,
+        seasonId: Long
+    ): List<TournamentMatch> {
+        val baseMatches = generatePreviewMatchesForRound(tournamentId, roundKey, event)
+        val roundEnum = try { TournamentRound.valueOf(roundKey) } catch (_: Exception) { return baseMatches }
+
+        if (event in listOf(TournamentEvent.QUALIFIER_ET, TournamentEvent.QUALIFIER_GRAND_SLAM, TournamentEvent.QUALIFIER_WM)) {
+            val K = when (event) {
+                TournamentEvent.QUALIFIER_ET -> 10
+                TournamentEvent.QUALIFIER_GRAND_SLAM -> 8
+                TournamentEvent.QUALIFIER_WM -> 4
+                else -> 4
+            }
+            val season = seasonDao.getSeasonById(seasonId)
+            val careerId = season?.careerId ?: currentCareerId
+            val tourCards = tourCardDao.getTourCardsListForSeason(seasonId)
+            val tourCardPlayerIds = tourCards.map { it.tourCard.playerId }.distinct()
+            val oomEntries = getOrderOfMeritUseCase(careerId, OrderOfMeritType.OOM)
+            val ptOomEntries = getOrderOfMeritUseCase(careerId, OrderOfMeritType.PT_OOM)
+            val allPlayers = playerDao.getAllPlayersList()
+            val nonPreqTc = getNonPrequalifiedTcHoldersForQualifier(event, tourCardPlayerIds, oomEntries, ptOomEntries, allPlayers)
+            val N = nonPreqTc.size
+
+            when (roundEnum) {
+                TournamentRound.QUAL_R1 -> {
+                    val byeCount = (16 * K - N).coerceAtLeast(0)
+                    val byePlayers = nonPreqTc.take(byeCount)
+                    val prelimMatches = allMatches.filter { it.round == TournamentRound.QUAL_PRELIM.name }.sortedBy { it.matchIndex }
+                    val prelimWinners = prelimMatches.map { it.winnerId ?: -999L }
+                    val mainFieldPlayers = byePlayers + prelimWinners
+
+                    val boardPlayers = mutableMapOf<Int, MutableList<Long>>()
+                    for (b in 0 until K) { boardPlayers[b] = mutableListOf() }
+                    mainFieldPlayers.forEachIndexed { index, id ->
+                        val boardIdx = index % K
+                        boardPlayers[boardIdx]?.add(id)
+                    }
+
+                    val r1Matches = mutableListOf<TournamentMatch>()
+                    for (b in 0 until K) {
+                        val list = boardPlayers[b] ?: mutableListOf()
+                        val seedId = nonPreqTc.getOrNull(b)
+                        if (seedId != null && seedId in list && list.first() != seedId) {
+                            list.remove(seedId)
+                            list.add(0, seedId)
+                        }
+                        for (mIdx in 0 until 4) {
+                            val p1 = list.getOrNull(2 * mIdx) ?: -999L
+                            val p2 = list.getOrNull(2 * mIdx + 1) ?: -999L
+                            r1Matches.add(
+                                TournamentMatch(
+                                    id = -3000L - (b * 10) - mIdx,
+                                    tournamentId = tournamentId,
+                                    round = roundKey,
+                                    matchIndex = 4 * b + mIdx,
+                                    player1Id = p1,
+                                    player2Id = p2
+                                )
+                            )
+                        }
+                    }
+                    return r1Matches
+                }
+                TournamentRound.QUAL_R2 -> {
+                    val r1Matches = allMatches.filter { it.round == TournamentRound.QUAL_R1.name }.sortedBy { it.matchIndex }
+                    val r2Matches = mutableListOf<TournamentMatch>()
+                    for (b in 0 until K) {
+                        val boardMatches = r1Matches.filter { it.matchIndex in (4 * b)..(4 * b + 3) }.sortedBy { it.matchIndex }
+                        val w0 = boardMatches.getOrNull(0)?.winnerId ?: -999L
+                        val w1 = boardMatches.getOrNull(1)?.winnerId ?: -999L
+                        val w2 = boardMatches.getOrNull(2)?.winnerId ?: -999L
+                        val w3 = boardMatches.getOrNull(3)?.winnerId ?: -999L
+
+                        r2Matches.add(TournamentMatch(id = -4000L - (b * 10), tournamentId = tournamentId, round = roundKey, matchIndex = 2 * b, player1Id = w0, player2Id = w1))
+                        r2Matches.add(TournamentMatch(id = -4000L - (b * 10) + 1, tournamentId = tournamentId, round = roundKey, matchIndex = 2 * b + 1, player1Id = w2, player2Id = w3))
+                    }
+                    return r2Matches
+                }
+                TournamentRound.QUAL_FINAL -> {
+                    val r2Matches = allMatches.filter { it.round == TournamentRound.QUAL_R2.name }.sortedBy { it.matchIndex }
+                    val finalMatches = mutableListOf<TournamentMatch>()
+                    for (b in 0 until K) {
+                        val boardMatches = r2Matches.filter { it.matchIndex in (2 * b)..(2 * b + 1) }.sortedBy { it.matchIndex }
+                        val w0 = boardMatches.getOrNull(0)?.winnerId ?: -999L
+                        val w1 = boardMatches.getOrNull(1)?.winnerId ?: -999L
+
+                        finalMatches.add(TournamentMatch(id = -5000L - b, tournamentId = tournamentId, round = roundKey, matchIndex = b, player1Id = w0, player2Id = w1))
+                    }
+                    return finalMatches
+                }
+                else -> {}
+            }
+        }
+
+        val sequence = getRoundSequence(event)
+        val roundIdx = sequence.indexOf(roundEnum)
+        if (roundIdx <= 0) {
+            if (event == TournamentEvent.EUROPEAN_TOUR && roundEnum == TournamentRound.L32) {
+                val season = seasonDao.getSeasonById(seasonId)
+                val careerId = season?.careerId ?: currentCareerId
+                val tourCards = tourCardDao.getTourCardsListForSeason(seasonId)
+                val tourCardPlayerIds = tourCards.map { it.tourCard.playerId }.distinct()
+                val oomEntries = getOrderOfMeritUseCase(careerId, OrderOfMeritType.OOM)
+                val allPlayers = playerDao.getAllPlayersList()
+                val sortedOomTc = getPlayerListSortedByOom(tourCardPlayerIds, oomEntries)
+                val top16Oom = sortedOomTc.take(16)
+                val l48Matches = allMatches.filter { it.round == TournamentRound.L48.name }.sortedBy { it.matchIndex }
+
+                return baseMatches.map { m ->
+                    val s1 = top16Oom.getOrNull(m.matchIndex) ?: -999L
+                    val l48Match = l48Matches.getOrNull(15 - m.matchIndex)
+                    val s2 = if (l48Match?.isCompleted == true && l48Match.winnerId != null) l48Match.winnerId!! else -999L
+                    m.copy(player1Id = s1, player2Id = s2)
+                }
+            }
+            return baseMatches
+        }
+
+        val prevRoundEnum = sequence[roundIdx - 1]
+        val prevMatches = allMatches.filter { it.round == prevRoundEnum.name }.sortedBy { it.matchIndex }
+        if (prevMatches.isEmpty()) return baseMatches
+
+        return baseMatches.map { m ->
+            val p1Match = prevMatches.getOrNull(2 * m.matchIndex)
+            val p2Match = prevMatches.getOrNull(2 * m.matchIndex + 1)
+            val p1 = if (p1Match?.isCompleted == true && p1Match.winnerId != null) p1Match.winnerId!! else -999L
+            val p2 = if (p2Match?.isCompleted == true && p2Match.winnerId != null) p2Match.winnerId!! else -999L
+            m.copy(player1Id = p1, player2Id = p2)
+        }
+    }
+
+    private suspend fun getUkOpenEntrantGroups(careerId: Long, roundKey: String): List<EntrantGroupInfo> {
+        val app = getApplication<Application>()
+        val oomEntries = getOrderOfMeritUseCase(careerId, OrderOfMeritType.OOM)
+        val allPlayers = playerDao.getAllPlayersList()
+        val allPlayerIds = (listOf(USER_ID) + allPlayers.map { it.id }).distinct()
+        val sortedPlayerIds = getPlayerListSortedByOom(allPlayerIds, oomEntries)
+        val allPlayersMap = allPlayers.associateBy { it.id }
+
+        val careerWithProfile = careerRepository.getCareerById(currentCareerId)
+        val userName = careerWithProfile?.playerName?.ifBlank { null } ?: careerWithProfile?.profileName ?: careerWithProfile?.career?.name ?: "Du"
+        val userCountryCode = careerWithProfile?.countryCode ?: "DEU"
+
+        fun createEntrantPlayerInfo(id: Long, rank: Int): EntrantPlayerInfo {
+            val name = if (id == USER_ID) userName else allPlayersMap[id]?.name ?: "CPU #$id"
+            val country = if (id == USER_ID) userCountryCode else allPlayersMap[id]?.countryCode ?: "ENG"
+            return EntrantPlayerInfo(id = id, name = name, countryCode = country, seed = rank)
+        }
+
+        return when (roundKey) {
+            TournamentRound.R2_128.name -> {
+                val players = sortedPlayerIds.drop(64).take(32).mapIndexed { idx: Int, id: Long -> createEntrantPlayerInfo(id, 65 + idx) }
+                listOf(EntrantGroupInfo(title = app.getString(R.string.entrant_reason_oom_65_96), players = players))
+            }
+            TournamentRound.R3_96.name -> {
+                val players = sortedPlayerIds.drop(32).take(32).mapIndexed { idx: Int, id: Long -> createEntrantPlayerInfo(id, 33 + idx) }
+                listOf(EntrantGroupInfo(title = app.getString(R.string.entrant_reason_oom_33_64), players = players))
+            }
+            TournamentRound.L64.name -> {
+                val players = sortedPlayerIds.take(32).mapIndexed { idx: Int, id: Long -> createEntrantPlayerInfo(id, 1 + idx) }
+                listOf(EntrantGroupInfo(title = app.getString(R.string.entrant_reason_oom_top_32), players = players))
+            }
+            else -> emptyList()
+        }
+    }
+
+    private suspend fun getNonPrequalifiedTcHoldersForQualifier(
+        event: TournamentEvent,
+        tourCardPlayerIds: List<Long>,
+        oomList: List<OrderOfMeritEntry>,
+        ptOomList: List<OrderOfMeritEntry>,
+        allPlayers: List<com.danny.dannyapp.data.db.Player>
+    ): List<Long> {
+        val sortedOomTc = getPlayerListSortedByOom(tourCardPlayerIds, oomList)
+        val top16Oom = sortedOomTc.take(16)
+        val remainingTcAfterOom = tourCardPlayerIds.filterNot { it in top16Oom }
+        val top16PtOom = getPlayerListSortedByOom(remainingTcAfterOom, ptOomList).take(16)
+
+        val preQualified: Set<Long> = when (event) {
+            TournamentEvent.QUALIFIER_ET, TournamentEvent.QUALIFIER_GRAND_SLAM -> (top16Oom + top16PtOom).toSet()
+            TournamentEvent.QUALIFIER_WM -> {
+                val top40Oom = sortedOomTc.take(40)
+                val remainingAfterTop40Oom = tourCardPlayerIds.filterNot { it in top40Oom }
+                val top40PtOom = getPlayerListSortedByOom(remainingAfterTop40Oom, ptOomList).take(40)
+                (top40Oom + top40PtOom).toSet()
+            }
+            else -> emptySet()
+        }
+
+        val nonPreq = tourCardPlayerIds.filterNot { it in preQualified }
+        return getPlayerListSortedByOom(nonPreq, oomList)
+    }
+
+    private suspend fun getPlayerListSortedByOom(
+        playerIds: List<Long>,
+        oomList: List<OrderOfMeritEntry>
+    ): List<Long> {
+        val allPlayers = playerDao.getAllPlayersList()
+        val playerMap = oomList.associateBy { it.playerId }
+        val dbPlayerMap = allPlayers.associateBy { it.id }
+        return playerIds.sortedWith(
+            compareBy<Long> { playerMap[it]?.rank ?: Int.MAX_VALUE }
+                .thenByDescending { playerMap[it]?.prizeMoney ?: 0.0 }
+                .thenByDescending {
+                    if (it == USER_ID) 5 else dbPlayerMap[it]?.skill ?: 5
+                }
+                .thenBy {
+                    if (it == USER_ID) "User" else dbPlayerMap[it]?.name ?: ""
+                }
+        )
     }
 }
