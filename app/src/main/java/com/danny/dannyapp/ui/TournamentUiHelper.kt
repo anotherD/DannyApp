@@ -431,7 +431,8 @@ object TournamentUiHelper {
         tvHost: TextView,
         tournament: Tournament,
         statusText: String,
-        statusColorResId: Int
+        statusColorResId: Int,
+        headerCard: MaterialCardView? = null
     ) {
         tvTitle.text = tournament.name
 
@@ -446,5 +447,49 @@ object TournamentUiHelper {
         val host = tournament.hostCountry ?: "ENG"
         val city = getTournamentCity(host, tournament.name)
         formatFlagAndText(context, tvHost, host, city)
+
+        if (headerCard != null) {
+            val event = try { TournamentEvent.valueOf(tournament.type) } catch (_: Exception) { null }
+            val isMajor = event in listOf(
+                TournamentEvent.UK_OPEN, TournamentEvent.EUROPEAN_OPEN, TournamentEvent.WORLD_MATCHPLAY,
+                TournamentEvent.WORLD_GRAND_PRIX, TournamentEvent.EUROPEAN_CHAMPIONSHIP,
+                TournamentEvent.GRAND_SLAM_OF_DARTS, TournamentEvent.PLAYERS_CHAMPIONSHIP_FINALS,
+                TournamentEvent.WORLD_CHAMPIONSHIP
+            )
+            val isMajorQualifier = event in listOf(
+                TournamentEvent.QUALIFIER_GRAND_SLAM, TournamentEvent.QUALIFIER_WM
+            )
+            val isEuropeanTour = event == TournamentEvent.EUROPEAN_TOUR
+            val isEtQualifier = event == TournamentEvent.QUALIFIER_ET
+
+            val density = context.resources.displayMetrics.density
+            when {
+                isMajor -> {
+                    headerCard.strokeWidth = (2 * density).toInt()
+                    headerCard.strokeColor = ContextCompat.getColor(context, R.color.badge_major)
+                    headerCard.setCardBackgroundColor(ContextCompat.getColor(context, R.color.surface_major_tint))
+                }
+                isMajorQualifier -> {
+                    headerCard.strokeWidth = (2 * density).toInt()
+                    headerCard.strokeColor = ContextCompat.getColor(context, R.color.badge_major_qualifier)
+                    headerCard.setCardBackgroundColor(ContextCompat.getColor(context, R.color.surface_major_tint))
+                }
+                isEuropeanTour -> {
+                    headerCard.strokeWidth = (2 * density).toInt()
+                    headerCard.strokeColor = ContextCompat.getColor(context, R.color.badge_european_tour)
+                    headerCard.setCardBackgroundColor(ContextCompat.getColor(context, R.color.surface_et_tint))
+                }
+                isEtQualifier -> {
+                    headerCard.strokeWidth = (2 * density).toInt()
+                    headerCard.strokeColor = ContextCompat.getColor(context, R.color.badge_et_qualifier)
+                    headerCard.setCardBackgroundColor(ContextCompat.getColor(context, R.color.surface_et_tint))
+                }
+                else -> {
+                    headerCard.strokeWidth = (1 * density).toInt()
+                    headerCard.strokeColor = ContextCompat.getColor(context, R.color.grau_rahmen_dunkel)
+                    headerCard.setCardBackgroundColor(ContextCompat.getColor(context, R.color.anthrazit_flaeche))
+                }
+            }
+        }
     }
 }

@@ -121,14 +121,14 @@ class OrderOfMeritFragment : Fragment(R.layout.fragment_order_of_merit) {
         }
 
         val rankText = "#${userEntry.rank}"
-        val flagEmoji = Country.getFlagEmoji(userEntry.countryCode)
-        val nameText = "$flagEmoji ${userEntry.name}"
         val moneyText = "£%,.0f".format(userEntry.prizeMoney)
 
         when {
             userIndex < firstVisible -> {
                 tvStickyRankTop?.text = rankText
-                tvStickyPlayerNameTop?.text = nameText
+                tvStickyPlayerNameTop?.let {
+                    TournamentUiHelper.formatFlagAndText(requireContext(), it, userEntry.countryCode, userEntry.name)
+                }
                 tvStickyPrizeMoneyTop?.text = moneyText
 
                 topCard?.visibility = View.VISIBLE
@@ -139,7 +139,9 @@ class OrderOfMeritFragment : Fragment(R.layout.fragment_order_of_merit) {
             }
             userIndex > lastVisible -> {
                 tvStickyRankBottom?.text = rankText
-                tvStickyPlayerNameBottom?.text = nameText
+                tvStickyPlayerNameBottom?.let {
+                    TournamentUiHelper.formatFlagAndText(requireContext(), it, userEntry.countryCode, userEntry.name)
+                }
                 tvStickyPrizeMoneyBottom?.text = moneyText
 
                 bottomCard?.visibility = View.VISIBLE

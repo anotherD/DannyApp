@@ -1,6 +1,6 @@
 # 📱 Fachkonzept: Turnier-UI, Simulation & Ranglisten-Ansicht
 
-Dieses Dokument definiert die Benutzeroberfläche und den Interaktions-Flow für den Saisonkalender, den Turnierverlauf (inkl. Test-Modi für User-Matches) und die Orders of Merit in der **Danny Darts App**.
+Dieses Dokument definiert die Benutzeroberfläche und den Interaktions-Flow für den Saisonkalender, den Turnierverlauf (inkl. Test-Modi für User-Matches), die Orders of Merit sowie die Spieler-Konfiguration in der **Danny Darts App**.
 
 ---
 
@@ -50,6 +50,12 @@ Jedes Turnier im Saisonkalender ist anklickbar und öffnet die Turnieransicht in
   - Zeigt dieselbe einheitliche Turnier-Kopfzeile wie der aktive Modus (Turniername, Status-Badge „Geplant“, Turniertyp-Badge, `<Flagge> <Stadtname>` sowie das **Info-Icon** zum Öffnen des Preisgeld- & Distanz-Dialogs inkl. Gesamtpreisgeld und Sieger-Preisgeld `WINNER`).
   - Falls es das nächste anstehende Turnier im Kalender ist und kein anderes Turnier aktiv läuft, wird unten der Button **„Turnier jetzt starten & auslosen“** angezeigt (`GenerateBracketUseCase`).
 2. **Aktiver Turnier-Modus (`isCompleted == false` und Matches vorhanden):**
+  - **Oberer Karten-Akzent (`TournamentUiHelper.bindTournamentHeader`):** Die obere Steuerungs- und Info-Karte (`cardPreviewHeader`, `cardActiveControls`, `cardReviewSummary`) wird je nach Turniertyp farblich hervorgehoben:
+    - `MAJOR`: 2dp Rahmen (`strokeWidth`), `strokeColor` `@color/badge_major` (Gold) und Hintergrund `@color/surface_major_tint`.
+    - `QUALIFIER_GRAND_SLAM` / `QUALIFIER_WM`: 2dp Rahmen, `strokeColor` `@color/badge_major_qualifier` (Dunkelgold) und Hintergrund `@color/surface_major_tint`.
+    - `EUROPEAN_TOUR`: 2dp Rahmen, `strokeColor` `@color/badge_european_tour` (Rubinrot) und Hintergrund `@color/surface_et_tint`.
+    - `QUALIFIER_ET`: 2dp Rahmen, `strokeColor` `@color/badge_et_qualifier` (Dunkelrot) und Hintergrund `@color/surface_et_tint`.
+    - `PLAYERS_CHAMPIONSHIP`: 1dp Rahmen, `strokeColor` `@color/grau_rahmen_dunkel` und Hintergrund `@color/anthrazit_flaeche`.
   - **Runden-Auswahl & Status-Farbkodierung:** Horizontale **Runden-Pills / Material Chips** (Single-Selection) statt eines Dropdowns (plus Gruppen-Auswahl `A–P` beim Grand Slam of Darts). Die Chips werden im aktiven Turnier-Modus nach Rundenstatus gefärbt:
     - Abgeschlossene Runden: `@color/status_completed`, Text `@color/grau_text_gedaempft`.
     - Aktuelle Spielrunde: `@color/status_active`, Text `@color/white`.
@@ -85,11 +91,21 @@ Ist ein offenes Match mit Beteiligung des Users an der Reihe, erhält der User b
 
 * **Wisch-Navigation (`ViewPager2`):** Flüssiges Wischen nach links und rechts zwischen den 4 Ranglisten (`Order of Merit (OOM)`, `Pro Tour (PT OOM)`, `Players Champ. (PC OOM)`, `European Tour (ET OOM)`).
 * **Datenquelle:** Ruft `GetOrderOfMeritUseCase(careerId, type)` auf (zeigt beim User seinen hinterlegten `playerName` und seine Landesflagge).
-* **Darstellung:** Tabelle mit Platzierung (`rank`), **Landesflagge** (statt Text-Kürzel), Spielername (`name`), Preisgeld (`prizeMoney` in `£`) und optischer Hervorhebung der eigenen Zeile (`isUser == true`).
-  - Um dreistellige Ränge wie `#100` oder `#128` einzeilig und ohne Umbruch darzustellen, haben `tvRank` in `item_order_of_merit.xml` sowie `tvStickyRankTop` und `tvStickyRankBottom` in `fragment_order_of_merit_container.xml` eine feste Breite von `52dp` und `android:maxLines="1"`.
-* **Dynamische Sticky-User-Karten & Auto-Scroll:**
-  * Ist die Zeile des Users außerhalb des sichtbaren Bereichs platziert, wird dynamisch eine Sticky-User-Karte eingeblendet:
-    * Steht der User weiter oben in der Tabelle (`userIndex < firstVisible`), erscheint `cardStickyUserTop` direkt unter der Tab-Leiste (im XML im Vordergrund über dem `ViewPager2` platziert).
-    * Steht der User weiter unten in der Tabelle (`userIndex > lastVisible`), erscheint `cardStickyUserBottom` am unteren Bildschirmrand.
-    * Befindet sich der User im sichtbaren Bereich (`userIndex in firstVisible..lastVisible`), werden beide Karten ausgeblendet (`GONE`).
-  * Ein Klick auf eine der Sticky-Karten scrollt die `RecyclerView` automatisch so zur User-Position, dass die Zeile des Users optimal im Sichtbereich platziert wird.
+* **Darstellung & Ausrichtung:** Tabelle mit Platzierung (`rank`), **Landesflagge** (statt Text-Kürzel), Spielername (`name`), Preisgeld (`prizeMoney` in `£`) und optischer Hervorhebung der eigenen Zeile (`isUser == true`).
+  - **Formatierung der Ränge & Namen (`item_order_of_merit.xml`, `fragment_order_of_merit_container.xml`):**
+    - `tvRank` sowie `tvStickyRankTop` und `tvStickyRankBottom` sind rechtsbündig ausgerichtet (`android:gravity="end"`), haben eine feste Breite von `44dp` und `android:maxLines="1"`.
+    - `tvPlayerName`, `tvStickyPlayerNameTop` und `tvStickyPlayerNameBottom` nutzen `android:layout_marginStart="12dp"`, wodurch alle Spielernamen und Landesflaggen exakt in einer Flucht stehen und kein großer Leerraum bei einstelligen Rängen entsteht.
+* **Dynamische Sticky-User-Karten & Schwebe-Effekt (`OrderOfMeritFragment.kt`):**
+  * Ist die Zeile des Users außerhalb des sichtbaren Bereichs platziert, wird dynamisch eine Sticky-User-Karte eingeblendet (`cardStickyUserTop` unter der Tab-Leiste bzw. `cardStickyUserBottom` am unteren Bildschirmrand).
+  * **Design & Angleichung:** Die Sticky-Karten sind 1:1 an die echte Ranglisten-Zeile angepasst (`android:layout_marginHorizontal="16dp"`, `app:cardCornerRadius="8dp"`), besitzen jedoch durch `app:cardElevation="8dp"`, `app:strokeWidth="2dp"` (`@color/rot_haupt`) und `@color/rot_container_dunkel` einen hervorgehobenen Schwebe-Effekt.
+  * **Typografie & Flaggen:** Alle 3 TextViews (`Rank`, `PlayerName`, `PrizeMoney`) nutzen `16sp` Schriftgröße; `Rank` und `PlayerName` in `@color/rot_sehr_hell`, `PrizeMoney` in `?attr/colorTertiary`. Für den Spielernamen wird zwingend `TournamentUiHelper.formatFlagAndText(...)` genutzt (inkl. echter Nordirland- & Landesflaggen-Vektoren).
+  * Ein Klick auf eine der Sticky-Karten scrollt die `RecyclerView` automatisch zur User-Position.
+
+---
+
+## ⚙️ 5. Spieler-Konfiguration (`ConfigPlayersActivity`)
+
+* **Sortierung & Anzeige:** Übersicht aller hinterlegten Dart-Spieler mit Sortierung nach Spielstärke oder Name.
+* **Wischgeste (Swipe Gesture):** Ergänzt durch einen `GestureDetector` auf der `RecyclerView`:
+  - **Swipe nach links:** Schaltet die Sortierung auf **„Nach Name“** um (`btnSortName`).
+  - **Swipe nach rechts:** Schaltet die Sortierung auf **„Nach Spielstärke“** um (`btnSortSkill`).

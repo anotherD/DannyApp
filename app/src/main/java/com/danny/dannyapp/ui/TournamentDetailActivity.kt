@@ -29,6 +29,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
+import com.google.android.material.card.MaterialCardView
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.color.MaterialColors
@@ -42,6 +43,7 @@ class TournamentDetailActivity : BaseActivity() {
     private lateinit var pbLoading: ProgressBar
 
     // Preview
+    private lateinit var cardPreviewHeader: MaterialCardView
     private lateinit var layoutPreviewContainer: View
     private lateinit var tvPreviewTitle: TextView
     private lateinit var tvStatusBadgePreview: TextView
@@ -53,6 +55,7 @@ class TournamentDetailActivity : BaseActivity() {
     private var currentEvent: com.danny.dannyapp.domain.model.TournamentEvent? = null
 
     // Active
+    private lateinit var cardActiveControls: MaterialCardView
     private lateinit var layoutActiveContainer: View
     private lateinit var tvActiveTitle: TextView
     private lateinit var btnPrizeInfoActive: View
@@ -73,6 +76,7 @@ class TournamentDetailActivity : BaseActivity() {
     private lateinit var activeMatchesAdapter: TournamentMatchAdapter
 
     // Review
+    private lateinit var cardReviewSummary: MaterialCardView
     private lateinit var layoutReviewContainer: View
     private lateinit var tvReviewTitle: TextView
     private lateinit var tvReviewTypeBadge: TextView
@@ -217,6 +221,7 @@ class TournamentDetailActivity : BaseActivity() {
         layoutSimulatingOverlay = findViewById(R.id.layoutSimulatingOverlay)
 
         // Preview
+        cardPreviewHeader = findViewById(R.id.cardPreviewHeader)
         layoutPreviewContainer = findViewById(R.id.layoutPreviewContainer)
         tvPreviewTitle = findViewById(R.id.tvPreviewTitle)
         tvStatusBadgePreview = findViewById(R.id.tvStatusBadgePreview)
@@ -227,6 +232,7 @@ class TournamentDetailActivity : BaseActivity() {
         btnStartTournamentPreview = findViewById(R.id.btnStartTournamentPreview)
 
         // Active
+        cardActiveControls = findViewById(R.id.cardActiveControls)
         layoutActiveContainer = findViewById(R.id.layoutActiveContainer)
         tvActiveTitle = findViewById(R.id.tvActiveTitle)
         btnPrizeInfoActive = findViewById(R.id.btnPrizeInfoActive)
@@ -246,6 +252,7 @@ class TournamentDetailActivity : BaseActivity() {
         layoutEntrantsContainer = findViewById(R.id.layoutEntrantsContainer)
 
         // Review
+        cardReviewSummary = findViewById(R.id.cardReviewSummary)
         layoutReviewContainer = findViewById(R.id.layoutReviewContainer)
         tvReviewTitle = findViewById(R.id.tvReviewTitle)
         tvReviewTypeBadge = findViewById(R.id.tvReviewTypeBadge)
@@ -350,7 +357,7 @@ class TournamentDetailActivity : BaseActivity() {
 
                 TournamentUiHelper.bindTournamentHeader(
                     this, tvPreviewTitle, tvStatusBadgePreview, tvPreviewTypeBadge, tvPreviewHost,
-                    state.tournament, getString(R.string.tournament_status_planned), R.color.status_planned
+                    state.tournament, getString(R.string.tournament_status_planned), R.color.status_planned, cardPreviewHeader
                 )
 
                 tvPreviewPrizeFund.text = state.totalPrizeFundText
@@ -380,7 +387,7 @@ class TournamentDetailActivity : BaseActivity() {
 
                 TournamentUiHelper.bindTournamentHeader(
                     this, tvActiveTitle, tvStatusBadgeActive, tvActiveTypeBadge, tvActiveHost,
-                    state.tournament, state.activeRoundDisplayName, R.color.status_active
+                    state.tournament, state.activeRoundDisplayName, R.color.status_active, cardActiveControls
                 )
 
                 currentEvent = state.event
@@ -564,7 +571,7 @@ class TournamentDetailActivity : BaseActivity() {
 
                 TournamentUiHelper.bindTournamentHeader(
                     this, tvReviewTitle, tvStatusBadgeReview, tvReviewTypeBadge, tvReviewHost,
-                    state.tournament, getString(R.string.tournament_status_completed), R.color.status_completed
+                    state.tournament, getString(R.string.tournament_status_completed), R.color.status_completed, cardReviewSummary
                 )
 
                 currentEvent = state.event
