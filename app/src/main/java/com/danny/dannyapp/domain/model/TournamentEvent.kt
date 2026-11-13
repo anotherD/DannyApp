@@ -22,7 +22,8 @@ enum class TournamentEvent(val totalPrizeFund: Double) {
      */
     fun getMatchDistance(round: TournamentRound): MatchDistance {
         return when (this) {
-            PLAYERS_CHAMPIONSHIP, EUROPEAN_TOUR, QUALIFIER_ET, QUALIFIER_WM -> when (round) {
+            QUALIFIER_ET, QUALIFIER_GRAND_SLAM, QUALIFIER_WM -> MatchDistance(11, MatchFormatType.LEGS, 1)
+            PLAYERS_CHAMPIONSHIP, EUROPEAN_TOUR -> when (round) {
                 TournamentRound.SF -> MatchDistance(13, MatchFormatType.LEGS, 1)
                 TournamentRound.F -> MatchDistance(15, MatchFormatType.LEGS, 1)
                 else -> MatchDistance(11, MatchFormatType.LEGS, 1) // L128/L48 bis QF
@@ -58,7 +59,7 @@ enum class TournamentEvent(val totalPrizeFund: Double) {
                 TournamentRound.F -> MatchDistance(21, MatchFormatType.LEGS, 1)
                 else -> MatchDistance(19, MatchFormatType.LEGS, 1) // L16 & QF
             }
-            GRAND_SLAM_OF_DARTS, QUALIFIER_GRAND_SLAM -> when (round) {
+            GRAND_SLAM_OF_DARTS -> when (round) {
                 TournamentRound.GROUP -> MatchDistance(9, MatchFormatType.LEGS, 1)
                 TournamentRound.L16 -> MatchDistance(19, MatchFormatType.LEGS, 1)
                 else -> MatchDistance(31, MatchFormatType.LEGS, 1) // QF, SF, F

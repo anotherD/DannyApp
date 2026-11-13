@@ -16,7 +16,6 @@ import com.danny.dannyapp.domain.model.MatchFormatType
 import com.danny.dannyapp.domain.model.TournamentEvent
 import com.danny.dannyapp.domain.model.TournamentRound
 import com.danny.dannyapp.domain.usecase.AdvanceTournamentRoundUseCase
-import com.danny.dannyapp.domain.usecase.BracketGenerator
 import com.danny.dannyapp.domain.usecase.GenerateBracketUseCase
 import com.danny.dannyapp.domain.usecase.SimulateCpuMatchUseCase
 import kotlinx.coroutines.Job
@@ -547,6 +546,30 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             TournamentRound.L48 -> 24
             TournamentRound.R1_160, TournamentRound.R2_128, TournamentRound.R3_96 -> 32
             TournamentRound.GROUP -> 16
+            TournamentRound.QUAL_FINAL -> when (event) {
+                TournamentEvent.QUALIFIER_ET -> 10
+                TournamentEvent.QUALIFIER_GRAND_SLAM -> 8
+                TournamentEvent.QUALIFIER_WM -> 4
+                else -> 4
+            }
+            TournamentRound.QUAL_R2 -> when (event) {
+                TournamentEvent.QUALIFIER_ET -> 20
+                TournamentEvent.QUALIFIER_GRAND_SLAM -> 16
+                TournamentEvent.QUALIFIER_WM -> 8
+                else -> 8
+            }
+            TournamentRound.QUAL_R1 -> when (event) {
+                TournamentEvent.QUALIFIER_ET -> 40
+                TournamentEvent.QUALIFIER_GRAND_SLAM -> 32
+                TournamentEvent.QUALIFIER_WM -> 16
+                else -> 16
+            }
+            TournamentRound.QUAL_PRELIM -> when (event) {
+                TournamentEvent.QUALIFIER_ET -> 16
+                TournamentEvent.QUALIFIER_GRAND_SLAM -> 32
+                TournamentEvent.QUALIFIER_WM -> 16
+                else -> 16
+            }
             else -> 1
         }
 
@@ -838,14 +861,13 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         allMatches: List<TournamentMatch> = emptyList()
     ): List<TournamentRound> {
         val fullSequence = when (event) {
-            TournamentEvent.QUALIFIER_ET -> listOf(
-                TournamentRound.L128, TournamentRound.L64, TournamentRound.L32, TournamentRound.L16
-            )
-            TournamentEvent.QUALIFIER_GRAND_SLAM -> listOf(
-                TournamentRound.L64, TournamentRound.L32, TournamentRound.L16, TournamentRound.QF
-            )
+            TournamentEvent.QUALIFIER_ET,
+            TournamentEvent.QUALIFIER_GRAND_SLAM,
             TournamentEvent.QUALIFIER_WM -> listOf(
-                TournamentRound.L32, TournamentRound.L16, TournamentRound.QF, TournamentRound.SF
+                TournamentRound.QUAL_PRELIM,
+                TournamentRound.QUAL_R1,
+                TournamentRound.QUAL_R2,
+                TournamentRound.QUAL_FINAL
             )
             TournamentEvent.PLAYERS_CHAMPIONSHIP -> listOf(
                 TournamentRound.L128, TournamentRound.L64, TournamentRound.L32,

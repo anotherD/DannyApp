@@ -45,6 +45,10 @@ object TournamentUiHelper {
     fun getDisplayRoundName(roundKey: String, context: Context): String {
         return when (roundKey) {
             "WINNER" -> context.getString(R.string.round_winner)
+            "QUAL_PRELIM" -> context.getString(R.string.round_qual_prelim)
+            "QUAL_R1" -> context.getString(R.string.round_qual_r1)
+            "QUAL_R2" -> context.getString(R.string.round_qual_r2)
+            "QUAL_FINAL" -> context.getString(R.string.round_qual_final)
             "F" -> context.getString(R.string.round_f)
             "SF" -> context.getString(R.string.round_sf)
             "QF" -> context.getString(R.string.round_qf)

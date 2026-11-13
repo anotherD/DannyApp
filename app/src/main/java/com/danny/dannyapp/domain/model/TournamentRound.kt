@@ -1,6 +1,10 @@
 package com.danny.dannyapp.domain.model
 
 enum class TournamentRound(val displayName: String) {
+    QUAL_PRELIM("Vorrunde"),
+    QUAL_R1("Runde 1"),
+    QUAL_R2("Runde 2"),
+    QUAL_FINAL("Finalrunde"),
     GROUP("Gruppenphase (Match)"),
     GROUP_3RD("Gruppenphase (Platz 3)"),
     GROUP_2ND("Gruppenphase (Platz 2)"),

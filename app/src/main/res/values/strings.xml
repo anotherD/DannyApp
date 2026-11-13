@@ -32,6 +32,10 @@
     <string name="tournament_status_active_format">Aktiv • %s</string>
 
     <string name="round_winner">Turniersieger</string>
+    <string name="round_qual_prelim">Vorrunde</string>
+    <string name="round_qual_r1">Runde 1</string>
+    <string name="round_qual_r2">Runde 2</string>
+    <string name="round_qual_final">Finalrunde</string>
     <string name="round_f">Finale</string>
     <string name="round_sf">Halbfinale</string>
     <string name="round_qf">Viertelfinale</string>

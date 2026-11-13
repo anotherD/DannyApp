@@ -73,7 +73,7 @@ class AdvanceTournamentRoundUseCase(
                 else -> 4
             }
 
-            if (currentRoundMatches.size == targetWinners) {
+            if (currentRoundEnum == TournamentRound.QUAL_FINAL) {
                 tournamentDao.updateTournament(tournament.copy(isCompleted = true))
                 return@withContext true
             }
@@ -98,35 +98,41 @@ class AdvanceTournamentRoundUseCase(
             )
 
             val N = nonPreqTc.size
-            val M = when {
-                N > 64 -> 128
-                N > 32 -> 64
-                N > 16 -> 32
-                N > 8 -> 16
-                else -> 2 * targetWinners
-            }
+            val K = targetWinners
 
-            val roundsPresent = allMatches.map { it.round }.distinct()
-            val isPrelimRoundCompleted = roundsPresent.size == 1 && N < M && currentRoundMatches.size == (N - M / 2)
-
-            val nextRoundPlayers = if (isPrelimRoundCompleted) {
-                val byeCount = M - N
-                val byePlayers = nonPreqTc.take(byeCount)
-                val prelimWinners = currentRoundMatches.sortedBy { it.matchIndex }.mapNotNull { it.winnerId }
-                byePlayers + prelimWinners
-            } else {
-                currentRoundMatches.sortedBy { it.matchIndex }.mapNotNull { it.winnerId }
+            val (nextRoundEnum, nextRoundPlayers) = when (currentRoundEnum) {
+                TournamentRound.QUAL_PRELIM -> {
+                    val byeCount = (16 * K - N).coerceAtLeast(0)
+                    val byePlayers = nonPreqTc.take(byeCount)
+                    val prelimWinners = currentRoundMatches.sortedBy { it.matchIndex }.mapNotNull { it.winnerId }
+                    Pair(TournamentRound.QUAL_R1, byePlayers + prelimWinners)
+                }
+                TournamentRound.QUAL_R1 -> {
+                    val isFirstRound = allMatches.none { it.round == TournamentRound.QUAL_PRELIM.name }
+                    val byeCount = if (isFirstRound && N < 8 * K) (8 * K - N).coerceAtLeast(0) else 0
+                    val byePlayers = nonPreqTc.take(byeCount)
+                    val r1Winners = currentRoundMatches.sortedBy { it.matchIndex }.mapNotNull { it.winnerId }
+                    Pair(TournamentRound.QUAL_R2, byePlayers + r1Winners)
+                }
+                TournamentRound.QUAL_R2 -> {
+                    val isFirstRound = allMatches.none { it.round == TournamentRound.QUAL_R1.name }
+                    val byeCount = if (isFirstRound && N < 4 * K) (4 * K - N).coerceAtLeast(0) else 0
+                    val byePlayers = nonPreqTc.take(byeCount)
+                    val r2Winners = currentRoundMatches.sortedBy { it.matchIndex }.mapNotNull { it.winnerId }
+                    Pair(TournamentRound.QUAL_FINAL, byePlayers + r2Winners)
+                }
+                else -> Pair(TournamentRound.QUAL_FINAL, currentRoundMatches.sortedBy { it.matchIndex }.mapNotNull { it.winnerId })
             }
 
             val nextMatchCount = nextRoundPlayers.size / 2
-            val nextRoundEnum = BracketGenerator.getQualifierRoundForMatchCount(nextMatchCount)
+            val totalNextPlayers = nextRoundPlayers.size
             val nextMatches = (0 until nextMatchCount).map { i ->
                 TournamentMatch(
                     tournamentId = tournamentId,
                     round = nextRoundEnum.name,
                     matchIndex = i,
-                    player1Id = nextRoundPlayers[2 * i],
-                    player2Id = nextRoundPlayers[2 * i + 1]
+                    player1Id = nextRoundPlayers[i],
+                    player2Id = nextRoundPlayers[totalNextPlayers - 1 - i]
                 )
             }
 
@@ -506,14 +512,13 @@ class AdvanceTournamentRoundUseCase(
                 TournamentRound.L128, TournamentRound.L64, TournamentRound.L32,
                 TournamentRound.L16, TournamentRound.QF, TournamentRound.SF, TournamentRound.F
             )
-            TournamentEvent.QUALIFIER_ET -> listOf(
-                TournamentRound.L128, TournamentRound.L64, TournamentRound.L32, TournamentRound.L16
-            )
-            TournamentEvent.QUALIFIER_GRAND_SLAM -> listOf(
-                TournamentRound.L64, TournamentRound.L32, TournamentRound.L16, TournamentRound.QF
-            )
+            TournamentEvent.QUALIFIER_ET,
+            TournamentEvent.QUALIFIER_GRAND_SLAM,
             TournamentEvent.QUALIFIER_WM -> listOf(
-                TournamentRound.L32, TournamentRound.L16, TournamentRound.QF, TournamentRound.SF
+                TournamentRound.QUAL_PRELIM,
+                TournamentRound.QUAL_R1,
+                TournamentRound.QUAL_R2,
+                TournamentRound.QUAL_FINAL
             )
         }
     }

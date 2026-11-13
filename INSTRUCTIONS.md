@@ -6,6 +6,7 @@
 # Projekt-Anweisungen
 - Referenz-Codebase auf der Festplatte: C:\Users\Danny\Desktop\MDT\MDT-Gradle-export-AndroidApp .Schlage bei Fragen zu Spiellogiken, Scolia-Integration oder UI-Verhalten immer in dieser Referenz-Codebase nach. Dieses Referenz-Projekt heißt "MDT" oder "My Dart Training".
 - Erstelle Unit-Tests nur, wenn explizit danach gefragt wird
+- **Strings-Pflicht:** Alle sichtbaren UI-Texte, Labels, Turniertypen und Status-Bezeichnungen müssen zwingend in `app/src/main/res/values/strings.xml` gepflegt werden (keine hartcodierten deutschen Texte im Kotlin-Code).
 
 # PDC-Regeln, Preisgelder & Kalender-Daten (Nur bei explizitem Regel-/Kalender-Update)
 - **Strikte Faktenbasis (Keine Vermutungen):** Übernimm bei Turnierformaten, Preisgeldern, Qualifikationskriterien und Spielplänen ausschließlich offiziell bestätigte und verifizierte PDC-Daten für die Ziel-Saison (aktuell 2027).
@@ -14,7 +15,6 @@
 - **Ausnahmen immer prüfen:** Erfasse neben Standard-Preisgeldern immer Ranglisten-Sonderregeln (z. B. £0 bei Auftaktniederlage gesetzter Spieler auf der European Tour, £0 in Runde 1 bei PC/UK Open, Freilos- und Nachrücker-Regeln).
 
 # UI-, Navigation- & Code-Standards (Verbindlich)
-- **Strings-Pflicht:** Alle sichtbaren UI-Texte, Labels, Turniertypen und Status-Bezeichnungen müssen zwingend in `app/src/main/res/values/strings.xml` gepflegt werden (keine hartcodierten deutschen Texte im Kotlin-Code).
 - **Top-Bar Breadcrumb-Standard:** Jede Unterseite zeigt als `titleText` exakt den Namen des aufrufenden Buttons/Bereichs (z. B. `Saisonkalender`, `Ranglisten`, `Turnieransicht`) und als `subtitleText` den vollständigen Breadcrumb-Pfad (z. B. `Karrieren > <Karrierename>`).
 - **Debug-Modus:** Alle Schnell-Simulations-Buttons (`Komplettes Turnier simulieren`, `CPU simulieren`, `Match simulieren`) dürfen nur sichtbar sein, wenn in den Einstellungen (`SettingsManager`) `debugMode == true` ist (Default: `true`).
 - **Reaktive Datenströme (Room `Flow` & `DiffUtil`):** Beobachte Datenbankänderungen konsequent über reaktive Room-`Flow`s und `ListAdapter` (`DiffUtil`), statt Listen manuell neu zu laden – so aktualisiert sich die UI bei Rücknavigation automatisch und effizient.
