@@ -143,4 +143,9 @@
     <string name="qualified_round_entrants_header">Bereits qualifizierte Einsteiger dieser Runde:</string>
     <string name="season_format">Saison %d</string>
     <string name="breadcrumb_career_season_format">Karrieren > %1$s (Saison %2$d)</string>
+    <string name="entrant_reason_oom_65_96">Order of Merit (Plätze 65–96)</string>
+    <string name="entrant_reason_oom_33_64">Order of Merit (Plätze 33–64)</string>
+    <string name="entrant_reason_oom_top_32">Top 32 Order of Merit (Gesetzt)</string>
+    <string name="entrant_reason_qualifier_seeds">Gesetzte Gruppenköpfe (Top %d OOM)</string>
+    <string name="entrant_reason_qualifier_byes">Freilose (Order of Merit)</string>
 </resources>

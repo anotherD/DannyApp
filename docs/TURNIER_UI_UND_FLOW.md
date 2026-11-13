@@ -6,7 +6,8 @@ Dieses Dokument definiert die Benutzeroberfläche und den Interaktions-Flow für
 
 ## 🧭 1. Navigation & Einstieg aus der Karriere-Ansicht
 
-* **Top-Bar & Breadcrumbs:** Jede Unterseite zeigt als Titel exakt den Namen des gewählten Bereichs (z. B. `Saisonkalender`, `Turnieransicht`, `Ranglisten`). Bei bestimmten Auswahlen (wie z. B. einer Karriere oder einem Turnier) wird dessen Name angezeigt und als Subtitel der vollständige Breadcrumb-Pfad (`Karrieren > <Karrierename>`).
+* **Top-Bar & Breadcrumbs:** Jede Unterseite zeigt als Titel exakt den Namen des gewählten Bereichs (z. B. `Saisonkalender`, `Turnieransicht`, `Ranglisten`). Bei Karrieren und Turnieren wird als Subtitel der vollständige Breadcrumb-Pfad im Format `Karrieren > <Karrierename> (Saison X)` (`breadcrumb_career_season_format`) angezeigt.
+* **Karrieren-Kacheln & Übersicht (`CareerAdapter`, `CareerOverviewFragment`):** Jede Karriere-Kachel und die Übersicht (`tvCareerOverviewDetails`) zeigen konsistent Level, Profilnamen, die aktuelle Saison (`Saison X`) sowie den Spielernamen inklusive Landesflagge (über `TournamentUiHelper.formatFlagAndText`) an.
 * **Tab-Navigation in der Karriere-Ansicht:** Statt einzelner dicker Buttons nutzt die `CareerDetailActivity` eine übersichtliche **Tab-Navigation** für die drei Kernbereiche:
   1. **Saisonkalender:** Chronologische Übersicht aller 74 Turniere der aktiven Saison.
   2. **Turnieransicht:** Rundenübersicht, Gruppenphase (beim Grand Slam of Darts) und Match-Steuerung des aktiven oder ausgewählten Turniers.
@@ -21,7 +22,7 @@ Dieses Dokument definiert die Benutzeroberfläche und den Interaktions-Flow für
   * **Runden-Namen:** Alle Rundenbezeichnungen werden zentral über `TournamentUiHelper.getDisplayRoundName(roundKey, context)` dynamisch anhand von `strings.xml` lokalisiert.
   * **Austragungsort:** Anzeige als `<Flagge> <Stadtname>` (ohne das Präfix „Austragungsland:“).
   * **Kennzeichnung:** Major-Turniere und Qualifier-Turniere (`QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIFIER_WM`) sind optisch durch Badges hervorgehoben.
-  * **Hervorhebung aktive / nächste Kachel:** Das aktive (`TournamentStatus.ACTIVE`) oder nächste geplante (`isNextPlanned`) Turnier wird optisch hervorgehoben mit `cardBackgroundColor` `@color/surface_karte_aktiv`, 2dp Rahmen (`strokeWidth`) und `strokeColor` `@color/status_active` bzw. `@color/status_planned`. Alle anderen Kacheln nutzen `@color/anthrazit_flaeche`, 1dp Rahmen und `@color/grau_rahmen_dunkel`.
+  * **Hervorhebung aktive / nächste Kachel:** Das active (`TournamentStatus.ACTIVE`) oder nächste geplante (`isNextPlanned`) Turnier wird optisch hervorgehoben mit `cardBackgroundColor` `@color/surface_karte_aktiv`, 2dp Rahmen (`strokeWidth`) und `strokeColor` `@color/status_active` bzw. `@color/status_planned`. Alle anderen Kacheln nutzen `@color/anthrazit_flaeche`, 1dp Rahmen und `@color/grau_rahmen_dunkel`.
   * **Initiales Scrollen:** Beim Laden scrollt der Kalender über `rvTournaments.post` mit einem Offset von `rvTournaments.height / 3` zum aktiven/nächsten Turnier, damit dieses nicht unter der Tab-Leiste verdeckt wird.
 * **Strikte Turnier-Sperre (Sequenzieller Ablauf):**
   * Es darf immer **nur ein Turnier gleichzeitig aktiv** sein.
@@ -50,6 +51,7 @@ Jedes Turnier im Saisonkalender ist anklickbar und öffnet die Turnieransicht in
     - Bei Qualifiern (`QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIFIER_WM`) sowie bei `UK_OPEN` und `EUROPEAN_OPEN` (in allen Folgerunden ab `R2_128`) wird für noch nicht ausgeloste Platzhalter-Matches stattdessen der Text `Freie Auslosung` (`R.string.match_tbd_open_draw`) angezeigt.
   - **Seed-Nummern bei Spielernamen:** Ist ein Spieler im jeweiligen Turnier gesetzt, wird sein Name im Match-Adapter für Spieler 1 (links) über `R.string.player_with_seed` als `(<Seed>) <Name>` und für Spieler 2 (rechts) über `R.string.player_with_seed_right` als `<Name> (<Seed>)` formatiert.
   - **Match-Karten:** Zeigen Spielernamen (beim User seinen hinterlegten `playerName` samt Landesflagge) und das Ergebnis an (ohne `Skill: x`-Anzeige).
+  - **Simulations-Sperre & Lade-Overlay (`layoutSimulatingOverlay`, `isSimulatingBatch`):** Während der Ausführung von „Komplettes Turnier simulieren“ (`simulateCompleteTournament()`) wird ein halbtransparentes Overlay (`layoutSimulatingOverlay`) mit Lade-Indikator und dem Text `@string/simulating_tournament` angezeigt. Gleichzeitig werden Zwischen-Updates in `loadTournament` über `filter { !isSimulatingBatch.value }` pausiert (um `SurfaceSyncGroup`-Timeouts zu verhindern) und der Zurück-Button wird per `OnBackPressedCallback` blockiert.
   - **Zentrale Steuerung:** Die Schalter **„Automatische Simulation“** und **„Automatisch zur nächsten Runde“** liegen zentral in der **Konfiguration (`ConfigActivity`)** und werden über `SettingsManager` gesteuert. Die manuellen Simulations-Buttons in der Turnieransicht sind nur bei `debugMode == true` sichtbar.
 3. **Rückblick-Modus (`isCompleted == true`):**
   - Nutzt dieselbe Runden-Pills-Ansicht wie der aktive Modus (read-only ohne Simulations-Buttons).

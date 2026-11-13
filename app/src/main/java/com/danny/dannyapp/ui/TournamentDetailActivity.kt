@@ -79,6 +79,7 @@ class TournamentDetailActivity : BaseActivity() {
     private lateinit var chipGroupReviewRounds: ChipGroup
     private lateinit var rvReviewMatches: RecyclerView
     private lateinit var reviewMatchesAdapter: TournamentMatchAdapter
+    private lateinit var layoutSimulatingOverlay: View
 
     private var tournamentId: Long = -1L
     private var careerId: Long = -1L
@@ -100,10 +101,17 @@ class TournamentDetailActivity : BaseActivity() {
             rootViewId = R.id.tournamentDetailMain
         )
 
+        val onBackPressedCallback = object : androidx.activity.OnBackPressedCallback(false) {
+            override fun handleOnBackPressed() {
+                // Block back press while simulating batch
+            }
+        }
+        onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
+
         initViews()
         setupAdapters()
         setupListeners()
-        observeState()
+        observeState(onBackPressedCallback)
 
         if (tournamentId > 0L) {
             viewModel.loadTournament(tournamentId, careerId)
@@ -124,6 +132,7 @@ class TournamentDetailActivity : BaseActivity() {
 
     private fun initViews() {
         pbLoading = findViewById(R.id.pbLoading)
+        layoutSimulatingOverlay = findViewById(R.id.layoutSimulatingOverlay)
 
         // Preview
         layoutPreviewContainer = findViewById(R.id.layoutPreviewContainer)
@@ -213,11 +222,19 @@ class TournamentDetailActivity : BaseActivity() {
         }
     }
 
-    private fun observeState() {
+    private fun observeState(onBackPressedCallback: androidx.activity.OnBackPressedCallback) {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.uiState.collect { state ->
-                    renderState(state)
+                launch {
+                    viewModel.uiState.collect { state ->
+                        renderState(state)
+                    }
+                }
+                launch {
+                    viewModel.isSimulatingBatch.collect { simulating ->
+                        layoutSimulatingOverlay.visibility = if (simulating) View.VISIBLE else View.GONE
+                        onBackPressedCallback.isEnabled = simulating
+                    }
                 }
             }
         }
@@ -241,7 +258,7 @@ class TournamentDetailActivity : BaseActivity() {
                 val activeCareerName = state.careerName.ifBlank { careerName }
                 setupToolbar(
                     titleText = state.tournament.name,
-                    subtitleText = getString(R.string.breadcrumb_format, activeCareerName),
+                    subtitleText = getString(R.string.breadcrumb_career_season_format, activeCareerName, state.seasonNumber),
                     showBack = true,
                     rootViewId = R.id.tournamentDetailMain
                 )
@@ -271,7 +288,7 @@ class TournamentDetailActivity : BaseActivity() {
                 val activeCareerName = state.careerName.ifBlank { careerName }
                 setupToolbar(
                     titleText = state.tournament.name,
-                    subtitleText = getString(R.string.breadcrumb_format, activeCareerName),
+                    subtitleText = getString(R.string.breadcrumb_career_season_format, activeCareerName, state.seasonNumber),
                     showBack = true,
                     rootViewId = R.id.tournamentDetailMain
                 )
@@ -346,7 +363,7 @@ class TournamentDetailActivity : BaseActivity() {
                 val activeCareerName = state.careerName.ifBlank { careerName }
                 setupToolbar(
                     titleText = state.tournament.name,
-                    subtitleText = getString(R.string.breadcrumb_format, activeCareerName),
+                    subtitleText = getString(R.string.breadcrumb_career_season_format, activeCareerName, state.seasonNumber),
                     showBack = true,
                     rootViewId = R.id.tournamentDetailMain
                 )
