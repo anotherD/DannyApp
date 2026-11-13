@@ -15,6 +15,7 @@ import com.danny.dannyapp.R
 import com.danny.dannyapp.data.Country
 import com.danny.dannyapp.data.db.Tournament
 import com.danny.dannyapp.domain.model.TournamentEvent
+import com.google.android.material.card.MaterialCardView
 
 object TournamentUiHelper {
 
@@ -246,6 +247,25 @@ object TournamentUiHelper {
         val host = tournament.hostCountry ?: "ENG"
         val city = getTournamentCity(host, tournament.name)
         formatFlagAndText(context, tvTournamentDetails, host, city)
+
+        val cardView = itemView as? MaterialCardView
+        when {
+            model.status == TournamentStatus.ACTIVE -> {
+                cardView?.setCardBackgroundColor(ContextCompat.getColor(context, R.color.surface_grau_heller))
+                cardView?.strokeColor = ContextCompat.getColor(context, R.color.status_active)
+                cardView?.strokeWidth = (2 * context.resources.displayMetrics.density).toInt()
+            }
+            model.isNextPlanned -> {
+                cardView?.setCardBackgroundColor(ContextCompat.getColor(context, R.color.surface_grau_heller))
+                cardView?.strokeColor = ContextCompat.getColor(context, R.color.status_planned)
+                cardView?.strokeWidth = (2 * context.resources.displayMetrics.density).toInt()
+            }
+            else -> {
+                cardView?.setCardBackgroundColor(ContextCompat.getColor(context, R.color.anthrazit_flaeche))
+                cardView?.strokeColor = ContextCompat.getColor(context, R.color.grau_rahmen_dunkel)
+                cardView?.strokeWidth = (1 * context.resources.displayMetrics.density).toInt()
+            }
+        }
 
         if (model.status == TournamentStatus.PLANNED && model.isNextPlanned) {
             btnStartTournament.visibility = View.VISIBLE

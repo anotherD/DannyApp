@@ -21,6 +21,8 @@ Dieses Dokument definiert die Benutzeroberfläche und den Interaktions-Flow für
   * **Runden-Namen:** Alle Rundenbezeichnungen werden zentral über `TournamentUiHelper.getDisplayRoundName(roundKey, context)` dynamisch anhand von `strings.xml` lokalisiert.
   * **Austragungsort:** Anzeige als `<Flagge> <Stadtname>` (ohne das Präfix „Austragungsland:“).
   * **Kennzeichnung:** Major-Turniere und Qualifier-Turniere (`QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIFIER_WM`) sind optisch durch Badges hervorgehoben.
+  * **Hervorhebung aktive / nächste Kachel:** Das aktive (`TournamentStatus.ACTIVE`) oder nächste geplante (`isNextPlanned`) Turnier wird optisch hervorgehoben mit `cardBackgroundColor` `@color/surface_grau_heller`, 2dp Rahmen (`strokeWidth`) und `strokeColor` `@color/status_active` bzw. `@color/status_planned`. Alle anderen Kacheln nutzen `@color/anthrazit_flaeche`, 1dp Rahmen und `@color/grau_rahmen_dunkel`.
+  * **Initiales Scrollen:** Beim Laden scrollt der Kalender über `rvTournaments.post` mit einem Offset von `rvTournaments.height / 3` zum aktiven/nächsten Turnier, damit dieses nicht unter der Tab-Leiste verdeckt wird.
 * **Strikte Turnier-Sperre (Sequenzieller Ablauf):**
   * Es darf immer **nur ein Turnier gleichzeitig aktiv** sein.
   * Ein neues Turnier kann erst gestartet werden, wenn das vorherige Turnier vollständig abgeschlossen ist (`isCompleted == true`).
@@ -68,4 +70,9 @@ Ist ein offenes Match mit Beteiligung des Users an der Reihe, erhält der User b
 * **Wisch-Navigation (`ViewPager2`):** Flüssiges Wischen nach links und rechts zwischen den 4 Ranglisten (`Order of Merit (OOM)`, `Pro Tour (PT OOM)`, `Players Champ. (PC OOM)`, `European Tour (ET OOM)`).
 * **Datenquelle:** Ruft `GetOrderOfMeritUseCase(careerId, type)` auf (zeigt beim User seinen hinterlegten `playerName` und seine Landesflagge).
 * **Darstellung:** Tabelle mit Platzierung (`rank`), **Landesflagge** (statt Text-Kürzel), Spielername (`name`), Preisgeld (`prizeMoney` in `£`) und optischer Hervorhebung der eigenen Zeile (`isUser == true`).
-* **Sticky-User-Karte & Auto-Scroll:** Ist die Zeile des Users aktuell nicht im sichtbaren Scrollbereich der Liste, schwebt am unteren Bildschirmrand eine **Sticky-Karte mit dem User-Eintrag** über der Liste. Ein Klick auf diese Sticky-Karte scrollt die `RecyclerView` automatisch so, dass die Zeile des Users mittig im Bildschirm angezeigt wird.
+* **Dynamische Sticky-User-Karten & Auto-Scroll:**
+  * Ist die Zeile des Users außerhalb des sichtbaren Bereichs platziert, wird dynamisch eine Sticky-User-Karte eingeblendet:
+    * Steht der User weiter oben in der Tabelle (`userIndex < firstVisible`), erscheint `cardStickyUserTop` direkt unter der Tab-Leiste.
+    * Steht der User weiter unten in der Tabelle (`userIndex > lastVisible`), erscheint `cardStickyUserBottom` am unteren Bildschirmrand.
+    * Befindet sich der User im sichtbaren Bereich (`userIndex in firstVisible..lastVisible`), werden beide Karten ausgeblendet (`GONE`).
+  * Ein Klick auf eine der Sticky-Karten scrollt die `RecyclerView` automatisch so zur User-Position, dass die Zeile des Users optimal im Sichtbereich platziert wird.

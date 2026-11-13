@@ -84,13 +84,14 @@ class TournamentCalendarFragment : Fragment(R.layout.fragment_tournament_calenda
                                 if (!hasScrolledToActive && state.tournaments.isNotEmpty()) {
                                     val targetIndex = state.tournaments.indexOfFirst { it.status == TournamentStatus.ACTIVE || it.isNextPlanned }
                                     if (targetIndex != -1) {
-                                        val lm = rvTournaments.layoutManager as? LinearLayoutManager
-                                        if (targetIndex in 0..2) {
-                                            lm?.scrollToPositionWithOffset(0, 0)
-                                        } else {
-                                            lm?.scrollToPositionWithOffset(targetIndex, rvTournaments.height / 2 - 100)
+                                        rvTournaments.post {
+                                            if (rvTournaments.height > 0) {
+                                                val lm = rvTournaments.layoutManager as? LinearLayoutManager
+                                                val offset = if (targetIndex > 0) rvTournaments.height / 3 else 0
+                                                lm?.scrollToPositionWithOffset(targetIndex, offset)
+                                                hasScrolledToActive = true
+                                            }
                                         }
-                                        hasScrolledToActive = true
                                     }
                                 }
                             }

@@ -24,10 +24,15 @@ class OrderOfMeritFragment : Fragment(R.layout.fragment_order_of_merit) {
     private lateinit var rvOom: RecyclerView
     private lateinit var tvEmptyOom: TextView
 
-    private var cardStickyUser: MaterialCardView? = null
-    private var tvStickyRank: TextView? = null
-    private var tvStickyPlayerName: TextView? = null
-    private var tvStickyPrizeMoney: TextView? = null
+    private var cardStickyUserTop: MaterialCardView? = null
+    private var tvStickyRankTop: TextView? = null
+    private var tvStickyPlayerNameTop: TextView? = null
+    private var tvStickyPrizeMoneyTop: TextView? = null
+
+    private var cardStickyUserBottom: MaterialCardView? = null
+    private var tvStickyRankBottom: TextView? = null
+    private var tvStickyPlayerNameBottom: TextView? = null
+    private var tvStickyPrizeMoneyBottom: TextView? = null
 
     private var oomType: OrderOfMeritType = OrderOfMeritType.OOM
 
@@ -47,10 +52,15 @@ class OrderOfMeritFragment : Fragment(R.layout.fragment_order_of_merit) {
         tvEmptyOom = view.findViewById(R.id.tvEmptyOom)
 
         val rootView = view.rootView
-        cardStickyUser = rootView.findViewById(R.id.cardStickyUser) ?: activity?.findViewById(R.id.cardStickyUser)
-        tvStickyRank = rootView.findViewById(R.id.tvStickyRank) ?: activity?.findViewById(R.id.tvStickyRank)
-        tvStickyPlayerName = rootView.findViewById(R.id.tvStickyPlayerName) ?: activity?.findViewById(R.id.tvStickyPlayerName)
-        tvStickyPrizeMoney = rootView.findViewById(R.id.tvStickyPrizeMoney) ?: activity?.findViewById(R.id.tvStickyPrizeMoney)
+        cardStickyUserTop = rootView.findViewById(R.id.cardStickyUserTop) ?: activity?.findViewById(R.id.cardStickyUserTop)
+        tvStickyRankTop = rootView.findViewById(R.id.tvStickyRankTop) ?: activity?.findViewById(R.id.tvStickyRankTop)
+        tvStickyPlayerNameTop = rootView.findViewById(R.id.tvStickyPlayerNameTop) ?: activity?.findViewById(R.id.tvStickyPlayerNameTop)
+        tvStickyPrizeMoneyTop = rootView.findViewById(R.id.tvStickyPrizeMoneyTop) ?: activity?.findViewById(R.id.tvStickyPrizeMoneyTop)
+
+        cardStickyUserBottom = rootView.findViewById(R.id.cardStickyUserBottom) ?: activity?.findViewById(R.id.cardStickyUserBottom)
+        tvStickyRankBottom = rootView.findViewById(R.id.tvStickyRankBottom) ?: activity?.findViewById(R.id.tvStickyRankBottom)
+        tvStickyPlayerNameBottom = rootView.findViewById(R.id.tvStickyPlayerNameBottom) ?: activity?.findViewById(R.id.tvStickyPlayerNameBottom)
+        tvStickyPrizeMoneyBottom = rootView.findViewById(R.id.tvStickyPrizeMoneyBottom) ?: activity?.findViewById(R.id.tvStickyPrizeMoneyBottom)
 
         val layoutManager = LinearLayoutManager(requireContext())
         rvOom.layoutManager = layoutManager
@@ -83,39 +93,65 @@ class OrderOfMeritFragment : Fragment(R.layout.fragment_order_of_merit) {
     }
 
     private fun updateStickyUserVisibility(layoutManager: LinearLayoutManager) {
-        val card = cardStickyUser ?: return
-        val rankTv = tvStickyRank ?: return
-        val nameTv = tvStickyPlayerName ?: return
-        val moneyTv = tvStickyPrizeMoney ?: return
+        val topCard = cardStickyUserTop
+        val bottomCard = cardStickyUserBottom
 
         val entries = adapter.currentList
         val userEntry = entries.find { it.isUser }
         if (userEntry == null || entries.isEmpty()) {
-            card.visibility = View.GONE
+            topCard?.visibility = View.GONE
+            bottomCard?.visibility = View.GONE
             return
         }
 
         val userIndex = entries.indexOf(userEntry)
         if (userIndex == -1) {
-            card.visibility = View.GONE
+            topCard?.visibility = View.GONE
+            bottomCard?.visibility = View.GONE
             return
         }
 
         val firstVisible = layoutManager.findFirstVisibleItemPosition()
         val lastVisible = layoutManager.findLastVisibleItemPosition()
 
-        if (userIndex < firstVisible || userIndex > lastVisible) {
-            rankTv.text = "#${userEntry.rank}"
-            val flagEmoji = Country.getFlagEmoji(userEntry.countryCode)
-            nameTv.text = "$flagEmoji ${userEntry.name}"
-            moneyTv.text = "£%,.0f".format(userEntry.prizeMoney)
+        if (firstVisible == RecyclerView.NO_POSITION || lastVisible == RecyclerView.NO_POSITION) {
+            topCard?.visibility = View.GONE
+            bottomCard?.visibility = View.GONE
+            return
+        }
 
-            card.visibility = View.VISIBLE
-            card.setOnClickListener {
-                layoutManager.scrollToPositionWithOffset(userIndex, rvOom.height / 2 - 100)
+        val rankText = "#${userEntry.rank}"
+        val flagEmoji = Country.getFlagEmoji(userEntry.countryCode)
+        val nameText = "$flagEmoji ${userEntry.name}"
+        val moneyText = "£%,.0f".format(userEntry.prizeMoney)
+
+        when {
+            userIndex < firstVisible -> {
+                tvStickyRankTop?.text = rankText
+                tvStickyPlayerNameTop?.text = nameText
+                tvStickyPrizeMoneyTop?.text = moneyText
+
+                topCard?.visibility = View.VISIBLE
+                topCard?.setOnClickListener {
+                    layoutManager.scrollToPositionWithOffset(userIndex, rvOom.height / 2 - 100)
+                }
+                bottomCard?.visibility = View.GONE
             }
-        } else {
-            card.visibility = View.GONE
+            userIndex > lastVisible -> {
+                tvStickyRankBottom?.text = rankText
+                tvStickyPlayerNameBottom?.text = nameText
+                tvStickyPrizeMoneyBottom?.text = moneyText
+
+                bottomCard?.visibility = View.VISIBLE
+                bottomCard?.setOnClickListener {
+                    layoutManager.scrollToPositionWithOffset(userIndex, rvOom.height / 2 - 100)
+                }
+                topCard?.visibility = View.GONE
+            }
+            else -> {
+                topCard?.visibility = View.GONE
+                bottomCard?.visibility = View.GONE
+            }
         }
     }
 
@@ -134,7 +170,8 @@ class OrderOfMeritFragment : Fragment(R.layout.fragment_order_of_merit) {
                     if (entries.isEmpty()) {
                         tvEmptyOom.visibility = TextView.VISIBLE
                         rvOom.visibility = RecyclerView.GONE
-                        cardStickyUser?.visibility = View.GONE
+                        cardStickyUserTop?.visibility = View.GONE
+                        cardStickyUserBottom?.visibility = View.GONE
                     } else {
                         tvEmptyOom.visibility = TextView.GONE
                         rvOom.visibility = RecyclerView.VISIBLE
@@ -147,7 +184,8 @@ class OrderOfMeritFragment : Fragment(R.layout.fragment_order_of_merit) {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        cardStickyUser?.visibility = View.GONE
+        cardStickyUserTop?.visibility = View.GONE
+        cardStickyUserBottom?.visibility = View.GONE
     }
 
     companion object {
