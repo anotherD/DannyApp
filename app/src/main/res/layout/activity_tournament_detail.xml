@@ -419,17 +419,6 @@
                 android:gravity="center"
                 android:paddingBottom="16dp" />
 
-            <TextView
-                android:id="@+id/tvQualifiedEntrantsHeader"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/qualified_round_entrants_header"
-                android:textColor="?attr/colorOnSurfaceVariant"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:visibility="gone"
-                android:paddingBottom="8dp" />
-
             <ScrollView
                 android:layout_width="match_parent"
                 android:layout_height="0dp"

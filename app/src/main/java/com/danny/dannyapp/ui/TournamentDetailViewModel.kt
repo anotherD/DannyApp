@@ -43,6 +43,12 @@ data class EntrantPlayerInfo(
     val seed: Int?
 )
 
+enum class RoundStatus {
+    COMPLETED,
+    ACTIVE,
+    PENDING
+}
+
 sealed interface TournamentDetailState {
     object Loading : TournamentDetailState
 
@@ -77,7 +83,9 @@ sealed interface TournamentDetailState {
         val careerName: String,
         val seasonNumber: Int,
         val isOpenDrawInfoVisible: Boolean = false,
-        val openEntrantsGroups: List<EntrantGroupInfo> = emptyList()
+        val prevRoundDisplayName: String = "",
+        val openEntrantsGroups: List<EntrantGroupInfo> = emptyList(),
+        val roundStatuses: List<RoundStatus> = emptyList()
     ) : TournamentDetailState
 
     data class Review(
@@ -378,6 +386,22 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             }
         }
 
+        val prevRoundDisplayName = if (selectedRoundIndex > 0) {
+            availableRoundDisplayNames.getOrNull(selectedRoundIndex - 1) ?: ""
+        } else {
+            ""
+        }
+
+        val roundStatuses = availableRounds.map { rk ->
+            val matchesInRk = allMatches.filter { it.round == rk }
+            when {
+                matchesInRk.isNotEmpty() && matchesInRk.all { it.isCompleted } -> RoundStatus.COMPLETED
+                matchesInRk.isNotEmpty() && matchesInRk.any { !it.isCompleted } -> RoundStatus.ACTIVE
+                rk == activeRoundKeyInDb -> RoundStatus.ACTIVE
+                else -> RoundStatus.PENDING
+            }
+        }
+
         _uiState.value = TournamentDetailState.Active(
             tournament = tournament,
             event = event,
@@ -398,7 +422,9 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             careerName = careerName,
             seasonNumber = seasonNumber,
             isOpenDrawInfoVisible = isOpenDrawInfoVisible,
-            openEntrantsGroups = openEntrantsGroups
+            prevRoundDisplayName = prevRoundDisplayName,
+            openEntrantsGroups = openEntrantsGroups,
+            roundStatuses = roundStatuses
         )
     }
 

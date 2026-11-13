@@ -1,13 +1,11 @@
 package com.danny.dannyapp.ui
 
 import android.graphics.Typeface
-import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.ContextCompat
-import androidx.core.view.doOnPreDraw
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -65,10 +63,10 @@ class TournamentMatchAdapter(
         holder.tvMatchRoundIndex.text = "${groupPrefix}#${match.matchIndex + 1}"
 
         bindPlayerFlag(context, holder.tvPlayer1Flag, item.player1CountryCode, item.player1Flag)
-        bindPlayerName(holder.tvPlayer1Name, item.player1Name, item.player1Seed, isLeft = true)
+        TournamentUiHelper.bindSmartPlayerName(holder.tvPlayer1Name, item.player1Name, item.player1Seed, isLeft = true)
 
         bindPlayerFlag(context, holder.tvPlayer2Flag, item.player2CountryCode, item.player2Flag)
-        bindPlayerName(holder.tvPlayer2Name, item.player2Name, item.player2Seed, isLeft = false)
+        TournamentUiHelper.bindSmartPlayerName(holder.tvPlayer2Name, item.player2Name, item.player2Seed, isLeft = false)
 
         if (item.isCompleted) {
             holder.tvPlayer1Score.text = match.player1Score.toString()
@@ -155,58 +153,6 @@ class TournamentMatchAdapter(
             b.draw(canvas)
             canvas.restore()
         }
-    }
-
-    private fun bindPlayerName(tv: TextView, name: String, seed: Int?, isLeft: Boolean) {
-        val context = tv.context
-        tv.text = if (seed != null) {
-            if (isLeft) context.getString(R.string.player_with_seed, seed, name)
-            else context.getString(R.string.player_with_seed_right, name, seed)
-        } else {
-            name
-        }
-        tv.doOnPreDraw {
-            val width = tv.width - tv.paddingStart - tv.paddingEnd
-            if (width <= 0) return@doOnPreDraw
-            val paint = tv.paint
-            val seedText = if (seed != null) {
-                if (isLeft) "($seed) " else " ($seed)"
-            } else ""
-
-            val fullText = tv.text.toString()
-            if (paint.measureText(fullText) <= width) {
-                return@doOnPreDraw
-            }
-
-            val abbrName = abbreviateName(name)
-            val abbrText = if (seed != null) {
-                if (isLeft) context.getString(R.string.player_with_seed, seed, abbrName)
-                else context.getString(R.string.player_with_seed_right, abbrName, seed)
-            } else abbrName
-
-            if (paint.measureText(abbrText) <= width) {
-                tv.text = abbrText
-                return@doOnPreDraw
-            }
-
-            val seedWidth = paint.measureText(seedText)
-            val availableForName = (width - seedWidth).coerceAtLeast(0f)
-            val ellipsizedName = TextUtils.ellipsize(name, paint, availableForName, TextUtils.TruncateAt.END).toString()
-            val finalEllipsizedText = if (seed != null) {
-                if (isLeft) context.getString(R.string.player_with_seed, seed, ellipsizedName)
-                else context.getString(R.string.player_with_seed_right, ellipsizedName, seed)
-            } else ellipsizedName
-
-            tv.text = finalEllipsizedText
-        }
-    }
-
-    private fun abbreviateName(name: String): String {
-        val parts = name.trim().split("\\s+".toRegex())
-        if (parts.size <= 1) return name
-        val firstName = parts[0]
-        val lastName = parts.subList(1, parts.size).joinToString(" ")
-        return "${firstName.first()}. $lastName"
     }
 
     private object MatchDiffCallback : DiffUtil.ItemCallback<MatchUiModel>() {

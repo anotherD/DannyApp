@@ -1,23 +1,28 @@
 package com.danny.dannyapp.ui
 
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
-import android.widget.ImageView
-import com.google.android.material.color.MaterialColors
 import android.text.InputType
+import android.view.GestureDetector
 import android.view.Gravity
+import android.view.MotionEvent
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.HorizontalScrollView
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
+import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
+import androidx.core.view.children
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -26,6 +31,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
+import com.google.android.material.color.MaterialColors
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 
@@ -63,7 +69,6 @@ class TournamentDetailActivity : BaseActivity() {
     private lateinit var rvMatches: RecyclerView
     private lateinit var layoutOpenDrawInfo: View
     private lateinit var tvDrawAfterRoundInfo: TextView
-    private lateinit var tvQualifiedEntrantsHeader: TextView
     private lateinit var layoutEntrantsContainer: LinearLayout
     private lateinit var activeMatchesAdapter: TournamentMatchAdapter
 
@@ -85,11 +90,82 @@ class TournamentDetailActivity : BaseActivity() {
     private lateinit var rvReviewMatches: RecyclerView
     private lateinit var reviewMatchesAdapter: TournamentMatchAdapter
     private lateinit var layoutSimulatingOverlay: View
+    private lateinit var gestureDetector: GestureDetector
 
     private var tournamentId: Long = -1L
     private var careerId: Long = -1L
     private var careerName: String = ""
     private var currentPrizeMoneyItems: List<PrizeMoneyItem> = emptyList()
+
+    private fun setupSwipeGestures() {
+        val density = resources.displayMetrics.density
+        val swipeThreshold = (60 * density).toInt()
+        val swipeVelocityThreshold = (100 * density).toInt()
+
+        gestureDetector = GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
+            override fun onFling(
+                e1: MotionEvent?,
+                e2: MotionEvent,
+                velocityX: Float,
+                velocityY: Float
+            ): Boolean {
+                if (e1 == null) return false
+                val diffX = e2.x - e1.x
+                val diffY = e2.y - e1.y
+                if (Math.abs(diffX) > Math.abs(diffY)) {
+                    if (Math.abs(diffX) > swipeThreshold && Math.abs(velocityX) > swipeVelocityThreshold) {
+                        if (diffX < 0) {
+                            onSwipeNextRound()
+                        } else {
+                            onSwipePreviousRound()
+                        }
+                        return true
+                    }
+                }
+                return false
+            }
+        })
+
+        val rvTouchListener = object : RecyclerView.SimpleOnItemTouchListener() {
+            override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
+                return gestureDetector.onTouchEvent(e)
+            }
+        }
+        rvMatches.addOnItemTouchListener(rvTouchListener)
+        rvReviewMatches.addOnItemTouchListener(rvTouchListener)
+
+        val genericTouchListener = View.OnTouchListener { _, event ->
+            gestureDetector.onTouchEvent(event)
+        }
+        layoutOpenDrawInfo.setOnTouchListener(genericTouchListener)
+        layoutEntrantsContainer.setOnTouchListener(genericTouchListener)
+        val openDrawScrollView = (layoutOpenDrawInfo as? ViewGroup)?.children?.filterIsInstance<ScrollView>()?.firstOrNull()
+        openDrawScrollView?.setOnTouchListener(genericTouchListener)
+    }
+
+    private fun onSwipeNextRound() {
+        val state = viewModel.uiState.value
+        val (currentIndex, maxIndex) = when (state) {
+            is TournamentDetailState.Active -> state.selectedRoundIndex to state.availableRounds.lastIndex
+            is TournamentDetailState.Review -> state.selectedRoundIndex to state.availableRounds.lastIndex
+            else -> return
+        }
+        if (currentIndex < maxIndex) {
+            viewModel.selectRound(currentIndex + 1)
+        }
+    }
+
+    private fun onSwipePreviousRound() {
+        val state = viewModel.uiState.value
+        val currentIndex = when (state) {
+            is TournamentDetailState.Active -> state.selectedRoundIndex
+            is TournamentDetailState.Review -> state.selectedRoundIndex
+            else -> return
+        }
+        if (currentIndex > 0) {
+            viewModel.selectRound(currentIndex - 1)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -116,6 +192,7 @@ class TournamentDetailActivity : BaseActivity() {
         initViews()
         setupAdapters()
         setupListeners()
+        setupSwipeGestures()
         observeState(onBackPressedCallback)
 
         if (tournamentId > 0L) {
@@ -166,7 +243,6 @@ class TournamentDetailActivity : BaseActivity() {
         rvMatches = findViewById(R.id.rvMatches)
         layoutOpenDrawInfo = findViewById(R.id.layoutOpenDrawInfo)
         tvDrawAfterRoundInfo = findViewById(R.id.tvDrawAfterRoundInfo)
-        tvQualifiedEntrantsHeader = findViewById(R.id.tvQualifiedEntrantsHeader)
         layoutEntrantsContainer = findViewById(R.id.layoutEntrantsContainer)
 
         // Review
@@ -321,10 +397,28 @@ class TournamentDetailActivity : BaseActivity() {
                 chipGroupRounds.removeAllViews()
                 var selectedChip: Chip? = null
                 state.availableRoundDisplayNames.forEachIndexed { index, displayName ->
+                    val status = state.roundStatuses.getOrNull(index) ?: RoundStatus.PENDING
                     val chip = Chip(this).apply {
                         text = displayName
                         isCheckable = true
                         isChecked = (index == state.selectedRoundIndex)
+
+                        val (bgRes, textRes) = when (status) {
+                            RoundStatus.COMPLETED -> R.color.status_completed to R.color.grau_text_gedaempft
+                            RoundStatus.ACTIVE -> R.color.status_active to R.color.white
+                            RoundStatus.PENDING -> R.color.anthrazit_container_niedrig to R.color.grau_text_gedaempft
+                        }
+
+                        chipBackgroundColor = ColorStateList.valueOf(ContextCompat.getColor(this@TournamentDetailActivity, bgRes))
+                        setTextColor(ContextCompat.getColor(this@TournamentDetailActivity, textRes))
+
+                        if (isChecked) {
+                            chipStrokeColor = ColorStateList.valueOf(ContextCompat.getColor(this@TournamentDetailActivity, R.color.white))
+                            chipStrokeWidth = 2 * resources.displayMetrics.density
+                        } else {
+                            chipStrokeWidth = 0f
+                        }
+
                         setOnClickListener {
                             viewModel.selectRound(index)
                         }
@@ -363,9 +457,8 @@ class TournamentDetailActivity : BaseActivity() {
                 if (state.isOpenDrawInfoVisible) {
                     rvMatches.visibility = View.GONE
                     layoutOpenDrawInfo.visibility = View.VISIBLE
-                    tvDrawAfterRoundInfo.text = getString(R.string.draw_after_round_info)
+                    tvDrawAfterRoundInfo.text = getString(R.string.draw_after_round_info, state.prevRoundDisplayName)
                     if (state.openEntrantsGroups.isNotEmpty()) {
-                        tvQualifiedEntrantsHeader.visibility = View.VISIBLE
                         layoutEntrantsContainer.visibility = View.VISIBLE
                         layoutEntrantsContainer.removeAllViews()
                         state.openEntrantsGroups.forEachIndexed { groupIndex, group ->
@@ -427,12 +520,7 @@ class TournamentDetailActivity : BaseActivity() {
                                             setTextColor(ContextCompat.getColor(this@TournamentDetailActivity, typedValue.resourceId))
                                         }
                                     }
-                                    val displayText = if (player.seed != null) {
-                                        getString(R.string.player_with_seed, player.seed, player.name)
-                                    } else {
-                                        player.name
-                                    }
-                                    TournamentUiHelper.formatFlagAndText(this, tvPlayer, player.countryCode, displayText)
+                                    TournamentUiHelper.bindSmartPlayerName(tvPlayer, player.name, player.seed, isLeft = true, countryCode = player.countryCode)
                                     rowLayout.addView(tvPlayer)
                                 }
 
@@ -451,7 +539,6 @@ class TournamentDetailActivity : BaseActivity() {
                             }
                         }
                     } else {
-                        tvQualifiedEntrantsHeader.visibility = View.GONE
                         layoutEntrantsContainer.visibility = View.GONE
                     }
                 } else {
@@ -511,6 +598,17 @@ class TournamentDetailActivity : BaseActivity() {
                         text = displayName
                         isCheckable = true
                         isChecked = (index == state.selectedRoundIndex)
+
+                        chipBackgroundColor = ColorStateList.valueOf(ContextCompat.getColor(this@TournamentDetailActivity, R.color.status_completed))
+                        setTextColor(ContextCompat.getColor(this@TournamentDetailActivity, R.color.grau_text_gedaempft))
+
+                        if (isChecked) {
+                            chipStrokeColor = ColorStateList.valueOf(ContextCompat.getColor(this@TournamentDetailActivity, R.color.white))
+                            chipStrokeWidth = 2 * resources.displayMetrics.density
+                        } else {
+                            chipStrokeWidth = 0f
+                        }
+
                         setOnClickListener {
                             viewModel.selectRound(index)
                         }
