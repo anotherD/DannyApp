@@ -521,6 +521,40 @@
                     tools:text="Final-Ergebnis: 10 : 7" />
 
                 <TextView
+                    android:id="@+id/tvReviewQualifierHeader"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/qualifier_winners_header"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:visibility="gone"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tvReviewTypeBadge"
+                    tools:visibility="visible" />
+
+                <LinearLayout
+                    android:id="@+id/layoutReviewQualifierWinnersList"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tvReviewQualifierHeader"
+                    tools:visibility="visible" />
+
+                <androidx.constraintlayout.widget.Barrier
+                    android:id="@+id/barrierReviewBottom"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:barrierDirection="bottom"
+                    app:constraint_referenced_ids="tvReviewFinalScore,layoutReviewQualifierWinnersList" />
+
+                <TextView
                     android:id="@+id/tvReviewUserRound"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -529,7 +563,7 @@
                     android:textSize="14sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/tvReviewFinalScore"
+                    app:layout_constraintTop_toBottomOf="@+id/barrierReviewBottom"
                     tools:text="Deine erreichte Runde: Viertelfinale" />
 
                 <TextView

@@ -82,7 +82,7 @@ sealed interface TournamentDetailState {
         val prizeMoneyItems: List<PrizeMoneyItem>,
         val careerName: String,
         val isQualifier: Boolean = false,
-        val qualifierWinnersText: String = ""
+        val qualifierWinners: List<Pair<String, String>> = emptyList()
     ) : TournamentDetailState
 
     data class Error(val message: String) : TournamentDetailState
@@ -439,14 +439,18 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             TournamentEvent.QUALIFIER_WM
         )
 
-        val qualifierWinnersText = if (isQualifier) {
+        val qualifierWinners = if (isQualifier) {
             val qualFinalMatches = allMatches.filter { it.round == TournamentRound.QUAL_FINAL.name }.sortedBy { it.matchIndex }
-            val winners = qualFinalMatches.mapNotNull { m ->
+            qualFinalMatches.mapNotNull { m ->
                 val wId = m.winnerId ?: return@mapNotNull null
-                if (wId == USER_ID) userName else allPlayersMap[wId]?.name ?: "CPU"
+                if (wId == USER_ID) {
+                    Pair(userName, userCountryCode)
+                } else {
+                    val p = allPlayersMap[wId]
+                    Pair(p?.name ?: "CPU #${wId}", p?.countryCode ?: "ENG")
+                }
             }
-            getApplication<Application>().getString(R.string.qualifier_winners_prefix, winners.joinToString(", "))
-        } else ""
+        } else emptyList()
 
         val seededPlayerMap = getSeededPlayerMap(event, tournament.seasonId)
         val matchUiModels = filteredMatches.map { m ->
@@ -473,7 +477,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             prizeMoneyItems = prizeMoneyItems,
             careerName = careerName,
             isQualifier = isQualifier,
-            qualifierWinnersText = qualifierWinnersText
+            qualifierWinners = qualifierWinners
         )
     }
 
@@ -534,7 +538,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         }
         val p2Seed = seededPlayerMap[m.player2Id]
         if (p2Seed != null && m.player2Id != -998L && m.player2Id != -999L) {
-            p2Name = app.getString(R.string.player_with_seed, p2Seed, p2Name)
+            p2Name = app.getString(R.string.player_with_seed_right, p2Name, p2Seed)
         }
 
         val p2CountryCode = when (m.player2Id) {

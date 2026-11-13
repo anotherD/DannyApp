@@ -68,6 +68,8 @@ class TournamentDetailActivity : BaseActivity() {
     private lateinit var tvReviewTypeBadge: TextView
     private lateinit var tvReviewHost: TextView
     private lateinit var tvReviewWinner: TextView
+    private lateinit var tvReviewQualifierHeader: TextView
+    private lateinit var layoutReviewQualifierWinnersList: LinearLayout
     private lateinit var btnPrizeInfoReview: View
     private lateinit var tvStatusBadgeReview: TextView
     private lateinit var tvReviewFinalScore: TextView
@@ -155,6 +157,8 @@ class TournamentDetailActivity : BaseActivity() {
         tvReviewTypeBadge = findViewById(R.id.tvReviewTypeBadge)
         tvReviewHost = findViewById(R.id.tvReviewHost)
         tvReviewWinner = findViewById(R.id.tvReviewWinner)
+        tvReviewQualifierHeader = findViewById(R.id.tvReviewQualifierHeader)
+        layoutReviewQualifierWinnersList = findViewById(R.id.layoutReviewQualifierWinnersList)
         btnPrizeInfoReview = findViewById(R.id.btnPrizeInfoReview)
         tvStatusBadgeReview = findViewById(R.id.tvStatusBadgeReview)
         tvReviewFinalScore = findViewById(R.id.tvReviewFinalScore)
@@ -355,9 +359,17 @@ class TournamentDetailActivity : BaseActivity() {
                 currentEvent = state.event
 
                 if (state.isQualifier) {
-                    tvReviewWinner.text = state.qualifierWinnersText
+                    tvReviewQualifierHeader.visibility = View.VISIBLE
+                    layoutReviewQualifierWinnersList.visibility = View.VISIBLE
+                    TournamentUiHelper.bindQualifierWinnersList(
+                        this, tvReviewQualifierHeader, layoutReviewQualifierWinnersList, state.qualifierWinners, textSizeSp = 14f
+                    )
+                    tvReviewWinner.visibility = View.GONE
                     tvReviewFinalScore.visibility = View.GONE
                 } else {
+                    tvReviewQualifierHeader.visibility = View.GONE
+                    layoutReviewQualifierWinnersList.visibility = View.GONE
+                    tvReviewWinner.visibility = View.VISIBLE
                     tvReviewWinner.text = getString(R.string.tournament_review_winner, state.winnerFlag, state.winnerName)
                     tvReviewFinalScore.visibility = View.VISIBLE
                     tvReviewFinalScore.text = getString(R.string.tournament_review_final_score, state.finalScoreText, state.opponentFlag, state.opponentName)
@@ -441,7 +453,6 @@ class TournamentDetailActivity : BaseActivity() {
     private fun showUserMatchOptionsDialog(matchModel: MatchUiModel) {
         val options = if (debugMode) {
             arrayOf(
-                "Match simulieren (Skill/Zufall)",
                 "Sieger festlegen (Sieg/Niederlage)",
                 "Ergebnis manuell eingeben",
                 "Live spielen (GameEngine)"
@@ -458,7 +469,6 @@ class TournamentDetailActivity : BaseActivity() {
             .setItems(options) { _, which ->
                 val selectedOption = options[which]
                 when {
-                    selectedOption.startsWith("Match simulieren") -> viewModel.simulateUserMatch(matchModel.match.id)
                     selectedOption.startsWith("Sieger festlegen") -> showSetWinnerDialog(matchModel)
                     selectedOption.startsWith("Ergebnis manuell") -> showManualScoreInputDialog(matchModel)
                     selectedOption.startsWith("Live spielen") -> showLiveGameEnginePlaceholder()

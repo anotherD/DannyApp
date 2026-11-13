@@ -136,4 +136,11 @@
     <string name="qualifier_winners_prefix">Qualifier-Gewinner: %1$s</string>
     <string name="match_tbd_open_draw">Freie Auslosung</string>
     <string name="player_with_seed">(%1$d) %2$s</string>
+    <string name="player_with_seed_right">%1$s (%2$d)</string>
+    <string name="qualifier_winners_header">Qualifier-Gewinner:</string>
+    <string name="simulating_tournament">Turnier wird simuliert…</string>
+    <string name="draw_after_round_info">Auslosung nach Abschluss der aktuellen Runde</string>
+    <string name="qualified_round_entrants_header">Bereits qualifizierte Einsteiger dieser Runde:</string>
+    <string name="season_format">Saison %d</string>
+    <string name="breadcrumb_career_season_format">Karrieren > %1$s (Saison %2$d)</string>
 </resources>

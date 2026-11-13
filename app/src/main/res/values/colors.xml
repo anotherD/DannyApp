@@ -24,6 +24,7 @@
 
     <!-- Spezifische Oberflächen -->
     <color name="surface_grau_heller">#FF222222</color>
+    <color name="surface_karte_aktiv">#FF2E2E2E</color>
 
     <!-- Text- & Rahmengrau (reines Neutralgrau) -->
     <color name="grau_rahmen_dunkel">#FF383838</color>

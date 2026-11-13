@@ -57,17 +57,30 @@
             tools:text="Major" />
 
         <TextView
-            android:id="@+id/tvQualifierWinners"
+            android:id="@+id/tvQualifierWinnersHeader"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
+            android:layout_marginTop="8dp"
+            android:text="@string/qualifier_winners_header"
             android:textColor="?attr/colorOnSurfaceVariant"
             android:textSize="13sp"
+            android:textStyle="bold"
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvTournamentTypeBadge"
-            tools:text="Qualifier-Gewinner: Spieler A, Spieler B"
+            tools:visibility="visible" />
+
+        <LinearLayout
+            android:id="@+id/layoutQualifierWinnersList"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:orientation="vertical"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvQualifierWinnersHeader"
             tools:visibility="visible" />
 
         <TextView
@@ -90,7 +103,7 @@
             android:text="@string/tournament_start"
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvQualifierWinners"
+            app:layout_constraintTop_toBottomOf="@id/layoutQualifierWinnersList"
             tools:visibility="visible" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

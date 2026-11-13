@@ -21,15 +21,15 @@ Dieses Dokument definiert die Benutzeroberfläche und den Interaktions-Flow für
   * **Runden-Namen:** Alle Rundenbezeichnungen werden zentral über `TournamentUiHelper.getDisplayRoundName(roundKey, context)` dynamisch anhand von `strings.xml` lokalisiert.
   * **Austragungsort:** Anzeige als `<Flagge> <Stadtname>` (ohne das Präfix „Austragungsland:“).
   * **Kennzeichnung:** Major-Turniere und Qualifier-Turniere (`QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIFIER_WM`) sind optisch durch Badges hervorgehoben.
-  * **Hervorhebung aktive / nächste Kachel:** Das aktive (`TournamentStatus.ACTIVE`) oder nächste geplante (`isNextPlanned`) Turnier wird optisch hervorgehoben mit `cardBackgroundColor` `@color/surface_grau_heller`, 2dp Rahmen (`strokeWidth`) und `strokeColor` `@color/status_active` bzw. `@color/status_planned`. Alle anderen Kacheln nutzen `@color/anthrazit_flaeche`, 1dp Rahmen und `@color/grau_rahmen_dunkel`.
+  * **Hervorhebung aktive / nächste Kachel:** Das aktive (`TournamentStatus.ACTIVE`) oder nächste geplante (`isNextPlanned`) Turnier wird optisch hervorgehoben mit `cardBackgroundColor` `@color/surface_karte_aktiv`, 2dp Rahmen (`strokeWidth`) und `strokeColor` `@color/status_active` bzw. `@color/status_planned`. Alle anderen Kacheln nutzen `@color/anthrazit_flaeche`, 1dp Rahmen und `@color/grau_rahmen_dunkel`.
   * **Initiales Scrollen:** Beim Laden scrollt der Kalender über `rvTournaments.post` mit einem Offset von `rvTournaments.height / 3` zum aktiven/nächsten Turnier, damit dieses nicht unter der Tab-Leiste verdeckt wird.
 * **Strikte Turnier-Sperre (Sequenzieller Ablauf):**
   * Es darf immer **nur ein Turnier gleichzeitig aktiv** sein.
   * Ein neues Turnier kann erst gestartet werden, wenn das vorherige Turnier vollständig abgeschlossen ist (`isCompleted == true`).
 * **Status-Kennzeichnung & Multi-Sieger-Qualifier:**
   * `Abgeschlossen` (`isCompleted == true`):
-    * **Einzelsieger-Turniere:** Zeigt den Turniersieger (inkl. Flagge) im Status-Badge und die erreichte Runde des Users an.
-    * **Multi-Sieger-Qualifier (`QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIFIER_WM`):** Zeigt im Status-Badge nur `Abgeschlossen` an (ohne Einzel-Pokal). Sämtliche Gewinner der Finalrunde (`QUAL_FINAL`) werden in einer eigenen Zeile (`tvQualifierWinners`) unterhalb des Typ-Badges als `Qualifier-Gewinner: <Gewinner-Liste>` dargestellt.
+    * **Einzelsieger-Turniere:** Zeigt den Turniersieger (inkl. Landesflagge) im Status-Badge und die erreichte Runde des Users an.
+    * **Multi-Sieger-Qualifier (`QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIFIER_WM`):** Zeigt im Status-Badge nur `Abgeschlossen` an (ohne Einzel-Pokal). Sämtliche Gewinner der Finalrunde (`QUAL_FINAL`) werden als vertikale Liste unter der Überschrift `@string/qualifier_winners_header` (`Qualifier-Gewinner:`) dargestellt, wobei jede Zeile über `TournamentUiHelper.formatFlagAndText(...)` mit `<Flagge> <Spielername>` formatiert wird.
   * `Aktiv` (aktuell laufendes Turnier): Hervorgehoben mit Status-Hintergrund und Button **„Turnier öffnen“**.
   * `Geplant` (`isCompleted == false`, noch keine Matches generiert): Hervorgehoben mit Status-Hintergrund. Nur das jeweils nächste anstehende Turnier (sofern kein anderes Turnier aktiv ist) bietet den Button **„Turnier starten“** (ruft `GenerateBracketUseCase` auf und öffnet die Turnieransicht).
 * **Debug-Funktion (`debugMode == true`):** Ist der Debug-Modus in der Konfiguration aktiviert, erscheint beim aktiven bzw. nächsten Turnier der Button **„Komplettes Turnier simulieren“** (simuliert alle Runden dieses einen Turniers durch). Ist `debugMode == false`, wird der Button ausgeblendet.
@@ -48,20 +48,19 @@ Jedes Turnier im Saisonkalender ist anklickbar und öffnet die Turnieransicht in
   - **Vorab-Turnierbaum & Freie Auslosung:**
     - Bei Turnieren mit festem Turnierbaum sind alle Runden-Pills bereits vorab anwählbar und zeigen Platzhalter-Paarungen an (z. B. `Sieger #1 vs. Sieger #2`).
     - Bei Qualifiern (`QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIFIER_WM`) sowie bei `UK_OPEN` und `EUROPEAN_OPEN` (in allen Folgerunden ab `R2_128`) wird für noch nicht ausgeloste Platzhalter-Matches stattdessen der Text `Freie Auslosung` (`R.string.match_tbd_open_draw`) angezeigt.
-  - **Seed-Nummern bei Spielernamen:** Ist ein Spieler im jeweiligen Turnier gesetzt (z. B. Top 32 PT OOM bei `PLAYERS_CHAMPIONSHIP`, Top 16 OOM + Top 16 PT OOM bei `EUROPEAN_TOUR`, Top 16 OOM bei `WORLD_MATCHPLAY`/`WORLD_GRAND_PRIX`/`GRAND_SLAM_OF_DARTS`, Top 32 OOM bei `WORLD_CHAMPIONSHIP`, Top 32 ET OOM bei `EUROPEAN_CHAMPIONSHIP`, Top 64 PC OOM bei `PLAYERS_CHAMPIONSHIP_FINALS`, Top 32 OOM bei `UK_OPEN`/`EUROPEAN_OPEN`, gesetzte OOM-Plätze bei Qualifiern), wird sein Name im Match-Adapter via `R.string.player_with_seed` als `(<Seed>) <Name>` formatiert.
+  - **Seed-Nummern bei Spielernamen:** Ist ein Spieler im jeweiligen Turnier gesetzt, wird sein Name im Match-Adapter für Spieler 1 (links) über `R.string.player_with_seed` als `(<Seed>) <Name>` und für Spieler 2 (rechts) über `R.string.player_with_seed_right` als `<Name> (<Seed>)` formatiert.
   - **Match-Karten:** Zeigen Spielernamen (beim User seinen hinterlegten `playerName` samt Landesflagge) und das Ergebnis an (ohne `Skill: x`-Anzeige).
   - **Zentrale Steuerung:** Die Schalter **„Automatische Simulation“** und **„Automatisch zur nächsten Runde“** liegen zentral in der **Konfiguration (`ConfigActivity`)** und werden über `SettingsManager` gesteuert. Die manuellen Simulations-Buttons in der Turnieransicht sind nur bei `debugMode == true` sichtbar.
 3. **Rückblick-Modus (`isCompleted == true`):**
   - Nutzt dieselbe Runden-Pills-Ansicht wie der aktive Modus (read-only ohne Simulations-Buttons).
   - **Einzelsieger-Turniere:** Zeigt oben die Zusammenfassung **Sieger** (inkl. Landesflagge), **Final-Ergebnis** (inkl. Name & Flagge des Finalgegners), **Deine erreichte Runde** (`reachedRound`) und **Gewonnenes Preisgeld** (`prizeMoney` aus `tournament_placements`).
-  - **Multi-Sieger-Qualifier:** Zeigt in `tvReviewWinner` die formatierte Gewinner-Liste (`Qualifier-Gewinner: <Gewinner-Liste>`) und blendet das Final-Ergebnis (`tvReviewFinalScore`) aus.
+  - **Multi-Sieger-Qualifier:** Zeigt die formatierte Gewinner-Liste als vertikale Liste unter `@string/qualifier_winners_header` (`Qualifier-Gewinner:`) an und blendet das Final-Ergebnis (`tvReviewFinalScore`) aus.
 
-### 3.1 Die 4 Optionen für User-Matches (`USER_ID = -1L`)
+### 3.1 Die Optionen für User-Matches (`USER_ID = -1L`)
 Ist ein offenes Match mit Beteiligung des Users an der Reihe, erhält der User beim Klick auf sein Match folgende Auswahlmöglichkeiten:
-1. **„Match simulieren (Skill/Zufall)“** *(nur sichtbar bei `debugMode == true`)*: Simuliert das User-Match wie ein CPU-Match (nutzt `career.level` als Skill-Wert des Users).
-2. **„Sieger festlegen (Sieg/Niederlage)“** *(nur sichtbar bei `debugMode == true`)*: Setzt direkt einen gültigen Sieg- oder Niederlagen-Spielstand passend zur `MatchDistance`.
-3. **„Ergebnis manuell eingeben“**: Öffnet einen Dialog zur direkten Eingabe der gewonnenen Legs/Sets (z. B. `6 : 4`). Validiert gegen `TournamentEvent.getMatchDistance(round)` (inkl. `twoClearLegsRule`), speichert das Ergebnis und triggert den Rundenfortschritt.
-4. **„Live spielen (GameEngine)“**: Übergibt Match-ID und `MatchDistance` (`bestOf`, `legsPerSet`, `twoClearLegsRule`, `SETS_DOUBLE_IN_OUT`) an die bestehende Match-/Scolia-Engine.
+1. **„Sieger festlegen (Sieg/Niederlage)“** *(nur sichtbar bei `debugMode == true`)*: Setzt direkt einen gültigen Sieg- oder Niederlagen-Spielstand passend zur `MatchDistance`.
+2. **„Ergebnis manuell eingeben“**: Öffnet einen Dialog zur direkten Eingabe der gewonnenen Legs/Sets (z. B. `6 : 4`). Validiert gegen `TournamentEvent.getMatchDistance(round)` (inkl. `twoClearLegsRule`), speichert das Ergebnis und triggert den Rundenfortschritt.
+3. **„Live spielen (GameEngine)“**: Übergibt Match-ID und `MatchDistance` (`bestOf`, `legsPerSet`, `twoClearLegsRule`, `SETS_DOUBLE_IN_OUT`) an die bestehende Match-/Scolia-Engine.
 
 ---
 
@@ -72,7 +71,7 @@ Ist ein offenes Match mit Beteiligung des Users an der Reihe, erhält der User b
 * **Darstellung:** Tabelle mit Platzierung (`rank`), **Landesflagge** (statt Text-Kürzel), Spielername (`name`), Preisgeld (`prizeMoney` in `£`) und optischer Hervorhebung der eigenen Zeile (`isUser == true`).
 * **Dynamische Sticky-User-Karten & Auto-Scroll:**
   * Ist die Zeile des Users außerhalb des sichtbaren Bereichs platziert, wird dynamisch eine Sticky-User-Karte eingeblendet:
-    * Steht der User weiter oben in der Tabelle (`userIndex < firstVisible`), erscheint `cardStickyUserTop` direkt unter der Tab-Leiste.
+    * Steht der User weiter oben in der Tabelle (`userIndex < firstVisible`), erscheint `cardStickyUserTop` direkt unter der Tab-Leiste (im XML im Vordergrund über dem `ViewPager2` platziert).
     * Steht der User weiter unten in der Tabelle (`userIndex > lastVisible`), erscheint `cardStickyUserBottom` am unteren Bildschirmrand.
     * Befindet sich der User im sichtbaren Bereich (`userIndex in firstVisible..lastVisible`), werden beide Karten ausgeblendet (`GONE`).
   * Ein Klick auf eine der Sticky-Karten scrollt die `RecyclerView` automatisch so zur User-Position, dass die Zeile des Users optimal im Sichtbereich platziert wird.

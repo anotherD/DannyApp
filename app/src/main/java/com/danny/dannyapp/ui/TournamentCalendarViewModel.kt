@@ -32,7 +32,7 @@ data class TournamentUiModel(
     val status: TournamentStatus,
     val isNextPlanned: Boolean,
     val winnerName: String?,
-    val qualifierWinners: List<String>?,
+    val qualifierWinners: List<Pair<String, String>>?,
     val userReachedRound: String?,
     val activeRoundName: String?
 )
@@ -77,13 +77,15 @@ class TournamentCalendarViewModel(application: Application) : AndroidViewModel(a
                 generateSeasonCalendarUseCase(season.id)
 
                 val allPlayers = playerDao.getAllPlayersList().associateBy { it.id }
+                val careerWithProfile = careerRepository.getCareerById(careerId)
+                val userCountryCode = careerWithProfile?.countryCode ?: "DEU"
 
                 combine(
                     tournamentDao.getTournamentsForSeason(season.id),
                     tournamentMatchDao.getMatchesFlowForSeason(season.id),
                     tournamentPlacementDao.getPlacementsFlowForSeasons(listOf(season.id))
                 ) { tournaments, matches, placements ->
-                    buildTournamentUiModels(tournaments, matches, placements, allPlayers)
+                    buildTournamentUiModels(tournaments, matches, placements, allPlayers, userCountryCode)
                 }.collect { uiModels ->
                     _uiState.value = TournamentCalendarState.Success(season.id, uiModels)
                 }
@@ -97,7 +99,8 @@ class TournamentCalendarViewModel(application: Application) : AndroidViewModel(a
         tournaments: List<Tournament>,
         matchesList: List<TournamentMatch>,
         placementsList: List<TournamentPlacement>,
-        allPlayers: Map<Long, com.danny.dannyapp.data.db.Player>
+        allPlayers: Map<Long, com.danny.dannyapp.data.db.Player>,
+        userCountryCode: String
     ): List<TournamentUiModel> {
         val sorted = tournaments.sortedBy { val order = it.order; order }
         val matchesByTournament = matchesList.groupBy { it.tournamentId }
@@ -131,7 +134,7 @@ class TournamentCalendarViewModel(application: Application) : AndroidViewModel(a
             }
 
             var winnerName: String? = null
-            var qualifierWinners: List<String>? = null
+            var qualifierWinners: List<Pair<String, String>>? = null
             var userReachedRound: String? = null
             var activeRoundName: String? = null
 
@@ -142,7 +145,12 @@ class TournamentCalendarViewModel(application: Application) : AndroidViewModel(a
                     val qualFinalMatches = matches.filter { it.round == TournamentRound.QUAL_FINAL.name }.sortedBy { it.matchIndex }
                     qualifierWinners = qualFinalMatches.mapNotNull { m ->
                         val wId = m.winnerId ?: return@mapNotNull null
-                        if (wId == USER_ID) "Du" else allPlayers[wId]?.name ?: "CPU"
+                        if (wId == USER_ID) {
+                            Pair("Du", userCountryCode)
+                        } else {
+                            val p = allPlayers[wId]
+                            Pair(p?.name ?: "CPU #${wId}", p?.countryCode ?: "ENG")
+                        }
                     }
                 } else {
                     val finalMatch = matches.find { it.round == "F" || it.round == "FINAL" } ?: matches.lastOrNull()

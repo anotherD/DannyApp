@@ -207,6 +207,46 @@ object TournamentUiHelper {
         textView.text = "$flagEmoji $text"
     }
 
+    fun bindQualifierWinnersList(
+        context: Context,
+        headerTextView: TextView,
+        containerLayout: android.widget.LinearLayout,
+        winners: List<Pair<String, String>>?,
+        textSizeSp: Float = 13f,
+        textColorResId: Int? = null
+    ) {
+        containerLayout.removeAllViews()
+        if (winners.isNullOrEmpty()) {
+            headerTextView.visibility = View.GONE
+            containerLayout.visibility = View.GONE
+        } else {
+            headerTextView.visibility = View.VISIBLE
+            containerLayout.visibility = View.VISIBLE
+            winners.forEach { (name, countryCode) ->
+                val tvRow = TextView(context).apply {
+                    layoutParams = android.widget.LinearLayout.LayoutParams(
+                        android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
+                        android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
+                    ).apply {
+                        topMargin = (2 * context.resources.displayMetrics.density).toInt()
+                    }
+                    textSize = textSizeSp
+                    if (textColorResId != null) {
+                        setTextColor(ContextCompat.getColor(context, textColorResId))
+                    } else {
+                        val typedValue = android.util.TypedValue()
+                        context.theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurfaceVariant, typedValue, true)
+                        if (typedValue.resourceId != 0) {
+                            setTextColor(ContextCompat.getColor(context, typedValue.resourceId))
+                        }
+                    }
+                }
+                formatFlagAndText(context, tvRow, countryCode, name)
+                containerLayout.addView(tvRow)
+            }
+        }
+    }
+
     fun bindTournamentTile(
         itemView: View,
         model: TournamentUiModel,
@@ -218,7 +258,8 @@ object TournamentUiHelper {
 
         val tvTournamentName: TextView = itemView.findViewById(R.id.tvTournamentName)
         val tvTournamentTypeBadge: TextView = itemView.findViewById(R.id.tvTournamentTypeBadge)
-        val tvQualifierWinners: TextView = itemView.findViewById(R.id.tvQualifierWinners)
+        val tvQualifierWinnersHeader: TextView = itemView.findViewById(R.id.tvQualifierWinnersHeader)
+        val layoutQualifierWinnersList: android.widget.LinearLayout = itemView.findViewById(R.id.layoutQualifierWinnersList)
         val tvTournamentStatus: TextView = itemView.findViewById(R.id.tvTournamentStatus)
         val tvTournamentDetails: TextView = itemView.findViewById(R.id.tvTournamentDetails)
         val btnStartTournament: Button = itemView.findViewById(R.id.btnStartTournament)
@@ -230,15 +271,7 @@ object TournamentUiHelper {
         tvTournamentTypeBadge.text = typeBadgeInfo.text
         tvTournamentTypeBadge.background?.setTint(ContextCompat.getColor(context, typeBadgeInfo.colorResId))
 
-        if (!model.qualifierWinners.isNullOrEmpty()) {
-            tvQualifierWinners.visibility = View.VISIBLE
-            tvQualifierWinners.text = context.getString(
-                R.string.qualifier_winners_prefix,
-                model.qualifierWinners.joinToString(", ")
-            )
-        } else {
-            tvQualifierWinners.visibility = View.GONE
-        }
+        bindQualifierWinnersList(context, tvQualifierWinnersHeader, layoutQualifierWinnersList, model.qualifierWinners)
 
         val statusBadgeInfo = getStatusBadgeInfo(context, model)
         tvTournamentStatus.text = statusBadgeInfo.text
@@ -251,12 +284,12 @@ object TournamentUiHelper {
         val cardView = itemView as? MaterialCardView
         when {
             model.status == TournamentStatus.ACTIVE -> {
-                cardView?.setCardBackgroundColor(ContextCompat.getColor(context, R.color.surface_grau_heller))
+                cardView?.setCardBackgroundColor(ContextCompat.getColor(context, R.color.surface_karte_aktiv))
                 cardView?.strokeColor = ContextCompat.getColor(context, R.color.status_active)
                 cardView?.strokeWidth = (2 * context.resources.displayMetrics.density).toInt()
             }
             model.isNextPlanned -> {
-                cardView?.setCardBackgroundColor(ContextCompat.getColor(context, R.color.surface_grau_heller))
+                cardView?.setCardBackgroundColor(ContextCompat.getColor(context, R.color.surface_karte_aktiv))
                 cardView?.strokeColor = ContextCompat.getColor(context, R.color.status_planned)
                 cardView?.strokeWidth = (2 * context.resources.displayMetrics.density).toInt()
             }
