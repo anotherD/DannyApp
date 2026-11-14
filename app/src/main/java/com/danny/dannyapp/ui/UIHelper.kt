@@ -35,8 +35,7 @@ object UiHelper {
         ) {
             val b = drawable
             canvas.withSave {
-                val transY =
-                    (bottom - b.bounds.bottom) - paint.fontMetricsInt.descent / 2 + verticalOffsetPx
+                val transY = (top + bottom - b.bounds.bottom) / 2
                 translate(x, transY.toFloat())
                 b.draw(this)
             }
@@ -67,9 +66,9 @@ object UiHelper {
             val drawable = ContextCompat.getDrawable(textView.context, flagResId)
             if (drawable != null) {
                 val spanBuilder = if (isLeft) {
-                    SpannableStringBuilder("   $text")
+                    SpannableStringBuilder("  $text")
                 } else {
-                    SpannableStringBuilder("$text   ")
+                    SpannableStringBuilder("$text  ")
                 }
                 val heightPx = (textView.textSize * 1.17f).toInt()
                 val widthPx = if (drawable.intrinsicWidth > 0 && drawable.intrinsicHeight > 0) {
