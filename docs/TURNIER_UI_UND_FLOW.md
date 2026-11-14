@@ -16,7 +16,7 @@ Dieses Dokument definiert die Benutzeroberfläche und den Interaktions-Flow für
 * **Tab-Navigation in der Karriere-Ansicht:** Statt einzelner dicker Buttons nutzt die `CareerDetailActivity` eine übersichtliche **Tab-Navigation** für die drei Kernbereiche:
   1. **Saisonkalender:** Chronologische Übersicht aller 74 Turniere der aktiven Saison.
   2. **Turnieransicht:** Rundenübersicht, Gruppenphase (beim Grand Slam of Darts) und Match-Steuerung des aktiven oder ausgewählten Turniers.
-  3. **Ranglisten:** Wischbare Ansicht (`ViewPager2`) für die 4 dynamischen Ranglisten (`OOM`, `PT OOM`, `PC OOM`, `ET OOM`).
+  3. **Ranglisten:** Kompakte Pill-Navigation (`ChipGroup`) für die 4 dynamischen Ranglisten (`OOM`, `PT OOM`, `PC OOM`, `ET OOM`).
 
 ---
 
@@ -65,7 +65,7 @@ Jedes Turnier im Saisonkalender ist anklickbar und öffnet die Turnieransicht in
   - **Vorab-Turnierbaum & Freie Auslosung:**
     - Bei Turnieren mit festem Turnierbaum sind alle Runden-Pills bereits vorab anwählbar und zeigen Platzhalter-Paarungen bzw. sofort feststehende Spieler an (z. B. ET L32 zeigt die Top 16 OOM-Seeds als echte `player1Id`, und abgeschlossene Vorgängermatches tragen ihre Sieger sofort in Vorschau-Paarungen ein).
     - Bei Qualifiern (`QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIFIER_WM`) werden in `QUAL_R1` während der Vorrunde bereits feststehende Freilos-Spieler (`Seed 1..K` und Byes) auf ihren echten Board-Plätzen angezeigt.
-    - Bei `UK_OPEN` und `EUROPEAN_OPEN` gibt es keine feste Setzliste (`getSeededPlayerMap` liefert `emptyMap()`). In noch nicht ausgelosten Folgerunden (`R2_128` bis `F`) wird statt leerer Matchkarten ein Info-Container (`layoutOpenDrawInfo`) mit `tvDrawAfterRoundInfo` (`@string/draw_after_round_info` mit Name der vorherigen Runde, z. B. *„Auslosung nach Abschluss von Runde 2“*) samt zentriierten Gruppen-Überschriften und **2-spaltigen** Spielerlisten (inkl. Flagge, Name und Seed) angezeigt.
+    - Bei `UK_OPEN` und `EUROPEAN_OPEN` gibt es keine feste Setzliste (`getSeededPlayerMap` liefert `emptyMap()`). In noch nicht ausgelosten Folgerunden (`R2_128` bis `F`) wird statt leerer Matchkarten ein Info-Container (`layoutOpenDrawInfo`) mit `tvDrawAfterRoundInfo` (`@string/draw_after_round_info` mit Name der vorherigen Runde, z. B. *„Auslosung nach Abschluss von Runde 2“*) samt zentrierten Gruppen-Überschriften und **2-spaltigen** Spielerlisten (inkl. Flagge, Name und Seed) angezeigt.
   - **Seed-Nummern & Zentrale dynamische Namens-Kürzung (`TournamentUiHelper.bindSmartPlayerName`):** Ist ein Spieler gesetzt, wird seine Seed-Nummer im Match-Adapter links `(1) Name` bzw. rechts `Name (2)` angezeigt. Über `bindSmartPlayerName` wird per `doOnPreDraw`, `paint.measureText` und `TextUtils.ellipsize` eine 3-Stufen-Prüfung durchgeführt:
     1. Passt der volle Name (inkl. Seed und Flagge)? -> Voll anzeigen.
     2. Passt er nicht? -> Erstes Wort durch Anfangsbuchstabe + Punkt **ohne Leerzeichen** ersetzen (`Michael van Gerwen` -> `M.van Gerwen`, `Cameron Menzies` -> `C.Menzies`).
@@ -76,7 +76,7 @@ Jedes Turnier im Saisonkalender ist anklickbar und öffnet die Turnieransicht in
   - **Zentrale Steuerung:** Die Schalter **„Automatische Simulation“** und **„Automatisch zur nächsten Runde“** liegen zentral in der **Konfiguration (`ConfigActivity`)** und werden über `SettingsManager` gesteuert. Die manuellen Simulations-Buttons in der Turnieransicht sind nur bei `debugMode == true` sichtbar.
 3. **Rückblick-Modus (`isCompleted == true`):**
   - Nutzt dieselbe Runden-Pills-Ansicht wie der aktive Modus (read-only ohne Simulations-Buttons).
-  - **Einzelsieger-Turniere:** Zeigt oben die Zusammenfassung **Sieger** (inkl. Landesflagge), **Final-Ergebnis** (inkl. Name & Flagge des Finalgegners), **Deine erreichte Runde** (`reachedRound`) und **Gewonnenes Preisgeld** (`prizeMoney` aus `tournament_placements`).
+  - **Einzelsieger-Turniere:** Zeigt oben die Zusammenfassung **Sieger** (inkl. Vektor-Landesflagge via `TournamentUiHelper.formatFlagAndText`), **Final-Ergebnis** (inkl. Name & Vektor-Landesflagge des Finalgegners via `TournamentUiHelper.formatFlagAndText`), **Deine erreichte Runde** (`reachedRound`) und **Gewonnenes Preisgeld** (`prizeMoney` aus `tournament_placements`).
   - **Multi-Sieger-Qualifier:** Zeigt die formatierte Gewinner-Liste als **2-spaltige** vertikale Liste unter `@string/qualifier_winners_header` (`Qualifier-Gewinner:`) an und blendet das Final-Ergebnis (`tvReviewFinalScore`) aus.
 
 ### 3.1 Die Optionen für User-Matches (`USER_ID = -1L`)
@@ -89,7 +89,7 @@ Ist ein offenes Match mit Beteiligung des Users an der Reihe, erhält der User b
 
 ## 🏆 4. Ranglisten-Ansicht
 
-* **Wisch-Navigation (`ViewPager2`):** Flüssiges Wischen nach links und rechts zwischen den 4 Ranglisten (`Order of Merit (OOM)`, `Pro Tour (PT OOM)`, `Players Champ. (PC OOM)`, `European Tour (ET OOM)`).
+* **Pill-Navigation (`ChipGroup`):** Kompakte horizontale `ChipGroup` (Single-Selection) zur Auswahl zwischen den 4 Ranglisten (`Order of Merit (OOM)`, `Pro Tour (PT OOM)`, `Players Champ. (PC OOM)`, `European Tour (ET OOM)`). Dadurch entfällt die verschachtelte Wisch-Logik und das Wischen nach links/rechts wechselt jederzeit zuverlässig zwischen *Übersicht / Saisonkalender / Ranglisten*.
 * **Datenquelle:** Ruft `GetOrderOfMeritUseCase(careerId, type)` auf (zeigt beim User seinen hinterlegten `playerName` und seine Landesflagge).
 * **Darstellung & Ausrichtung:** Tabelle mit Platzierung (`rank`), **Landesflagge** (statt Text-Kürzel), Spielername (`name`), Preisgeld (`prizeMoney` in `£`) und optischer Hervorhebung der eigenen Zeile (`isUser == true`).
   - **Formatierung der Ränge & Namen (`item_order_of_merit.xml`, `fragment_order_of_merit_container.xml`):**

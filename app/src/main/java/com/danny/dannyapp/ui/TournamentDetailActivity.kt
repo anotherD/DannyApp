@@ -588,9 +588,19 @@ class TournamentDetailActivity : BaseActivity() {
                     tvReviewQualifierHeader.visibility = View.GONE
                     layoutReviewQualifierWinnersList.visibility = View.GONE
                     tvReviewWinner.visibility = View.VISIBLE
-                    tvReviewWinner.text = getString(R.string.tournament_review_winner, state.winnerFlag, state.winnerName)
+                    TournamentUiHelper.formatFlagAndText(
+                        this,
+                        tvReviewWinner,
+                        state.winnerCountryCode,
+                        getString(R.string.tournament_review_winner, state.winnerName)
+                    )
                     tvReviewFinalScore.visibility = View.VISIBLE
-                    tvReviewFinalScore.text = getString(R.string.tournament_review_final_score, state.finalScoreText, state.opponentFlag, state.opponentName)
+                    TournamentUiHelper.formatFlagAndText(
+                        this,
+                        tvReviewFinalScore,
+                        state.opponentCountryCode,
+                        getString(R.string.tournament_review_final_score, state.finalScoreText, state.opponentName)
+                    )
                 }
                 tvReviewUserRound.text = getString(R.string.tournament_review_user_round, state.userReachedRoundText)
                 tvReviewUserPrize.text = getString(R.string.tournament_review_user_prize, state.userEarnedPrizeMoneyText)

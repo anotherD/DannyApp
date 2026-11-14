@@ -189,7 +189,8 @@ object TournamentUiHelper {
     ) {
         val flagResId = Country.getFlagResId(countryCode)
         if (flagResId != null) {
-            val spanBuilder = SpannableStringBuilder("   $text")
+            val spanText = if (text.isEmpty()) " " else "   $text"
+            val spanBuilder = SpannableStringBuilder(spanText)
             val drawable = ContextCompat.getDrawable(context, flagResId)
             if (drawable != null) {
                 val heightPx = (textView.textSize * 1.17f).toInt()
@@ -206,7 +207,7 @@ object TournamentUiHelper {
             }
         }
         val flagEmoji = Country.getFlagEmoji(countryCode)
-        textView.text = "$flagEmoji $text"
+        textView.text = if (text.isEmpty()) flagEmoji else "$flagEmoji $text"
     }
 
     fun abbreviateName(name: String): String {

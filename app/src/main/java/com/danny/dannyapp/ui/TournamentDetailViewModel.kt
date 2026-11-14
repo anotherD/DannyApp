@@ -92,10 +92,10 @@ sealed interface TournamentDetailState {
         val tournament: Tournament,
         val event: TournamentEvent,
         val winnerName: String,
-        val winnerFlag: String,
+        val winnerCountryCode: String,
         val finalScoreText: String,
         val opponentName: String,
-        val opponentFlag: String,
+        val opponentCountryCode: String,
         val userReachedRoundText: String,
         val userEarnedPrizeMoneyText: String,
         val availableRounds: List<String>,
@@ -444,27 +444,27 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         val userCountryCode = careerWithProfile?.countryCode ?: "DEU"
 
         val winnerId = finalMatch?.winnerId
-        val (winnerName, winnerFlag) = if (winnerId != null) {
+        val (winnerName, winnerCountryCode) = if (winnerId != null) {
             if (winnerId == USER_ID) {
-                Pair(userName, Country.getFlagEmoji(userCountryCode))
+                Pair(userName, userCountryCode)
             } else {
                 val p = allPlayersMap[winnerId]
-                Pair(p?.name ?: "Unbekannt", Country.getFlagEmoji(p?.countryCode ?: "ENG"))
+                Pair(p?.name ?: "Unbekannt", p?.countryCode ?: "ENG")
             }
-        } else Pair("Unbekannt", "🌐")
+        } else Pair("Unbekannt", "ENG")
 
         val opponentId = if (winnerId != null && finalMatch != null) {
             if (finalMatch.player1Id == winnerId) finalMatch.player2Id else finalMatch.player1Id
         } else null
 
-        val (opponentName, opponentFlag) = if (opponentId != null) {
+        val (opponentName, opponentCountryCode) = if (opponentId != null) {
             if (opponentId == USER_ID) {
-                Pair(userName, Country.getFlagEmoji(userCountryCode))
+                Pair(userName, userCountryCode)
             } else {
                 val p = allPlayersMap[opponentId]
-                Pair(p?.name ?: "Unbekannt", Country.getFlagEmoji(p?.countryCode ?: "ENG"))
+                Pair(p?.name ?: "Unbekannt", p?.countryCode ?: "ENG")
             }
-        } else Pair("Unbekannt", "🌐")
+        } else Pair("Unbekannt", "ENG")
 
         val finalScoreText = if (finalMatch != null) "${finalMatch.player1Score} : ${finalMatch.player2Score}" else "-"
 
@@ -537,10 +537,10 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             tournament = tournament,
             event = event,
             winnerName = winnerName,
-            winnerFlag = winnerFlag,
+            winnerCountryCode = winnerCountryCode,
             finalScoreText = finalScoreText,
             opponentName = opponentName,
-            opponentFlag = opponentFlag,
+            opponentCountryCode = opponentCountryCode,
             userReachedRoundText = userReachedRoundText,
             userEarnedPrizeMoneyText = userEarnedPrizeMoneyText,
             availableRounds = availableRounds,

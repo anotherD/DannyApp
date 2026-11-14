@@ -10,7 +10,6 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
-import com.danny.dannyapp.data.Country
 import com.danny.dannyapp.data.db.TournamentMatch
 import com.google.android.material.card.MaterialCardView
 
@@ -62,10 +61,10 @@ class TournamentMatchAdapter(
         val groupPrefix = if (!match.groupName.isNullOrBlank()) "Gruppe ${match.groupName} • " else ""
         holder.tvMatchRoundIndex.text = "${groupPrefix}#${match.matchIndex + 1}"
 
-        bindPlayerFlag(context, holder.tvPlayer1Flag, item.player1CountryCode, item.player1Flag)
+        bindPlayerFlag(context, holder.tvPlayer1Flag, item.player1CountryCode)
         TournamentUiHelper.bindSmartPlayerName(holder.tvPlayer1Name, item.player1Name, item.player1Seed, isLeft = true)
 
-        bindPlayerFlag(context, holder.tvPlayer2Flag, item.player2CountryCode, item.player2Flag)
+        bindPlayerFlag(context, holder.tvPlayer2Flag, item.player2CountryCode)
         TournamentUiHelper.bindSmartPlayerName(holder.tvPlayer2Name, item.player2Name, item.player2Seed, isLeft = false)
 
         if (item.isCompleted) {
@@ -112,47 +111,8 @@ class TournamentMatchAdapter(
         }
     }
 
-    private fun bindPlayerFlag(context: android.content.Context, tvFlag: TextView, countryCode: String, fallbackEmoji: String) {
-        val flagResId = Country.getFlagResId(countryCode)
-        if (flagResId != null) {
-            val spanBuilder = android.text.SpannableStringBuilder(" ")
-            val drawable = ContextCompat.getDrawable(context, flagResId)!!
-            val heightPx = (tvFlag.textSize * 1.17f).toInt()
-            val widthPx = if (drawable.intrinsicWidth > 0 && drawable.intrinsicHeight > 0) {
-                (heightPx * drawable.intrinsicWidth.toFloat() / drawable.intrinsicHeight.toFloat()).toInt()
-            } else {
-                (heightPx * 1.5f).toInt()
-            }
-            drawable.setBounds(0, 0, widthPx, heightPx)
-            val imageSpan = VerticalCenteredImageSpan(drawable, verticalOffsetPx = 9)
-            spanBuilder.setSpan(imageSpan, 0, 1, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            tvFlag.text = spanBuilder
-        } else {
-            tvFlag.text = fallbackEmoji
-        }
-    }
-
-    private class VerticalCenteredImageSpan(
-        drawable: android.graphics.drawable.Drawable,
-        private val verticalOffsetPx: Int = 3
-    ) : android.text.style.ImageSpan(drawable, ALIGN_BASELINE) {
-        override fun draw(
-            canvas: android.graphics.Canvas,
-            text: CharSequence?,
-            start: Int,
-            end: Int,
-            x: Float,
-            top: Int,
-            y: Int,
-            bottom: Int,
-            paint: android.graphics.Paint
-        ) {
-            val b = drawable
-            canvas.save()
-            canvas.translate(x, (y - b.bounds.height() + verticalOffsetPx).toFloat())
-            b.draw(canvas)
-            canvas.restore()
-        }
+    private fun bindPlayerFlag(context: android.content.Context, tvFlag: TextView, countryCode: String) {
+        TournamentUiHelper.formatFlagAndText(context, tvFlag, countryCode, "")
     }
 
     private object MatchDiffCallback : DiffUtil.ItemCallback<MatchUiModel>() {
