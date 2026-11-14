@@ -4,7 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.danny.dannyapp.data.Country
+import com.danny.dannyapp.domain.model.Country
 
 @Entity(
     tableName = "user_profiles",

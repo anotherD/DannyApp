@@ -4,7 +4,7 @@ import android.app.Application
 import android.database.sqlite.SQLiteConstraintException
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.danny.dannyapp.data.Country
+import com.danny.dannyapp.domain.model.Country
 import com.danny.dannyapp.data.db.CareerRepository
 import com.danny.dannyapp.data.db.UserProfile
 import com.danny.dannyapp.data.db.UserProfileRepository

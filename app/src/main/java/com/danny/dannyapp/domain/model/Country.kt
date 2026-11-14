@@ -1,6 +1,5 @@
-package com.danny.dannyapp.data
+package com.danny.dannyapp.domain.model
 
-import android.util.Log
 import java.util.Locale
 
 data class Country(
@@ -37,7 +36,6 @@ data class Country(
             HOME_NATIONS[upper]?.let { return it.second }
             val iso2 = getIso2FromCode(upper)
             if (iso2.isEmpty()) {
-                Log.w(TAG, "Keine Flagge für Ländercode '$code' gefunden! Verwende Fallback " + getWorldEmoji())
                 return getWorldEmoji()
             }
             return getFlagEmojiFromIso2(iso2)
@@ -47,14 +45,11 @@ data class Country(
             return "🌐"
         }
 
-        // Sonderfall für Nordirland (NIR): Android unterstützt keine nativen Emoji-Flaggen für NIR.
-        // Daher wird hier eine benutzerdefinierte Drawable-Ressourcen-ID anstelle eines Emojis zurückgegeben.
-        fun getFlagResId(code: String): Int? {
-            val upper = code.trim().uppercase()
-            if (upper == "NIR") {
-                return com.danny.dannyapp.R.drawable.ic_flag_nir
-            }
-            return null
+        /**
+         * Checks whether the country code requires a custom flag rendering (e.g., Northern Ireland).
+         */
+        fun hasCustomFlag(code: String): Boolean {
+            return code.trim().uppercase() == "NIR"
         }
 
         fun getAllCountries(): List<Country> {

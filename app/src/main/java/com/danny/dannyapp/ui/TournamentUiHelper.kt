@@ -6,7 +6,7 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.danny.dannyapp.R
-import com.danny.dannyapp.data.Country
+import com.danny.dannyapp.domain.model.Country
 import com.danny.dannyapp.data.db.Tournament
 import com.danny.dannyapp.domain.enums.TournamentEvent
 import com.danny.dannyapp.domain.enums.TournamentRound

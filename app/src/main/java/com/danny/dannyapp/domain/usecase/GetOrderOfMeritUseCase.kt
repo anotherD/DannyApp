@@ -1,7 +1,7 @@
 package com.danny.dannyapp.domain.usecase
 
 import android.content.Context
-import com.danny.dannyapp.data.Country
+import com.danny.dannyapp.domain.model.Country
 import com.danny.dannyapp.data.db.AppDatabase
 import com.danny.dannyapp.data.db.CareerDao
 import com.danny.dannyapp.data.db.PlayerDao

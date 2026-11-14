@@ -15,7 +15,7 @@ import com.danny.dannyapp.domain.usecase.GenerateSeasonCalendarUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import com.danny.dannyapp.data.Country
+import com.danny.dannyapp.domain.model.Country
 import com.danny.dannyapp.domain.enums.SkillLevel
 import com.danny.dannyapp.domain.enums.TournamentRound
 import com.danny.dannyapp.ui.enums.TournamentStatus

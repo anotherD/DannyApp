@@ -13,8 +13,27 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.withSave
 import androidx.core.view.doOnPreDraw
 import com.danny.dannyapp.R
-import com.danny.dannyapp.data.Country
+import com.danny.dannyapp.domain.enums.SkillLevel
+import com.danny.dannyapp.domain.model.Country
 import com.danny.dannyapp.ui.model.PlayerUiInfo
+
+/**
+ * Returns the corresponding color resource ID for a [SkillLevel].
+ */
+fun SkillLevel.toColorResId(): Int {
+    return when (this) {
+        SkillLevel.LEVEL_1 -> R.color.skill_level_1
+        SkillLevel.LEVEL_2 -> R.color.skill_level_2
+        SkillLevel.LEVEL_3 -> R.color.skill_level_3
+        SkillLevel.LEVEL_4 -> R.color.skill_level_4
+        SkillLevel.LEVEL_5 -> R.color.skill_level_5
+        SkillLevel.LEVEL_6 -> R.color.skill_level_6
+        SkillLevel.LEVEL_7 -> R.color.skill_level_7
+        SkillLevel.LEVEL_8 -> R.color.skill_level_8
+        SkillLevel.LEVEL_9 -> R.color.skill_level_9
+        SkillLevel.LEVEL_10 -> R.color.skill_level_10
+    }
+}
 
 object UiHelper {
 
@@ -46,23 +65,16 @@ object UiHelper {
         return Country.getWorldEmoji()
     }
 
-    // baut Flagge und Text zusammen und setzt den text in die TextView, flagge immer links (TODO: parameter ergänzen)
-    // Aktuell genutzt für:
-    //   Anzeige des Profils in KarriereWidget
-    //   das sticki Widget in OOM    -> TODO: wieso nicht bei den anderen spielern?
-    //   den sieger in careerDetail  -> TODO: wieder einbauen, war buggy
-    //   ein Match (TODO: da aber separat nur die flagge (nötig? dann die Flagge auslagern)
-    //   den Spielort eines turniers -> TODO: prüfen warum 2mal
+    // baut Flagge und Text zusammen und setzt den text in die TextView, flagge immer links
     fun formatFlagAndText(
         textView: TextView,
         countryCode: String,
         text: String,
         isLeft: Boolean = true
     ) {
-        val flagResId = Country.getFlagResId(countryCode)
-        // Sonderfall Nordirland (kein Country.getFlagEmoji(countryCode))
+        val flagResId = if (Country.hasCustomFlag(countryCode)) R.drawable.ic_flag_nir else null
+        // Sonderfall Nordirland
         if (flagResId != null) {
-            // Hier einfach textView.context verwenden!
             val drawable = ContextCompat.getDrawable(textView.context, flagResId)
             if (drawable != null) {
                 val spanBuilder = if (isLeft) {
@@ -89,12 +101,10 @@ object UiHelper {
                     spanBuilder.setSpan(imageSpan, spanBuilder.length - 1, spanBuilder.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                 }
 
-                /* @SuppressLint("SetTextI18n") */
                 textView.text = spanBuilder
                 return
             }
         }
-        /* @SuppressLint("SetTextI18n") */
         textView.text = if (isLeft) {
             "${Country.getFlagEmoji(countryCode)} $text"
         } else {
@@ -112,11 +122,6 @@ object UiHelper {
     }
 
     // generiert eine Spielerzeile aus Name, Flagge und Setzlistenposition
-    // anschließend wird der Text in das angegebene TextView gesetzt
-    // Aktuell genutzt für:
-    //   ein Match
-    //   die Liste der Spieler in Lostöpfen: TournamentDetailActivity:530
-    //   die siegerliste bei abgeschlossenen turnieren
     fun bindSmartPlayerName(
         textView: TextView,
         player: PlayerUiInfo,
@@ -154,8 +159,8 @@ object UiHelper {
             val seedWidth = if (seed != null) paint.measureText(seedText) else 0f
 
             val flagExtraWidth = if (!countryCode.isNullOrBlank()) {
-                // Sonderfall Nordirland (kein Country.getFlagEmoji(countryCode))
-                val flagResId = Country.getFlagResId(countryCode)
+                // Sonderfall Nordirland
+                val flagResId = if (Country.hasCustomFlag(countryCode)) R.drawable.ic_flag_nir else null
                 if (flagResId != null) {
                     val heightPx = (textView.textSize * 1.17f).toInt()
                     val drawable = ContextCompat.getDrawable(context, flagResId)
@@ -199,5 +204,4 @@ object UiHelper {
             setFormattedText(ellipsizedName)
         }
     }
-
 }

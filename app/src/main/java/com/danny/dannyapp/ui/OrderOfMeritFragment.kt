@@ -12,7 +12,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
-import com.danny.dannyapp.data.Country
+import com.danny.dannyapp.domain.model.Country
 import com.danny.dannyapp.domain.enums.OrderOfMeritType
 import com.google.android.material.card.MaterialCardView
 import kotlinx.coroutines.launch

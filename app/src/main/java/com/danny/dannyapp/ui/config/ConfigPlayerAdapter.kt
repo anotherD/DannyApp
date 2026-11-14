@@ -4,12 +4,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
 import com.danny.dannyapp.data.db.Player
+import com.danny.dannyapp.domain.enums.SkillLevel
 import com.danny.dannyapp.ui.UiHelper
+import com.danny.dannyapp.ui.toColorResId
 
 class ConfigPlayerAdapter : ListAdapter<Player, ConfigPlayerAdapter.PlayerViewHolder>(PlayerDiffCallback) {
 
@@ -51,19 +54,8 @@ class ConfigPlayerAdapter : ListAdapter<Player, ConfigPlayerAdapter.PlayerViewHo
     }
 
     private fun getSkillColor(context: android.content.Context, level: Int): Int {
-        val resId = when (level.coerceIn(1, 10)) {
-            1 -> R.color.skill_level_1
-            2 -> R.color.skill_level_2
-            3 -> R.color.skill_level_3
-            4 -> R.color.skill_level_4
-            5 -> R.color.skill_level_5
-            6 -> R.color.skill_level_6
-            7 -> R.color.skill_level_7
-            8 -> R.color.skill_level_8
-            9 -> R.color.skill_level_9
-            else -> R.color.skill_level_10
-        }
-        return androidx.core.content.ContextCompat.getColor(context, resId)
+        val skillLevel = SkillLevel.fromValue(level)
+        return ContextCompat.getColor(context, skillLevel.toColorResId())
     }
 
     private object PlayerDiffCallback : DiffUtil.ItemCallback<Player>() {
