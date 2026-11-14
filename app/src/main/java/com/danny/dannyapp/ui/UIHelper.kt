@@ -76,13 +76,12 @@ object UiHelper {
                 } else {
                     (heightPx * 1.5f).toInt()
                 }
-                val sidePaddingPx = 3
+                val sidePaddingPx = 2
                 if (isLeft) {
                     drawable.setBounds(sidePaddingPx, 0, widthPx + sidePaddingPx, heightPx)
                 } else {
                     drawable.setBounds(0, 0, widthPx, heightPx)
                 }
-                drawable.setBounds(0, 0, widthPx, heightPx)
                 val imageSpan = VerticalCenteredImageSpan(drawable)
                 if (isLeft) {
                     spanBuilder.setSpan(imageSpan, 0, 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
