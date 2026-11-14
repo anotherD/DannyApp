@@ -2,20 +2,16 @@ package com.danny.dannyapp.ui
 
 import android.content.Intent
 import android.os.Bundle
-import android.text.SpannableStringBuilder
-import android.text.Spanned
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.TextView
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.danny.dannyapp.R
-import com.danny.dannyapp.data.Country
 import kotlinx.coroutines.launch
 
 class CareerOverviewFragment : Fragment(R.layout.fragment_career_overview) {
@@ -23,7 +19,11 @@ class CareerOverviewFragment : Fragment(R.layout.fragment_career_overview) {
     private lateinit var careerViewModel: CareerDetailViewModel
     private lateinit var calendarViewModel: TournamentCalendarViewModel
 
-    private lateinit var tvCareerOverviewDetails: TextView
+    private lateinit var tvCareerOverviewLabel: TextView
+    private lateinit var tvCareerOverviewName: TextView
+    private lateinit var tvCareerOverviewPlayer: TextView
+    private lateinit var tvCareerOverviewMeta: TextView
+    private lateinit var tvCareerOverviewProfile: TextView
     private lateinit var containerActiveTournament: FrameLayout
     private lateinit var tvNoActiveTournament: TextView
 
@@ -39,7 +39,11 @@ class CareerOverviewFragment : Fragment(R.layout.fragment_career_overview) {
         careerViewModel = ViewModelProvider(requireActivity())[CareerDetailViewModel::class.java]
         calendarViewModel = ViewModelProvider(requireActivity())[TournamentCalendarViewModel::class.java]
 
-        tvCareerOverviewDetails = view.findViewById(R.id.tvCareerOverviewDetails)
+        tvCareerOverviewLabel = view.findViewById(R.id.tvCareerOverviewLabel)
+        tvCareerOverviewName = view.findViewById(R.id.tvCareerOverviewName)
+        tvCareerOverviewPlayer = view.findViewById(R.id.tvCareerOverviewPlayer)
+        tvCareerOverviewMeta = view.findViewById(R.id.tvCareerOverviewMeta)
+        tvCareerOverviewProfile = view.findViewById(R.id.tvCareerOverviewProfile)
         containerActiveTournament = view.findViewById(R.id.containerActiveTournament)
         tvNoActiveTournament = view.findViewById(R.id.tvNoActiveTournament)
 
@@ -55,38 +59,24 @@ class CareerOverviewFragment : Fragment(R.layout.fragment_career_overview) {
                             val careerWithProfile = state.careerWithProfile
                             val career = careerWithProfile.career
                             careerName = career.name
-                            val sb = SpannableStringBuilder()
-                            sb.append("Aktuelle Karriere:\n").append(career.name)
-                            sb.append("\n").append(getString(R.string.career_level_format, career.level))
-                            sb.append("\n").append(getString(R.string.season_format, career.season))
-                            if (!careerWithProfile.profileName.isNullOrBlank()) {
-                                sb.append("\n").append(getString(R.string.career_profile_format, careerWithProfile.profileName))
-                            }
+
+                            tvCareerOverviewName.text = career.name
+                            tvCareerOverviewMeta.text = "${getString(R.string.season_format, career.season)} • ${getString(R.string.career_level_format, career.level)}"
+
                             if (!careerWithProfile.playerName.isNullOrBlank()) {
-                                sb.append("\n")
+                                tvCareerOverviewPlayer.visibility = View.VISIBLE
                                 val countryCode = careerWithProfile.countryCode ?: "DEU"
-                                val flagResId = Country.getFlagResId(countryCode)
-                                if (flagResId != null) {
-                                    val start = sb.length
-                                    sb.append("   ").append(careerWithProfile.playerName)
-                                    val drawable = ContextCompat.getDrawable(requireContext(), flagResId)
-                                    if (drawable != null) {
-                                        val heightPx = (tvCareerOverviewDetails.textSize * 1.17f).toInt()
-                                        val widthPx = if (drawable.intrinsicWidth > 0 && drawable.intrinsicHeight > 0) {
-                                            (heightPx * drawable.intrinsicWidth.toFloat() / drawable.intrinsicHeight.toFloat()).toInt()
-                                        } else {
-                                            (heightPx * 1.5f).toInt()
-                                        }
-                                        drawable.setBounds(0, 0, widthPx, heightPx)
-                                        val imageSpan = UiHelper.VerticalCenteredImageSpan(drawable, verticalOffsetPx = 9)
-                                        sb.setSpan(imageSpan, start, start + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                                    }
-                                } else {
-                                    val flagEmoji = Country.getFlagEmoji(countryCode)
-                                    sb.append("$flagEmoji ${careerWithProfile.playerName}")
-                                }
+                                UiHelper.formatFlagAndText(tvCareerOverviewPlayer, countryCode, careerWithProfile.playerName)
+                            } else {
+                                tvCareerOverviewPlayer.visibility = View.GONE
                             }
-                            tvCareerOverviewDetails.text = sb
+
+                            if (!careerWithProfile.profileName.isNullOrBlank()) {
+                                tvCareerOverviewProfile.visibility = View.VISIBLE
+                                tvCareerOverviewProfile.text = getString(R.string.career_profile_format, careerWithProfile.profileName)
+                            } else {
+                                tvCareerOverviewProfile.visibility = View.GONE
+                            }
                         }
                     }
                 }

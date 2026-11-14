@@ -35,7 +35,7 @@ object UiHelper {
         ) {
             val b = drawable
             canvas.withSave {
-                val transY = (top + bottom - b.bounds.bottom) / 2
+                val transY = y + (paint.fontMetricsInt.ascent + paint.fontMetricsInt.descent - b.bounds.bottom) / 2
                 translate(x, transY.toFloat())
                 b.draw(this)
             }
@@ -68,7 +68,7 @@ object UiHelper {
                 val spanBuilder = if (isLeft) {
                     SpannableStringBuilder("  $text")
                 } else {
-                    SpannableStringBuilder("$text  ")
+                    SpannableStringBuilder("$text ")
                 }
                 val heightPx = (textView.textSize * 1.17f).toInt()
                 val widthPx = if (drawable.intrinsicWidth > 0 && drawable.intrinsicHeight > 0) {
@@ -76,8 +76,14 @@ object UiHelper {
                 } else {
                     (heightPx * 1.5f).toInt()
                 }
+                val sidePaddingPx = 3
+                if (isLeft) {
+                    drawable.setBounds(sidePaddingPx, 0, widthPx + sidePaddingPx, heightPx)
+                } else {
+                    drawable.setBounds(0, 0, widthPx, heightPx)
+                }
                 drawable.setBounds(0, 0, widthPx, heightPx)
-                val imageSpan = VerticalCenteredImageSpan(drawable, verticalOffsetPx = 9)
+                val imageSpan = VerticalCenteredImageSpan(drawable)
                 if (isLeft) {
                     spanBuilder.setSpan(imageSpan, 0, 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                 } else {

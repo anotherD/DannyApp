@@ -12,7 +12,7 @@ Dieses Dokument definiert die Benutzeroberfläche und den Interaktions-Flow für
   - Rechts oben: `tvCareerSeason` (`Saison X`, 14sp)
   - Links unten (unter `tvCareerName`): `tvCareerPlayer` (`<Flagge> <Spielername>`) und darunter `tvCareerProfile` (`Profil: <Name>`)
   - Rechts unten: `tvCareerLevel` (`Level X`, 14sp)
-  - Zudem zeigen die Kacheln und die Übersicht (`tvCareerOverviewDetails`) konsistent Level, Profilnamen, aktuelle Saison sowie Spielernamen inklusive Landesflagge (über `UiHelper.formatFlagAndText`) an.
+  - Zudem zeigen die Kacheln und die Übersicht (über `tvCareerOverviewLabel`, `tvCareerOverviewName`, `tvCareerOverviewPlayer`, `tvCareerOverviewMeta` und `tvCareerOverviewProfile`) konsistent Level, Profilnamen, aktuelle Saison sowie Spielernamen inklusive Landesflagge (über `UiHelper.formatFlagAndText`) an.
 * **Tab-Navigation in der Karriere-Ansicht:** Statt einzelner dicker Buttons nutzt die `CareerDetailActivity` eine übersichtliche **Tab-Navigation** für die drei Kernbereiche:
   1. **Saisonkalender:** Chronologische Übersicht aller 74 Turniere der aktiven Saison.
   2. **Turnieransicht:** Rundenübersicht, Gruppenphase (beim Grand Slam of Darts) und Match-Steuerung des aktiven oder ausgewählten Turniers.

@@ -20,15 +20,58 @@
             app:cardCornerRadius="12dp"
             app:strokeWidth="0dp">
 
-            <TextView
-                android:id="@+id/tvCareerOverviewDetails"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:orientation="vertical"
                 android:padding="16dp"
-                android:textAlignment="center"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                tools:text="Aktuelle Karriere:\nMeine Karriere\nLevel: 5" />
+                android:gravity="center_horizontal">
+
+                <TextView
+                    android:id="@+id/tvCareerOverviewLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/career_overview_header"
+                    android:textSize="13sp"
+                    android:textColor="?attr/colorOnSurfaceVariant" />
+
+                <TextView
+                    android:id="@+id/tvCareerOverviewName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    tools:text="Meine Karriere" />
+
+                <TextView
+                    android:id="@+id/tvCareerOverviewPlayer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    tools:text="🇩🇪 Max Verstappen" />
+
+                <TextView
+                    android:id="@+id/tvCareerOverviewMeta"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:textSize="14sp"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    tools:text="Saison 1 • Level 5" />
+
+                <TextView
+                    android:id="@+id/tvCareerOverviewProfile"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:textSize="14sp"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    tools:text="Profil: Pro Player" />
+
+            </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
         <TextView
