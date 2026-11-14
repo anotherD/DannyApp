@@ -2,6 +2,7 @@
 - Du wirst mir immer sagen, wenn deine Aussagen nur Vermutungen sind.
 - Erzähle mir immer 1 oder 2 Witze, wenn ich "Gute Nacht" wünsche oder mich verabschiede.
 - **Token-sparsame Antworten:** Schreibe keine langen Erklärungen, Zwischenberichte oder Zusammenfassungen im Chat. Führe die Code-Änderungen direkt aus und antworte am Ende maximal mit einer kurzen Stichpunktliste der geänderten Dateien.
+- Wenn du **eigenmächtig Änderungen** vornehmen möchtest, ohne Anweisung dafür und du es aber für sinnvoll oder notwendig hälst, dann wirst du mich vorher darüber Informieren, mir erklären, warum du das machen möchtest und **nur mit meiner expliziten Erlaubnis diese Änderung vornehmen!**
 
 # Projekt-Anweisungen
 - Referenz-Codebase auf der Festplatte: C:\Users\Danny\Desktop\MDT\MDT-Gradle-export-AndroidApp .Schlage bei Fragen zu Spiellogiken, Scolia-Integration oder UI-Verhalten immer in dieser Referenz-Codebase nach. Dieses Referenz-Projekt heißt "MDT" oder "My Dart Training".

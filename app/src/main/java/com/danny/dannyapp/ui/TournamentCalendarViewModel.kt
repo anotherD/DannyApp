@@ -10,14 +10,13 @@ import com.danny.dannyapp.data.db.Tournament
 import com.danny.dannyapp.data.db.TournamentMatch
 import com.danny.dannyapp.data.db.TournamentPlacement
 import com.danny.dannyapp.data.db.USER_ID
-import com.danny.dannyapp.domain.usecase.AdvanceTournamentRoundUseCase
 import com.danny.dannyapp.domain.usecase.GenerateBracketUseCase
 import com.danny.dannyapp.domain.usecase.GenerateSeasonCalendarUseCase
-import com.danny.dannyapp.domain.usecase.SimulateCpuMatchUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import com.danny.dannyapp.domain.model.TournamentRound
+import com.danny.dannyapp.ui.model.PlayerUiInfo
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
@@ -32,7 +31,7 @@ data class TournamentUiModel(
     val status: TournamentStatus,
     val isNextPlanned: Boolean,
     val winnerName: String?,
-    val qualifierWinners: List<Pair<String, String>>?,
+    val qualifierWinners: List<PlayerUiInfo>?,
     val userReachedRound: String?,
     val activeRoundName: String?
 )
@@ -134,7 +133,7 @@ class TournamentCalendarViewModel(application: Application) : AndroidViewModel(a
             }
 
             var winnerName: String? = null
-            var qualifierWinners: List<Pair<String, String>>? = null
+            var qualifierWinners: List<PlayerUiInfo>? = null
             var userReachedRound: String? = null
             var activeRoundName: String? = null
 
@@ -144,12 +143,12 @@ class TournamentCalendarViewModel(application: Application) : AndroidViewModel(a
                 if (isMultiWinnerQualifier) {
                     val qualFinalMatches = matches.filter { it.round == TournamentRound.QUAL_FINAL.name }.sortedBy { it.matchIndex }
                     qualifierWinners = qualFinalMatches.mapNotNull { m ->
-                        val wId = m.winnerId ?: return@mapNotNull null
-                        if (wId == USER_ID) {
-                            Pair("Du", userCountryCode)
+                        val winnerId = m.winnerId ?: return@mapNotNull null
+                        if (winnerId == USER_ID) {
+                            PlayerUiInfo(id = USER_ID, name = "Du", countryCode = userCountryCode)
                         } else {
-                            val p = allPlayers[wId]
-                            Pair(p?.name ?: "CPU #${wId}", p?.countryCode ?: "XYZ")
+                            val p = allPlayers[winnerId]
+                            PlayerUiInfo(id = winnerId, name = p?.name ?: "CPU #${winnerId}", countryCode = p?.countryCode ?: "XYZ", skill = p?.skill ?: 5)
                         }
                     }
                 } else {

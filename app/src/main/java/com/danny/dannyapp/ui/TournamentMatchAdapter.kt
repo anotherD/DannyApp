@@ -10,27 +10,8 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
-import com.danny.dannyapp.data.db.TournamentMatch
+import com.danny.dannyapp.ui.model.MatchUiModel
 import com.google.android.material.card.MaterialCardView
-
-data class MatchUiModel(
-    val match: TournamentMatch,
-    val player1Name: String,
-    val player1Seed: Int?,
-    val player1Flag: String,
-    val player1CountryCode: String,
-    val player1Skill: Int,
-    val player2Name: String,
-    val player2Seed: Int?,
-    val player2Flag: String,
-    val player2CountryCode: String,
-    val player2Skill: Int,
-    val isUserMatch: Boolean,
-    val isCompleted: Boolean,
-    val winnerId: Long?,
-    val scoreText: String,
-    val roundDisplayName: String
-)
 
 class TournamentMatchAdapter(
     private val onMatchClick: (MatchUiModel) -> Unit
@@ -61,11 +42,11 @@ class TournamentMatchAdapter(
         val groupPrefix = if (!match.groupName.isNullOrBlank()) "Gruppe ${match.groupName} • " else ""
         holder.tvMatchRoundIndex.text = "${groupPrefix}#${match.matchIndex + 1}"
 
-        bindPlayerFlag(context, holder.tvPlayer1Flag, item.player1CountryCode)
-        UiHelper.bindSmartPlayerName(holder.tvPlayer1Name, item.player1Name, item.player1CountryCode, item.player1Seed, isLeft = true)
+        bindPlayerFlag(context, holder.tvPlayer1Flag, item.player1.countryCode ?: "XYZ")
+        UiHelper.bindSmartPlayerName(holder.tvPlayer1Name, item.player1, isLeft = true)
 
-        bindPlayerFlag(context, holder.tvPlayer2Flag, item.player2CountryCode)
-        UiHelper.bindSmartPlayerName(holder.tvPlayer2Name, item.player2Name, item.player2CountryCode,item.player2Seed, isLeft = false)
+        bindPlayerFlag(context, holder.tvPlayer2Flag, item.player2.countryCode ?: "XYZ")
+        UiHelper.bindSmartPlayerName(holder.tvPlayer2Name, item.player2, isLeft = false)
 
         if (item.isCompleted) {
             holder.tvPlayer1Score.text = match.player1Score.toString()

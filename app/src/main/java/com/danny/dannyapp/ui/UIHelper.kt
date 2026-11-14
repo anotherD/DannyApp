@@ -14,6 +14,7 @@ import androidx.core.graphics.withSave
 import androidx.core.view.doOnPreDraw
 import com.danny.dannyapp.R
 import com.danny.dannyapp.data.Country
+import com.danny.dannyapp.ui.model.PlayerUiInfo
 
 object UiHelper {
 
@@ -102,12 +103,13 @@ object UiHelper {
     // TODO: Warum wird hier nicht der player übergeben? Weil er schon in den aufrufern nur als string zur verfügung steht-> refactor
     fun bindSmartPlayerName(
         textView: TextView,
-        name: String,
-        countryCode: String? = null,
-        seed: Int? = null,
+        player: PlayerUiInfo,
         isLeft: Boolean = true,
     ) {
         val context = textView.context
+        val name = player.name
+        val countryCode = player.countryCode
+        val seed = player.seed
 
         fun setFormattedText(playerText: String) {
             val textWithSeed = if (seed != null) {

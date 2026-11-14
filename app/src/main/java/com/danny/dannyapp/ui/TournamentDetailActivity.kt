@@ -1,7 +1,6 @@
 package com.danny.dannyapp.ui
 
 import android.content.res.ColorStateList
-import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
 import android.text.InputType
@@ -29,10 +28,10 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
+import com.danny.dannyapp.ui.model.MatchUiModel
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
-import com.google.android.material.color.MaterialColors
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 
@@ -527,7 +526,7 @@ class TournamentDetailActivity : BaseActivity() {
                                             setTextColor(ContextCompat.getColor(this@TournamentDetailActivity, typedValue.resourceId))
                                         }
                                     }
-                                    UiHelper.bindSmartPlayerName(tvPlayer, player.name, player.countryCode, player.seed, isLeft = true)
+                                    UiHelper.bindSmartPlayerName(tvPlayer, player, isLeft = true)
                                     rowLayout.addView(tvPlayer)
                                 }
 
@@ -736,18 +735,18 @@ class TournamentDetailActivity : BaseActivity() {
         }
 
         val tvInfo = TextView(this).apply {
-            text = "${matchModel.player1Name} vs ${matchModel.player2Name}\nRunde: ${matchModel.roundDisplayName}"
+            text = "${matchModel.player1.name} vs ${matchModel.player2.name}\nRunde: ${matchModel.roundDisplayName}"
             setPadding(0, 0, 0, 20)
             textSize = 14f
         }
 
         val etP1 = EditText(this).apply {
-            hint = "${matchModel.player1Name} Score"
+            hint = "${matchModel.player1.name} Score"
             inputType = InputType.TYPE_CLASS_NUMBER
         }
 
         val etP2 = EditText(this).apply {
-            hint = "${matchModel.player2Name} Score"
+            hint = "${matchModel.player2.name} Score"
             inputType = InputType.TYPE_CLASS_NUMBER
         }
 

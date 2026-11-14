@@ -1,22 +1,14 @@
 package com.danny.dannyapp.ui
 
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Paint
-import android.graphics.drawable.Drawable
-import android.text.SpannableStringBuilder
-import android.text.Spanned
-import android.text.TextUtils
-import android.text.style.ImageSpan
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import androidx.core.content.ContextCompat
-import androidx.core.view.doOnPreDraw
 import com.danny.dannyapp.R
-import com.danny.dannyapp.data.Country
 import com.danny.dannyapp.data.db.Tournament
 import com.danny.dannyapp.domain.model.TournamentEvent
+import com.danny.dannyapp.ui.model.PlayerUiInfo
 import com.google.android.material.card.MaterialCardView
 
 object TournamentUiHelper {
@@ -161,7 +153,7 @@ object TournamentUiHelper {
         context: Context,
         headerTextView: TextView,
         containerLayout: android.widget.LinearLayout,
-        winners: List<Pair<String, String>>?,
+        winners: List<PlayerUiInfo>?,
         textSizeSp: Float = 13f,
         textColorResId: Int? = null
     ) {
@@ -185,7 +177,7 @@ object TournamentUiHelper {
                     weightSum = 2f
                 }
 
-                rowWinners.forEach { (name, countryCode) ->
+                rowWinners.forEach { player ->
                     val tvRow = TextView(context).apply {
                         layoutParams = android.widget.LinearLayout.LayoutParams(
                             0,
@@ -203,7 +195,7 @@ object TournamentUiHelper {
                             }
                         }
                     }
-                    UiHelper.bindSmartPlayerName(tvRow, name, countryCode)
+                    UiHelper.bindSmartPlayerName(tvRow, player)
                     rowLayout.addView(tvRow)
                 }
 
