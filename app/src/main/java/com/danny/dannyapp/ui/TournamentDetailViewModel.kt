@@ -92,10 +92,16 @@ sealed interface TournamentDetailState {
         val tournament: Tournament,
         val event: TournamentEvent,
         val winnerName: String,
-        val winnerCountryCode: String,
+
+         val winnerFlag: String,
+//        val winnerCountryCode: String,
+
         val finalScoreText: String,
         val opponentName: String,
-        val opponentCountryCode: String,
+
+        val opponentFlag: String,
+//        val opponentCountryCode: String,
+
         val userReachedRoundText: String,
         val userEarnedPrizeMoneyText: String,
         val availableRounds: List<String>,
@@ -237,7 +243,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         careerName: String,
         seasonNumber: Int
     ) {
-        val host = tournament.hostCountry ?: "ENG"
+        val host = tournament.hostCountry ?: "XYZ"
         val city = TournamentUiHelper.getTournamentCity(host, tournament.name)
         val flag = Country.getFlagEmoji(host)
         val typeBadgeInfo = TournamentUiHelper.getTournamentTypeBadgeInfo(getApplication(), tournament.type)
@@ -443,29 +449,55 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         val userName = careerWithProfile?.playerName?.ifBlank { null } ?: careerWithProfile?.profileName ?: careerWithProfile?.career?.name ?: "Du"
         val userCountryCode = careerWithProfile?.countryCode ?: "DEU"
 
+////////////////////////////////////////////////////////////////
         val winnerId = finalMatch?.winnerId
-        val (winnerName, winnerCountryCode) = if (winnerId != null) {
+        val (winnerName, winnerFlag) = if (winnerId != null) {
             if (winnerId == USER_ID) {
-                Pair(userName, userCountryCode)
+                Pair(userName, Country.getFlagEmoji(userCountryCode))
             } else {
                 val p = allPlayersMap[winnerId]
-                Pair(p?.name ?: "Unbekannt", p?.countryCode ?: "ENG")
+                Pair(p?.name ?: "Unbekannt", Country.getFlagEmoji(p?.countryCode ?: "XYZ"))
             }
-        } else Pair("Unbekannt", "ENG")
+        } else Pair("Unbekannt", "🌐")
 
         val opponentId = if (winnerId != null && finalMatch != null) {
             if (finalMatch.player1Id == winnerId) finalMatch.player2Id else finalMatch.player1Id
         } else null
 
-        val (opponentName, opponentCountryCode) = if (opponentId != null) {
+        val (opponentName, opponentFlag) = if (opponentId != null) {
             if (opponentId == USER_ID) {
-                Pair(userName, userCountryCode)
+                Pair(userName, Country.getFlagEmoji(userCountryCode))
             } else {
                 val p = allPlayersMap[opponentId]
-                Pair(p?.name ?: "Unbekannt", p?.countryCode ?: "ENG")
+                Pair(p?.name ?: "Unbekannt", Country.getFlagEmoji(p?.countryCode ?: "XYZ"))
             }
-        } else Pair("Unbekannt", "ENG")
+        } else Pair("Unbekannt", "🌐")
 
+////////////////////////////////////////////////////////////////
+//        val winnerId = finalMatch?.winnerId
+//        val (winnerName, winnerCountryCode) = if (winnerId != null) {
+//            if (winnerId == USER_ID) {
+//                Pair(userName, userCountryCode)
+//            } else {
+//                val p = allPlayersMap[winnerId]
+//                Pair(p?.name ?: "Unbekannt", p?.countryCode ?: "XYZ")
+//            }
+//        } else Pair("Unbekannt", "XYZ")
+//
+//        val opponentId = if (winnerId != null && finalMatch != null) {
+//            if (finalMatch.player1Id == winnerId) finalMatch.player2Id else finalMatch.player1Id
+//        } else null
+//
+//        val (opponentName, opponentCountryCode) = if (opponentId != null) {
+//            if (opponentId == USER_ID) {
+//                Pair(userName, userCountryCode)
+//            } else {
+//                val p = allPlayersMap[opponentId]
+//                Pair(p?.name ?: "Unbekannt", p?.countryCode ?: "XYZ")
+//            }
+//        } else Pair("Unbekannt", "XYZ")
+
+////////////////////////////////////////////////////////////////
         val finalScoreText = if (finalMatch != null) "${finalMatch.player1Score} : ${finalMatch.player2Score}" else "-"
 
         val placements = tournamentPlacementDao.getPlacementsListForTournament(tournament.id)
@@ -522,7 +554,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
                     Pair(userName, userCountryCode)
                 } else {
                     val p = allPlayersMap[wId]
-                    Pair(p?.name ?: "CPU #${wId}", p?.countryCode ?: "ENG")
+                    Pair(p?.name ?: "CPU #${wId}", p?.countryCode ?: "XYZ")
                 }
             }
         } else emptyList()
@@ -537,10 +569,16 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             tournament = tournament,
             event = event,
             winnerName = winnerName,
-            winnerCountryCode = winnerCountryCode,
+
+            winnerFlag = winnerFlag,
+//            winnerCountryCode = winnerCountryCode,
+
             finalScoreText = finalScoreText,
             opponentName = opponentName,
-            opponentCountryCode = opponentCountryCode,
+
+            opponentFlag = opponentFlag,
+//            opponentCountryCode = opponentCountryCode,
+
             userReachedRoundText = userReachedRoundText,
             userEarnedPrizeMoneyText = userEarnedPrizeMoneyText,
             availableRounds = availableRounds,
@@ -584,15 +622,15 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             }
             else -> {
                 val p = allPlayersMap[m.player1Id]
-                Pair(p?.name ?: "CPU #${m.player1Id}", Country.getFlagEmoji(p?.countryCode ?: "ENG"))
+                Pair(p?.name ?: "CPU #${m.player1Id}", Country.getFlagEmoji(p?.countryCode ?: "XYZ"))
             }
         }
         val p1Seed = if (m.player1Id != -998L && m.player1Id != -999L) seededPlayerMap[m.player1Id] else null
 
         val p1CountryCode = when (m.player1Id) {
             USER_ID -> userCountryCode
-            -998L, -999L -> "ENG"
-            else -> allPlayersMap[m.player1Id]?.countryCode ?: "ENG"
+            -998L, -999L -> "XYZ"
+            else -> allPlayersMap[m.player1Id]?.countryCode ?: "XYZ"
         }
         val (p2Name, p2Flag) = when (m.player2Id) {
             USER_ID -> Pair(userName, Country.getFlagEmoji(userCountryCode))
@@ -606,15 +644,15 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             }
             else -> {
                 val p = allPlayersMap[m.player2Id]
-                Pair(p?.name ?: "CPU #${m.player2Id}", Country.getFlagEmoji(p?.countryCode ?: "ENG"))
+                Pair(p?.name ?: "CPU #${m.player2Id}", Country.getFlagEmoji(p?.countryCode ?: "XYZ"))
             }
         }
         val p2Seed = if (m.player2Id != -998L && m.player2Id != -999L) seededPlayerMap[m.player2Id] else null
 
         val p2CountryCode = when (m.player2Id) {
             USER_ID -> userCountryCode
-            -998L, -999L -> "ENG"
-            else -> allPlayersMap[m.player2Id]?.countryCode ?: "ENG"
+            -998L, -999L -> "XYZ"
+            else -> allPlayersMap[m.player2Id]?.countryCode ?: "XYZ"
         }
 
         val p1Skill = if (isP1User) userLevel else allPlayersMap[m.player1Id]?.skill ?: 5
@@ -1354,7 +1392,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
 
         fun createEntrantPlayerInfo(id: Long, rank: Int?): EntrantPlayerInfo {
             val name = if (id == USER_ID) userName else allPlayersMap[id]?.name ?: "CPU #$id"
-            val country = if (id == USER_ID) userCountryCode else allPlayersMap[id]?.countryCode ?: "ENG"
+            val country = if (id == USER_ID) userCountryCode else allPlayersMap[id]?.countryCode ?: "XYZ"
             return EntrantPlayerInfo(id = id, name = name, countryCode = country, seed = rank)
         }
 

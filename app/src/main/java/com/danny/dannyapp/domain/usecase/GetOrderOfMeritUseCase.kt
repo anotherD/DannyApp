@@ -120,7 +120,7 @@ class GetOrderOfMeritUseCase(
             } else {
                 val player = playerMap[playerId]
                 name = player?.name ?: "Unknown"
-                countryCode = player?.countryCode ?: "ENG"
+                countryCode = player?.countryCode ?: "XYZ"
                 skill = player?.skill ?: 5
             }
 

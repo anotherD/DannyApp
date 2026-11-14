@@ -149,7 +149,7 @@ class TournamentCalendarViewModel(application: Application) : AndroidViewModel(a
                             Pair("Du", userCountryCode)
                         } else {
                             val p = allPlayers[wId]
-                            Pair(p?.name ?: "CPU #${wId}", p?.countryCode ?: "ENG")
+                            Pair(p?.name ?: "CPU #${wId}", p?.countryCode ?: "XYZ")
                         }
                     }
                 } else {

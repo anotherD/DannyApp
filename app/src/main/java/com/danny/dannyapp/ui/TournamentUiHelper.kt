@@ -185,13 +185,15 @@ object TournamentUiHelper {
         context: Context,
         textView: TextView,
         countryCode: String,
-        text: String,
-        prefix: String = ""
+        text: String
+//        prefix: String = "" // war nicht da
     ) {
         val flagResId = Country.getFlagResId(countryCode)
         if (flagResId != null) {
-            val spanText = if (text.isEmpty()) "${prefix} " else "${prefix}   $text"
-            val spanBuilder = SpannableStringBuilder(spanText)
+            // Sonderfall Nordirland (kein Country.getFlagEmoji(countryCode))
+            val spanBuilder = SpannableStringBuilder("   $text")
+//            val spanText = if (text.isEmpty()) "${prefix} " else "${prefix}   $text"
+//            val spanBuilder = SpannableStringBuilder(spanText)
             val drawable = ContextCompat.getDrawable(context, flagResId)
             if (drawable != null) {
                 val heightPx = (textView.textSize * 1.17f).toInt()
@@ -202,15 +204,19 @@ object TournamentUiHelper {
                 }
                 drawable.setBounds(0, 0, widthPx, heightPx)
                 val imageSpan = VerticalCenteredImageSpan(drawable, verticalOffsetPx = 9)
-                val start = prefix.length
-                val end = start + 1
-                spanBuilder.setSpan(imageSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+
+                spanBuilder.setSpan(imageSpan, 0, 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+//                val start = prefix.length
+//                val end = start + 1
+//                spanBuilder.setSpan(imageSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+
                 textView.text = spanBuilder
                 return
             }
         }
         val flagEmoji = Country.getFlagEmoji(countryCode)
-        textView.text = if (text.isEmpty()) "$prefix$flagEmoji" else "$prefix$flagEmoji $text"
+        textView.text = "$flagEmoji $text"
+//        textView.text = if (text.isEmpty()) "$prefix$flagEmoji" else "$prefix$flagEmoji $text"
     }
 
     fun abbreviateName(name: String): String {
@@ -394,7 +400,7 @@ object TournamentUiHelper {
         tvTournamentStatus.text = statusBadgeInfo.text
         tvTournamentStatus.background?.setTint(ContextCompat.getColor(context, statusBadgeInfo.colorResId))
 
-        val host = tournament.hostCountry ?: "ENG"
+        val host = tournament.hostCountry ?: "XYZ"
         val city = getTournamentCity(host, tournament.name)
         formatFlagAndText(context, tvTournamentDetails, host, city)
 
@@ -448,7 +454,7 @@ object TournamentUiHelper {
         tvTypeBadge.text = typeBadgeInfo.text
         tvTypeBadge.backgroundTintList = ContextCompat.getColorStateList(context, typeBadgeInfo.colorResId)
 
-        val host = tournament.hostCountry ?: "ENG"
+        val host = tournament.hostCountry ?: "XYZ"
         val city = getTournamentCity(host, tournament.name)
         formatFlagAndText(context, tvHost, host, city)
 

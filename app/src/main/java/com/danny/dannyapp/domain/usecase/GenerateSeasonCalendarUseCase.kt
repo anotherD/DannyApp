@@ -65,7 +65,7 @@ class GenerateSeasonCalendarUseCase(
         )
 
         fun addPc() {
-            val host = pcHostCountries.getOrElse(pcIndex - 1) { "ENG" }
+            val host = pcHostCountries.getOrElse(pcIndex - 1) { "XYZ" }
             rawList.add(Triple("Players Championship $pcIndex", TournamentEvent.PLAYERS_CHAMPIONSHIP.name, host))
             pcIndex++
         }
