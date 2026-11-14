@@ -117,7 +117,6 @@ object UiHelper {
     //   ein Match
     //   die Liste der Spieler in Lostöpfen: TournamentDetailActivity:530
     //   die siegerliste bei abgeschlossenen turnieren
-    // TODO: Warum wird hier nicht der player übergeben? Weil er schon in den aufrufern nur als string zur verfügung steht-> refactor
     fun bindSmartPlayerName(
         textView: TextView,
         player: PlayerUiInfo,

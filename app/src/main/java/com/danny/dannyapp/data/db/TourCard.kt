@@ -7,6 +7,8 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 
 const val USER_ID = -1L
+const val PLACEHOLDER_OPEN_DRAW_ID = -998L
+const val PLACEHOLDER_PREVIOUS_WINNER_ID = -999L
 
 @Entity(
     tableName = "tour_cards",

@@ -4,10 +4,11 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.danny.dannyapp.R
-import com.danny.dannyapp.data.Country
 import com.danny.dannyapp.data.SettingsManager
 import com.danny.dannyapp.data.db.AppDatabase
 import com.danny.dannyapp.data.db.CareerRepository
+import com.danny.dannyapp.data.db.PLACEHOLDER_OPEN_DRAW_ID
+import com.danny.dannyapp.data.db.PLACEHOLDER_PREVIOUS_WINNER_ID
 import com.danny.dannyapp.data.db.Tournament
 import com.danny.dannyapp.data.db.TournamentMatch
 import com.danny.dannyapp.data.db.USER_ID
@@ -21,12 +22,12 @@ import com.danny.dannyapp.domain.usecase.AdvanceTournamentRoundUseCase
 import com.danny.dannyapp.domain.usecase.GenerateBracketUseCase
 import com.danny.dannyapp.domain.usecase.GetOrderOfMeritUseCase
 import com.danny.dannyapp.domain.usecase.SimulateCpuMatchUseCase
-import kotlinx.coroutines.Job
 import com.danny.dannyapp.ui.model.EntrantGroupInfo
 import com.danny.dannyapp.ui.model.MatchUiModel
 import com.danny.dannyapp.ui.model.PlayerUiInfo
 import com.danny.dannyapp.ui.model.PrizeMoneyItem
 import com.danny.dannyapp.ui.model.RoundStatus
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -42,7 +43,8 @@ sealed interface TournamentDetailState {
     data class Preview(
         val tournament: Tournament,
         val event: TournamentEvent,
-        val hostCountryText: String,
+        val host: String,
+        val hostCountryCode: String,
         val totalPrizeFundText: String,
         val prizeMoneyItems: List<PrizeMoneyItem>,
         val isNextPlanned: Boolean,
@@ -53,6 +55,8 @@ sealed interface TournamentDetailState {
     data class Active(
         val tournament: Tournament,
         val event: TournamentEvent,
+        val host: String,
+        val hostCountryCode: String,
         val activeRoundDisplayName: String,
         val availableRounds: List<String>,
         val availableRoundDisplayNames: List<String>,
@@ -78,6 +82,8 @@ sealed interface TournamentDetailState {
     data class Review(
         val tournament: Tournament,
         val event: TournamentEvent,
+        val host: String,
+        val hostCountryCode: String,
         val winner: PlayerUiInfo,
         val userReachedRoundText: String,
         val userEarnedPrizeMoneyText: String,
@@ -220,12 +226,8 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         careerName: String,
         seasonNumber: Int
     ) {
-        val host = tournament.hostCountry ?: "XYZ"
-        val city = TournamentUiHelper.getTournamentCity(host, tournament.name)
-        val flag = Country.getFlagEmoji(host)
-        val typeBadgeInfo = TournamentUiHelper.getTournamentTypeBadgeInfo(getApplication(), tournament.type)
-        val venueFormat = getApplication<Application>().getString(R.string.tournament_venue_format, city, flag)
-        val hostText = "$venueFormat\n${typeBadgeInfo.text}"
+        val hostCountryCode = tournament.hostCountry ?: "XYZ"
+        val host = TournamentUiHelper.getTournamentCity(hostCountryCode, tournament.name)
 
         val totalPrize = if (event.totalPrizeFund > 0) {
             getApplication<Application>().getString(R.string.tournament_total_prize_fund_format, event.totalPrizeFund.toLong())
@@ -243,7 +245,8 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         _uiState.value = TournamentDetailState.Preview(
             tournament = tournament,
             event = event,
-            hostCountryText = hostText,
+            host = host,
+            hostCountryCode = hostCountryCode,
             totalPrizeFundText = totalPrize,
             prizeMoneyItems = items,
             isNextPlanned = isNextPlanned,
@@ -385,9 +388,14 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             }
         }
 
+        val hostCountryCode = tournament.hostCountry ?: "XYZ"
+        val host = TournamentUiHelper.getTournamentCity(hostCountryCode, tournament.name)
+
         _uiState.value = TournamentDetailState.Active(
             tournament = tournament,
             event = event,
+            host = host,
+            hostCountryCode = hostCountryCode,
             activeRoundDisplayName = activeRoundDisplayName,
             availableRounds = availableRounds,
             availableRoundDisplayNames = availableRoundDisplayNames,
@@ -507,10 +515,14 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             createMatchUiModel(m, userName, userCountryCode, userLevel, allPlayersMap, currentRoundKey, event, seededPlayerMap)
         }
         val prizeMoneyItems = getPrizeMoneyItems(event)
+        val hostCountryCode = tournament.hostCountry ?: "XYZ"
+        val host = TournamentUiHelper.getTournamentCity(hostCountryCode, tournament.name)
 
         _uiState.value = TournamentDetailState.Review(
             tournament = tournament,
             event = event,
+            host = host,
+            hostCountryCode = hostCountryCode,
             winner = winner,
             userReachedRoundText = userReachedRoundText,
             userEarnedPrizeMoneyText = userEarnedPrizeMoneyText,
@@ -528,6 +540,35 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         )
     }
 
+    /**
+     * Kapselt die Berechnung der Platzhalter-Spielernamen (PLACEHOLDER_OPEN_DRAW_ID / PLACEHOLDER_PREVIOUS_WINNER_ID),
+     * inklusive der European-Tour-L32-Überkreuz-Logik (Seed #1..#16 vs. Sieger Match #(16 - matchIndex)).
+     */
+    private fun resolvePlaceholderPlayerName(
+        playerId: Long,
+        matchIndex: Int,
+        isPlayer1: Boolean,
+        event: TournamentEvent,
+        roundKey: String,
+        app: Application
+    ): String? {
+        return when (playerId) {
+            PLACEHOLDER_OPEN_DRAW_ID -> app.getString(R.string.match_tbd_open_draw)
+            PLACEHOLDER_PREVIOUS_WINNER_ID -> {
+                if (event == TournamentEvent.EUROPEAN_TOUR && roundKey == TournamentRound.L32.name) {
+                    if (isPlayer1) {
+                        "Top 16 Seed #${matchIndex + 1}"
+                    } else {
+                        "Sieger Match #${16 - matchIndex}"
+                    }
+                } else {
+                    app.getString(R.string.tournament_placeholder_winner, 2 * matchIndex + if (isPlayer1) 1 else 2)
+                }
+            }
+            else -> null
+        }
+    }
+
     private fun createMatchUiModel(
         m: TournamentMatch,
         userName: String,
@@ -543,25 +584,19 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         val isP2User = (m.player2Id == USER_ID)
         val isUserMatch = isP1User || isP2User
 
-        val p1Name = when (m.player1Id) {
-            USER_ID -> userName
-            -998L -> app.getString(R.string.match_tbd_open_draw)
-            -999L -> {
-                if (event == TournamentEvent.EUROPEAN_TOUR && roundKey == TournamentRound.L32.name) {
-                    "Top 16 Seed #${m.matchIndex + 1}"
-                } else {
-                    app.getString(R.string.tournament_placeholder_winner, 2 * m.matchIndex + 1)
-                }
-            }
+        val p1Placeholder = resolvePlaceholderPlayerName(m.player1Id, m.matchIndex, true, event, roundKey, app)
+        val p1Name = when {
+            m.player1Id == USER_ID -> userName
+            p1Placeholder != null -> p1Placeholder
             else -> {
                 val p = allPlayersMap[m.player1Id]
                 p?.name ?: "CPU #${m.player1Id}"
             }
         }
-        val p1Seed = if (m.player1Id != -998L && m.player1Id != -999L) seededPlayerMap[m.player1Id] else null
+        val p1Seed = if (m.player1Id != PLACEHOLDER_OPEN_DRAW_ID && m.player1Id != PLACEHOLDER_PREVIOUS_WINNER_ID) seededPlayerMap[m.player1Id] else null
         val p1CountryCode = when (m.player1Id) {
             USER_ID -> userCountryCode
-            -998L, -999L -> null
+            PLACEHOLDER_OPEN_DRAW_ID, PLACEHOLDER_PREVIOUS_WINNER_ID -> null
             else -> allPlayersMap[m.player1Id]?.countryCode ?: "XYZ"
         }
         val p1Skill = if (isP1User) userLevel else allPlayersMap[m.player1Id]?.skill ?: 5
@@ -573,25 +608,19 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             skill = p1Skill
         )
 
-        val p2Name = when (m.player2Id) {
-            USER_ID -> userName
-            -998L -> app.getString(R.string.match_tbd_open_draw)
-            -999L -> {
-                if (event == TournamentEvent.EUROPEAN_TOUR && roundKey == TournamentRound.L32.name) {
-                    "Sieger Match #${16 - m.matchIndex}"
-                } else {
-                    app.getString(R.string.tournament_placeholder_winner, 2 * m.matchIndex + 2)
-                }
-            }
+        val p2Placeholder = resolvePlaceholderPlayerName(m.player2Id, m.matchIndex, false, event, roundKey, app)
+        val p2Name = when {
+            m.player2Id == USER_ID -> userName
+            p2Placeholder != null -> p2Placeholder
             else -> {
                 val p = allPlayersMap[m.player2Id]
                 p?.name ?: "CPU #${m.player2Id}"
             }
         }
-        val p2Seed = if (m.player2Id != -998L && m.player2Id != -999L) seededPlayerMap[m.player2Id] else null
+        val p2Seed = if (m.player2Id != PLACEHOLDER_OPEN_DRAW_ID && m.player2Id != PLACEHOLDER_PREVIOUS_WINNER_ID) seededPlayerMap[m.player2Id] else null
         val p2CountryCode = when (m.player2Id) {
             USER_ID -> userCountryCode
-            -998L, -999L -> null
+            PLACEHOLDER_OPEN_DRAW_ID, PLACEHOLDER_PREVIOUS_WINNER_ID -> null
             else -> allPlayersMap[m.player2Id]?.countryCode ?: "XYZ"
         }
         val p2Skill = if (isP2User) userLevel else allPlayersMap[m.player2Id]?.skill ?: 5
@@ -1283,9 +1312,9 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             val l48Matches = allMatches.filter { it.round == TournamentRound.L48.name }.sortedBy { it.matchIndex }
 
             return baseMatches.map { m ->
-                val s1 = top16Oom.getOrNull(m.matchIndex) ?: -999L
+                val s1 = top16Oom.getOrNull(m.matchIndex) ?: PLACEHOLDER_PREVIOUS_WINNER_ID
                 val l48Match = l48Matches.getOrNull(15 - m.matchIndex)
-                val s2 = if (l48Match?.isCompleted == true && l48Match.winnerId != null) l48Match.winnerId!! else -999L
+                val s2 = if (l48Match?.isCompleted == true && l48Match.winnerId != null) l48Match.winnerId!! else PLACEHOLDER_PREVIOUS_WINNER_ID
                 m.copy(player1Id = s1, player2Id = s2)
             }
         }

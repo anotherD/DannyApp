@@ -574,6 +574,7 @@ class TournamentDetailActivity : BaseActivity() {
                     this, tvReviewTitle, tvStatusBadgeReview, tvReviewTypeBadge, tvReviewHost,
                     state.tournament, getString(R.string.tournament_status_completed), R.color.status_completed, cardReviewSummary
                 )
+                UiHelper.formatFlagAndText(tvReviewHost, state.hostCountryCode, state.host)
 
                 currentEvent = state.event
 
