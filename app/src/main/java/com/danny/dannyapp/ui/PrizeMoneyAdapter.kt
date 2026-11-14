@@ -8,12 +8,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
-
-data class PrizeMoneyItem(
-    val roundName: String,
-    val matchDistanceText: String,
-    val prizeMoneyText: String
-)
+import com.danny.dannyapp.ui.model.PrizeMoneyItem
 
 class PrizeMoneyAdapter : ListAdapter<PrizeMoneyItem, PrizeMoneyAdapter.ViewHolder>(PrizeMoneyDiffCallback) {
 

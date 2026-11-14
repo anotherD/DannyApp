@@ -17,24 +17,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import com.danny.dannyapp.domain.model.TournamentRound
 import com.danny.dannyapp.ui.model.PlayerUiInfo
+import com.danny.dannyapp.ui.model.TournamentStatus
+import com.danny.dannyapp.ui.model.TournamentUiModel
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-
-enum class TournamentStatus {
-    COMPLETED, ACTIVE, PLANNED
-}
-
-data class TournamentUiModel(
-    val tournament: Tournament,
-    val status: TournamentStatus,
-    val isNextPlanned: Boolean,
-    val winnerName: String?,
-    val qualifierWinners: List<PlayerUiInfo>?,
-    val userReachedRound: String?,
-    val activeRoundName: String?
-)
 
 sealed interface TournamentCalendarState {
     object Loading : TournamentCalendarState

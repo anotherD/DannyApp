@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
+import com.danny.dannyapp.ui.model.TournamentUiModel
 
 class TournamentCalendarAdapter(
     private val onTournamentClick: (TournamentUiModel) -> Unit,

@@ -9,6 +9,8 @@ import com.danny.dannyapp.R
 import com.danny.dannyapp.data.db.Tournament
 import com.danny.dannyapp.domain.model.TournamentEvent
 import com.danny.dannyapp.ui.model.PlayerUiInfo
+import com.danny.dannyapp.ui.model.TournamentStatus
+import com.danny.dannyapp.ui.model.TournamentUiModel
 import com.google.android.material.card.MaterialCardView
 
 object TournamentUiHelper {

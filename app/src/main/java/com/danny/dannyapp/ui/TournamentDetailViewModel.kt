@@ -22,8 +22,11 @@ import com.danny.dannyapp.domain.usecase.GenerateBracketUseCase
 import com.danny.dannyapp.domain.usecase.GetOrderOfMeritUseCase
 import com.danny.dannyapp.domain.usecase.SimulateCpuMatchUseCase
 import kotlinx.coroutines.Job
+import com.danny.dannyapp.ui.model.EntrantGroupInfo
 import com.danny.dannyapp.ui.model.MatchUiModel
 import com.danny.dannyapp.ui.model.PlayerUiInfo
+import com.danny.dannyapp.ui.model.PrizeMoneyItem
+import com.danny.dannyapp.ui.model.RoundStatus
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -32,17 +35,6 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import java.util.Locale
 import kotlin.random.Random
-
-data class EntrantGroupInfo(
-    val title: String,
-    val players: List<PlayerUiInfo>
-)
-
-enum class RoundStatus {
-    COMPLETED,
-    ACTIVE,
-    PENDING
-}
 
 sealed interface TournamentDetailState {
     object Loading : TournamentDetailState
