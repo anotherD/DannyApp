@@ -97,7 +97,7 @@ class TournamentCalendarFragment : Fragment(R.layout.fragment_tournament_calenda
                                 }
                             }
                             if (state.tournaments.isEmpty()) {
-                                tvEmptyTournaments.text = "Keine Turniere vorhanden."
+                                tvEmptyTournaments.text = getString(R.string.no_tournaments_available)
                                 tvEmptyTournaments.visibility = TextView.VISIBLE
                                 rvTournaments.visibility = RecyclerView.GONE
                             } else {

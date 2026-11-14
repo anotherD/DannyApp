@@ -80,17 +80,18 @@ Jedes Turnier im Saisonkalender ist anklickbar und öffnet die Turnieransicht in
   - **Multi-Sieger-Qualifier:** Zeigt die formatierte Gewinner-Liste als **2-spaltige** vertikale Liste unter `@string/qualifier_winners_header` (`Qualifier-Gewinner:`) an.
 
 ### 3.1 Die Optionen für User-Matches (`USER_ID = -1L`)
-Ist ein offenes Match mit Beteiligung des Users an der Reihe, erhält der User beim Klick auf sein Match folgende Auswahlmöglichkeiten:
-1. **„Sieger festlegen (Sieg/Niederlage)“** *(nur sichtbar bei `debugMode == true`)*: Setzt direkt einen gültigen Sieg- oder Niederlagen-Spielstand passend zur `MatchDistance`.
-2. **„Ergebnis manuell eingeben“**: Öffnet einen Dialog zur direkten Eingabe der gewonnenen Legs/Sets (z. B. `6 : 4`). Validiert gegen `TournamentEvent.getMatchDistance(round)` (inkl. `twoClearLegsRule`), speichert das Ergebnis und triggert den Rundenfortschritt.
-3. **„Live spielen (GameEngine)`**: Übergibt Match-ID und `MatchDistance` (`bestOf`, `legsPerSet`, `twoClearLegsRule`, `SETS_DOUBLE_IN_OUT`) an die bestehende Match-/Scolia-Engine.
+Ist ein offenes Match mit Beteiligung des Users an der Reihe, erhält der User beim Klick auf sein Match folgende Auswahlmöglichkeiten (alle Dialog-Titel, Optionen, Buttons wie `Speichern`, `Abbrechen`, `OK` sowie Validierungsmeldungen stammen strikt aus `strings.xml`):
+1. **„Sieger festlegen (Sieg/Niederlage)“** *(nur sichtbar bei `debugMode == true`)*: Setzt direkt einen gültigen Sieg- oder Niederlagen-Spielstand passend zur `MatchDistance` (`user_match_option_set_winner`, `user_match_choice_win`, `user_match_choice_loss`).
+2. **„Ergebnis manuell eingeben“**: Öffnet einen Dialog zur direkten Eingabe der gewonnenen Legs/Sets (z. B. `6 : 4`). Validiert gegen `TournamentEvent.getMatchDistance(round)` (inkl. `twoClearLegsRule`, `score_validation_negative`, `score_validation_draw`, `score_validation_two_clear_legs`, `score_validation_best_of_legs`, `score_validation_best_of_sets`), speichert das Ergebnis und triggert den Rundenfortschritt.
+3. **„Live spielen (GameEngine)`**: Übergibt Match-ID und `MatchDistance` (`bestOf`, `legsPerSet`, `twoClearLegsRule`, `SETS_DOUBLE_IN_OUT`) an die bestehende Match-/Scolia-Engine (`user_match_live_placeholder`).
 
-### 3.2 Platzhalter-Konstanten & Enums (`Country`, `SkillLevel`, `TourCard.kt`, `TournamentDetailViewModel.kt`)
+### 3.2 Platzhalter-Konstanten, Enums & Lokalisierung (`Country`, `SkillLevel`, `TourCard.kt`, `TournamentDetailViewModel.kt`)
 * **`Country.DEFAULT_CODE = "XYZ"` & `Country.DEFAULT_USER_CODE = "DEU"`**: Zentrale Länder-Konstanten (Weltkugel-Fallback bzw. User-Profile-Default).
 * **`SkillLevel` (`domain/enums/SkillLevel.kt`):** Zentrales Enum für Spielstärken (Level 1–10, Default: `LEVEL_5` / `5`) mit Farbzuordnungen.
-* **`USER_ID = -1L`**: Repräsentiert den menschlichen Spieler (User) der Karriere in Spielern- und Match-Entitäten.
+* **`USER_ID = -1L`**: Repräsentiert den menschlichen Spieler (User) der Karriere in Spielern- und Match-Entitäten (UI-Fallback `Du` / `player_name_you`).
 * **`PLACEHOLDER_OPEN_DRAW_ID = -998L`**: Platzhalter-ID für offene Slots in noch nicht ausgelosten / offenen Runden (z. B. bei offenen Auslosungen wie UK Open oder European Open).
-* **`PLACEHOLDER_PREVIOUS_WINNER_ID = -999L`**: Platzhalter-ID für Sieger aus vorherigen Runden / Matches bzw. gesetzte Teilnehmer (inkl. der European-Tour-L32-Überkreuz-Logik von Seed #1–#16 gegen Sieger Match #(16 - matchIndex)).
+* **`PLACEHOLDER_PREVIOUS_WINNER_ID = -999L`**: Platzhalter-ID für Sieger aus vorherigen Runden / Matches bzw. gesetzte Teilnehmer (inkl. `tournament_placeholder_top16_seed` für *Top 16 Seed #%d*, `tournament_placeholder_winner_match` für *Sieger Match #%d* und European-Tour-L32-Überkreuz-Logik).
+* **Strikte `strings.xml`-Auslagerung:** Sämtliche UI-Texte, Dialog-Titel, Buttons, Status-Meldungen, Score-Validierungsfehler sowie Platzhalter (`Top 16 Seed #%d`, `Sieger Match #%d`, `Nicht qualifiziert`, `Turnier nicht gefunden.`, `Du`, `Unbekannt`, `Gruppe %1$s • #%2$d`, `Keine Turniere vorhanden.`, `Keine Ranglistendaten verfügbar.`) sind ohne hartcodierte deutsche Strings zentral in `strings.xml` ausgelagert.
 
 ---
 

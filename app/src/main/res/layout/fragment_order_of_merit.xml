@@ -21,7 +21,7 @@
         android:id="@+id/tvEmptyOom"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Keine Ranglistendaten verfügbar."
+        android:text="@string/no_oom_data_available"
         android:textSize="16sp"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"

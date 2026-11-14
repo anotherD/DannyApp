@@ -147,4 +147,52 @@
     <string name="entrant_reason_qualifier_seeds">Gesetzte Gruppenköpfe (Top %d OOM)</string>
     <string name="entrant_reason_qualifier_byes">Freilose (Order of Merit)</string>
     <string name="entrant_reason_round_winners">Sieger %1$s</string>
+
+    <!-- User-Match-Steuerung -->
+    <string name="user_match_control_title">User-Match Steuerung</string>
+    <string name="user_match_option_set_winner">Sieger festlegen (Sieg/Niederlage)</string>
+    <string name="user_match_option_manual_score">Ergebnis manuell eingeben</string>
+    <string name="user_match_option_live_game">Live spielen (GameEngine)</string>
+    <string name="user_match_choice_win">Sieg (Du gewinnst)</string>
+    <string name="user_match_choice_loss">Niederlage (Gegner gewinnt)</string>
+    <string name="user_match_live_placeholder">Die automatische Scolia- und GameEngine-Anbindung wird in der nächsten Ausbaustufe für Live-Matches verknüpft.</string>
+    <string name="user_match_set_winner_title">Sieger festlegen</string>
+    <string name="user_match_manual_info_format">%1$s vs %2$s\nRunde: %3$s</string>
+    <string name="user_match_player_score_hint">%s Score</string>
+    <string name="user_match_invalid_numbers">Bitte gültige Zahlen eingeben.</string>
+    <string name="dialog_save">Speichern</string>
+    <string name="dialog_cancel">Abbrechen</string>
+    <string name="dialog_ok">OK</string>
+    <string name="invalid_tournament_id">Ungültige Turnier-ID</string>
+
+    <!-- Turnier-Platzhalter & Status -->
+    <string name="tournament_placeholder_top16_seed">Top 16 Seed #%d</string>
+    <string name="tournament_placeholder_winner_match">Sieger Match #%d</string>
+    <string name="tournament_review_not_qualified">Nicht qualifiziert</string>
+    <string name="tournament_not_found">Turnier nicht gefunden.</string>
+    <string name="player_name_you">Du</string>
+    <string name="player_name_unknown">Unbekannt</string>
+    <string name="tournament_match_group_index_format">Gruppe %1$s • #%2$d</string>
+    <string name="tournament_match_index_format">#%d</string>
+
+    <!-- Score-Validierung -->
+    <string name="match_not_found">Match nicht gefunden.</string>
+    <string name="match_already_completed">Match ist bereits beendet.</string>
+    <string name="score_validation_negative">Scores dürfen nicht negativ sein.</string>
+    <string name="score_validation_draw">Es darf kein Unentschieden geben.</string>
+    <string name="score_validation_two_clear_legs">Ungültiges Leg-Ergebnis: Sieger benötigt %1$d Legs (mit 2 Legs Vorsprung) oder Tie-Break (%2$d:%3$d).</string>
+    <string name="score_validation_best_of_legs">Ungültiges Leg-Ergebnis für Best-of-%1$d: Sieger muss genau %2$d Legs haben.</string>
+    <string name="score_validation_best_of_sets">Ungültiges Set-Ergebnis für Best-of-%1$d Sets: Sieger muss genau %2$d Sets erreichen.</string>
+
+    <!-- Match-Format -->
+    <string name="match_format_legs">Legs</string>
+    <string name="match_format_sets_5legs">Sets (5 Legs/Set)</string>
+    <string name="match_format_sets_3legs">Sets (3 Legs/Set)</string>
+    <string name="match_format_sets_double_in_out">Sets (Double In/Out)</string>
+    <string name="match_format_two_clear_legs"> (2 Legs Vorsprung)</string>
+    <string name="match_format_best_of">Best of %1$d %2$s%3$s</string>
+
+    <!-- Kalender & Ranglisten -->
+    <string name="no_tournaments_available">Keine Turniere vorhanden.</string>
+    <string name="no_oom_data_available">Keine Ranglistendaten verfügbar.</string>
 </resources>

@@ -158,7 +158,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
 
             val targetTournament = tournamentDao.getTournamentById(tournamentId)
             if (targetTournament == null) {
-                _uiState.value = TournamentDetailState.Error("Turnier nicht gefunden.")
+                _uiState.value = TournamentDetailState.Error(getApplication<Application>().getString(R.string.tournament_not_found))
                 return@launch
             }
 
@@ -331,7 +331,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
 
         val careerWithProfile = careerRepository.getCareerById(currentCareerId)
         val userLevel = careerWithProfile?.career?.level?.coerceIn(1, 10) ?: 5
-        val userName = careerWithProfile?.playerName?.ifBlank { null } ?: careerWithProfile?.profileName ?: careerWithProfile?.career?.name ?: "Du"
+        val userName = careerWithProfile?.playerName?.ifBlank { null } ?: careerWithProfile?.profileName ?: careerWithProfile?.career?.name ?: getApplication<Application>().getString(R.string.player_name_you)
         val userCountryCode = careerWithProfile?.countryCode ?: "DEU"
 
         val allPlayersMap = playerDao.getAllPlayersList().associateBy { it.id }
@@ -433,7 +433,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
 
         val careerWithProfile = careerRepository.getCareerById(currentCareerId)
         val userLevel = careerWithProfile?.career?.level?.coerceIn(1, 10) ?: 5
-        val userName = careerWithProfile?.playerName?.ifBlank { null } ?: careerWithProfile?.profileName ?: careerWithProfile?.career?.name ?: "Du"
+        val userName = careerWithProfile?.playerName?.ifBlank { null } ?: careerWithProfile?.profileName ?: careerWithProfile?.career?.name ?: getApplication<Application>().getString(R.string.player_name_you)
         val userCountryCode = careerWithProfile?.countryCode ?: "DEU"
 
         val winnerId = finalMatch?.winnerId
@@ -444,20 +444,20 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
                 val p = allPlayersMap[winnerId]
                 PlayerUiInfo(
                     id = winnerId,
-                    name = p?.name ?: "Unbekannt",
+                    name = p?.name ?: getApplication<Application>().getString(R.string.player_name_unknown),
                     countryCode = p?.countryCode ?: "XYZ",
                     skill = p?.skill ?: 5
                 )
             }
         } else {
-            PlayerUiInfo(id = 0L, name = "Unbekannt", countryCode = "XYZ")
+            PlayerUiInfo(id = 0L, name = getApplication<Application>().getString(R.string.player_name_unknown), countryCode = "XYZ")
         }
 
         val placements = tournamentPlacementDao.getPlacementsListForTournament(tournament.id)
         val userPlacement = placements.find { it.playerId == USER_ID }
         val userReachedRoundText = if (userPlacement != null) {
             TournamentUiHelper.getDisplayRoundName(userPlacement.reachedRound, getApplication())
-        } else "Nicht qualifiziert"
+        } else getApplication<Application>().getString(R.string.tournament_review_not_qualified)
 
         val userEarnedPrizeMoneyText = if (userPlacement != null && userPlacement.prizeMoney > 0) {
             "£%,d".format(Locale.US, userPlacement.prizeMoney.toLong())
@@ -559,9 +559,9 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             PLACEHOLDER_PREVIOUS_WINNER_ID -> {
                 if (event == TournamentEvent.EUROPEAN_TOUR && roundKey == TournamentRound.L32.name) {
                     if (isPlayer1) {
-                        "Top 16 Seed #${matchIndex + 1}"
+                        app.getString(R.string.tournament_placeholder_top16_seed, matchIndex + 1)
                     } else {
-                        "Sieger Match #${16 - matchIndex}"
+                        app.getString(R.string.tournament_placeholder_winner_match, 16 - matchIndex)
                     }
                 } else {
                     app.getString(R.string.tournament_placeholder_winner, 2 * matchIndex + if (isPlayer1) 1 else 2)
@@ -926,10 +926,10 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
     }
 
     suspend fun setManualUserMatchScore(matchId: Long, p1Score: Int, p2Score: Int): String? {
-        val match = tournamentMatchDao.getMatchById(matchId) ?: return "Match nicht gefunden."
-        if (match.isCompleted) return "Match ist bereits beendet."
+        val match = tournamentMatchDao.getMatchById(matchId) ?: return getApplication<Application>().getString(R.string.match_not_found)
+        if (match.isCompleted) return getApplication<Application>().getString(R.string.match_already_completed)
 
-        val tournament = tournamentDao.getTournamentById(match.tournamentId) ?: return "Turnier nicht gefunden."
+        val tournament = tournamentDao.getTournamentById(match.tournamentId) ?: return getApplication<Application>().getString(R.string.tournament_not_found)
         val event = TournamentEvent.valueOf(tournament.type)
         val round = TournamentRound.valueOf(match.round)
         val dist = event.getMatchDistance(round)
@@ -972,8 +972,9 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
     }
 
     fun validateMatchScore(p1Score: Int, p2Score: Int, matchDistance: MatchDistance): String? {
-        if (p1Score < 0 || p2Score < 0) return "Scores dürfen nicht negativ sein."
-        if (p1Score == p2Score) return "Es darf kein Unentschieden geben."
+        val app = getApplication<Application>()
+        if (p1Score < 0 || p2Score < 0) return app.getString(R.string.score_validation_negative)
+        if (p1Score == p2Score) return app.getString(R.string.score_validation_draw)
 
         val target = (matchDistance.bestOf / 2) + 1
         val winScore = maxOf(p1Score, p2Score)
@@ -984,30 +985,31 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             if (matchDistance.twoClearLegsRule) {
                 val isValid = (winScore >= target && winScore - loseScore >= 2) || (winScore == maxLegs && winScore - loseScore >= 1)
                 if (!isValid) {
-                    return "Ungültiges Leg-Ergebnis: Sieger benötigt $target Legs (mit 2 Legs Vorsprung) oder Tie-Break ($maxLegs:${maxLegs-1})."
+                    return app.getString(R.string.score_validation_two_clear_legs, target, maxLegs, maxLegs - 1)
                 }
             } else {
                 if (winScore != target || loseScore >= target) {
-                    return "Ungültiges Leg-Ergebnis für Best-of-${matchDistance.bestOf}: Sieger muss genau $target Legs haben."
+                    return app.getString(R.string.score_validation_best_of_legs, matchDistance.bestOf, target)
                 }
             }
         } else {
             if (winScore != target || loseScore >= target) {
-                return "Ungültiges Set-Ergebnis für Best-of-${matchDistance.bestOf} Sets: Sieger muss genau $target Sets erreichen."
+                return app.getString(R.string.score_validation_best_of_sets, matchDistance.bestOf, target)
             }
         }
         return null
     }
 
     private fun formatMatchDistance(dist: MatchDistance): String {
+        val app = getApplication<Application>()
         val formatText = when (dist.format) {
-            MatchFormatType.LEGS -> "Legs"
-            MatchFormatType.SETS_BEST_OF_5_LEGS -> "Sets (5 Legs/Set)"
-            MatchFormatType.SETS_BEST_OF_3_LEGS -> "Sets (3 Legs/Set)"
-            MatchFormatType.SETS_DOUBLE_IN_OUT -> "Sets (Double In/Out)"
+            MatchFormatType.LEGS -> app.getString(R.string.match_format_legs)
+            MatchFormatType.SETS_BEST_OF_5_LEGS -> app.getString(R.string.match_format_sets_5legs)
+            MatchFormatType.SETS_BEST_OF_3_LEGS -> app.getString(R.string.match_format_sets_3legs)
+            MatchFormatType.SETS_DOUBLE_IN_OUT -> app.getString(R.string.match_format_sets_double_in_out)
         }
-        val clearText = if (dist.twoClearLegsRule) " (2 Legs Vorsprung)" else ""
-        return "Best of ${dist.bestOf} $formatText$clearText"
+        val clearText = if (dist.twoClearLegsRule) app.getString(R.string.match_format_two_clear_legs) else ""
+        return app.getString(R.string.match_format_best_of, dist.bestOf, formatText, clearText)
     }
 
     private fun getRoundSequence(
@@ -1354,7 +1356,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         val allPlayersMap = allPlayers.associateBy { it.id }
 
         val careerWithProfile = careerRepository.getCareerById(currentCareerId)
-        val userName = careerWithProfile?.playerName?.ifBlank { null } ?: careerWithProfile?.profileName ?: careerWithProfile?.career?.name ?: "Du"
+        val userName = careerWithProfile?.playerName?.ifBlank { null } ?: careerWithProfile?.profileName ?: careerWithProfile?.career?.name ?: getApplication<Application>().getString(R.string.player_name_you)
         val userCountryCode = careerWithProfile?.countryCode ?: "DEU"
 
         fun createEntrantPlayerInfo(id: Long, rank: Int?): PlayerUiInfo {

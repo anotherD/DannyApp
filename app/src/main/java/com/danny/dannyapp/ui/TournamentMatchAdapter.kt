@@ -37,8 +37,11 @@ class TournamentMatchAdapter(
         val match = item.match
         val context = holder.itemView.context
 
-        val groupPrefix = if (!match.groupName.isNullOrBlank()) "Gruppe ${match.groupName} • " else ""
-        holder.tvMatchRoundIndex.text = "${groupPrefix}#${match.matchIndex + 1}"
+        if (!match.groupName.isNullOrBlank()) {
+            holder.tvMatchRoundIndex.text = context.getString(R.string.tournament_match_group_index_format, match.groupName, match.matchIndex + 1)
+        } else {
+            holder.tvMatchRoundIndex.text = context.getString(R.string.tournament_match_index_format, match.matchIndex + 1)
+        }
 
         UiHelper.bindSmartPlayerName(holder.tvPlayer1Name, item.player1, isLeft = true)
         UiHelper.bindSmartPlayerName(holder.tvPlayer2Name, item.player2, isLeft = false)

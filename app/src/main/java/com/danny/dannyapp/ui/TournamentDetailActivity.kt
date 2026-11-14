@@ -204,7 +204,7 @@ class TournamentDetailActivity : BaseActivity() {
         if (tournamentId > 0L) {
             viewModel.loadTournament(tournamentId, careerId)
         } else {
-            Toast.makeText(this, "Ungültige Turnier-ID", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.invalid_tournament_id), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -682,43 +682,43 @@ class TournamentDetailActivity : BaseActivity() {
     }
 
     private fun showUserMatchOptionsDialog(matchModel: MatchUiModel) {
+        val setWinnerOption = getString(R.string.user_match_option_set_winner)
+        val manualScoreOption = getString(R.string.user_match_option_manual_score)
+        val liveGameOption = getString(R.string.user_match_option_live_game)
+
         val options = if (debugMode) {
-            arrayOf(
-                "Sieger festlegen (Sieg/Niederlage)",
-                "Ergebnis manuell eingeben",
-                "Live spielen (GameEngine)"
-            )
+            arrayOf(setWinnerOption, manualScoreOption, liveGameOption)
         } else {
-            arrayOf(
-                "Ergebnis manuell eingeben",
-                "Live spielen (GameEngine)"
-            )
+            arrayOf(manualScoreOption, liveGameOption)
         }
 
         AlertDialog.Builder(this)
-            .setTitle("User-Match Steuerung")
+            .setTitle(getString(R.string.user_match_control_title))
             .setItems(options) { _, which ->
                 val selectedOption = options[which]
-                when {
-                    selectedOption.startsWith("Sieger festlegen") -> showSetWinnerDialog(matchModel)
-                    selectedOption.startsWith("Ergebnis manuell") -> showManualScoreInputDialog(matchModel)
-                    selectedOption.startsWith("Live spielen") -> showLiveGameEnginePlaceholder()
+                when (selectedOption) {
+                    setWinnerOption -> showSetWinnerDialog(matchModel)
+                    manualScoreOption -> showManualScoreInputDialog(matchModel)
+                    liveGameOption -> showLiveGameEnginePlaceholder()
                 }
             }
-            .setNegativeButton("Abbrechen", null)
+            .setNegativeButton(getString(R.string.dialog_cancel), null)
             .show()
     }
 
     private fun showSetWinnerDialog(matchModel: MatchUiModel) {
-        val choices = arrayOf("Sieg (Du gewinnst)", "Niederlage (Gegner gewinnt)")
+        val choices = arrayOf(
+            getString(R.string.user_match_choice_win),
+            getString(R.string.user_match_choice_loss)
+        )
 
         AlertDialog.Builder(this)
-            .setTitle("Sieger festlegen")
+            .setTitle(getString(R.string.user_match_set_winner_title))
             .setItems(choices) { _, which ->
                 val userWins = (which == 0)
                 viewModel.setUserMatchWinner(matchModel.match.id, userWins)
             }
-            .setNegativeButton("Abbrechen", null)
+            .setNegativeButton(getString(R.string.dialog_cancel), null)
             .show()
     }
 
@@ -729,18 +729,18 @@ class TournamentDetailActivity : BaseActivity() {
         }
 
         val tvInfo = TextView(this).apply {
-            text = "${matchModel.player1.name} vs ${matchModel.player2.name}\nRunde: ${matchModel.roundDisplayName}"
+            text = getString(R.string.user_match_manual_info_format, matchModel.player1.name, matchModel.player2.name, matchModel.roundDisplayName)
             setPadding(0, 0, 0, 20)
             textSize = 14f
         }
 
         val etP1 = EditText(this).apply {
-            hint = "${matchModel.player1.name} Score"
+            hint = getString(R.string.user_match_player_score_hint, matchModel.player1.name)
             inputType = InputType.TYPE_CLASS_NUMBER
         }
 
         val etP2 = EditText(this).apply {
-            hint = "${matchModel.player2.name} Score"
+            hint = getString(R.string.user_match_player_score_hint, matchModel.player2.name)
             inputType = InputType.TYPE_CLASS_NUMBER
         }
 
@@ -749,10 +749,10 @@ class TournamentDetailActivity : BaseActivity() {
         layout.addView(etP2)
 
         val dialog = AlertDialog.Builder(this)
-            .setTitle("Ergebnis manuell eingeben")
+            .setTitle(getString(R.string.user_match_option_manual_score))
             .setView(layout)
-            .setPositiveButton("Speichern", null)
-            .setNegativeButton("Abbrechen", null)
+            .setPositiveButton(getString(R.string.dialog_save), null)
+            .setNegativeButton(getString(R.string.dialog_cancel), null)
             .create()
 
         dialog.setOnShowListener {
@@ -760,7 +760,7 @@ class TournamentDetailActivity : BaseActivity() {
                 val p1 = etP1.text.toString().toIntOrNull() ?: -1
                 val p2 = etP2.text.toString().toIntOrNull() ?: -1
                 if (p1 < 0 || p2 < 0) {
-                    Toast.makeText(this, "Bitte gültige Zahlen eingeben.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, getString(R.string.user_match_invalid_numbers), Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
                 }
                 lifecycleScope.launch {
@@ -778,9 +778,9 @@ class TournamentDetailActivity : BaseActivity() {
 
     private fun showLiveGameEnginePlaceholder() {
         AlertDialog.Builder(this)
-            .setTitle("Live spielen (GameEngine)")
-            .setMessage("Die automatische Scolia- und GameEngine-Anbindung wird in der nächsten Ausbaustufe für Live-Matches verknüpft.")
-            .setPositiveButton("OK", null)
+            .setTitle(getString(R.string.user_match_option_live_game))
+            .setMessage(getString(R.string.user_match_live_placeholder))
+            .setPositiveButton(getString(R.string.dialog_ok), null)
             .show()
     }
 
