@@ -28,9 +28,10 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
+import com.danny.dannyapp.domain.enums.TournamentEvent
+import com.danny.dannyapp.ui.enums.RoundStatus
 import com.danny.dannyapp.ui.model.MatchUiModel
 import com.danny.dannyapp.ui.model.PrizeMoneyItem
-import com.danny.dannyapp.ui.model.RoundStatus
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
@@ -53,7 +54,7 @@ class TournamentDetailActivity : BaseActivity() {
     private lateinit var tvPreviewPrizeFund: TextView
     private lateinit var btnPrizeInfoPreview: ImageView
     private lateinit var btnStartTournamentPreview: Button
-    private var currentEvent: com.danny.dannyapp.domain.model.TournamentEvent? = null
+    private var currentEvent: TournamentEvent? = null
 
     // Active
     private lateinit var cardActiveControls: MaterialCardView

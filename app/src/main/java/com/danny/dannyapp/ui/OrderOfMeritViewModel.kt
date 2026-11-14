@@ -4,8 +4,8 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.danny.dannyapp.data.db.AppDatabase
+import com.danny.dannyapp.domain.enums.OrderOfMeritType
 import com.danny.dannyapp.domain.model.OrderOfMeritEntry
-import com.danny.dannyapp.domain.model.OrderOfMeritType
 import com.danny.dannyapp.domain.usecase.GetOrderOfMeritUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

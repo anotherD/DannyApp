@@ -85,7 +85,9 @@ Ist ein offenes Match mit Beteiligung des Users an der Reihe, erhält der User b
 2. **„Ergebnis manuell eingeben“**: Öffnet einen Dialog zur direkten Eingabe der gewonnenen Legs/Sets (z. B. `6 : 4`). Validiert gegen `TournamentEvent.getMatchDistance(round)` (inkl. `twoClearLegsRule`), speichert das Ergebnis und triggert den Rundenfortschritt.
 3. **„Live spielen (GameEngine)`**: Übergibt Match-ID und `MatchDistance` (`bestOf`, `legsPerSet`, `twoClearLegsRule`, `SETS_DOUBLE_IN_OUT`) an die bestehende Match-/Scolia-Engine.
 
-### 3.2 Platzhalter-Konstanten in `TourCard.kt` & `TournamentDetailViewModel.kt`
+### 3.2 Platzhalter-Konstanten & Enums (`Country`, `SkillLevel`, `TourCard.kt`, `TournamentDetailViewModel.kt`)
+* **`Country.DEFAULT_CODE = "XYZ"` & `Country.DEFAULT_USER_CODE = "DEU"`**: Zentrale Länder-Konstanten (Weltkugel-Fallback bzw. User-Profile-Default).
+* **`SkillLevel` (`domain/enums/SkillLevel.kt`):** Zentrales Enum für Spielstärken (Level 1–10, Default: `LEVEL_5` / `5`) mit Farbzuordnungen.
 * **`USER_ID = -1L`**: Repräsentiert den menschlichen Spieler (User) der Karriere in Spielern- und Match-Entitäten.
 * **`PLACEHOLDER_OPEN_DRAW_ID = -998L`**: Platzhalter-ID für offene Slots in noch nicht ausgelosten / offenen Runden (z. B. bei offenen Auslosungen wie UK Open oder European Open).
 * **`PLACEHOLDER_PREVIOUS_WINNER_ID = -999L`**: Platzhalter-ID für Sieger aus vorherigen Runden / Matches bzw. gesetzte Teilnehmer (inkl. der European-Tour-L32-Überkreuz-Logik von Seed #1–#16 gegen Sieger Match #(16 - matchIndex)).

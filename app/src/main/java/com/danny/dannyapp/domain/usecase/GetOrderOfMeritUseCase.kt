@@ -1,6 +1,7 @@
 package com.danny.dannyapp.domain.usecase
 
 import android.content.Context
+import com.danny.dannyapp.data.Country
 import com.danny.dannyapp.data.db.AppDatabase
 import com.danny.dannyapp.data.db.CareerDao
 import com.danny.dannyapp.data.db.PlayerDao
@@ -9,8 +10,9 @@ import com.danny.dannyapp.data.db.Tournament
 import com.danny.dannyapp.data.db.TournamentDao
 import com.danny.dannyapp.data.db.TournamentPlacementDao
 import com.danny.dannyapp.data.db.USER_ID
+import com.danny.dannyapp.domain.enums.OrderOfMeritType
+import com.danny.dannyapp.domain.enums.SkillLevel
 import com.danny.dannyapp.domain.model.OrderOfMeritEntry
-import com.danny.dannyapp.domain.model.OrderOfMeritType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -47,8 +49,8 @@ class GetOrderOfMeritUseCase(
 
         val careerWithProfile = careerDao.getCareerById(careerId)
         val userName = careerWithProfile?.playerName?.ifBlank { null } ?: careerWithProfile?.profileName ?: careerWithProfile?.career?.name ?: "User"
-        val userCountryCode = careerWithProfile?.countryCode ?: "DEU"
-        val userSkill = careerWithProfile?.career?.level ?: 5
+        val userCountryCode = careerWithProfile?.countryCode ?: Country.DEFAULT_USER_CODE
+        val userSkill = careerWithProfile?.career?.level ?: SkillLevel.DEFAULT.value
 
         val seasonMap = seasons.associateBy { it.id }
 
@@ -120,8 +122,8 @@ class GetOrderOfMeritUseCase(
             } else {
                 val player = playerMap[playerId]
                 name = player?.name ?: "Unknown"
-                countryCode = player?.countryCode ?: "XYZ"
-                skill = player?.skill ?: 5
+                countryCode = player?.countryCode ?: Country.DEFAULT_CODE
+                skill = player?.skill ?: SkillLevel.DEFAULT.value
             }
 
             OrderOfMeritEntry(

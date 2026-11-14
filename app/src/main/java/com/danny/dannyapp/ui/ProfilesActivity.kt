@@ -107,16 +107,16 @@ class ProfilesActivity : BaseActivity() {
         val countryAdapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, countryDisplayList)
         actvCountry.setAdapter(countryAdapter)
 
-        // Default to Germany (DEU) if present
-        var selectedCountryCode = "DEU"
-        val defaultCountryIndex = countries.indexOfFirst { it.code.equals("DEU", ignoreCase = true) }
+        // Default to Country.DEFAULT_USER_CODE if present
+        var selectedCountryCode = Country.DEFAULT_USER_CODE
+        val defaultCountryIndex = countries.indexOfFirst { it.code.equals(Country.DEFAULT_USER_CODE, ignoreCase = true) }
         if (defaultCountryIndex >= 0) {
             actvCountry.setText(countryDisplayList[defaultCountryIndex], false)
             selectedCountryCode = countries[defaultCountryIndex].code
         }
 
         actvCountry.setOnItemClickListener { _, _, position, _ ->
-            selectedCountryCode = countries.getOrNull(position)?.code ?: "DEU"
+            selectedCountryCode = countries.getOrNull(position)?.code ?: Country.DEFAULT_USER_CODE
         }
 
         val dialog = MaterialAlertDialogBuilder(this)

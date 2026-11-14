@@ -1,8 +1,8 @@
 package com.danny.dannyapp.domain.usecase
 
+import com.danny.dannyapp.domain.enums.TournamentEvent
+import com.danny.dannyapp.domain.enums.TournamentRound
 import com.danny.dannyapp.domain.model.MatchPairing
-import com.danny.dannyapp.domain.model.TournamentEvent
-import com.danny.dannyapp.domain.model.TournamentRound
 
 object BracketGenerator {
 

@@ -11,6 +11,9 @@ data class Country(
     companion object {
         private const val TAG = "Country"
 
+        const val DEFAULT_CODE = "XYZ"
+        const val DEFAULT_USER_CODE = "DEU"
+
         private val HOME_NATIONS = mapOf(
             "ENG" to Pair("England", "🏴󠁧󠁢󠁥󠁮󠁧󠁿"),
             "SCO" to Pair("Schottland", "🏴󠁧󠁢󠁳󠁣󠁴󠁿"),

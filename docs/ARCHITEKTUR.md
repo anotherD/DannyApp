@@ -25,7 +25,12 @@ Die App folgt den empfohlenen Android-Architekturprinzipien mit **Model-View-Vie
 
 ---
 
-## 🗄️ 2. Room Datenbank Schema (`AppDatabase` v12)
+## 🗄️ 2. Room Datenbank Schema & Paketstruktur (`AppDatabase` v12)
+
+- **Domain Enums (`com.danny.dannyapp.domain.enums`):** `TournamentEvent`, `TournamentRound`, `OrderOfMeritType`, `MatchFormatType`, `SkillLevel`.
+- **UI Enums (`com.danny.dannyapp.ui.enums`):** `TournamentStatus`, `RoundStatus`.
+- **Zentrale Konstanten (`Country`):** `Country.DEFAULT_CODE = "XYZ"` (Fallback für unbekannte Länder), `Country.DEFAULT_USER_CODE = "DEU"` (Default für User-Profile).
+- **Skill-Stufen (`SkillLevel`):** Werte von `LEVEL_1` bis `LEVEL_10` (Default: `LEVEL_5`) mit zentralen Farbzuordnungen (`colors.xml`).
 
 ```mermaid
 erDiagram

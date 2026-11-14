@@ -17,9 +17,10 @@ import com.danny.dannyapp.data.db.TournamentMatchDao
 import com.danny.dannyapp.data.db.TournamentPlacement
 import com.danny.dannyapp.data.db.TournamentPlacementDao
 import com.danny.dannyapp.data.db.USER_ID
-import com.danny.dannyapp.domain.model.OrderOfMeritType
-import com.danny.dannyapp.domain.model.TournamentEvent
-import com.danny.dannyapp.domain.model.TournamentRound
+import com.danny.dannyapp.domain.enums.OrderOfMeritType
+import com.danny.dannyapp.domain.enums.SkillLevel
+import com.danny.dannyapp.domain.enums.TournamentEvent
+import com.danny.dannyapp.domain.enums.TournamentRound
 import com.danny.dannyapp.domain.usecase.AdvanceTournamentRoundUseCase
 import com.danny.dannyapp.domain.usecase.GenerateBracketUseCase
 import com.danny.dannyapp.domain.usecase.GetOrderOfMeritUseCase
@@ -158,7 +159,7 @@ class TournamentProgressionUseCaseTest {
         val sortedOomTc = tourCardPlayerIds.sortedWith(
             compareBy<Long> { playerMap[it]?.rank ?: Int.MAX_VALUE }
                 .thenByDescending { playerMap[it]?.prizeMoney ?: 0.0 }
-                .thenByDescending { if (it == USER_ID) 5 else dbPlayerMap[it]?.skill ?: 5 }
+                .thenByDescending { if (it == USER_ID) SkillLevel.DEFAULT.value else dbPlayerMap[it]?.skill ?: SkillLevel.DEFAULT.value }
                 .thenBy { if (it == USER_ID) "User" else dbPlayerMap[it]?.name ?: "" }
         )
         val top16Oom = sortedOomTc.take(16)
@@ -168,7 +169,7 @@ class TournamentProgressionUseCaseTest {
         val sortedPtTc = remainingTcAfterOom.sortedWith(
             compareBy<Long> { ptPlayerMap[it]?.rank ?: Int.MAX_VALUE }
                 .thenByDescending { ptPlayerMap[it]?.prizeMoney ?: 0.0 }
-                .thenByDescending { if (it == USER_ID) 5 else dbPlayerMap[it]?.skill ?: 5 }
+                .thenByDescending { if (it == USER_ID) SkillLevel.DEFAULT.value else dbPlayerMap[it]?.skill ?: SkillLevel.DEFAULT.value }
                 .thenBy { if (it == USER_ID) "User" else dbPlayerMap[it]?.name ?: "" }
         )
         val top16PtOom = sortedPtTc.take(16)

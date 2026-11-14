@@ -1,4 +1,4 @@
-package com.danny.dannyapp.domain.model
+package com.danny.dannyapp.domain.enums
 
 import androidx.annotation.StringRes
 import com.danny.dannyapp.R

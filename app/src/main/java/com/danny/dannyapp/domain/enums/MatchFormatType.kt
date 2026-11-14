@@ -1,4 +1,4 @@
-package com.danny.dannyapp.domain.model
+package com.danny.dannyapp.domain.enums
 
 enum class MatchFormatType {
     LEGS,

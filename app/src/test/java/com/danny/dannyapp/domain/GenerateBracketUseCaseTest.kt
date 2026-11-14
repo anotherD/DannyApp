@@ -17,8 +17,8 @@ import com.danny.dannyapp.data.db.TournamentMatchDao
 import com.danny.dannyapp.data.db.TournamentPlacement
 import com.danny.dannyapp.data.db.TournamentPlacementDao
 import com.danny.dannyapp.data.db.USER_ID
-import com.danny.dannyapp.domain.model.TournamentEvent
-import com.danny.dannyapp.domain.model.TournamentRound
+import com.danny.dannyapp.domain.enums.TournamentEvent
+import com.danny.dannyapp.domain.enums.TournamentRound
 import com.danny.dannyapp.domain.usecase.GenerateBracketUseCase
 import com.danny.dannyapp.domain.usecase.GetOrderOfMeritUseCase
 import kotlinx.coroutines.flow.Flow

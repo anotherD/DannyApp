@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import com.danny.dannyapp.R
-import com.danny.dannyapp.domain.model.OrderOfMeritType
+import com.danny.dannyapp.domain.enums.OrderOfMeritType
 import com.google.android.material.chip.ChipGroup
 
 class OrderOfMeritContainerFragment : Fragment(R.layout.fragment_order_of_merit_container) {

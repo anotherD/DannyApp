@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.danny.dannyapp.R
+import com.danny.dannyapp.data.Country
 import com.danny.dannyapp.data.SettingsManager
 import com.danny.dannyapp.data.db.AppDatabase
 import com.danny.dannyapp.data.db.CareerRepository
@@ -12,21 +13,22 @@ import com.danny.dannyapp.data.db.PLACEHOLDER_PREVIOUS_WINNER_ID
 import com.danny.dannyapp.data.db.Tournament
 import com.danny.dannyapp.data.db.TournamentMatch
 import com.danny.dannyapp.data.db.USER_ID
+import com.danny.dannyapp.domain.enums.MatchFormatType
+import com.danny.dannyapp.domain.enums.OrderOfMeritType
+import com.danny.dannyapp.domain.enums.SkillLevel
+import com.danny.dannyapp.domain.enums.TournamentEvent
+import com.danny.dannyapp.domain.enums.TournamentRound
 import com.danny.dannyapp.domain.model.MatchDistance
-import com.danny.dannyapp.domain.model.MatchFormatType
 import com.danny.dannyapp.domain.model.OrderOfMeritEntry
-import com.danny.dannyapp.domain.model.OrderOfMeritType
-import com.danny.dannyapp.domain.model.TournamentEvent
-import com.danny.dannyapp.domain.model.TournamentRound
 import com.danny.dannyapp.domain.usecase.AdvanceTournamentRoundUseCase
 import com.danny.dannyapp.domain.usecase.GenerateBracketUseCase
 import com.danny.dannyapp.domain.usecase.GetOrderOfMeritUseCase
 import com.danny.dannyapp.domain.usecase.SimulateCpuMatchUseCase
+import com.danny.dannyapp.ui.enums.RoundStatus
 import com.danny.dannyapp.ui.model.EntrantGroupInfo
 import com.danny.dannyapp.ui.model.MatchUiModel
 import com.danny.dannyapp.ui.model.PlayerUiInfo
 import com.danny.dannyapp.ui.model.PrizeMoneyItem
-import com.danny.dannyapp.ui.model.RoundStatus
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -1234,7 +1236,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
                     val byeCount = (16 * K - N).coerceAtLeast(0)
                     val byePlayers = nonPreqTc.take(byeCount)
                     val prelimMatches = allMatches.filter { it.round == TournamentRound.QUAL_PRELIM.name }.sortedBy { it.matchIndex }
-                    val prelimWinners = prelimMatches.map { it.winnerId ?: -999L }
+                    val prelimWinners = prelimMatches.map { it.winnerId ?: PLACEHOLDER_PREVIOUS_WINNER_ID }
                     val mainFieldPlayers = byePlayers + prelimWinners
 
                     val boardPlayers = mutableMapOf<Int, MutableList<Long>>()
@@ -1253,8 +1255,8 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
                             list.add(0, seedId)
                         }
                         for (mIdx in 0 until 4) {
-                            val p1 = list.getOrNull(2 * mIdx) ?: -999L
-                            val p2 = list.getOrNull(2 * mIdx + 1) ?: -999L
+                            val p1 = list.getOrNull(2 * mIdx) ?: PLACEHOLDER_PREVIOUS_WINNER_ID
+                            val p2 = list.getOrNull(2 * mIdx + 1) ?: PLACEHOLDER_PREVIOUS_WINNER_ID
                             r1Matches.add(
                                 TournamentMatch(
                                     id = -3000L - (b * 10) - mIdx,
@@ -1274,10 +1276,10 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
                     val r2Matches = mutableListOf<TournamentMatch>()
                     for (b in 0 until K) {
                         val boardMatches = r1Matches.filter { it.matchIndex in (4 * b)..(4 * b + 3) }.sortedBy { it.matchIndex }
-                        val w0 = boardMatches.getOrNull(0)?.winnerId ?: -999L
-                        val w1 = boardMatches.getOrNull(1)?.winnerId ?: -999L
-                        val w2 = boardMatches.getOrNull(2)?.winnerId ?: -999L
-                        val w3 = boardMatches.getOrNull(3)?.winnerId ?: -999L
+                        val w0 = boardMatches.getOrNull(0)?.winnerId ?: PLACEHOLDER_PREVIOUS_WINNER_ID
+                        val w1 = boardMatches.getOrNull(1)?.winnerId ?: PLACEHOLDER_PREVIOUS_WINNER_ID
+                        val w2 = boardMatches.getOrNull(2)?.winnerId ?: PLACEHOLDER_PREVIOUS_WINNER_ID
+                        val w3 = boardMatches.getOrNull(3)?.winnerId ?: PLACEHOLDER_PREVIOUS_WINNER_ID
 
                         r2Matches.add(TournamentMatch(id = -4000L - (b * 10), tournamentId = tournamentId, round = roundKey, matchIndex = 2 * b, player1Id = w0, player2Id = w1))
                         r2Matches.add(TournamentMatch(id = -4000L - (b * 10) + 1, tournamentId = tournamentId, round = roundKey, matchIndex = 2 * b + 1, player1Id = w2, player2Id = w3))
@@ -1289,8 +1291,8 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
                     val finalMatches = mutableListOf<TournamentMatch>()
                     for (b in 0 until K) {
                         val boardMatches = r2Matches.filter { it.matchIndex in (2 * b)..(2 * b + 1) }.sortedBy { it.matchIndex }
-                        val w0 = boardMatches.getOrNull(0)?.winnerId ?: -999L
-                        val w1 = boardMatches.getOrNull(1)?.winnerId ?: -999L
+                        val w0 = boardMatches.getOrNull(0)?.winnerId ?: PLACEHOLDER_PREVIOUS_WINNER_ID
+                        val w1 = boardMatches.getOrNull(1)?.winnerId ?: PLACEHOLDER_PREVIOUS_WINNER_ID
 
                         finalMatches.add(TournamentMatch(id = -5000L - b, tournamentId = tournamentId, round = roundKey, matchIndex = b, player1Id = w0, player2Id = w1))
                     }
@@ -1332,8 +1334,8 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         return baseMatches.map { m ->
             val p1Match = prevMatches.getOrNull(2 * m.matchIndex)
             val p2Match = prevMatches.getOrNull(2 * m.matchIndex + 1)
-            val p1 = if (p1Match?.isCompleted == true && p1Match.winnerId != null) p1Match.winnerId!! else -999L
-            val p2 = if (p2Match?.isCompleted == true && p2Match.winnerId != null) p2Match.winnerId!! else -999L
+            val p1 = if (p1Match?.isCompleted == true && p1Match.winnerId != null) p1Match.winnerId!! else PLACEHOLDER_PREVIOUS_WINNER_ID
+            val p2 = if (p2Match?.isCompleted == true && p2Match.winnerId != null) p2Match.winnerId!! else PLACEHOLDER_PREVIOUS_WINNER_ID
             m.copy(player1Id = p1, player2Id = p2)
         }
     }

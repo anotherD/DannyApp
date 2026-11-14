@@ -1,10 +1,11 @@
 package com.danny.dannyapp.domain.usecase
 
 import android.content.Context
+import com.danny.dannyapp.data.Country
 import com.danny.dannyapp.data.db.AppDatabase
 import com.danny.dannyapp.data.db.Tournament
 import com.danny.dannyapp.data.db.TournamentDao
-import com.danny.dannyapp.domain.model.TournamentEvent
+import com.danny.dannyapp.domain.enums.TournamentEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -65,13 +66,13 @@ class GenerateSeasonCalendarUseCase(
         )
 
         fun addPc() {
-            val host = pcHostCountries.getOrElse(pcIndex - 1) { "XYZ" }
+            val host = pcHostCountries.getOrElse(pcIndex - 1) { Country.DEFAULT_CODE }
             rawList.add(Triple("Players Championship $pcIndex", TournamentEvent.PLAYERS_CHAMPIONSHIP.name, host))
             pcIndex++
         }
 
         fun addEt() {
-            val info = etList.getOrElse(etIndex - 1) { EtEventInfo("European Tour $etIndex", "DEU") }
+            val info = etList.getOrElse(etIndex - 1) { EtEventInfo("European Tour $etIndex", Country.DEFAULT_USER_CODE) }
             rawList.add(Triple("${info.name} Qualifier", TournamentEvent.QUALIFIER_ET.name, info.hostCountry))
             rawList.add(Triple(info.name, TournamentEvent.EUROPEAN_TOUR.name, info.hostCountry))
             etIndex++

@@ -1,5 +1,7 @@
 package com.danny.dannyapp.domain.model
 
+import com.danny.dannyapp.domain.enums.TournamentRound
+
 data class MatchPairing(
     val round: TournamentRound,
     val matchIndex: Int,

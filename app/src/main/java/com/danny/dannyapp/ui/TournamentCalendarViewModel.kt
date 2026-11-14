@@ -15,9 +15,11 @@ import com.danny.dannyapp.domain.usecase.GenerateSeasonCalendarUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import com.danny.dannyapp.domain.model.TournamentRound
+import com.danny.dannyapp.data.Country
+import com.danny.dannyapp.domain.enums.SkillLevel
+import com.danny.dannyapp.domain.enums.TournamentRound
+import com.danny.dannyapp.ui.enums.TournamentStatus
 import com.danny.dannyapp.ui.model.PlayerUiInfo
-import com.danny.dannyapp.ui.model.TournamentStatus
 import com.danny.dannyapp.ui.model.TournamentUiModel
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
@@ -65,7 +67,7 @@ class TournamentCalendarViewModel(application: Application) : AndroidViewModel(a
 
                 val allPlayers = playerDao.getAllPlayersList().associateBy { it.id }
                 val careerWithProfile = careerRepository.getCareerById(careerId)
-                val userCountryCode = careerWithProfile?.countryCode ?: "DEU"
+                val userCountryCode = careerWithProfile?.countryCode ?: Country.DEFAULT_USER_CODE
 
                 combine(
                     tournamentDao.getTournamentsForSeason(season.id),
@@ -136,7 +138,7 @@ class TournamentCalendarViewModel(application: Application) : AndroidViewModel(a
                             PlayerUiInfo(id = USER_ID, name = "Du", countryCode = userCountryCode)
                         } else {
                             val p = allPlayers[winnerId]
-                            PlayerUiInfo(id = winnerId, name = p?.name ?: "CPU #${winnerId}", countryCode = p?.countryCode ?: "XYZ", skill = p?.skill ?: 5)
+                            PlayerUiInfo(id = winnerId, name = p?.name ?: "CPU #${winnerId}", countryCode = p?.countryCode ?: Country.DEFAULT_CODE, skill = p?.skill ?: SkillLevel.DEFAULT.value)
                         }
                     }
                 } else {

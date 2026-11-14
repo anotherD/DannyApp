@@ -12,7 +12,7 @@ import com.danny.dannyapp.data.db.TournamentDao
 import com.danny.dannyapp.data.db.TournamentPlacement
 import com.danny.dannyapp.data.db.TournamentPlacementDao
 import com.danny.dannyapp.data.db.USER_ID
-import com.danny.dannyapp.domain.model.OrderOfMeritType
+import com.danny.dannyapp.domain.enums.OrderOfMeritType
 import com.danny.dannyapp.domain.usecase.GetOrderOfMeritUseCase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf

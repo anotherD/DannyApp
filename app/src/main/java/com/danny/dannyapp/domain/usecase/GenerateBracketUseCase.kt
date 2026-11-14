@@ -2,6 +2,7 @@ package com.danny.dannyapp.domain.usecase
 
 import android.content.Context
 import android.util.Log
+import com.danny.dannyapp.data.Country
 import com.danny.dannyapp.data.db.AppDatabase
 import com.danny.dannyapp.data.db.PlayerDao
 import com.danny.dannyapp.data.db.SeasonDao
@@ -10,10 +11,11 @@ import com.danny.dannyapp.data.db.TournamentDao
 import com.danny.dannyapp.data.db.TournamentMatch
 import com.danny.dannyapp.data.db.TournamentMatchDao
 import com.danny.dannyapp.data.db.USER_ID
+import com.danny.dannyapp.domain.enums.OrderOfMeritType
+import com.danny.dannyapp.domain.enums.SkillLevel
+import com.danny.dannyapp.domain.enums.TournamentEvent
 import com.danny.dannyapp.domain.model.MatchPairing
 import com.danny.dannyapp.domain.model.OrderOfMeritEntry
-import com.danny.dannyapp.domain.model.OrderOfMeritType
-import com.danny.dannyapp.domain.model.TournamentEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -70,7 +72,7 @@ class GenerateBracketUseCase(
                 compareBy<Long> { playerMap[it]?.rank ?: Int.MAX_VALUE }
                     .thenByDescending { playerMap[it]?.prizeMoney ?: 0.0 }
                     .thenByDescending {
-                        if (it == USER_ID) 5 else dbPlayerMap[it]?.skill ?: 5
+                        if (it == USER_ID) SkillLevel.DEFAULT.value else dbPlayerMap[it]?.skill ?: SkillLevel.DEFAULT.value
                     }
                     .thenBy {
                         if (it == USER_ID) "User" else dbPlayerMap[it]?.name ?: ""
@@ -171,7 +173,7 @@ class GenerateBracketUseCase(
                 }
 
                 val nonTcPlayerIds = allPlayerIds.filterNot { it in tourCardPlayerIds }
-                val hostCountry = tournament.hostCountry ?: "DEU"
+                val hostCountry = tournament.hostCountry ?: Country.DEFAULT_CODE
                 val hostCountryNonTc = nonTcPlayerIds.filter { id ->
                     val player = allPlayers.find { it.id == id }
                     player?.countryCode == hostCountry && player.tourCardYear == 0
@@ -438,7 +440,7 @@ class GenerateBracketUseCase(
             .sortedWith(
                 compareBy<Long> { oomMap[it]?.rank ?: Int.MAX_VALUE }
                     .thenByDescending { oomMap[it]?.prizeMoney ?: 0.0 }
-                    .thenByDescending { oomMap[it]?.skill ?: 5 }
+                    .thenByDescending { oomMap[it]?.skill ?: SkillLevel.DEFAULT.value }
             )
 
         for (candidate in remainingCandidates) {

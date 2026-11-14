@@ -12,7 +12,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.danny.dannyapp.R
-import com.danny.dannyapp.ui.model.TournamentStatus
+import com.danny.dannyapp.ui.enums.TournamentStatus
 import com.danny.dannyapp.ui.model.TournamentUiModel
 import kotlinx.coroutines.launch
 

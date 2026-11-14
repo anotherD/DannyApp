@@ -4,6 +4,7 @@ import android.app.Application
 import android.database.sqlite.SQLiteConstraintException
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.danny.dannyapp.data.Country
 import com.danny.dannyapp.data.db.CareerRepository
 import com.danny.dannyapp.data.db.UserProfile
 import com.danny.dannyapp.data.db.UserProfileRepository
@@ -44,7 +45,7 @@ class ProfilesViewModel(application: Application) : AndroidViewModel(application
         val newProfile = UserProfile(
             name = trimmedName,
             playerName = trimmedPlayerName,
-            countryCode = countryCode.ifEmpty { "DEU" },
+            countryCode = countryCode.ifEmpty { Country.DEFAULT_USER_CODE },
             description = description.trim()
         )
 
@@ -80,7 +81,7 @@ class ProfilesViewModel(application: Application) : AndroidViewModel(application
         val updatedProfile = profile.copy(
             name = trimmedName,
             playerName = trimmedPlayerName,
-            countryCode = newCountryCode.ifEmpty { "DEU" },
+            countryCode = newCountryCode.ifEmpty { Country.DEFAULT_USER_CODE },
             description = newDescription.trim()
         )
 

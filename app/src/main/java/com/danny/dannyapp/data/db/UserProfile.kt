@@ -4,6 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.danny.dannyapp.data.Country
 
 @Entity(
     tableName = "user_profiles",
@@ -19,7 +20,7 @@ data class UserProfile(
     @ColumnInfo(name = "player_name")
     val playerName: String = "",
     @ColumnInfo(name = "country_code")
-    val countryCode: String = "DEU",
+    val countryCode: String = Country.DEFAULT_USER_CODE,
     @ColumnInfo(name = "created_at")
     val createdAt: Long = System.currentTimeMillis()
 ) {

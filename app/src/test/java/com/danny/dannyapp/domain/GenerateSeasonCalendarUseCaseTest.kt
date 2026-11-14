@@ -2,7 +2,7 @@ package com.danny.dannyapp.domain
 
 import com.danny.dannyapp.data.db.Tournament
 import com.danny.dannyapp.data.db.TournamentDao
-import com.danny.dannyapp.domain.model.TournamentEvent
+import com.danny.dannyapp.domain.enums.TournamentEvent
 import com.danny.dannyapp.domain.usecase.GenerateSeasonCalendarUseCase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf

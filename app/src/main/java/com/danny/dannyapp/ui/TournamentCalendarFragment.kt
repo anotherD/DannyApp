@@ -12,7 +12,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
-import com.danny.dannyapp.ui.model.TournamentStatus
+import com.danny.dannyapp.ui.enums.TournamentStatus
 import kotlinx.coroutines.launch
 
 class TournamentCalendarFragment : Fragment(R.layout.fragment_tournament_calendar) {

@@ -7,10 +7,11 @@ import com.danny.dannyapp.data.db.TournamentDao
 import com.danny.dannyapp.data.db.TournamentMatch
 import com.danny.dannyapp.data.db.TournamentMatchDao
 import com.danny.dannyapp.data.db.USER_ID
+import com.danny.dannyapp.domain.enums.MatchFormatType
+import com.danny.dannyapp.domain.enums.SkillLevel
+import com.danny.dannyapp.domain.enums.TournamentEvent
+import com.danny.dannyapp.domain.enums.TournamentRound
 import com.danny.dannyapp.domain.model.MatchDistance
-import com.danny.dannyapp.domain.model.MatchFormatType
-import com.danny.dannyapp.domain.model.TournamentEvent
-import com.danny.dannyapp.domain.model.TournamentRound
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlin.random.Random
@@ -50,8 +51,8 @@ class SimulateCpuMatchUseCase(
         val player1 = playerDao.getPlayerById(match.player1Id)
         val player2 = playerDao.getPlayerById(match.player2Id)
 
-        val skill1 = (player1?.skill ?: 5).coerceIn(1, 10)
-        val skill2 = (player2?.skill ?: 5).coerceIn(1, 10)
+        val skill1 = (player1?.skill ?: SkillLevel.DEFAULT.value).coerceIn(1, 10)
+        val skill2 = (player2?.skill ?: SkillLevel.DEFAULT.value).coerceIn(1, 10)
         val p1WinProb = skill1.toDouble() / (skill1 + skill2)
 
         val (p1Score, p2Score, winnerId) = when (matchDistance.format) {

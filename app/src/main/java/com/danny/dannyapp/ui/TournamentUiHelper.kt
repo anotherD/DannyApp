@@ -6,11 +6,12 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.danny.dannyapp.R
+import com.danny.dannyapp.data.Country
 import com.danny.dannyapp.data.db.Tournament
-import com.danny.dannyapp.domain.model.TournamentEvent
-import com.danny.dannyapp.domain.model.TournamentRound
+import com.danny.dannyapp.domain.enums.TournamentEvent
+import com.danny.dannyapp.domain.enums.TournamentRound
+import com.danny.dannyapp.ui.enums.TournamentStatus
 import com.danny.dannyapp.ui.model.PlayerUiInfo
-import com.danny.dannyapp.ui.model.TournamentStatus
 import com.danny.dannyapp.ui.model.TournamentUiModel
 import com.google.android.material.card.MaterialCardView
 
@@ -223,7 +224,7 @@ object TournamentUiHelper {
         tvTournamentStatus.text = statusBadgeInfo.text
         tvTournamentStatus.background?.setTint(ContextCompat.getColor(context, statusBadgeInfo.colorResId))
 
-        val host = tournament.hostCountry ?: "XYZ"
+        val host = tournament.hostCountry ?: Country.DEFAULT_CODE
         val city = getTournamentCity(host, tournament.name)
         UiHelper.formatFlagAndText(tvTournamentDetails, host, city)
 
@@ -277,7 +278,7 @@ object TournamentUiHelper {
         tvTypeBadge.text = typeBadgeInfo.text
         tvTypeBadge.backgroundTintList = ContextCompat.getColorStateList(context, typeBadgeInfo.colorResId)
 
-        val host = tournament.hostCountry ?: "XYZ"
+        val host = tournament.hostCountry ?: Country.DEFAULT_CODE
         val city = getTournamentCity(host, tournament.name)
         UiHelper.formatFlagAndText(tvHost, host, city)
 

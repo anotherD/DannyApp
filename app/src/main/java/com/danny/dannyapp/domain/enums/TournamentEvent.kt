@@ -1,4 +1,6 @@
-package com.danny.dannyapp.domain.model
+package com.danny.dannyapp.domain.enums
+
+import com.danny.dannyapp.domain.model.MatchDistance
 
 enum class TournamentEvent(val totalPrizeFund: Double) {
     PLAYERS_CHAMPIONSHIP(150_000.0),
