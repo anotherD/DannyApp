@@ -86,17 +86,7 @@ sealed interface TournamentDetailState {
     data class Review(
         val tournament: Tournament,
         val event: TournamentEvent,
-        val winnerName: String,
-
-         val winnerFlag: String,
-//        val winnerCountryCode: String,
-
-        val finalScoreText: String,
-        val opponentName: String,
-
-        val opponentFlag: String,
-//        val opponentCountryCode: String,
-
+        val winner: PlayerUiInfo,
         val userReachedRoundText: String,
         val userEarnedPrizeMoneyText: String,
         val availableRounds: List<String>,
@@ -444,56 +434,22 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         val userName = careerWithProfile?.playerName?.ifBlank { null } ?: careerWithProfile?.profileName ?: careerWithProfile?.career?.name ?: "Du"
         val userCountryCode = careerWithProfile?.countryCode ?: "DEU"
 
-////////////////////////////////////////////////////////////////
         val winnerId = finalMatch?.winnerId
-        val (winnerName, winnerFlag) = if (winnerId != null) {
+        val winner = if (winnerId != null) {
             if (winnerId == USER_ID) {
-                Pair(userName, Country.getFlagEmoji(userCountryCode))
+                PlayerUiInfo(id = USER_ID, name = userName, countryCode = userCountryCode)
             } else {
                 val p = allPlayersMap[winnerId]
-                Pair(p?.name ?: "Unbekannt", Country.getFlagEmoji(p?.countryCode ?: "XYZ"))
+                PlayerUiInfo(
+                    id = winnerId,
+                    name = p?.name ?: "Unbekannt",
+                    countryCode = p?.countryCode ?: "XYZ",
+                    skill = p?.skill ?: 5
+                )
             }
-        } else Pair("Unbekannt", UiHelper.getWorldEmoji())
-
-        val opponentId = if (winnerId != null && finalMatch != null) {
-            if (finalMatch.player1Id == winnerId) finalMatch.player2Id else finalMatch.player1Id
-        } else null
-
-        val (opponentName, opponentFlag) = if (opponentId != null) {
-            if (opponentId == USER_ID) {
-                Pair(userName, Country.getFlagEmoji(userCountryCode))
-            } else {
-                val p = allPlayersMap[opponentId]
-                Pair(p?.name ?: "Unbekannt", Country.getFlagEmoji(p?.countryCode ?: "XYZ"))
-            }
-        } else Pair("Unbekannt", UiHelper.getWorldEmoji())
-
-////////////////////////////////////////////////////////////////
-//        val winnerId = finalMatch?.winnerId
-//        val (winnerName, winnerCountryCode) = if (winnerId != null) {
-//            if (winnerId == USER_ID) {
-//                Pair(userName, userCountryCode)
-//            } else {
-//                val p = allPlayersMap[winnerId]
-//                Pair(p?.name ?: "Unbekannt", p?.countryCode ?: "XYZ")
-//            }
-//        } else Pair("Unbekannt", "XYZ")
-//
-//        val opponentId = if (winnerId != null && finalMatch != null) {
-//            if (finalMatch.player1Id == winnerId) finalMatch.player2Id else finalMatch.player1Id
-//        } else null
-//
-//        val (opponentName, opponentCountryCode) = if (opponentId != null) {
-//            if (opponentId == USER_ID) {
-//                Pair(userName, userCountryCode)
-//            } else {
-//                val p = allPlayersMap[opponentId]
-//                Pair(p?.name ?: "Unbekannt", p?.countryCode ?: "XYZ")
-//            }
-//        } else Pair("Unbekannt", "XYZ")
-
-////////////////////////////////////////////////////////////////
-        val finalScoreText = if (finalMatch != null) "${finalMatch.player1Score} : ${finalMatch.player2Score}" else "-"
+        } else {
+            PlayerUiInfo(id = 0L, name = "Unbekannt", countryCode = "XYZ")
+        }
 
         val placements = tournamentPlacementDao.getPlacementsListForTournament(tournament.id)
         val userPlacement = placements.find { it.playerId == USER_ID }
@@ -563,17 +519,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         _uiState.value = TournamentDetailState.Review(
             tournament = tournament,
             event = event,
-            winnerName = winnerName,
-
-            winnerFlag = winnerFlag,
-//            winnerCountryCode = winnerCountryCode,
-
-            finalScoreText = finalScoreText,
-            opponentName = opponentName,
-
-            opponentFlag = opponentFlag,
-//            opponentCountryCode = opponentCountryCode,
-
+            winner = winner,
             userReachedRoundText = userReachedRoundText,
             userEarnedPrizeMoneyText = userEarnedPrizeMoneyText,
             availableRounds = availableRounds,

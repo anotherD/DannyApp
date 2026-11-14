@@ -30,7 +30,6 @@
     <string name="current_or_next_tournament">Aktuelles / Nächstes Turnier</string>
     <string name="no_active_or_next_tournament">Kein aktives oder nächstes Turnier vorhanden.</string>
     <string name="tournament_status_active_format">Aktiv • %s</string>
-
     <string name="round_winner">Turniersieger</string>
     <string name="round_qual_prelim">Vorrunde</string>
     <string name="round_qual_r1">Runde 1</string>
@@ -117,12 +116,8 @@
     <string name="career_tournaments_btn">Saisonkalender</string>
     <string name="tournament_placeholder_winner">Sieger #%d</string>
     <string name="tournament_placeholder_unknown">wird ausgelost</string>
-
-    <string name="tournament_review_winner">Sieger: %s %s</string>
+    <string name="tournament_review_winner_label">Sieger:</string>
     <string name="tournament_review_final_score">Finale: %s vs. %s %s</string>
-<!--    <string name="tournament_review_winner">Sieger: %1$s</string>-->
-<!--    <string name="tournament_review_winner_prefix">Sieger: </string>-->
-
     <string name="tournament_review_user_round">Deine erreichte Runde: %s</string>
     <string name="tournament_review_user_prize">Gewonnenes Preisgeld: %s</string>
     <string name="group_label">Gruppe %s</string>

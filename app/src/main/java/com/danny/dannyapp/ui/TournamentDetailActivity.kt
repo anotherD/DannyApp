@@ -80,6 +80,7 @@ class TournamentDetailActivity : BaseActivity() {
     private lateinit var tvReviewTitle: TextView
     private lateinit var tvReviewTypeBadge: TextView
     private lateinit var tvReviewHost: TextView
+    private lateinit var tvReviewWinnerLabel: TextView
     private lateinit var tvReviewWinner: TextView
     private lateinit var tvReviewQualifierHeader: TextView
     private lateinit var layoutReviewQualifierWinnersList: LinearLayout
@@ -256,6 +257,7 @@ class TournamentDetailActivity : BaseActivity() {
         tvReviewTitle = findViewById(R.id.tvReviewTitle)
         tvReviewTypeBadge = findViewById(R.id.tvReviewTypeBadge)
         tvReviewHost = findViewById(R.id.tvReviewHost)
+        tvReviewWinnerLabel = findViewById(R.id.tvReviewWinnerLabel)
         tvReviewWinner = findViewById(R.id.tvReviewWinner)
         tvReviewQualifierHeader = findViewById(R.id.tvReviewQualifierHeader)
         layoutReviewQualifierWinnersList = findViewById(R.id.layoutReviewQualifierWinnersList)
@@ -581,23 +583,15 @@ class TournamentDetailActivity : BaseActivity() {
                     TournamentUiHelper.bindQualifierWinnersList(
                         this, tvReviewQualifierHeader, layoutReviewQualifierWinnersList, state.qualifierWinners, textSizeSp = 14f
                     )
+                    tvReviewWinnerLabel.visibility = View.GONE
                     tvReviewWinner.visibility = View.GONE
                     tvReviewFinalScore.visibility = View.GONE
                 } else {
                     tvReviewQualifierHeader.visibility = View.GONE
                     layoutReviewQualifierWinnersList.visibility = View.GONE
+                    tvReviewWinnerLabel.visibility = View.VISIBLE
                     tvReviewWinner.visibility = View.VISIBLE
-
-                    tvReviewWinner.text = getString(R.string.tournament_review_winner, state.winnerFlag, state.winnerName)
-//                    UiHelper.formatFlagAndText(
-//                        tvReviewWinner,
-//                        state.winnerCountryCode,
-//                        state.winnerName,
-//                        prefix = getString(R.string.tournament_review_winner_prefix)
-//                    )
-
-//                    tvReviewFinalScore.visibility = View.VISIBLE
-//                    tvReviewFinalScore.text = getString(R.string.tournament_review_final_score, state.finalScoreText, state.opponentFlag, state.opponentName)
+                    UiHelper.bindSmartPlayerName(tvReviewWinner, state.winner)
                     tvReviewFinalScore.visibility = View.GONE
                 }
                 tvReviewUserRound.text = getString(R.string.tournament_review_user_round, state.userReachedRoundText)
