@@ -112,7 +112,7 @@ class TournamentMatchAdapter(
     }
 
     private fun bindPlayerFlag(context: android.content.Context, tvFlag: TextView, countryCode: String) {
-        UiHelper.formatFlagAndText(context, tvFlag, countryCode, "")
+        UiHelper.formatFlagAndText(tvFlag, countryCode, "")
     }
 
     private object MatchDiffCallback : DiffUtil.ItemCallback<MatchUiModel>() {

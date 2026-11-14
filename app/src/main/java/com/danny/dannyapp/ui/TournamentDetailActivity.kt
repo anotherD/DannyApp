@@ -591,7 +591,6 @@ class TournamentDetailActivity : BaseActivity() {
 
                     tvReviewWinner.text = getString(R.string.tournament_review_winner, state.winnerFlag, state.winnerName)
 //                    UiHelper.formatFlagAndText(
-//                        this,
 //                        tvReviewWinner,
 //                        state.winnerCountryCode,
 //                        state.winnerName,

@@ -76,7 +76,7 @@ Jedes Turnier im Saisonkalender ist anklickbar und öffnet die Turnieransicht in
   - **Zentrale Steuerung:** Die Schalter **„Automatische Simulation“** und **„Automatisch zur nächsten Runde“** liegen zentral in der **Konfiguration (`ConfigActivity`)** und werden über `SettingsManager` gesteuert. Die manuellen Simulations-Buttons in der Turnieransicht sind nur bei `debugMode == true` sichtbar.
 3. **Rückblick-Modus (`isCompleted == true`):**
   - Nutzt dieselbe Runden-Pills-Ansicht wie der aktive Modus (read-only ohne Simulations-Buttons).
-  - **Einzelsieger-Turniere:** Zeigt oben die Zusammenfassung **Sieger** (mit Präfix „Sieger: “, gefolgt von der Landesflagge via `UiHelper.formatFlagAndText(..., prefix = getString(R.string.tournament_review_winner_prefix))`), während die Final-Ergebnis-Zeile ausgeblendet ist (`tvReviewFinalScore.visibility = View.GONE`), sowie Deine erreichte Runde (`reachedRound`) und das gewonnene Preisgeld (`prizeMoney` aus `tournament_placements`).
+  - **Einzelsieger-Turniere:** Zeigt oben die Zusammenfassung **Sieger** (mit Präfix „Sieger: “, gefolgt von der Landesflagge via `UiHelper.formatFlagAndText(...)`), während die Final-Ergebnis-Zeile ausgeblendet ist (`tvReviewFinalScore.visibility = View.GONE`), sowie Deine erreichte Runde (`reachedRound`) und das gewonnene Preisgeld (`prizeMoney` aus `tournament_placements`).
   - **Multi-Sieger-Qualifier:** Zeigt die formatierte Gewinner-Liste als **2-spaltige** vertikale Liste unter `@string/qualifier_winners_header` (`Qualifier-Gewinner:`) an.
 
 ### 3.1 Die Optionen für User-Matches (`USER_ID = -1L`)

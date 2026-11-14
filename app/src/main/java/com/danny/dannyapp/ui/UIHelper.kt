@@ -46,21 +46,19 @@ object UiHelper {
         return Country.getWorldEmoji()
     }
 
+    // TODO: was macht es genau setzt den formartierten text in die textview
     fun formatFlagAndText(
-        context: Context,
         textView: TextView,
         countryCode: String,
         text: String
-//        prefix: String = "" // war nicht da
     ) {
         val flagResId = Country.getFlagResId(countryCode)
         // Sonderfall Nordirland (kein Country.getFlagEmoji(countryCode))
         if (flagResId != null) {
-            val spanBuilder = SpannableStringBuilder("   $text")
-//            val spanText = if (text.isEmpty()) "${prefix} " else "${prefix}   $text"
-//            val spanBuilder = SpannableStringBuilder(spanText)
-            val drawable = ContextCompat.getDrawable(context, flagResId)
+            // Hier einfach textView.context verwenden!
+            val drawable = ContextCompat.getDrawable(textView.context, flagResId)
             if (drawable != null) {
+                val spanBuilder = SpannableStringBuilder("   $text")
                 val heightPx = (textView.textSize * 1.17f).toInt()
                 val widthPx = if (drawable.intrinsicWidth > 0 && drawable.intrinsicHeight > 0) {
                     (heightPx * drawable.intrinsicWidth.toFloat() / drawable.intrinsicHeight.toFloat()).toInt()
@@ -69,19 +67,14 @@ object UiHelper {
                 }
                 drawable.setBounds(0, 0, widthPx, heightPx)
                 val imageSpan = VerticalCenteredImageSpan(drawable, verticalOffsetPx = 9)
-
                 spanBuilder.setSpan(imageSpan, 0, 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-//                val start = prefix.length
-//                val end = start + 1
-//                spanBuilder.setSpan(imageSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
 
                 textView.text = spanBuilder
                 return
             }
         }
-        val flagEmoji = Country.getFlagEmoji(countryCode)
-        textView.text = "$flagEmoji $text"
-//        textView.text = if (text.isEmpty()) "$prefix$flagEmoji" else "$prefix$flagEmoji $text"
+        //TODO move to strings.xml
+        textView.text = "${Country.getFlagEmoji(countryCode)} $text"
     }
 
     // Vornamen kürzen und mit Punkt verbinden
@@ -93,6 +86,9 @@ object UiHelper {
         return "${firstName.first()}.$lastName"
     }
 
+    // generiert eine Spielerzeile aus Name, Flagge und Setzlistenposition
+    // dabei wird
+    // setzt den Text in das angegebene TextView
     fun bindSmartPlayerName(
         textView: TextView,
         name: String,
@@ -110,7 +106,7 @@ object UiHelper {
                 playerText
             }
             if (!countryCode.isNullOrBlank()) {
-                formatFlagAndText(context, textView, countryCode, textWithSeed)
+                formatFlagAndText(textView, countryCode, textWithSeed)
             } else {
                 textView.text = textWithSeed
             }
@@ -129,6 +125,7 @@ object UiHelper {
             val seedWidth = if (seed != null) paint.measureText(seedText) else 0f
 
             val flagExtraWidth = if (!countryCode.isNullOrBlank()) {
+                // Sonderfall Nordirland (kein Country.getFlagEmoji(countryCode))
                 val flagResId = Country.getFlagResId(countryCode)
                 if (flagResId != null) {
                     val heightPx = (textView.textSize * 1.17f).toInt()

@@ -139,7 +139,7 @@ class OrderOfMeritFragment : Fragment(R.layout.fragment_order_of_merit) {
             userIndex < firstVisible -> {
                 tvStickyRankTop?.text = rankText
                 tvStickyPlayerNameTop?.let {
-                    UiHelper.formatFlagAndText(requireContext(), it, userEntry.countryCode, userEntry.name)
+                    UiHelper.formatFlagAndText(it, userEntry.countryCode, userEntry.name)
                 }
                 tvStickyPrizeMoneyTop?.text = moneyText
 
@@ -154,7 +154,7 @@ class OrderOfMeritFragment : Fragment(R.layout.fragment_order_of_merit) {
             userIndex > lastVisible -> {
                 tvStickyRankBottom?.text = rankText
                 tvStickyPlayerNameBottom?.let {
-                    UiHelper.formatFlagAndText(requireContext(), it, userEntry.countryCode, userEntry.name)
+                    UiHelper.formatFlagAndText(it, userEntry.countryCode, userEntry.name)
                 }
                 tvStickyPrizeMoneyBottom?.text = moneyText
 

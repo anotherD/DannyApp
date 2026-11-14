@@ -251,7 +251,7 @@ object TournamentUiHelper {
 
         val host = tournament.hostCountry ?: "XYZ"
         val city = getTournamentCity(host, tournament.name)
-        UiHelper.formatFlagAndText(context, tvTournamentDetails, host, city)
+        UiHelper.formatFlagAndText(tvTournamentDetails, host, city)
 
         val cardView = itemView as? MaterialCardView
         when {
@@ -305,7 +305,7 @@ object TournamentUiHelper {
 
         val host = tournament.hostCountry ?: "XYZ"
         val city = getTournamentCity(host, tournament.name)
-        UiHelper.formatFlagAndText(context, tvHost, host, city)
+        UiHelper.formatFlagAndText(tvHost, host, city)
 
         if (headerCard != null) {
             val event = try { TournamentEvent.valueOf(tournament.type) } catch (_: Exception) { null }
