@@ -36,6 +36,7 @@ import com.google.android.material.card.MaterialCardView
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.launch
 
 class TournamentDetailActivity : BaseActivity() {
@@ -43,6 +44,11 @@ class TournamentDetailActivity : BaseActivity() {
     private val viewModel: TournamentDetailViewModel by viewModels()
 
     private lateinit var pbLoading: ProgressBar
+
+    // Floating Action Buttons (FABs)
+    private lateinit var layoutFabContainer: View
+    private lateinit var fabFocusUserMatch: FloatingActionButton
+    private lateinit var fabToggleBracketView: FloatingActionButton
 
     // Preview
     private lateinit var cardPreviewHeader: MaterialCardView
@@ -270,6 +276,11 @@ class TournamentDetailActivity : BaseActivity() {
         scrollReviewRoundPills = findViewById(R.id.scrollReviewRoundPills)
         chipGroupReviewRounds = findViewById(R.id.chipGroupReviewRounds)
         rvReviewMatches = findViewById(R.id.rvReviewMatches)
+
+        // FABs
+        layoutFabContainer = findViewById(R.id.layoutFabContainer)
+        fabFocusUserMatch = findViewById(R.id.fabFocusUserMatch)
+        fabToggleBracketView = findViewById(R.id.fabToggleBracketView)
     }
 
     private fun setupAdapters() {
@@ -314,6 +325,14 @@ class TournamentDetailActivity : BaseActivity() {
         btnPrizeInfoReview.setOnClickListener {
             showPrizeMoneyDialog()
         }
+
+        fabFocusUserMatch.setOnClickListener {
+            onFocusUserMatchClicked()
+        }
+
+        fabToggleBracketView.setOnClickListener {
+            onToggleBracketViewClicked()
+        }
     }
 
     private fun observeState(onBackPressedCallback: androidx.activity.OnBackPressedCallback) {
@@ -328,6 +347,11 @@ class TournamentDetailActivity : BaseActivity() {
                     viewModel.isSimulatingBatch.collect { simulating ->
                         layoutSimulatingOverlay.visibility = if (simulating) View.VISIBLE else View.GONE
                         onBackPressedCallback.isEnabled = simulating
+                        if (simulating) {
+                            layoutFabContainer.visibility = View.GONE
+                        } else {
+                            updateFabState(viewModel.uiState.value)
+                        }
                     }
                 }
             }
@@ -335,6 +359,7 @@ class TournamentDetailActivity : BaseActivity() {
     }
 
     private fun renderState(state: TournamentDetailState) {
+        updateFabState(state)
         when (state) {
             is TournamentDetailState.Loading -> {
                 pbLoading.visibility = View.VISIBLE
@@ -782,6 +807,98 @@ class TournamentDetailActivity : BaseActivity() {
             .setMessage(getString(R.string.user_match_live_placeholder))
             .setPositiveButton(getString(R.string.dialog_ok), null)
             .show()
+    }
+
+    /**
+     * Scrollt die Match-Liste zentriert auf das Match des Users in der aktuellen Runde.
+     */
+    private fun onFocusUserMatchClicked() {
+        val state = viewModel.uiState.value
+        val matches = when (state) {
+            is TournamentDetailState.Active -> state.matches
+            is TournamentDetailState.Review -> state.matches
+            else -> emptyList()
+        }
+        val targetRecyclerView = when (state) {
+            is TournamentDetailState.Active -> rvMatches
+            is TournamentDetailState.Review -> rvReviewMatches
+            else -> return
+        }
+        val userMatchIndex = matches.indexOfFirst { it.isUserMatch }
+        if (userMatchIndex != -1) {
+            scrollToMatchCentered(targetRecyclerView, userMatchIndex)
+        }
+    }
+
+    /**
+     * Scrollt eine [RecyclerView] zentriert auf die angegebene Position.
+     */
+    private fun scrollToMatchCentered(recyclerView: RecyclerView, position: Int) {
+        if (position < 0) return
+        val layoutManager = recyclerView.layoutManager as? LinearLayoutManager ?: return
+        val smoothScroller = object : androidx.recyclerview.widget.LinearSmoothScroller(recyclerView.context) {
+            override fun calculateDtToFit(
+                viewStart: Int,
+                viewEnd: Int,
+                boxStart: Int,
+                boxEnd: Int,
+                snapPreference: Int
+            ): Int {
+                return (boxStart + (boxEnd - boxStart) / 2) - (viewStart + (viewEnd - viewStart) / 2)
+            }
+        }
+        smoothScroller.targetPosition = position
+        layoutManager.startSmoothScroll(smoothScroller)
+    }
+
+    /**
+     * Schaltet zwischen Rundenliste und Turnierbaum-Ansicht um.
+     */
+    private fun onToggleBracketViewClicked() {
+        settingsManager.isBracketViewEnabled = !settingsManager.isBracketViewEnabled
+        updateBracketFabIcon()
+    }
+
+    /**
+     * Aktualisiert das Icon und die Content-Description des Ansichts-Wechsel-Buttons basierend auf [SettingsManager.isBracketViewEnabled].
+     */
+    private fun updateBracketFabIcon() {
+        if (settingsManager.isBracketViewEnabled) {
+            fabToggleBracketView.setImageResource(R.drawable.ic_view_list)
+            fabToggleBracketView.contentDescription = getString(R.string.cd_show_list_view)
+        } else {
+            fabToggleBracketView.setImageResource(R.drawable.ic_account_tree)
+            fabToggleBracketView.contentDescription = getString(R.string.cd_show_bracket_view)
+        }
+    }
+
+    /**
+     * Aktualisiert die Sichtbarkeit und den Zustand der Schwebe-Buttons (FABs).
+     */
+    private fun updateFabState(state: TournamentDetailState) {
+        when (state) {
+            is TournamentDetailState.Active -> {
+                layoutFabContainer.visibility = View.VISIBLE
+                updateUserMatchFocusFab(state.matches)
+            }
+            is TournamentDetailState.Review -> {
+                layoutFabContainer.visibility = View.VISIBLE
+                updateUserMatchFocusFab(state.matches)
+            }
+            else -> {
+                layoutFabContainer.visibility = View.GONE
+            }
+        }
+        updateBracketFabIcon()
+    }
+
+    /**
+     * Aktiviert oder deaktiviert den Button [fabFocusUserMatch] abhängig davon, ob ein User-Match in der Liste vorhanden ist.
+     */
+    private fun updateUserMatchFocusFab(matches: List<MatchUiModel>) {
+        val hasUserMatch = matches.any { it.isUserMatch }
+        fabFocusUserMatch.isEnabled = hasUserMatch
+        fabFocusUserMatch.alpha = if (hasUserMatch) 1.0f else 0.38f
     }
 
     companion object {

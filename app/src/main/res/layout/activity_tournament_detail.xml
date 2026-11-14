@@ -388,7 +388,7 @@
             android:layout_marginTop="6dp"
             android:clipToPadding="false"
             android:paddingHorizontal="12dp"
-            android:paddingBottom="12dp"
+            android:paddingBottom="88dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -400,8 +400,11 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginTop="6dp"
+            android:clipToPadding="false"
             android:orientation="vertical"
-            android:padding="16dp"
+            android:paddingHorizontal="16dp"
+            android:paddingTop="16dp"
+            android:paddingBottom="88dp"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -424,6 +427,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
+                android:clipToPadding="false"
+                android:paddingBottom="88dp"
                 android:scrollbars="vertical">
 
                 <LinearLayout
@@ -653,13 +658,47 @@
             android:layout_marginTop="6dp"
             android:clipToPadding="false"
             android:paddingHorizontal="12dp"
-            android:paddingBottom="12dp"
+            android:paddingBottom="88dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/scrollReviewRoundPills" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Schwebe-Buttons unten rechts -->
+    <LinearLayout
+        android:id="@+id/layoutFabContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:visibility="visible">
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fabFocusUserMatch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:contentDescription="@string/cd_focus_user_match"
+            android:src="@drawable/ic_my_location"
+            app:fabSize="mini"
+            app:tint="@color/white" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fabToggleBracketView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/cd_show_bracket_view"
+            android:src="@drawable/ic_account_tree"
+            app:fabSize="mini"
+            app:tint="@color/white" />
+    </LinearLayout>
 
     <!-- Simulating Overlay -->
     <androidx.constraintlayout.widget.ConstraintLayout

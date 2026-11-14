@@ -95,6 +95,30 @@ Ist ein offenes Match mit Beteiligung des Users an der Reihe, erhält der User b
 * **`PLACEHOLDER_PREVIOUS_WINNER_ID = -999L`**: Platzhalter-ID für Sieger aus vorherigen Runden / Matches bzw. gesetzte Teilnehmer (inkl. `tournament_placeholder_top16_seed` für *Top 16 Seed #%d*, `tournament_placeholder_winner_match` for *Sieger Match #%d* und European-Tour-L32-Überkreuz-Logik).
 * **Strikte `strings.xml`-Auslagerung:** Sämtliche UI-Texte, Dialog-Titel, Buttons, Status-Meldungen, Score-Validierungsfehler sowie Platzhalter (`Top 16 Seed #%d`, `Sieger Match #%d`, `Nicht qualifiziert`, `Turnier nicht gefunden.`, `Du`, `Unbekannt`, `Gruppe %1$s • #%2$d`, `Keine Turniere vorhanden.`, `Keine Ranglistendaten verfügbar.`) sind ohne hartcodierte deutsche Strings zentral in `strings.xml` ausgelagert.
 
+### 3.3 Turnierbaum-Ansicht (Bracket View) & Schwebe-Buttons
+* **Schwebe-Buttons unten rechts (`TournamentDetailActivity`):**
+  - Sichtbar im aktiven Modus (`TournamentDetailState.Active`) und Rückblick-Modus (`TournamentDetailState.Review`). Ausgeblendet im Vorschau-Modus sowie während der Batch-Simulation (`layoutSimulatingOverlay`).
+  - **„Mein Match fokussieren“ (`fabFocusUserMatch`):**
+    - Content-Description: `@string/cd_focus_user_match` („Mein Match fokussieren“).
+    - Icon: `ic_my_location.xml` (Fadenkreuz-Icon).
+    - Prüft, ob die aktuelle Runde ein Match mit `isUserMatch == true` (Beteiligung des Users mit `USER_ID = -1L`) enthält.
+    - Falls ja: Aktiviert (`isEnabled = true`, `alpha = 1.0f`) und scrollt beim Klick `rvMatches` bzw. `rvReviewMatches` zentriert auf das User-Match.
+    - Falls nein: Deaktiviert und ausgegraut (`isEnabled = false`, `alpha = 0.38f`).
+  - **„Ansicht wechseln“ (`fabToggleBracketView`):**
+    - Content-Description: `@string/cd_show_bracket_view` („Turnierbaum anzeigen“) bzw. `@string/cd_show_list_view` („Rundenliste anzeigen“).
+    - Icons: `ic_account_tree.xml` (Turnierbaum-Icon) vs. `ic_view_list.xml` (Listen-Icon).
+    - Schaltet `SettingsManager.isBracketViewEnabled` um (Default: `false`) und wechselt das Icon zwischen Turnierbaum und Liste.
+* **Turnierbaum-Geometrie & Runden-Fokus:**
+  - Fokus-Runde horizontal zentriert (~56 % der Bildschirmbreite).
+  - Vorgänger- und Nachfolger-Runde links und rechts jeweils zu ~38–40 % der Kachelbreite angeschnitten sichtbar.
+  - Dynamische vertikale Spreizung der Kacheln mit weicher Animation beim Rundenwechsel.
+  - Orthogonale Verbindungslinien zwischen den Runden (User-Siegespfad in `@color/rot_haupt` hervorgehoben).
+* **Sonderformate im Baum:**
+  - **Grand Slam of Darts:** 3er-Gruppentabelle als vorgeschaltetes Element vor der K.o.-Runde (`L16`).
+  - **Qualifier:** Board-Chips (`Board 1..K` + `Alle`) zur Filterung nach spezifischen Boards.
+  - **UK Open & European Open:** Darstellung des Turnierbaums ab dem jeweils ausgelosten Stand.
+
+
 ---
 
 ## 🏆 4. Ranglisten-Ansicht

@@ -195,4 +195,9 @@
     <!-- Kalender & Ranglisten -->
     <string name="no_tournaments_available">Keine Turniere vorhanden.</string>
     <string name="no_oom_data_available">Keine Ranglistendaten verfügbar.</string>
+
+    <!-- Turnierbaum & Schwebe-Buttons -->
+    <string name="cd_focus_user_match">Mein Match fokussieren</string>
+    <string name="cd_show_bracket_view">Turnierbaum anzeigen</string>
+    <string name="cd_show_list_view">Rundenliste anzeigen</string>
 </resources>
