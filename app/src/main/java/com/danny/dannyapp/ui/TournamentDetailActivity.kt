@@ -527,7 +527,7 @@ class TournamentDetailActivity : BaseActivity() {
                                             setTextColor(ContextCompat.getColor(this@TournamentDetailActivity, typedValue.resourceId))
                                         }
                                     }
-                                    UiHelper.bindSmartPlayerName(tvPlayer, player.name, player.seed, isLeft = true, countryCode = player.countryCode)
+                                    UiHelper.bindSmartPlayerName(tvPlayer, player.name, player.countryCode, player.seed, isLeft = true)
                                     rowLayout.addView(tvPlayer)
                                 }
 

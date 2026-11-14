@@ -203,7 +203,7 @@ object TournamentUiHelper {
                             }
                         }
                     }
-                    UiHelper.bindSmartPlayerName(tvRow, name, countryCode = countryCode)
+                    UiHelper.bindSmartPlayerName(tvRow, name, countryCode)
                     rowLayout.addView(tvRow)
                 }
 

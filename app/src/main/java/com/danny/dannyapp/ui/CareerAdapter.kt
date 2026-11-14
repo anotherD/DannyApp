@@ -43,7 +43,7 @@ class CareerAdapter(
             holder.tvCareerProfile.visibility = View.GONE
         }
         if (!careerWithProfile.playerName.isNullOrBlank()) {
-            val countryCode = careerWithProfile.countryCode ?: "DEU"
+            val countryCode = careerWithProfile.countryCode ?: "XYZ"
             UiHelper.formatFlagAndText(holder.tvCareerPlayer, countryCode, careerWithProfile.playerName)
             holder.tvCareerPlayer.visibility = View.VISIBLE
         } else {

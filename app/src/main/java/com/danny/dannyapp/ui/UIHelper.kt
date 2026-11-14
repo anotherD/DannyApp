@@ -46,7 +46,13 @@ object UiHelper {
         return Country.getWorldEmoji()
     }
 
-    // TODO: was macht es genau setzt den formartierten text in die textview
+    // baut Flagge und Text zusammen und setzt den text in die TextView, flagge immer links (TODO: parameter ergänzen)
+    // Aktuell genutzt für:
+    //   Anzeige des Profils in KarriereWidget
+    //   das sticki Widget in OOM    -> TODO: wieso nicht bei den anderen spielern?
+    //   den sieger in careerDetail  -> TODO: wieder einbauen, war buggy
+    //   ein Match (TODO: da aber separat nur die flagge (nötig? dann die Flagge auslagern)
+    //   den Spielort eines turniers -> TODO: prüfen warum 2mal
     fun formatFlagAndText(
         textView: TextView,
         countryCode: String,
@@ -69,11 +75,12 @@ object UiHelper {
                 val imageSpan = VerticalCenteredImageSpan(drawable, verticalOffsetPx = 9)
                 spanBuilder.setSpan(imageSpan, 0, 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
 
+                /* @SuppressLint("SetTextI18n") */
                 textView.text = spanBuilder
                 return
             }
         }
-        //TODO move to strings.xml
+        /* @SuppressLint("SetTextI18n") */
         textView.text = "${Country.getFlagEmoji(countryCode)} $text"
     }
 
@@ -87,14 +94,18 @@ object UiHelper {
     }
 
     // generiert eine Spielerzeile aus Name, Flagge und Setzlistenposition
-    // dabei wird
-    // setzt den Text in das angegebene TextView
+    // anschließend wird der Text in das angegebene TextView gesetzt
+    // Aktuell genutzt für:
+    //   ein Match
+    //   die Liste der Spieler in Lostöpfen: TournamentDetailActivity:530
+    //   die siegerliste bei abgeschlossenen turnieren
+    // TODO: Warum wird hier nicht der player übergeben? Weil er schon in den aufrufern nur als string zur verfügung steht-> refactor
     fun bindSmartPlayerName(
         textView: TextView,
         name: String,
+        countryCode: String? = null,
         seed: Int? = null,
         isLeft: Boolean = true,
-        countryCode: String? = null
     ) {
         val context = textView.context
 
