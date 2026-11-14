@@ -8,7 +8,6 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
-import com.danny.dannyapp.data.Country
 import com.danny.dannyapp.data.db.UserProfile
 
 class ProfileAdapter(
@@ -32,8 +31,7 @@ class ProfileAdapter(
         val profile = getItem(position)
         holder.tvProfileName.text = profile.name
 
-        val flagEmoji = Country.getFlagEmoji(profile.countryCode)
-        holder.tvPlayerNameAndFlag.text = "$flagEmoji ${profile.playerName}"
+        UiHelper.formatFlagAndText(holder.tvPlayerNameAndFlag, profile.countryCode, profile.playerName)
 
         if (profile.description.isNotBlank()) {
             holder.tvProfileDescription.text = profile.description

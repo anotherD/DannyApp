@@ -1,9 +1,5 @@
 package com.danny.dannyapp.ui.config
 
-import android.graphics.Canvas
-import android.graphics.Paint
-import android.graphics.drawable.Drawable
-import android.text.style.ImageSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,9 +8,8 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
-import com.danny.dannyapp.data.Country
 import com.danny.dannyapp.data.db.Player
-import androidx.core.graphics.withTranslation
+import com.danny.dannyapp.ui.UiHelper
 
 class ConfigPlayerAdapter : ListAdapter<Player, ConfigPlayerAdapter.PlayerViewHolder>(PlayerDiffCallback) {
 
@@ -34,24 +29,9 @@ class ConfigPlayerAdapter : ListAdapter<Player, ConfigPlayerAdapter.PlayerViewHo
     override fun onBindViewHolder(holder: PlayerViewHolder, position: Int) {
         val player = getItem(position)
         val context = holder.itemView.context
-        val flagResId = Country.getFlagResId(player.countryCode)
-        if (flagResId != null) {
-            val spanBuilder = android.text.SpannableStringBuilder("   ${player.name}")
-            val drawable = androidx.core.content.ContextCompat.getDrawable(context, flagResId)!!
-            val heightPx = (holder.tvPlayerName.textSize * 1.17f).toInt()
-            val widthPx = if (drawable.intrinsicWidth > 0 && drawable.intrinsicHeight > 0) {
-                (heightPx * drawable.intrinsicWidth.toFloat() / drawable.intrinsicHeight.toFloat()).toInt()
-            } else {
-                (heightPx * 1.5f).toInt()
-            }
-            drawable.setBounds(0, 0, widthPx, heightPx)
-            val imageSpan = VerticalCenteredImageSpan(drawable, verticalOffsetPx = 9)
-            spanBuilder.setSpan(imageSpan, 0, 1, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            holder.tvPlayerName.text = spanBuilder
-        } else {
-            val flagEmoji = Country.getFlagEmoji(player.countryCode)
-            holder.tvPlayerName.text = "$flagEmoji ${player.name}"
-        }
+
+        UiHelper.formatFlagAndText(holder.tvPlayerName, player.countryCode, player.name)
+
         holder.tvPlayerSkill.text = "L${player.skill}"
         
         val skillColor = getSkillColor(context, player.skill)
@@ -84,28 +64,6 @@ class ConfigPlayerAdapter : ListAdapter<Player, ConfigPlayerAdapter.PlayerViewHo
             else -> R.color.skill_level_10
         }
         return androidx.core.content.ContextCompat.getColor(context, resId)
-    }
-
-    private class VerticalCenteredImageSpan(
-        drawable: Drawable,
-        private val verticalOffsetPx: Int = 3
-    ) : ImageSpan(drawable, ALIGN_BASELINE) {
-        override fun draw(
-            canvas: Canvas,
-            text: CharSequence?,
-            start: Int,
-            end: Int,
-            x: Float,
-            top: Int,
-            y: Int,
-            bottom: Int,
-            paint: Paint
-        ) {
-            val b = drawable
-            canvas.withTranslation(x, (y - b.bounds.height() + verticalOffsetPx).toFloat()) {
-                b.draw(this)
-            }
-        }
     }
 
     private object PlayerDiffCallback : DiffUtil.ItemCallback<Player>() {
