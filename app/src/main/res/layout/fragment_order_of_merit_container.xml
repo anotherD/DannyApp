@@ -71,12 +71,15 @@
         android:id="@+id/cardStickyUserTop"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
+        android:layout_marginHorizontal="6dp"
         android:layout_marginTop="8dp"
         android:visibility="gone"
         app:cardBackgroundColor="@color/rot_container_dunkel"
-        app:cardCornerRadius="8dp"
-        app:cardElevation="8dp"
+        app:cardCornerRadius="10dp"
+        app:cardElevation="16dp"
+        android:translationZ="16dp"
+        android:outlineSpotShadowColor="#000000"
+        android:outlineAmbientShadowColor="#000000"
         app:strokeColor="@color/rot_haupt"
         app:strokeWidth="2dp"
         app:layout_constraintTop_toBottomOf="@id/scrollOomChips"
@@ -93,7 +96,7 @@
                 android:id="@+id/tvStickyRankTop"
                 android:layout_width="44dp"
                 android:layout_height="wrap_content"
-                android:gravity="end"
+                android:gravity="center"
                 android:maxLines="1"
                 android:textColor="@color/rot_sehr_hell"
                 android:textSize="16sp"
@@ -132,16 +135,31 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>
 
+    <View
+        android:id="@+id/shadowStickyTop"
+        android:layout_width="0dp"
+        android:layout_height="12dp"
+        android:layout_marginHorizontal="6dp"
+        android:background="@drawable/shadow_sticky_top"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/cardStickyUserTop"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:visibility="visible" />
+
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardStickyUserBottom"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
+        android:layout_marginHorizontal="6dp"
         android:layout_marginBottom="8dp"
         android:visibility="gone"
         app:cardBackgroundColor="@color/rot_container_dunkel"
-        app:cardCornerRadius="8dp"
-        app:cardElevation="8dp"
+        app:cardCornerRadius="10dp"
+        app:cardElevation="16dp"
+        android:translationZ="16dp"
+        android:outlineSpotShadowColor="#000000"
+        android:outlineAmbientShadowColor="#000000"
         app:strokeColor="@color/rot_haupt"
         app:strokeWidth="2dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -158,7 +176,7 @@
                 android:id="@+id/tvStickyRankBottom"
                 android:layout_width="44dp"
                 android:layout_height="wrap_content"
-                android:gravity="end"
+                android:gravity="center"
                 android:maxLines="1"
                 android:textColor="@color/rot_sehr_hell"
                 android:textSize="16sp"
@@ -196,5 +214,17 @@
                 tools:text="£45,000" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>
+
+    <View
+        android:id="@+id/shadowStickyBottom"
+        android:layout_width="0dp"
+        android:layout_height="12dp"
+        android:layout_marginHorizontal="6dp"
+        android:background="@drawable/shadow_sticky_bottom"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/cardStickyUserBottom"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:visibility="visible" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
