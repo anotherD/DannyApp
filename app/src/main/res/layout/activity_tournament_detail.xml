@@ -563,18 +563,6 @@
                     tools:text="Luke Humphries" />
 
                 <TextView
-                    android:id="@+id/tvReviewFinalScore"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:textColor="?attr/colorOnSurface"
-                    android:textSize="14sp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/tvReviewWinner"
-                    tools:text="Final-Ergebnis: 10 : 7" />
-
-                <TextView
                     android:id="@+id/tvReviewQualifierHeader"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -606,7 +594,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     app:barrierDirection="bottom"
-                    app:constraint_referenced_ids="tvReviewFinalScore,layoutReviewQualifierWinnersList" />
+                    app:constraint_referenced_ids="tvReviewWinner,layoutReviewQualifierWinnersList" />
 
                 <TextView
                     android:id="@+id/tvReviewUserRound"

@@ -20,10 +20,8 @@ class TournamentMatchAdapter(
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val cardMatch: MaterialCardView = view.findViewById(R.id.cardMatch)
         val tvMatchRoundIndex: TextView = view.findViewById(R.id.tvMatchRoundIndex)
-        val tvPlayer1Flag: TextView = view.findViewById(R.id.tvPlayer1Flag)
         val tvPlayer1Name: TextView = view.findViewById(R.id.tvPlayer1Name)
         val tvPlayer1Score: TextView = view.findViewById(R.id.tvPlayer1Score)
-        val tvPlayer2Flag: TextView = view.findViewById(R.id.tvPlayer2Flag)
         val tvPlayer2Name: TextView = view.findViewById(R.id.tvPlayer2Name)
         val tvPlayer2Score: TextView = view.findViewById(R.id.tvPlayer2Score)
     }
@@ -42,10 +40,7 @@ class TournamentMatchAdapter(
         val groupPrefix = if (!match.groupName.isNullOrBlank()) "Gruppe ${match.groupName} • " else ""
         holder.tvMatchRoundIndex.text = "${groupPrefix}#${match.matchIndex + 1}"
 
-        bindPlayerFlag(context, holder.tvPlayer1Flag, item.player1.countryCode ?: "XYZ")
         UiHelper.bindSmartPlayerName(holder.tvPlayer1Name, item.player1, isLeft = true)
-
-        bindPlayerFlag(context, holder.tvPlayer2Flag, item.player2.countryCode ?: "XYZ")
         UiHelper.bindSmartPlayerName(holder.tvPlayer2Name, item.player2, isLeft = false)
 
         if (item.isCompleted) {
@@ -90,10 +85,6 @@ class TournamentMatchAdapter(
         holder.itemView.setOnClickListener {
             onMatchClick(item)
         }
-    }
-
-    private fun bindPlayerFlag(context: android.content.Context, tvFlag: TextView, countryCode: String) {
-        UiHelper.formatFlagAndText(tvFlag, countryCode, "")
     }
 
     private object MatchDiffCallback : DiffUtil.ItemCallback<MatchUiModel>() {

@@ -31,30 +31,20 @@
 
             <!-- Player 1 -->
             <TextView
-                android:id="@+id/tvPlayer1Flag"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="16sp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:text="🏴󠁧󠁢󠁥󠁮󠁧󠁿" />
-
-            <TextView
                 android:id="@+id/tvPlayer1Name"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="6dp"
+                android:layout_marginStart="0dp"
                 android:layout_marginEnd="6dp"
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:textColor="?attr/colorOnSurface"
                 android:textSize="14sp"
                 android:textStyle="bold"
-                app:layout_constraintBottom_toBottomOf="@id/tvPlayer1Flag"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/tvPlayer1Score"
-                app:layout_constraintStart_toEndOf="@id/tvPlayer1Flag"
-                app:layout_constraintTop_toTopOf="@id/tvPlayer1Flag"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
                 tools:text="Luke Humphries" />
 
             <!-- Score Center -->
@@ -99,31 +89,21 @@
 
             <!-- Player 2 -->
             <TextView
-                android:id="@+id/tvPlayer2Flag"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="16sp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:text="🇳🇱" />
-
-            <TextView
                 android:id="@+id/tvPlayer2Name"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="6dp"
-                android:layout_marginEnd="6dp"
+                android:layout_marginEnd="0dp"
                 android:ellipsize="end"
                 android:gravity="end"
                 android:maxLines="1"
                 android:textColor="?attr/colorOnSurface"
                 android:textSize="14sp"
                 android:textStyle="bold"
-                app:layout_constraintBottom_toBottomOf="@id/tvPlayer2Flag"
-                app:layout_constraintEnd_toStartOf="@id/tvPlayer2Flag"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/tvPlayer2Score"
-                app:layout_constraintTop_toTopOf="@id/tvPlayer2Flag"
+                app:layout_constraintTop_toTopOf="parent"
                 tools:text="Michael van Gerwen" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>

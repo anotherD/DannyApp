@@ -86,7 +86,6 @@ class TournamentDetailActivity : BaseActivity() {
     private lateinit var layoutReviewQualifierWinnersList: LinearLayout
     private lateinit var btnPrizeInfoReview: View
     private lateinit var tvStatusBadgeReview: TextView
-    private lateinit var tvReviewFinalScore: TextView
     private lateinit var tvReviewUserRound: TextView
     private lateinit var tvReviewUserPrize: TextView
     private lateinit var scrollReviewRoundPills: HorizontalScrollView
@@ -263,7 +262,6 @@ class TournamentDetailActivity : BaseActivity() {
         layoutReviewQualifierWinnersList = findViewById(R.id.layoutReviewQualifierWinnersList)
         btnPrizeInfoReview = findViewById(R.id.btnPrizeInfoReview)
         tvStatusBadgeReview = findViewById(R.id.tvStatusBadgeReview)
-        tvReviewFinalScore = findViewById(R.id.tvReviewFinalScore)
         tvReviewUserRound = findViewById(R.id.tvReviewUserRound)
         tvReviewUserPrize = findViewById(R.id.tvReviewUserPrize)
         scrollReviewRoundPills = findViewById(R.id.scrollReviewRoundPills)
@@ -585,14 +583,12 @@ class TournamentDetailActivity : BaseActivity() {
                     )
                     tvReviewWinnerLabel.visibility = View.GONE
                     tvReviewWinner.visibility = View.GONE
-                    tvReviewFinalScore.visibility = View.GONE
                 } else {
                     tvReviewQualifierHeader.visibility = View.GONE
                     layoutReviewQualifierWinnersList.visibility = View.GONE
                     tvReviewWinnerLabel.visibility = View.VISIBLE
                     tvReviewWinner.visibility = View.VISIBLE
                     UiHelper.bindSmartPlayerName(tvReviewWinner, state.winner)
-                    tvReviewFinalScore.visibility = View.GONE
                 }
                 tvReviewUserRound.text = getString(R.string.tournament_review_user_round, state.userReachedRoundText)
                 tvReviewUserPrize.text = getString(R.string.tournament_review_user_prize, state.userEarnedPrizeMoneyText)

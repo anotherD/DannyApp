@@ -57,7 +57,8 @@ object UiHelper {
     fun formatFlagAndText(
         textView: TextView,
         countryCode: String,
-        text: String
+        text: String,
+        isLeft: Boolean = true
     ) {
         val flagResId = Country.getFlagResId(countryCode)
         // Sonderfall Nordirland (kein Country.getFlagEmoji(countryCode))
@@ -65,7 +66,11 @@ object UiHelper {
             // Hier einfach textView.context verwenden!
             val drawable = ContextCompat.getDrawable(textView.context, flagResId)
             if (drawable != null) {
-                val spanBuilder = SpannableStringBuilder("   $text")
+                val spanBuilder = if (isLeft) {
+                    SpannableStringBuilder("   $text")
+                } else {
+                    SpannableStringBuilder("$text   ")
+                }
                 val heightPx = (textView.textSize * 1.17f).toInt()
                 val widthPx = if (drawable.intrinsicWidth > 0 && drawable.intrinsicHeight > 0) {
                     (heightPx * drawable.intrinsicWidth.toFloat() / drawable.intrinsicHeight.toFloat()).toInt()
@@ -74,7 +79,11 @@ object UiHelper {
                 }
                 drawable.setBounds(0, 0, widthPx, heightPx)
                 val imageSpan = VerticalCenteredImageSpan(drawable, verticalOffsetPx = 9)
-                spanBuilder.setSpan(imageSpan, 0, 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                if (isLeft) {
+                    spanBuilder.setSpan(imageSpan, 0, 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                } else {
+                    spanBuilder.setSpan(imageSpan, spanBuilder.length - 1, spanBuilder.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                }
 
                 /* @SuppressLint("SetTextI18n") */
                 textView.text = spanBuilder
@@ -82,7 +91,11 @@ object UiHelper {
             }
         }
         /* @SuppressLint("SetTextI18n") */
-        textView.text = "${Country.getFlagEmoji(countryCode)} $text"
+        textView.text = if (isLeft) {
+            "${Country.getFlagEmoji(countryCode)} $text"
+        } else {
+            "$text ${Country.getFlagEmoji(countryCode)}"
+        }
     }
 
     // Vornamen kürzen und mit Punkt verbinden
@@ -119,7 +132,7 @@ object UiHelper {
                 playerText
             }
             if (!countryCode.isNullOrBlank()) {
-                formatFlagAndText(textView, countryCode, textWithSeed)
+                formatFlagAndText(textView, countryCode, textWithSeed, isLeft)
             } else {
                 textView.text = textWithSeed
             }
@@ -151,7 +164,7 @@ object UiHelper {
                     widthPx.toFloat() + paint.measureText("  ")
                 } else {
                     val flagEmoji = Country.getFlagEmoji(countryCode)
-                    paint.measureText("$flagEmoji ")
+                    paint.measureText(if (isLeft) "$flagEmoji " else " $flagEmoji")
                 }
             } else 0f
 
