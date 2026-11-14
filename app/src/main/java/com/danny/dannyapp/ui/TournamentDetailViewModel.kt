@@ -458,7 +458,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
                 val p = allPlayersMap[winnerId]
                 Pair(p?.name ?: "Unbekannt", Country.getFlagEmoji(p?.countryCode ?: "XYZ"))
             }
-        } else Pair("Unbekannt", "🌐")
+        } else Pair("Unbekannt", UiHelper.getWorldEmoji())
 
         val opponentId = if (winnerId != null && finalMatch != null) {
             if (finalMatch.player1Id == winnerId) finalMatch.player2Id else finalMatch.player1Id
@@ -471,7 +471,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
                 val p = allPlayersMap[opponentId]
                 Pair(p?.name ?: "Unbekannt", Country.getFlagEmoji(p?.countryCode ?: "XYZ"))
             }
-        } else Pair("Unbekannt", "🌐")
+        } else Pair("Unbekannt", UiHelper.getWorldEmoji())
 
 ////////////////////////////////////////////////////////////////
 //        val winnerId = finalMatch?.winnerId

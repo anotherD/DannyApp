@@ -527,7 +527,7 @@ class TournamentDetailActivity : BaseActivity() {
                                             setTextColor(ContextCompat.getColor(this@TournamentDetailActivity, typedValue.resourceId))
                                         }
                                     }
-                                    TournamentUiHelper.bindSmartPlayerName(tvPlayer, player.name, player.seed, isLeft = true, countryCode = player.countryCode)
+                                    UiHelper.bindSmartPlayerName(tvPlayer, player.name, player.seed, isLeft = true, countryCode = player.countryCode)
                                     rowLayout.addView(tvPlayer)
                                 }
 
@@ -590,7 +590,7 @@ class TournamentDetailActivity : BaseActivity() {
                     tvReviewWinner.visibility = View.VISIBLE
 
                     tvReviewWinner.text = getString(R.string.tournament_review_winner, state.winnerFlag, state.winnerName)
-//                    TournamentUiHelper.formatFlagAndText(
+//                    UiHelper.formatFlagAndText(
 //                        this,
 //                        tvReviewWinner,
 //                        state.winnerCountryCode,

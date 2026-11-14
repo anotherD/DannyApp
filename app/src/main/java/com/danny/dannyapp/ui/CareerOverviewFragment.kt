@@ -78,7 +78,7 @@ class CareerOverviewFragment : Fragment(R.layout.fragment_career_overview) {
                                             (heightPx * 1.5f).toInt()
                                         }
                                         drawable.setBounds(0, 0, widthPx, heightPx)
-                                        val imageSpan = TournamentUiHelper.VerticalCenteredImageSpan(drawable, verticalOffsetPx = 9)
+                                        val imageSpan = UiHelper.VerticalCenteredImageSpan(drawable, verticalOffsetPx = 9)
                                         sb.setSpan(imageSpan, start, start + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                                     }
                                 } else {

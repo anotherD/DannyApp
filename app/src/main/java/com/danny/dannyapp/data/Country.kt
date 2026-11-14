@@ -20,8 +20,7 @@ data class Country(
 
         fun isValidCode(code: String): Boolean {
             val upper = code.trim().uppercase()
-            if (HOME_NATIONS.containsKey(upper)) return true
-            return getIso2FromCode(upper).isNotEmpty()
+            return HOME_NATIONS.containsKey(upper) || getIso2FromCode(upper).isNotEmpty()
         }
 
         fun getDisplayName(code: String): String {
@@ -35,10 +34,14 @@ data class Country(
             HOME_NATIONS[upper]?.let { return it.second }
             val iso2 = getIso2FromCode(upper)
             if (iso2.isEmpty()) {
-                Log.w(TAG, "Keine Flagge für Ländercode '$code' gefunden! Verwende Fallback 🌐")
-                return "🌐"
+                Log.w(TAG, "Keine Flagge für Ländercode '$code' gefunden! Verwende Fallback " + getWorldEmoji())
+                return getWorldEmoji()
             }
             return getFlagEmojiFromIso2(iso2)
+        }
+
+        fun getWorldEmoji(): String {
+            return "🌐"
         }
 
         // Sonderfall für Nordirland (NIR): Android unterstützt keine nativen Emoji-Flaggen für NIR.
@@ -87,7 +90,7 @@ data class Country(
         }
 
         private fun getFlagEmojiFromIso2(iso2: String): String {
-            if (iso2.length != 2) return "🌐"
+            if (iso2.length != 2) return getWorldEmoji()
             val upper = iso2.uppercase()
             val firstChar = Character.codePointAt(upper, 0) - 0x41 + 0x1F1E6
             val secondChar = Character.codePointAt(upper, 1) - 0x41 + 0x1F1E6

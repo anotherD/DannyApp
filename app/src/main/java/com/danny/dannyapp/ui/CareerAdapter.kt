@@ -44,7 +44,7 @@ class CareerAdapter(
         }
         if (!careerWithProfile.playerName.isNullOrBlank()) {
             val countryCode = careerWithProfile.countryCode ?: "DEU"
-            TournamentUiHelper.formatFlagAndText(context, holder.tvCareerPlayer, countryCode, careerWithProfile.playerName)
+            UiHelper.formatFlagAndText(context, holder.tvCareerPlayer, countryCode, careerWithProfile.playerName)
             holder.tvCareerPlayer.visibility = View.VISIBLE
         } else {
             holder.tvCareerPlayer.visibility = View.GONE

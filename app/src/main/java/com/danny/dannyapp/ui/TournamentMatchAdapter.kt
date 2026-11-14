@@ -62,10 +62,10 @@ class TournamentMatchAdapter(
         holder.tvMatchRoundIndex.text = "${groupPrefix}#${match.matchIndex + 1}"
 
         bindPlayerFlag(context, holder.tvPlayer1Flag, item.player1CountryCode)
-        TournamentUiHelper.bindSmartPlayerName(holder.tvPlayer1Name, item.player1Name, item.player1Seed, isLeft = true)
+        UiHelper.bindSmartPlayerName(holder.tvPlayer1Name, item.player1Name, item.player1Seed, isLeft = true)
 
         bindPlayerFlag(context, holder.tvPlayer2Flag, item.player2CountryCode)
-        TournamentUiHelper.bindSmartPlayerName(holder.tvPlayer2Name, item.player2Name, item.player2Seed, isLeft = false)
+        UiHelper.bindSmartPlayerName(holder.tvPlayer2Name, item.player2Name, item.player2Seed, isLeft = false)
 
         if (item.isCompleted) {
             holder.tvPlayer1Score.text = match.player1Score.toString()
@@ -112,7 +112,7 @@ class TournamentMatchAdapter(
     }
 
     private fun bindPlayerFlag(context: android.content.Context, tvFlag: TextView, countryCode: String) {
-        TournamentUiHelper.formatFlagAndText(context, tvFlag, countryCode, "")
+        UiHelper.formatFlagAndText(context, tvFlag, countryCode, "")
     }
 
     private object MatchDiffCallback : DiffUtil.ItemCallback<MatchUiModel>() {

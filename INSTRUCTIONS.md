@@ -25,5 +25,5 @@
   - `QUALIFIER_ET` (ET-Qualifier): Dunkelrot
   - `EUROPEAN_TOUR`: Rubinrot
   - `PLAYERS_CHAMPIONSHIP`: Neutrales Dunkelgrau
-- **Flaggen & Spielernamen (Zentrale Helper-Pflicht):** Für das Rendern von Landesflaggen, Spielernamen und dynamischen Namenskürzungen müssen zwingend die zentralen Methoden in `TournamentUiHelper` (`formatFlagAndText`, `bindSmartPlayerName`) genutzt werden. `Country.getFlagEmoji(...)` darf niemals direkt in UI-Strings oder TextViews verwendet werden, da sonst Nordirland (`NIR`) als schwarze Flagge dargestellt wird.
+- **Flaggen & Spielernamen (Zentrale Helper-Pflicht):** Für das Rendern von Landesflaggen, Spielernamen und dynamischen Namenskürzungen müssen zwingend die zentralen Methoden in `UiHelper` (`formatFlagAndText`, `bindSmartPlayerName`) genutzt werden. `Country.getFlagEmoji(...)` darf niemals direkt in UI-Strings oder TextViews verwendet werden, da sonst Nordirland (`NIR`) als schwarze Flagge dargestellt wird.
 

@@ -1,5 +1,9 @@
 package com.danny.dannyapp.ui
 
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.drawable.Drawable
+import android.text.style.ImageSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,6 +16,7 @@ import com.danny.dannyapp.R
 import com.danny.dannyapp.data.Country
 import com.danny.dannyapp.domain.model.OrderOfMeritEntry
 import com.google.android.material.card.MaterialCardView
+import androidx.core.graphics.withTranslation
 
 class OrderOfMeritAdapter : ListAdapter<OrderOfMeritEntry, OrderOfMeritAdapter.OomViewHolder>(OomDiffCallback) {
 
@@ -64,11 +69,11 @@ class OrderOfMeritAdapter : ListAdapter<OrderOfMeritEntry, OrderOfMeritAdapter.O
     }
 
     private class VerticalCenteredImageSpan(
-        drawable: android.graphics.drawable.Drawable,
+        drawable: Drawable,
         private val verticalOffsetPx: Int = 3
-    ) : android.text.style.ImageSpan(drawable, ALIGN_BASELINE) {
+    ) : ImageSpan(drawable, ALIGN_BASELINE) {
         override fun draw(
-            canvas: android.graphics.Canvas,
+            canvas: Canvas,
             text: CharSequence?,
             start: Int,
             end: Int,
@@ -76,13 +81,12 @@ class OrderOfMeritAdapter : ListAdapter<OrderOfMeritEntry, OrderOfMeritAdapter.O
             top: Int,
             y: Int,
             bottom: Int,
-            paint: android.graphics.Paint
+            paint: Paint
         ) {
             val b = drawable
-            canvas.save()
-            canvas.translate(x, (y - b.bounds.height() + verticalOffsetPx).toFloat())
-            b.draw(canvas)
-            canvas.restore()
+            canvas.withTranslation(x, (y - b.bounds.height() + verticalOffsetPx).toFloat()) {
+                b.draw(this)
+            }
         }
     }
 
