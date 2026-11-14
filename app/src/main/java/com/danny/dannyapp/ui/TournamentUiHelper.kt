@@ -185,11 +185,12 @@ object TournamentUiHelper {
         context: Context,
         textView: TextView,
         countryCode: String,
-        text: String
+        text: String,
+        prefix: String = ""
     ) {
         val flagResId = Country.getFlagResId(countryCode)
         if (flagResId != null) {
-            val spanText = if (text.isEmpty()) " " else "   $text"
+            val spanText = if (text.isEmpty()) "${prefix} " else "${prefix}   $text"
             val spanBuilder = SpannableStringBuilder(spanText)
             val drawable = ContextCompat.getDrawable(context, flagResId)
             if (drawable != null) {
@@ -201,13 +202,15 @@ object TournamentUiHelper {
                 }
                 drawable.setBounds(0, 0, widthPx, heightPx)
                 val imageSpan = VerticalCenteredImageSpan(drawable, verticalOffsetPx = 9)
-                spanBuilder.setSpan(imageSpan, 0, 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                val start = prefix.length
+                val end = start + 1
+                spanBuilder.setSpan(imageSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                 textView.text = spanBuilder
                 return
             }
         }
         val flagEmoji = Country.getFlagEmoji(countryCode)
-        textView.text = if (text.isEmpty()) flagEmoji else "$flagEmoji $text"
+        textView.text = if (text.isEmpty()) "$prefix$flagEmoji" else "$prefix$flagEmoji $text"
     }
 
     fun abbreviateName(name: String): String {

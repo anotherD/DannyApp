@@ -76,8 +76,8 @@ Jedes Turnier im Saisonkalender ist anklickbar und öffnet die Turnieransicht in
   - **Zentrale Steuerung:** Die Schalter **„Automatische Simulation“** und **„Automatisch zur nächsten Runde“** liegen zentral in der **Konfiguration (`ConfigActivity`)** und werden über `SettingsManager` gesteuert. Die manuellen Simulations-Buttons in der Turnieransicht sind nur bei `debugMode == true` sichtbar.
 3. **Rückblick-Modus (`isCompleted == true`):**
   - Nutzt dieselbe Runden-Pills-Ansicht wie der aktive Modus (read-only ohne Simulations-Buttons).
-  - **Einzelsieger-Turniere:** Zeigt oben die Zusammenfassung **Sieger** (inkl. Vektor-Landesflagge via `TournamentUiHelper.formatFlagAndText`), **Final-Ergebnis** (inkl. Name & Vektor-Landesflagge des Finalgegners via `TournamentUiHelper.formatFlagAndText`), **Deine erreichte Runde** (`reachedRound`) und **Gewonnenes Preisgeld** (`prizeMoney` aus `tournament_placements`).
-  - **Multi-Sieger-Qualifier:** Zeigt die formatierte Gewinner-Liste als **2-spaltige** vertikale Liste unter `@string/qualifier_winners_header` (`Qualifier-Gewinner:`) an und blendet das Final-Ergebnis (`tvReviewFinalScore`) aus.
+  - **Einzelsieger-Turniere:** Zeigt oben die Zusammenfassung **Sieger** (mit Präfix „Sieger: “, gefolgt von der Landesflagge via `TournamentUiHelper.formatFlagAndText(..., prefix = getString(R.string.tournament_review_winner_prefix))`), während die Final-Ergebnis-Zeile ausgeblendet ist (`tvReviewFinalScore.visibility = View.GONE`), sowie Deine erreichte Runde (`reachedRound`) und das gewonnene Preisgeld (`prizeMoney` aus `tournament_placements`).
+  - **Multi-Sieger-Qualifier:** Zeigt die formatierte Gewinner-Liste als **2-spaltige** vertikale Liste unter `@string/qualifier_winners_header` (`Qualifier-Gewinner:`) an.
 
 ### 3.1 Die Optionen für User-Matches (`USER_ID = -1L`)
 Ist ein offenes Match mit Beteiligung des Users an der Reihe, erhält der User beim Klick auf sein Match folgende Auswahlmöglichkeiten:
@@ -89,12 +89,12 @@ Ist ein offenes Match mit Beteiligung des Users an der Reihe, erhält der User b
 
 ## 🏆 4. Ranglisten-Ansicht
 
-* **Pill-Navigation (`ChipGroup`):** Kompakte horizontale `ChipGroup` (Single-Selection) zur Auswahl zwischen den 4 Ranglisten (`Order of Merit (OOM)`, `Pro Tour (PT OOM)`, `Players Champ. (PC OOM)`, `European Tour (ET OOM)`). Dadurch entfällt die verschachtelte Wisch-Logik und das Wischen nach links/rechts wechselt jederzeit zuverlässig zwischen *Übersicht / Saisonkalender / Ranglisten*.
+* **Pill-Navigation (`ChipGroup`):** Kompakte horizontale `ChipGroup` (Single-Selection) mit deaktiviertem Haken (`app:checkedIconVisible="false"` bei allen 4 Chips `chipOomMain`, `chipOomProTour`, `chipOomPlayersChamp`, `chipOomEuropeanTour`) zur Auswahl zwischen den 4 Ranglisten (`Order of Merit (OOM)`, `Pro Tour (PT OOM)`, `Players Champ. (PC OOM)`, `European Tour (ET OOM)`). Dadurch entfällt die verschachtelte Wisch-Logik und das Wischen nach links/rechts wechselt jederzeit zuverlässig zwischen *Übersicht / Saisonkalender / Ranglisten*.
 * **Datenquelle:** Ruft `GetOrderOfMeritUseCase(careerId, type)` auf (zeigt beim User seinen hinterlegten `playerName` und seine Landesflagge).
 * **Darstellung & Ausrichtung:** Tabelle mit Platzierung (`rank`), **Landesflagge** (statt Text-Kürzel), Spielername (`name`), Preisgeld (`prizeMoney` in `£`) und optischer Hervorhebung der eigenen Zeile (`isUser == true`).
   - **Formatierung der Ränge & Namen (`item_order_of_merit.xml`, `fragment_order_of_merit_container.xml`):**
     - `tvRank` sowie `tvStickyRankTop` und `tvStickyRankBottom` sind zentriert ausgerichtet (`android:gravity="center"`), haben eine feste Breite von `44dp` und `android:maxLines="1"`.
-    - `tvPlayerName`, `tvStickyPlayerNameTop` und `tvStickyPlayerNameBottom` nutzen `android:layout_marginStart="12dp"`, wodurch alle Spielernamen und Landesflaggen exakt in einer Flucht stehen.
+    - `tvPlayerName`, `tvStickyPlayerNameTop` und `tvStickyPlayerNameBottom` nutzen `android:layout_marginStart="4dp"` (für einen reduzierten Abstand zur Platzierungsnummer), wodurch alle Spielernamen und Landesflaggen exakt in einer Flucht stehen.
 * **Dynamische Sticky-User-Karten & Schwebe-Effekt (`OrderOfMeritFragment.kt`):**
   * Ist die Zeile des Users außerhalb des sichtbaren Bereichs platziert, wird dynamisch eine Sticky-User-Karte eingeblendet (`cardStickyUserTop` unter der Tab-Leiste bzw. `cardStickyUserBottom` am unteren Bildschirmrand).
   * **Design & Angleichung:** Die Sticky-Karten sind breiter als die normalen Listenkacheln (`android:layout_marginHorizontal="6dp"`), besitzen einen Radius von `app:cardCornerRadius="10dp"`, eine Tiefe von `app:cardElevation="16dp"`, `android:translationZ="16dp"`, tiefschwarze Schlagschatten (`android:outlineSpotShadowColor="#000000"`, `android:outlineAmbientShadowColor="#000000"`), einen 2dp Rahmen (`app:strokeWidth="2dp"`, `app:strokeColor="@color/rot_haupt"`) und behalten `@color/rot_container_dunkel` bei.
