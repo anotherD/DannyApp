@@ -226,6 +226,10 @@ class TournamentDetailActivity : BaseActivity() {
             btnSimulateCpuMatches.visibility = if (debugMode && canPlay) View.VISIBLE else View.GONE
             btnSimulateComplete.visibility = if (debugMode && canPlay) View.VISIBLE else View.GONE
         }
+        if (::activeMatchesAdapter.isInitialized) activeMatchesAdapter.notifyDataSetChanged()
+        if (::reviewMatchesAdapter.isInitialized) reviewMatchesAdapter.notifyDataSetChanged()
+        if (::activeBracketAdapter.isInitialized) activeBracketAdapter.notifyDataSetChanged()
+        if (::reviewBracketAdapter.isInitialized) reviewBracketAdapter.notifyDataSetChanged()
     }
 
     private fun initViews() {
