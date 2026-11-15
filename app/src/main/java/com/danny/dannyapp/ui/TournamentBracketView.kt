@@ -4,7 +4,11 @@ import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
+import android.graphics.Typeface
+import android.graphics.drawable.GradientDrawable
+import android.text.TextUtils
 import android.util.AttributeSet
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.VelocityTracker
@@ -16,6 +20,7 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.danny.dannyapp.R
 import com.danny.dannyapp.data.db.USER_ID
+import com.danny.dannyapp.ui.enums.RoundStatus
 import com.danny.dannyapp.ui.model.MatchUiModel
 import com.google.android.material.card.MaterialCardView
 import kotlin.math.abs
@@ -36,7 +41,10 @@ class TournamentBracketView @JvmOverloads constructor(
     var onRoundSelected: ((Int) -> Unit)? = null
 
     private var roundsMatches: List<List<MatchUiModel>> = emptyList()
-    private var roundViews: List<List<View>> = emptyList()
+    private var matchViews: List<List<View>> = emptyList()
+    private var headerDisplayNames: List<String> = emptyList()
+    private var headerStatuses: List<RoundStatus> = emptyList()
+    private var headerViews: List<View> = emptyList()
 
     private var selectedRoundIndex: Int = 0
     private var focusedRoundFloat: Float = 0f
@@ -74,21 +82,40 @@ class TournamentBracketView @JvmOverloads constructor(
     }
 
     /**
+     * Setzt die Runden-Header (Namen und Status) für den Turnierbaum.
+     */
+    fun setRoundHeaders(displayNames: List<String>, statuses: List<RoundStatus>) {
+        if (this.headerDisplayNames != displayNames || this.headerStatuses != statuses) {
+            this.headerDisplayNames = displayNames
+            this.headerStatuses = statuses
+            rebuildHeaderViews()
+            requestLayout()
+            invalidate()
+        } else {
+            updateHeaderStyles()
+        }
+    }
+
+    /**
      * Setzt die Runden- und Match-Daten des Turnierbaums.
      */
     fun setRounds(roundsMatches: List<List<MatchUiModel>>, initialRoundIndex: Int = 0) {
-        this.roundsMatches = roundsMatches
-        focusedAnimator?.cancel()
-        overScroller.forceFinished(true)
+        if (this.roundsMatches != roundsMatches) {
+            this.roundsMatches = roundsMatches
+            focusedAnimator?.cancel()
+            overScroller.forceFinished(true)
 
-        val targetRound = initialRoundIndex.coerceIn(0, (roundsMatches.size - 1).coerceAtLeast(0))
-        selectedRoundIndex = targetRound
-        focusedRoundFloat = targetRound.toFloat()
-        scrollYOffset = 0f
+            val targetRound = initialRoundIndex.coerceIn(0, (roundsMatches.size - 1).coerceAtLeast(0))
+            selectedRoundIndex = targetRound
+            focusedRoundFloat = targetRound.toFloat()
+            scrollYOffset = 0f
 
-        rebuildViews()
-        requestLayout()
-        invalidate()
+            rebuildViews()
+            requestLayout()
+            invalidate()
+        } else {
+            selectRound(initialRoundIndex, animate = false)
+        }
     }
 
     /**
@@ -98,6 +125,7 @@ class TournamentBracketView @JvmOverloads constructor(
         if (roundsMatches.isEmpty()) return
         val targetIndex = roundIndex.coerceIn(0, roundsMatches.lastIndex)
         selectedRoundIndex = targetIndex
+        updateHeaderStyles()
 
         val startFocus = focusedRoundFloat
         val targetFocus = targetIndex.toFloat()
@@ -144,7 +172,9 @@ class TournamentBracketView @JvmOverloads constructor(
         }
         val targetCenterY = computeMatchCenterY(r, matchIndex, r.toFloat())
         val viewHeight = height.toFloat()
-        val targetScrollY = (targetCenterY - viewHeight / 2f).coerceIn(0f, computeMaxScrollYForFocus(r.toFloat()))
+        val headerHeight = 40f * density
+        val availableHeight = viewHeight - headerHeight - paddingTop.toFloat() - paddingBottom.toFloat()
+        val targetScrollY = (targetCenterY - headerHeight - paddingTop.toFloat() - availableHeight / 2f).coerceIn(0f, computeMaxScrollYForFocus(r.toFloat()))
 
         val startScrollY = scrollYOffset
         if (abs(targetScrollY - startScrollY) > 1f) {
@@ -167,33 +197,109 @@ class TournamentBracketView @JvmOverloads constructor(
      * Aktualisiert die Kachel-Farbschemata ohne Neuaufbau.
      */
     fun refreshStyles() {
-        for (r in roundViews.indices) {
-            val views = roundViews[r]
+        for (r in matchViews.indices) {
+            val views = matchViews[r]
             val models = roundsMatches.getOrNull(r) ?: continue
             for (m in views.indices) {
                 val item = models.getOrNull(m) ?: continue
                 bindMatchView(views[m], item)
             }
         }
+        updateHeaderStyles()
         invalidate()
     }
 
     private fun rebuildViews() {
-        removeAllViews()
-        val newRoundViews = mutableListOf<List<View>>()
+        for (list in matchViews) {
+            for (v in list) {
+                removeView(v)
+            }
+        }
+        matchViews = emptyList()
 
         val inflater = LayoutInflater.from(context)
-        for ((r, roundMatches) in roundsMatches.withIndex()) {
+        val newMatchViews = mutableListOf<List<View>>()
+        var insertIndex = 0
+        for (roundMatches in roundsMatches) {
             val currentRoundViews = mutableListOf<View>()
             for (item in roundMatches) {
                 val cardView = inflater.inflate(R.layout.item_bracket_match, this, false)
                 bindMatchView(cardView, item)
-                addView(cardView)
+                addView(cardView, insertIndex++)
                 currentRoundViews.add(cardView)
             }
-            newRoundViews.add(currentRoundViews)
+            newMatchViews.add(currentRoundViews)
         }
-        this.roundViews = newRoundViews
+        this.matchViews = newMatchViews
+    }
+
+    private fun rebuildHeaderViews() {
+        for (v in headerViews) {
+            removeView(v)
+        }
+        val newHeaderViews = mutableListOf<View>()
+        for ((r, displayName) in headerDisplayNames.withIndex()) {
+            val status = headerStatuses.getOrNull(r) ?: RoundStatus.PENDING
+            val headerView = createHeaderView(r, displayName, status)
+            addView(headerView)
+            newHeaderViews.add(headerView)
+        }
+        headerViews = newHeaderViews
+    }
+
+    private fun createHeaderView(r: Int, displayName: String, status: RoundStatus): View {
+        val textView = TextView(context).apply {
+            text = displayName
+            textSize = 12f
+            typeface = Typeface.DEFAULT_BOLD
+            gravity = Gravity.CENTER
+            maxLines = 1
+            ellipsize = TextUtils.TruncateAt.END
+            val pxPaddingH = (12 * density).toInt()
+            val pxPaddingV = (4 * density).toInt()
+            setPadding(pxPaddingH, pxPaddingV, pxPaddingH, pxPaddingV)
+
+            setOnClickListener {
+                selectRound(r, animate = true)
+                onRoundSelected?.invoke(r)
+            }
+        }
+        styleHeaderView(textView, r, status)
+        return textView
+    }
+
+    private fun styleHeaderView(textView: TextView, r: Int, status: RoundStatus) {
+        val isSelected = (r == selectedRoundIndex)
+        val bgRes = when (status) {
+            RoundStatus.COMPLETED -> R.color.status_completed
+            RoundStatus.ACTIVE -> R.color.status_active
+            RoundStatus.PENDING -> R.color.anthrazit_container_niedrig
+        }
+        val textRes = when (status) {
+            RoundStatus.ACTIVE -> R.color.white
+            else -> R.color.grau_text_gedaempft
+        }
+
+        val bgDrawable = GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            cornerRadius = 14f * density
+            setColor(ContextCompat.getColor(context, bgRes))
+            if (isSelected) {
+                setStroke((2f * density).toInt(), ContextCompat.getColor(context, R.color.white))
+            } else {
+                setStroke(0, 0)
+            }
+        }
+        textView.background = bgDrawable
+        textView.setTextColor(ContextCompat.getColor(context, textRes))
+    }
+
+    private fun updateHeaderStyles() {
+        for ((r, view) in headerViews.withIndex()) {
+            val textView = view as? TextView ?: continue
+            val status = headerStatuses.getOrNull(r) ?: RoundStatus.PENDING
+            styleHeaderView(textView, r, status)
+        }
     }
 
     private fun bindMatchView(view: View, item: MatchUiModel) {
@@ -247,11 +353,9 @@ class TournamentBracketView @JvmOverloads constructor(
 
     private fun computeIntegerFocusY(r: Int, m: Int, focusInt: Int): Float {
         val tileHeight = 68f * density
-        val minMargin = 8f * density
-        val minSlotHeight = tileHeight + minMargin
-        val baseSlotHeight = minSlotHeight
-
-        val paddingTopPx = paddingTop.toFloat() + 8f * density
+        val baseSlotHeight = 76f * density
+        val headerHeight = 40f * density
+        val paddingTopPx = paddingTop.toFloat() + headerHeight + 8f * density
 
         if (r == focusInt) {
             return paddingTopPx + m * baseSlotHeight + tileHeight / 2f
@@ -270,13 +374,16 @@ class TournamentBracketView @JvmOverloads constructor(
         } else {
             val sizeCurr = roundsMatches.getOrNull(r)?.size ?: 0
             val sizeNext = roundsMatches.getOrNull(r + 1)?.size ?: 0
-            val parentY = computeIntegerFocusY(r + 1, m / 2, focusInt)
-            return if (sizeNext * 2 == sizeCurr) {
-                val slotH = max(minSlotHeight, baseSlotHeight * 2.0.pow((r - focusInt).toDouble()).toFloat())
-                val offset = if (m % 2 == 0) -0.5f * slotH else 0.5f * slotH
+            return if (sizeNext == sizeCurr) {
+                computeIntegerFocusY(r + 1, m, focusInt)
+            } else if (sizeNext * 2 == sizeCurr) {
+                val parentY = computeIntegerFocusY(r + 1, m / 2, focusInt)
+                val distanceRound = focusInt - r
+                val factor = 0.5f.pow(distanceRound + 1)
+                val offset = if (m % 2 == 0) -factor * baseSlotHeight else factor * baseSlotHeight
                 parentY + offset
             } else {
-                parentY
+                computeIntegerFocusY(r + 1, m / 2, focusInt)
             }
         }
     }
@@ -304,13 +411,21 @@ class TournamentBracketView @JvmOverloads constructor(
 
         val columnWidth = (viewWidth * 0.56f).toInt()
         val tileHeightPx = (68 * density).toInt()
+        val headerChildHeightPx = (32 * density).toInt()
 
         val childWidthSpec = MeasureSpec.makeMeasureSpec(columnWidth, MeasureSpec.EXACTLY)
         val childHeightSpec = MeasureSpec.makeMeasureSpec(tileHeightPx, MeasureSpec.EXACTLY)
 
-        for (i in 0 until childCount) {
-            val child = getChildAt(i)
-            child.measure(childWidthSpec, childHeightSpec)
+        val headerChildWidthSpec = MeasureSpec.makeMeasureSpec(columnWidth, MeasureSpec.AT_MOST)
+        val headerChildHeightSpec = MeasureSpec.makeMeasureSpec(headerChildHeightPx, MeasureSpec.EXACTLY)
+
+        for (list in matchViews) {
+            for (child in list) {
+                child.measure(childWidthSpec, childHeightSpec)
+            }
+        }
+        for (headerChild in headerViews) {
+            headerChild.measure(headerChildWidthSpec, headerChildHeightSpec)
         }
 
         setMeasuredDimension(widthMeasureSpec, heightMeasureSpec)
@@ -325,16 +440,40 @@ class TournamentBracketView @JvmOverloads constructor(
         val columnStepX = viewWidth * 0.60f
         val centerX = viewWidth / 2f
         val tileHeight = 68f * density
+        val headerAreaHeight = 40f * density
 
+        // 1. Layout Headers
+        for (r in headerViews.indices) {
+            val headerView = headerViews[r]
+            val columnCenterX = centerX + (r - focusedRoundFloat) * columnStepX
+            val measuredW = headerView.measuredWidth
+            val measuredH = headerView.measuredHeight
+            val hLeft = (columnCenterX - measuredW / 2f).toInt()
+            val hRight = hLeft + measuredW
+            val hTop = (paddingTop + (headerAreaHeight - measuredH) / 2f).toInt()
+            val hBottom = hTop + measuredH
+            headerView.layout(hLeft, hTop, hRight, hBottom)
+        }
+
+        // 2. Layout Matches
         val maxScroll = maxScrollYForCurrentFocus()
         scrollYOffset = scrollYOffset.coerceIn(0f, maxScroll)
 
-        for (r in roundViews.indices) {
+        for (r in matchViews.indices) {
             val columnCenterX = centerX + (r - focusedRoundFloat) * columnStepX
             val childLeft = (columnCenterX - columnWidth / 2f).toInt()
             val childRight = childLeft + columnWidth
 
-            val views = roundViews[r]
+            val diff = focusedRoundFloat - r
+            val sizeCurr = roundsMatches.getOrNull(r)?.size ?: 0
+            val sizeNext = roundsMatches.getOrNull(r + 1)?.size ?: 0
+            val scale = if (diff <= 0f) {
+                1.0f
+            } else {
+                if (sizeNext == sizeCurr) 1.0f else (1.0f - 0.54f * diff).coerceIn(0.46f, 1.0f)
+            }
+
+            val views = matchViews[r]
             for (m in views.indices) {
                 val childView = views[m]
                 val childCenterY = computeMatchCenterY(r, m, focusedRoundFloat) - scrollYOffset
@@ -342,18 +481,28 @@ class TournamentBracketView @JvmOverloads constructor(
                 val childBottom = childTop + tileHeight.toInt()
 
                 childView.layout(childLeft, childTop, childRight, childBottom)
+                childView.pivotX = childView.width.toFloat()
+                childView.pivotY = childView.height / 2f
+                childView.scaleX = scale
+                childView.scaleY = scale
             }
         }
     }
 
     override fun dispatchDraw(canvas: Canvas) {
-        val numRounds = roundViews.size
+        val headerHeightPx = 40f * density
+        val clipTop = paddingTop.toFloat() + headerHeightPx
+
+        canvas.save()
+        canvas.clipRect(0f, clipTop, width.toFloat(), height.toFloat())
+
+        val numRounds = matchViews.size
         if (numRounds > 1) {
             for (r in 0 until numRounds - 1) {
                 val roundMatchesR = roundsMatches.getOrNull(r) ?: continue
                 val roundMatchesNext = roundsMatches.getOrNull(r + 1) ?: continue
-                val viewsNext = roundViews.getOrNull(r + 1) ?: continue
-                val viewsCurr = roundViews.getOrNull(r) ?: continue
+                val viewsNext = matchViews.getOrNull(r + 1) ?: continue
+                val viewsCurr = matchViews.getOrNull(r) ?: continue
 
                 for (m in viewsNext.indices) {
                     val viewTarget = viewsNext[m]
@@ -413,7 +562,19 @@ class TournamentBracketView @JvmOverloads constructor(
                 }
             }
         }
-        super.dispatchDraw(canvas)
+
+        val dTime = drawingTime
+        for (list in matchViews) {
+            for (child in list) {
+                drawChild(canvas, child, dTime)
+            }
+        }
+
+        canvas.restore()
+
+        for (headerChild in headerViews) {
+            drawChild(canvas, headerChild, dTime)
+        }
     }
 
     override fun performClick(): Boolean {
@@ -512,8 +673,9 @@ class TournamentBracketView @JvmOverloads constructor(
                                 vx > minFlingVelocity -> floor(f).toInt().coerceAtLeast(0)
                                 else -> f.roundToInt().coerceIn(0, numRounds - 1)
                             }
+                            val previousRoundIndex = selectedRoundIndex
                             selectRound(targetRound, animate = true)
-                            if (targetRound != selectedRoundIndex) {
+                            if (targetRound != previousRoundIndex) {
                                 onRoundSelected?.invoke(targetRound)
                             }
                         }

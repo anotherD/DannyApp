@@ -506,12 +506,15 @@ class TournamentDetailActivity : BaseActivity() {
                 }
 
                 if (settingsManager.isBracketViewEnabled) {
+                    scrollRoundPills.visibility = View.GONE
                     rvMatches.visibility = View.GONE
                     layoutOpenDrawInfo.visibility = View.GONE
                     bracketViewActive.visibility = View.VISIBLE
+                    bracketViewActive.setRoundHeaders(state.availableRoundDisplayNames, state.roundStatuses)
                     bracketViewActive.setRounds(state.allRoundsMatches, state.selectedRoundIndex)
                     bracketViewActive.selectRound(state.selectedRoundIndex, animate = true)
                 } else {
+                    scrollRoundPills.visibility = View.VISIBLE
                     bracketViewActive.visibility = View.GONE
                     if (state.isOpenDrawInfoVisible) {
                         rvMatches.visibility = View.GONE
@@ -686,11 +689,15 @@ class TournamentDetailActivity : BaseActivity() {
                 }
 
                 if (settingsManager.isBracketViewEnabled) {
+                    scrollReviewRoundPills.visibility = View.GONE
                     rvReviewMatches.visibility = View.GONE
                     bracketViewReview.visibility = View.VISIBLE
+                    val reviewRoundStatuses = List(state.availableRoundDisplayNames.size) { RoundStatus.COMPLETED }
+                    bracketViewReview.setRoundHeaders(state.availableRoundDisplayNames, reviewRoundStatuses)
                     bracketViewReview.setRounds(state.allRoundsMatches, state.selectedRoundIndex)
                     bracketViewReview.selectRound(state.selectedRoundIndex, animate = true)
                 } else {
+                    scrollReviewRoundPills.visibility = View.VISIBLE
                     bracketViewReview.visibility = View.GONE
                     rvReviewMatches.visibility = View.VISIBLE
                     reviewMatchesAdapter.submitList(state.matches)
