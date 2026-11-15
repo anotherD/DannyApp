@@ -106,13 +106,14 @@ Ist ein offenes Match mit Beteiligung des Users an der Reihe, erhält der User b
     - Falls nein: Deaktiviert und ausgegraut (`isEnabled = false`, `alpha = 0.38f`).
   - **„Ansicht wechseln“ (`fabToggleBracketView`):**
     - Content-Description: `@string/cd_show_bracket_view` („Turnierbaum anzeigen“) bzw. `@string/cd_show_list_view` („Rundenliste anzeigen“).
-    - Icons: `ic_account_tree.xml` (Turnierbaum-Icon) vs. `ic_view_list.xml` (Listen-Icon).
+    - Icons: `ic_bracket_tree.xml` (Turnierbaum-Icon) vs. `ic_view_list.xml` (Listen-Icon).
     - Schaltet `SettingsManager.isBracketViewEnabled` um (Default: `false`) und wechselt das Icon zwischen Turnierbaum und Liste.
-* **Turnierbaum-Geometrie & Runden-Fokus:**
-  - Fokus-Runde horizontal zentriert (~56 % der Bildschirmbreite).
-  - Vorgänger- und Nachfolger-Runde links und rechts jeweils zu ~38–40 % der Kachelbreite angeschnitten sichtbar.
-  - Dynamische vertikale Spreizung der Kacheln mit weicher Animation beim Rundenwechsel.
-  - Orthogonale Verbindungslinien zwischen den Runden (User-Siegespfad in `@color/rot_haupt` hervorgehoben).
+* **Turnierbaum-Geometrie & ViewPager2-Rundenansicht (`BracketRoundAdapter`, `item_bracket_match.xml`, `vpActiveBracket` / `vpReviewBracket`):**
+  - Jede Turnierrunde wird als Seite im `ViewPager2` (`vpActiveBracket` / `vpReviewBracket`) dargestellt.
+  - Konfiguriert mit `clipToPadding = false`, `offscreenPageLimit = 1` und seitlichem Padding (~22 % der Bildschirmbreite), sodass die aktive Runde mittig (~56 % Breite) steht und Vorgänger- sowie Nachfolgerrunde jeweils zu ~38–40 % der Kachelbreite angeschnitten sichtbar sind.
+  - Bidirektionale Synchronisation mit `chipGroupRounds` / `chipGroupReviewRounds` über `viewModel.selectRound(position)`.
+  - **Schmale 2-Zeilen-Kachel (`item_bracket_match.xml`):** Kompakte `MaterialCardView` (~68dp hoch) mit zwei Zeilen (Spieler 1 oben, Spieler 2 unten via `UiHelper.bindSmartPlayerName` und Score rechtsbündig, getrennt durch 1dp Trennstrich `@color/grau_rahmen_dunkel`). Gewinner fett (`@color/grau_text_hell`), Verlierer gedämpft (`@color/grau_text_gedaempft`), User-Match (`isUserMatch`) mit 2dp Rahmen `@color/rot_hell` und Hintergrund `@color/rot_container_dunkel`.
+  - **Architektur-Entkopplung (`TournamentDialogs`):** Dialoge (`showPrizeMoneyDialog`, `showUserMatchOptionsDialog`, `showSetWinnerDialog`, `showManualScoreInputDialog`, `showLiveGameEnginePlaceholder`) sind in das Objekt `TournamentDialogs` ausgelagert.
 * **Sonderformate im Baum:**
   - **Grand Slam of Darts:** 3er-Gruppentabelle als vorgeschaltetes Element vor der K.o.-Runde (`L16`).
   - **Qualifier:** Board-Chips (`Board 1..K` + `Alle`) zur Filterung nach spezifischen Boards.

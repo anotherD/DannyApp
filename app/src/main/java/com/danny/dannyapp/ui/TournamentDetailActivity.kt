@@ -27,6 +27,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.viewpager2.widget.ViewPager2
 import com.danny.dannyapp.R
 import com.danny.dannyapp.domain.enums.TournamentEvent
 import com.danny.dannyapp.ui.enums.RoundStatus
@@ -82,6 +83,8 @@ class TournamentDetailActivity : BaseActivity() {
     private lateinit var tvDrawAfterRoundInfo: TextView
     private lateinit var layoutEntrantsContainer: LinearLayout
     private lateinit var activeMatchesAdapter: TournamentMatchAdapter
+    private lateinit var vpActiveBracket: ViewPager2
+    private lateinit var activeBracketAdapter: BracketRoundAdapter
 
     // Review
     private lateinit var cardReviewSummary: MaterialCardView
@@ -101,6 +104,8 @@ class TournamentDetailActivity : BaseActivity() {
     private lateinit var chipGroupReviewRounds: ChipGroup
     private lateinit var rvReviewMatches: RecyclerView
     private lateinit var reviewMatchesAdapter: TournamentMatchAdapter
+    private lateinit var vpReviewBracket: ViewPager2
+    private lateinit var reviewBracketAdapter: BracketRoundAdapter
     private lateinit var layoutSimulatingOverlay: View
     private lateinit var gestureDetector: GestureDetector
 
@@ -255,6 +260,7 @@ class TournamentDetailActivity : BaseActivity() {
         btnSimulateComplete = findViewById(R.id.btnSimulateComplete)
         btnAdvanceRound = findViewById(R.id.btnAdvanceRound)
         rvMatches = findViewById(R.id.rvMatches)
+        vpActiveBracket = findViewById(R.id.vpActiveBracket)
         layoutOpenDrawInfo = findViewById(R.id.layoutOpenDrawInfo)
         tvDrawAfterRoundInfo = findViewById(R.id.tvDrawAfterRoundInfo)
         layoutEntrantsContainer = findViewById(R.id.layoutEntrantsContainer)
@@ -276,6 +282,7 @@ class TournamentDetailActivity : BaseActivity() {
         scrollReviewRoundPills = findViewById(R.id.scrollReviewRoundPills)
         chipGroupReviewRounds = findViewById(R.id.chipGroupReviewRounds)
         rvReviewMatches = findViewById(R.id.rvReviewMatches)
+        vpReviewBracket = findViewById(R.id.vpReviewBracket)
 
         // FABs
         layoutFabContainer = findViewById(R.id.layoutFabContainer)
@@ -295,6 +302,51 @@ class TournamentDetailActivity : BaseActivity() {
         reviewMatchesAdapter = TournamentMatchAdapter { /* read-only */ }
         rvReviewMatches.layoutManager = LinearLayoutManager(this)
         rvReviewMatches.adapter = reviewMatchesAdapter
+
+        activeBracketAdapter = BracketRoundAdapter { matchModel ->
+            if (!matchModel.isCompleted && matchModel.isUserMatch) {
+                showUserMatchOptionsDialog(matchModel)
+            }
+        }
+        reviewBracketAdapter = BracketRoundAdapter { /* read-only */ }
+
+        val screenWidth = resources.displayMetrics.widthPixels
+        val sidePadding = (screenWidth * 0.22).toInt()
+
+        fun setupViewPager(viewPager: ViewPager2, adapter: BracketRoundAdapter) {
+            viewPager.adapter = adapter
+            viewPager.clipToPadding = false
+            viewPager.clipChildren = false
+            viewPager.offscreenPageLimit = 1
+            viewPager.setPadding(sidePadding, 0, sidePadding, 0)
+            (viewPager.getChildAt(0) as? RecyclerView)?.apply {
+                clipToPadding = false
+                clipChildren = false
+            }
+        }
+
+        setupViewPager(vpActiveBracket, activeBracketAdapter)
+        setupViewPager(vpReviewBracket, reviewBracketAdapter)
+
+        vpActiveBracket.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+                val state = viewModel.uiState.value
+                if (state is TournamentDetailState.Active && state.selectedRoundIndex != position) {
+                    viewModel.selectRound(position)
+                }
+            }
+        })
+
+        vpReviewBracket.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+                val state = viewModel.uiState.value
+                if (state is TournamentDetailState.Review && state.selectedRoundIndex != position) {
+                    viewModel.selectRound(position)
+                }
+            }
+        })
     }
 
     private fun setupListeners() {
@@ -670,143 +722,39 @@ class TournamentDetailActivity : BaseActivity() {
     }
 
     private fun showPrizeMoneyDialog() {
-        if (currentPrizeMoneyItems.isEmpty()) return
-        val event = currentEvent
-        val totalPrize = if (event != null && event.totalPrizeFund > 0) {
-            getString(R.string.tournament_total_prize_fund_format, event.totalPrizeFund.toLong())
-        } else {
-            getString(R.string.tournament_qualifying_no_prize)
-        }
-
-        val context = this
-        val layout = LinearLayout(context).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(48, 24, 48, 24)
-        }
-
-        val tvHeader = TextView(context).apply {
-            text = totalPrize
-            textSize = 15f
-            setTypeface(null, Typeface.BOLD)
-            setTextColor(ContextCompat.getColor(context, R.color.rot_haupt))
-            setPadding(0, 0, 0, 16)
-        }
-        layout.addView(tvHeader)
-
-        val rv = RecyclerView(context).apply {
-            layoutManager = LinearLayoutManager(context)
-            adapter = PrizeMoneyAdapter().apply { submitList(currentPrizeMoneyItems) }
-        }
-        layout.addView(rv)
-
-        MaterialAlertDialogBuilder(context)
-            .setTitle(getString(R.string.tournament_preview_prizes_title))
-            .setView(layout)
-            .setPositiveButton(getString(R.string.dialog_close), null)
-            .show()
+        TournamentDialogs.showPrizeMoneyDialog(this, currentPrizeMoneyItems, currentEvent)
     }
 
     private fun showUserMatchOptionsDialog(matchModel: MatchUiModel) {
-        val setWinnerOption = getString(R.string.user_match_option_set_winner)
-        val manualScoreOption = getString(R.string.user_match_option_manual_score)
-        val liveGameOption = getString(R.string.user_match_option_live_game)
-
-        val options = if (debugMode) {
-            arrayOf(setWinnerOption, manualScoreOption, liveGameOption)
-        } else {
-            arrayOf(manualScoreOption, liveGameOption)
-        }
-
-        AlertDialog.Builder(this)
-            .setTitle(getString(R.string.user_match_control_title))
-            .setItems(options) { _, which ->
-                val selectedOption = options[which]
-                when (selectedOption) {
-                    setWinnerOption -> showSetWinnerDialog(matchModel)
-                    manualScoreOption -> showManualScoreInputDialog(matchModel)
-                    liveGameOption -> showLiveGameEnginePlaceholder()
-                }
-            }
-            .setNegativeButton(getString(R.string.dialog_cancel), null)
-            .show()
+        TournamentDialogs.showUserMatchOptionsDialog(
+            context = this,
+            matchModel = matchModel,
+            debugMode = debugMode,
+            onSetWinner = { showSetWinnerDialog(it) },
+            onManualScore = { showManualScoreInputDialog(it) },
+            onLiveGame = { showLiveGameEnginePlaceholder() }
+        )
     }
 
     private fun showSetWinnerDialog(matchModel: MatchUiModel) {
-        val choices = arrayOf(
-            getString(R.string.user_match_choice_win),
-            getString(R.string.user_match_choice_loss)
-        )
-
-        AlertDialog.Builder(this)
-            .setTitle(getString(R.string.user_match_set_winner_title))
-            .setItems(choices) { _, which ->
-                val userWins = (which == 0)
-                viewModel.setUserMatchWinner(matchModel.match.id, userWins)
-            }
-            .setNegativeButton(getString(R.string.dialog_cancel), null)
-            .show()
+        TournamentDialogs.showSetWinnerDialog(this, matchModel) { matchId, userWins ->
+            viewModel.setUserMatchWinner(matchId, userWins)
+        }
     }
 
     private fun showManualScoreInputDialog(matchModel: MatchUiModel) {
-        val layout = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(50, 20, 50, 20)
-        }
-
-        val tvInfo = TextView(this).apply {
-            text = getString(R.string.user_match_manual_info_format, matchModel.player1.name, matchModel.player2.name, matchModel.roundDisplayName)
-            setPadding(0, 0, 0, 20)
-            textSize = 14f
-        }
-
-        val etP1 = EditText(this).apply {
-            hint = getString(R.string.user_match_player_score_hint, matchModel.player1.name)
-            inputType = InputType.TYPE_CLASS_NUMBER
-        }
-
-        val etP2 = EditText(this).apply {
-            hint = getString(R.string.user_match_player_score_hint, matchModel.player2.name)
-            inputType = InputType.TYPE_CLASS_NUMBER
-        }
-
-        layout.addView(tvInfo)
-        layout.addView(etP1)
-        layout.addView(etP2)
-
-        val dialog = AlertDialog.Builder(this)
-            .setTitle(getString(R.string.user_match_option_manual_score))
-            .setView(layout)
-            .setPositiveButton(getString(R.string.dialog_save), null)
-            .setNegativeButton(getString(R.string.dialog_cancel), null)
-            .create()
-
-        dialog.setOnShowListener {
-            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
-                val p1 = etP1.text.toString().toIntOrNull() ?: -1
-                val p2 = etP2.text.toString().toIntOrNull() ?: -1
-                if (p1 < 0 || p2 < 0) {
-                    Toast.makeText(this, getString(R.string.user_match_invalid_numbers), Toast.LENGTH_SHORT).show()
-                    return@setOnClickListener
-                }
-                lifecycleScope.launch {
-                    val error = viewModel.setManualUserMatchScore(matchModel.match.id, p1, p2)
-                    if (error != null) {
-                        Toast.makeText(this@TournamentDetailActivity, error, Toast.LENGTH_LONG).show()
-                    } else {
-                        dialog.dismiss()
-                    }
-                }
+        TournamentDialogs.showManualScoreInputDialog(
+            context = this,
+            matchModel = matchModel,
+            coroutineScope = lifecycleScope,
+            onSaveScore = { matchId, p1, p2 ->
+                viewModel.setManualUserMatchScore(matchId, p1, p2)
             }
-        }
-        dialog.show()
+        )
     }
 
     private fun showLiveGameEnginePlaceholder() {
-        AlertDialog.Builder(this)
-            .setTitle(getString(R.string.user_match_option_live_game))
-            .setMessage(getString(R.string.user_match_live_placeholder))
-            .setPositiveButton(getString(R.string.dialog_ok), null)
-            .show()
+        TournamentDialogs.showLiveGameEnginePlaceholder(this)
     }
 
     /**
@@ -867,7 +815,7 @@ class TournamentDetailActivity : BaseActivity() {
             fabToggleBracketView.setImageResource(R.drawable.ic_view_list)
             fabToggleBracketView.contentDescription = getString(R.string.cd_show_list_view)
         } else {
-            fabToggleBracketView.setImageResource(R.drawable.ic_account_tree)
+            fabToggleBracketView.setImageResource(R.drawable.ic_bracket_tree)
             fabToggleBracketView.contentDescription = getString(R.string.cd_show_bracket_view)
         }
     }

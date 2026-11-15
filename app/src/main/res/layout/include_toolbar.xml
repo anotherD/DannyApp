@@ -5,3 +5,33 @@
     android:layout_height="wrap_content"
     android:background="@color/black" />
 <!-- android:background="?attr/colorSurface" -->
+<!--    android:background="@color/black"-->
+<!--    android:background="@drawable/background"-->
+
+<!--<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
+<!--    android:layout_width="match_parent"-->
+<!--    android:layout_height="?attr/actionBarSize"-->
+<!--    xmlns:app="http://schemas.android.com/apk/res-auto"> &lt;!&ndash; Erzwingt die Standardhöhe der Toolbar &ndash;&gt;-->
+
+<!--    &lt;!&ndash; 1. Das Hintergrundbild (liegt unten) &ndash;&gt;-->
+<!--    <ImageView-->
+<!--        android:id="@+id/toolbarBackground"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent"-->
+<!--        android:src="@drawable/background"-->
+<!--        android:scaleType="centerCrop"-->
+<!--        android:adjustViewBounds="true"-->
+<!--        android:contentDescription="@null" />-->
+<!--&lt;!&ndash;    android:scaleType="fitCenter"&ndash;&gt;-->
+<!--&lt;!&ndash;    android:scaleType="centerCrop"&ndash;&gt;-->
+
+<!--    &lt;!&ndash; 2. Die eigentliche Toolbar (liegt transparent darüber) &ndash;&gt;-->
+<!--    <com.google.android.material.appbar.MaterialToolbar-->
+<!--        android:id="@+id/topAppBar"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent"-->
+<!--        android:background="@android:color/transparent"-->
+<!--        app:title="Mein App-Titel"-->
+<!--        app:titleTextColor="@android:color/white" />-->
+
+<!--</androidx.constraintlayout.widget.ConstraintLayout>-->

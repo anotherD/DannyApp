@@ -394,6 +394,22 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/layoutGroupSelector" />
 
+        <!-- Active Bracket ViewPager2 -->
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/vpActiveBracket"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="6dp"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:paddingBottom="88dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/layoutGroupSelector"
+            tools:visibility="gone" />
+
         <!-- Open Draw Info Container for UK Open / European Open -->
         <LinearLayout
             android:id="@+id/layoutOpenDrawInfo"
@@ -664,6 +680,22 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/scrollReviewRoundPills" />
 
+        <!-- Review Bracket ViewPager2 -->
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/vpReviewBracket"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="6dp"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:paddingBottom="88dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/scrollReviewRoundPills"
+            tools:visibility="gone" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- Schwebe-Buttons unten rechts -->
@@ -695,7 +727,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:contentDescription="@string/cd_show_bracket_view"
-            android:src="@drawable/ic_account_tree"
+            android:src="@drawable/ic_bracket_tree"
             app:fabSize="mini"
             app:tint="@color/white" />
     </LinearLayout>
