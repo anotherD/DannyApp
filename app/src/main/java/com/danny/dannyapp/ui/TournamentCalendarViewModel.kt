@@ -185,4 +185,71 @@ class TournamentCalendarViewModel(application: Application) : AndroidViewModel(a
             false
         }
     }
+
+    fun simulateCompleteTournament(tournamentId: Long) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                try {
+                    var tournament = tournamentDao.getTournamentById(tournamentId) ?: return@withContext
+                    if (tournament.isCompleted) return@withContext
+
+                    var matches = tournamentMatchDao.getMatchesListForTournament(tournamentId)
+                    if (matches.isEmpty()) {
+                        generateBracketUseCase(tournamentId)
+                        matches = tournamentMatchDao.getMatchesListForTournament(tournamentId)
+                    }
+
+                    val simulateCpu = com.danny.dannyapp.domain.usecase.SimulateCpuMatchUseCase(getApplication())
+                    val advanceRound = com.danny.dannyapp.domain.usecase.AdvanceTournamentRoundUseCase(getApplication())
+                    val careerId = seasonDao.getCurrentSeasonForCareer(tournament.seasonId)?.careerId ?: 0L
+                    val careerWithProfile = careerRepository.getCareerById(careerId)
+                    val userLevel = careerWithProfile?.career?.level?.coerceIn(1, 10) ?: SkillLevel.DEFAULT.value
+                    val allPlayersMap = playerDao.getAllPlayersList().associateBy { it.id }
+
+                    while (true) {
+                        tournament = tournamentDao.getTournamentById(tournamentId) ?: break
+                        if (tournament.isCompleted) break
+
+                        val currentMatches = tournamentMatchDao.getMatchesListForTournament(tournamentId)
+                        if (currentMatches.isEmpty()) break
+
+                        val uncompleted = currentMatches.filter { !it.isCompleted }
+                        if (uncompleted.isNotEmpty()) {
+                            for (match in uncompleted) {
+                                val event = com.danny.dannyapp.domain.enums.TournamentEvent.valueOf(tournament.type)
+                                val round = TournamentRound.valueOf(match.round)
+                                val distance = event.getMatchDistance(round)
+
+                                if (match.player1Id == USER_ID || match.player2Id == USER_ID) {
+                                    val isP1User = (match.player1Id == USER_ID)
+                                    val opponentId = if (isP1User) match.player2Id else match.player1Id
+                                    val opponentPlayer = allPlayersMap[opponentId]
+                                    val opponentSkill = (opponentPlayer?.skill ?: SkillLevel.DEFAULT.value).coerceIn(1, 10)
+
+                                    val player1Skill = if (isP1User) userLevel else opponentSkill
+                                    val player2Skill = if (isP1User) opponentSkill else userLevel
+
+                                    val p1WinProb = player1Skill.toDouble() / (player1Skill + player2Skill)
+                                    val userWins = kotlin.random.Random.nextDouble() < p1WinProb
+
+                                    val updated = match.copy(
+                                        player1Score = if (userWins) (distance.bestOf / 2) + 1 else 0,
+                                        player2Score = if (!userWins) (distance.bestOf / 2) + 1 else 0,
+                                        winnerId = if (userWins) match.player1Id else match.player2Id,
+                                        isCompleted = true
+                                    )
+                                    tournamentMatchDao.updateMatch(updated)
+                                } else {
+                                    simulateCpu(match)
+                                }
+                            }
+                        }
+
+                        val advanced = advanceRound(tournamentId)
+                        if (!advanced) break
+                    }
+                } catch (_: Exception) {}
+            }
+        }
+    }
 }

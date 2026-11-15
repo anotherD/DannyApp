@@ -14,6 +14,7 @@ import android.view.MotionEvent
 import android.view.VelocityTracker
 import android.view.View
 import android.view.ViewConfiguration
+import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.OverScroller
 import android.widget.TextView
@@ -22,6 +23,7 @@ import com.danny.dannyapp.R
 import com.danny.dannyapp.data.db.USER_ID
 import com.danny.dannyapp.ui.enums.RoundStatus
 import com.danny.dannyapp.domain.enums.TournamentRound
+import com.danny.dannyapp.ui.model.EntrantGroupInfo
 import com.danny.dannyapp.ui.model.GrandSlamGroupItem
 import com.danny.dannyapp.ui.model.MatchUiModel
 import com.google.android.material.card.MaterialCardView
@@ -43,6 +45,10 @@ class TournamentBracketView @JvmOverloads constructor(
     var onRoundSelected: ((Int) -> Unit)? = null
 
     private var grandSlamGroupStandings: Map<String, List<GrandSlamGroupItem>> = emptyMap()
+    private var openEntrantsGroups: List<EntrantGroupInfo> = emptyList()
+    private var prevRoundDisplayName: String = ""
+    private var isOpenDrawInfoVisible: Boolean = false
+
     private var roundsMatches: List<List<MatchUiModel>> = emptyList()
     private var matchViews: List<List<View>> = emptyList()
     private var headerDisplayNames: List<String> = emptyList()
@@ -105,11 +111,19 @@ class TournamentBracketView @JvmOverloads constructor(
     fun setRounds(
         roundsMatches: List<List<MatchUiModel>>,
         initialRoundIndex: Int = 0,
-        grandSlamGroupStandings: Map<String, List<GrandSlamGroupItem>> = emptyMap()
+        grandSlamGroupStandings: Map<String, List<GrandSlamGroupItem>> = emptyMap(),
+        prevRoundDisplayName: String = "",
+        openEntrantsGroups: List<EntrantGroupInfo> = emptyList(),
+        isOpenDrawInfoVisible: Boolean = false
     ) {
         val standingsChanged = (this.grandSlamGroupStandings != grandSlamGroupStandings)
+        val openDrawChanged = (this.openEntrantsGroups != openEntrantsGroups || this.prevRoundDisplayName != prevRoundDisplayName || this.isOpenDrawInfoVisible != isOpenDrawInfoVisible)
         this.grandSlamGroupStandings = grandSlamGroupStandings
-        if (this.roundsMatches != roundsMatches || standingsChanged) {
+        this.prevRoundDisplayName = prevRoundDisplayName
+        this.openEntrantsGroups = openEntrantsGroups
+        this.isOpenDrawInfoVisible = isOpenDrawInfoVisible
+
+        if (this.roundsMatches != roundsMatches || standingsChanged || openDrawChanged) {
             this.roundsMatches = roundsMatches
             focusedAnimator?.cancel()
             overScroller.forceFinished(true)
@@ -243,6 +257,10 @@ class TournamentBracketView @JvmOverloads constructor(
                     addView(cardView, insertIndex++)
                     currentRoundViews.add(cardView)
                 }
+            } else if (roundMatches.isEmpty() && (openEntrantsGroups.isNotEmpty() || isOpenDrawInfoVisible)) {
+                val infoCardView = createOpenDrawInfoCardView(prevRoundDisplayName, openEntrantsGroups)
+                addView(infoCardView, insertIndex++)
+                currentRoundViews.add(infoCardView)
             } else {
                 for (item in roundMatches) {
                     val cardView = inflater.inflate(R.layout.item_bracket_match, this, false)
@@ -254,6 +272,117 @@ class TournamentBracketView @JvmOverloads constructor(
             newMatchViews.add(currentRoundViews)
         }
         this.matchViews = newMatchViews
+    }
+
+    private fun createOpenDrawInfoCardView(prevRoundName: String, groups: List<EntrantGroupInfo>): View {
+        val card = MaterialCardView(context).apply {
+            radius = 8f * density
+            cardElevation = 2f * density
+            strokeWidth = (1f * density).toInt()
+            strokeColor = ContextCompat.getColor(context, R.color.grau_rahmen_dunkel)
+            setCardBackgroundColor(ContextCompat.getColor(context, R.color.anthrazit_flaeche))
+            useCompatPadding = false
+        }
+
+        val scrollView = android.widget.ScrollView(context).apply {
+            layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+            )
+        }
+
+        val mainContainer = android.widget.LinearLayout(context).apply {
+            orientation = android.widget.LinearLayout.VERTICAL
+            val px = (10 * density).toInt()
+            setPadding(px, px, px, px)
+        }
+
+        val tvInfo = TextView(context).apply {
+            text = context.getString(R.string.draw_after_round_info, prevRoundName)
+            textSize = 12f
+            setTypeface(null, Typeface.BOLD)
+            setTextColor(ContextCompat.getColor(context, R.color.white))
+            layoutParams = android.widget.LinearLayout.LayoutParams(
+                android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
+                android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                bottomMargin = (8 * density).toInt()
+            }
+        }
+        mainContainer.addView(tvInfo)
+
+        for ((groupIndex, group) in groups.withIndex()) {
+            if (groupIndex > 0) {
+                val divider = View(context).apply {
+                    layoutParams = android.widget.LinearLayout.LayoutParams(
+                        android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
+                        (1 * density).toInt()
+                    ).apply {
+                        topMargin = (6 * density).toInt()
+                        bottomMargin = (6 * density).toInt()
+                    }
+                    setBackgroundColor(ContextCompat.getColor(context, R.color.grau_rahmen_dunkel))
+                }
+                mainContainer.addView(divider)
+            }
+
+            val tvGroupTitle = TextView(context).apply {
+                text = group.title
+                textSize = 11f
+                setTypeface(null, Typeface.BOLD)
+                setTextColor(ContextCompat.getColor(context, R.color.rot_sehr_hell))
+                layoutParams = android.widget.LinearLayout.LayoutParams(
+                    android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
+                    android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply {
+                    bottomMargin = (4 * density).toInt()
+                }
+            }
+            mainContainer.addView(tvGroupTitle)
+
+            val playerPairs = group.players.chunked(2)
+            for (pair in playerPairs) {
+                val rowLayout = android.widget.LinearLayout(context).apply {
+                    orientation = android.widget.LinearLayout.HORIZONTAL
+                    layoutParams = android.widget.LinearLayout.LayoutParams(
+                        android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
+                        android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
+                    ).apply {
+                        bottomMargin = (2 * density).toInt()
+                    }
+                }
+
+                for ((colIdx, player) in pair.withIndex()) {
+                    val tvPlayer = TextView(context).apply {
+                        textSize = 10f
+                        maxLines = 1
+                        ellipsize = TextUtils.TruncateAt.END
+                        layoutParams = android.widget.LinearLayout.LayoutParams(
+                            0,
+                            android.widget.LinearLayout.LayoutParams.WRAP_CONTENT,
+                            1f
+                        )
+                    }
+                    UiHelper.bindSmartPlayerName(tvPlayer, player, isLeft = true)
+                    rowLayout.addView(tvPlayer)
+
+                    if (colIdx == 0 && pair.size > 1) {
+                        val spacer = View(context).apply {
+                            layoutParams = android.widget.LinearLayout.LayoutParams(
+                                (4 * density).toInt(),
+                                android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
+                            )
+                        }
+                        rowLayout.addView(spacer)
+                    }
+                }
+                mainContainer.addView(rowLayout)
+            }
+        }
+
+        scrollView.addView(mainContainer)
+        card.addView(scrollView)
+        return card
     }
 
     private fun createGroupCardView(groupLetter: String, standings: List<GrandSlamGroupItem>): View {
@@ -273,7 +402,6 @@ class TournamentBracketView @JvmOverloads constructor(
             setPadding(pxH, pxV, pxH, pxV)
         }
 
-        // Header: "Gruppe A" (left) + "Sp  Diff  Pkt" (right)
         val headerLayout = android.widget.LinearLayout(context).apply {
             orientation = android.widget.LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
@@ -298,7 +426,6 @@ class TournamentBracketView @JvmOverloads constructor(
         headerLayout.addView(tvStatsHeader)
         mainContainer.addView(headerLayout)
 
-        // Divider
         val divider = View(context).apply {
             layoutParams = android.widget.LinearLayout.LayoutParams(
                 android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
@@ -311,7 +438,6 @@ class TournamentBracketView @JvmOverloads constructor(
         }
         mainContainer.addView(divider)
 
-        // 3 Rows
         val displayItems = standings.take(3)
         for (i in 0 until 3) {
             val item = displayItems.getOrNull(i)
@@ -484,6 +610,35 @@ class TournamentBracketView @JvmOverloads constructor(
         }
     }
 
+    private fun getTargetMatchIndex(r: Int, m: Int): Int {
+        val roundMatchesR = roundsMatches.getOrNull(r) ?: return m
+        val roundMatchesNext = roundsMatches.getOrNull(r + 1) ?: return m
+        val sizeCurr = roundMatchesR.size
+        val sizeNext = roundMatchesNext.size
+        val matchItem = roundMatchesR.getOrNull(m)
+
+        return when {
+            sizeCurr == sizeNext * 2 -> m / 2
+            sizeCurr == sizeNext -> {
+                if (matchItem?.isCompleted == true && (matchItem.winnerId ?: 0L) > 0L) {
+                    val idx = roundMatchesNext.indexOfFirst { it.player1.id == matchItem.winnerId || it.player2.id == matchItem.winnerId }
+                    if (idx >= 0) idx else if (headerDisplayNames.getOrNull(r)?.contains("L48") == true) sizeNext - 1 - m else m
+                } else {
+                    if (headerDisplayNames.getOrNull(r)?.contains("L48") == true) sizeNext - 1 - m else m
+                }
+            }
+            sizeCurr < sizeNext -> {
+                if (matchItem?.isCompleted == true && (matchItem.winnerId ?: 0L) > 0L) {
+                    val idx = roundMatchesNext.indexOfFirst { it.player1.id == matchItem.winnerId || it.player2.id == matchItem.winnerId }
+                    if (idx >= 0) idx else (sizeNext - sizeCurr + m)
+                } else {
+                    sizeNext - sizeCurr + m
+                }
+            }
+            else -> m / 2
+        }
+    }
+
     private fun computeMatchCenterY(r: Int, m: Int, focus: Float): Float {
         val numRounds = roundsMatches.size
         if (numRounds == 0) return 0f
@@ -517,14 +672,18 @@ class TournamentBracketView @JvmOverloads constructor(
                 val y1 = computeIntegerFocusY(r - 1, 2 * m, focusInt)
                 val y2 = computeIntegerFocusY(r - 1, 2 * m + 1, focusInt)
                 (y1 + y2) / 2f
+            } else if (sizePrev == sizeCurr || sizePrev < sizeCurr) {
+                val prevM = (0 until sizePrev).firstOrNull { getTargetMatchIndex(r - 1, it) == m } ?: m
+                computeIntegerFocusY(r - 1, prevM, focusInt)
             } else {
                 computeIntegerFocusY(r - 1, m, focusInt)
             }
         } else {
             val sizeCurr = roundsMatches.getOrNull(r)?.size ?: 0
             val sizeNext = roundsMatches.getOrNull(r + 1)?.size ?: 0
-            return if (sizeNext == sizeCurr) {
-                computeIntegerFocusY(r + 1, m, focusInt)
+            return if (sizeNext == sizeCurr || sizeCurr < sizeNext) {
+                val targetM = getTargetMatchIndex(r, m)
+                computeIntegerFocusY(r + 1, targetM, focusInt)
             } else if (sizeNext * 2 == sizeCurr) {
                 val parentY = computeIntegerFocusY(r + 1, m / 2, focusInt)
                 val distanceRound = focusInt - r
@@ -532,7 +691,8 @@ class TournamentBracketView @JvmOverloads constructor(
                 val offset = if (m % 2 == 0) -factor * baseSlotHeight else factor * baseSlotHeight
                 parentY + offset
             } else {
-                computeIntegerFocusY(r + 1, m / 2, focusInt)
+                val targetM = getTargetMatchIndex(r, m)
+                computeIntegerFocusY(r + 1, targetM, focusInt)
             }
         }
     }
@@ -591,7 +751,6 @@ class TournamentBracketView @JvmOverloads constructor(
         val tileHeight = 68f * density
         val headerAreaHeight = 40f * density
 
-        // 1. Layout Headers
         for (r in headerViews.indices) {
             val headerView = headerViews[r]
             val columnCenterX = centerX + (r - focusedRoundFloat) * columnStepX
@@ -604,7 +763,6 @@ class TournamentBracketView @JvmOverloads constructor(
             headerView.layout(hLeft, hTop, hRight, hBottom)
         }
 
-        // 2. Layout Matches
         val maxScroll = maxScrollYForCurrentFocus()
         scrollYOffset = scrollYOffset.coerceIn(0f, maxScroll)
 
@@ -619,7 +777,9 @@ class TournamentBracketView @JvmOverloads constructor(
             val scale = if (diff <= 0f) {
                 1.0f
             } else {
-                if (sizeNext == sizeCurr) 1.0f else (1.0f - 0.54f * diff).coerceIn(0.46f, 1.0f)
+                if (sizeNext == sizeCurr) 1.0f
+                else if (sizeCurr < sizeNext) 0.55f
+                else (1.0f - 0.54f * diff).coerceIn(0.46f, 1.0f)
             }
 
             val views = matchViews[r]
@@ -652,20 +812,26 @@ class TournamentBracketView @JvmOverloads constructor(
                 val roundMatchesNext = roundsMatches.getOrNull(r + 1) ?: continue
                 val viewsNext = matchViews.getOrNull(r + 1) ?: continue
                 val viewsCurr = matchViews.getOrNull(r) ?: continue
+                val sizeCurr = roundMatchesR.size
+                val sizeNext = roundMatchesNext.size
 
-                for (m in viewsNext.indices) {
-                    val viewTarget = viewsNext[m]
+                for (m in 0 until sizeCurr) {
+                    val viewTarget = viewsNext.getOrNull(getTargetMatchIndex(r, m)) ?: continue
+                    val viewF = viewsCurr.getOrNull(m) ?: continue
 
-                    if (roundMatchesR.size == roundMatchesNext.size * 2) {
-                        val viewF1 = viewsCurr.getOrNull(2 * m)
-                        val viewF2 = viewsCurr.getOrNull(2 * m + 1)
-                        if (viewF1 != null && viewF2 != null) {
+                    if (sizeCurr == sizeNext * 2) {
+                        val mPair = m / 2
+                        val viewF1 = viewsCurr.getOrNull(2 * mPair)
+                        val viewF2 = viewsCurr.getOrNull(2 * mPair + 1)
+                        if (m % 2 == 0 && viewF1 != null && viewF2 != null) {
                             val x1 = viewF1.right.toFloat()
                             val y1 = viewF1.top + viewF1.height / 2f
                             val x2 = viewF2.right.toFloat()
                             val y2 = viewF2.top + viewF2.height / 2f
-                            val xTarget = viewTarget.left.toFloat()
-                            val yTarget = viewTarget.top + viewTarget.height / 2f
+                            val targetIdx = getTargetMatchIndex(r, 2 * mPair)
+                            val vTarget = viewsNext.getOrNull(targetIdx) ?: continue
+                            val xTarget = vTarget.left.toFloat()
+                            val yTarget = vTarget.top + vTarget.height / 2f
                             val midX = (x1 + xTarget) / 2f
 
                             canvas.drawLine(x1, y1, midX, y1, linePaintDefault)
@@ -673,23 +839,22 @@ class TournamentBracketView @JvmOverloads constructor(
                             canvas.drawLine(midX, min(y1, y2), midX, max(y1, y2), linePaintDefault)
                             canvas.drawLine(midX, yTarget, xTarget, yTarget, linePaintDefault)
 
-                            val matchF1 = roundMatchesR.getOrNull(2 * m)
+                            val matchF1 = roundMatchesR.getOrNull(2 * mPair)
                             if (matchF1 != null && matchF1.isCompleted && matchF1.winnerId == USER_ID) {
                                 canvas.drawLine(x1, y1, midX, y1, linePaintHighlight)
                                 canvas.drawLine(midX, y1, midX, yTarget, linePaintHighlight)
                                 canvas.drawLine(midX, yTarget, xTarget, yTarget, linePaintHighlight)
                             }
-
-                            val matchF2 = roundMatchesR.getOrNull(2 * m + 1)
+                            val matchF2 = roundMatchesR.getOrNull(2 * mPair + 1)
                             if (matchF2 != null && matchF2.isCompleted && matchF2.winnerId == USER_ID) {
                                 canvas.drawLine(x2, y2, midX, y2, linePaintHighlight)
                                 canvas.drawLine(midX, y2, midX, yTarget, linePaintHighlight)
                                 canvas.drawLine(midX, yTarget, xTarget, yTarget, linePaintHighlight)
                             }
                         }
-                    } else if (roundMatchesR.size == roundMatchesNext.size) {
-                        val viewF = viewsCurr.getOrNull(m)
-                        if (viewF != null) {
+                    } else {
+                        val targetIdx = getTargetMatchIndex(r, m)
+                        if (targetIdx >= 0 && targetIdx < viewsNext.size) {
                             val x1 = viewF.right.toFloat()
                             val y1 = viewF.top + viewF.height / 2f
                             val xTarget = viewTarget.left.toFloat()

@@ -297,13 +297,15 @@ class AdvanceTournamentRoundUseCase(
                     val top16Oom = sortedOomTc.take(16)
                     val targetTop16 = fillToTargetCount(top16Oom, 16, allPlayerIds, oomEntries, allPlayers)
 
+                    val seedOrder = BracketGenerator.BRACKET_SEED_ORDER_16
                     (0 until 16).map { i ->
+                        val seedIndex = seedOrder[i]
                         TournamentMatch(
                             tournamentId = tournamentId,
                             round = TournamentRound.L32.name,
                             matchIndex = i,
-                            player1Id = targetTop16[i],
-                            player2Id = winners[15 - i]
+                            player1Id = targetTop16[seedIndex],
+                            player2Id = winners.getOrElse(15 - i) { 0L }
                         )
                     }
                 } else {

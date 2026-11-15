@@ -132,6 +132,11 @@ class CareerOverviewFragment : Fragment(R.layout.fragment_career_overview) {
                     }
                     startActivity(intent)
                 }
+            },
+            onSimulateCompleteClick = { uiModel ->
+                viewLifecycleOwner.lifecycleScope.launch {
+                    calendarViewModel.simulateCompleteTournament(uiModel.tournament.id)
+                }
             }
         )
 

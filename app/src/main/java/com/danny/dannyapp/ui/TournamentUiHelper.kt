@@ -6,6 +6,7 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.danny.dannyapp.R
+import com.danny.dannyapp.data.SettingsManager
 import com.danny.dannyapp.domain.model.Country
 import com.danny.dannyapp.data.db.Tournament
 import com.danny.dannyapp.domain.enums.TournamentEvent
@@ -202,7 +203,8 @@ object TournamentUiHelper {
         itemView: View,
         model: TournamentUiModel,
         onTournamentClick: (TournamentUiModel) -> Unit,
-        onStartTournamentClick: (TournamentUiModel) -> Unit
+        onStartTournamentClick: (TournamentUiModel) -> Unit,
+        onSimulateCompleteClick: (TournamentUiModel) -> Unit
     ) {
         val context = itemView.context
         val tournament = model.tournament
@@ -212,6 +214,7 @@ object TournamentUiHelper {
         val tvTournamentStatus: TextView = itemView.findViewById(R.id.tvTournamentStatus)
         val tvTournamentDetails: TextView = itemView.findViewById(R.id.tvTournamentDetails)
         val btnStartTournament: Button = itemView.findViewById(R.id.btnStartTournament)
+        val btnSimulateCompleteTournament: Button = itemView.findViewById(R.id.btnSimulateCompleteTournament)
 
         tvTournamentName.text = "#${tournament.order} ${tournament.name}"
 
@@ -252,6 +255,16 @@ object TournamentUiHelper {
             btnStartTournament.setOnClickListener { onStartTournamentClick(model) }
         } else {
             btnStartTournament.visibility = View.GONE
+        }
+
+        val settingsManager = SettingsManager(context)
+        val debugMode = settingsManager.debugMode
+        val isEligibleForQuickSim = debugMode && (model.status == TournamentStatus.ACTIVE || (model.status == TournamentStatus.PLANNED && model.isNextPlanned))
+        if (isEligibleForQuickSim) {
+            btnSimulateCompleteTournament.visibility = View.VISIBLE
+            btnSimulateCompleteTournament.setOnClickListener { onSimulateCompleteClick(model) }
+        } else {
+            btnSimulateCompleteTournament.visibility = View.GONE
         }
 
         itemView.setOnClickListener { onTournamentClick(model) }

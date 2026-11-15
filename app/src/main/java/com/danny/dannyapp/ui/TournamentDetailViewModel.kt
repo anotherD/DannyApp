@@ -80,7 +80,8 @@ sealed interface TournamentDetailState {
         val prevRoundDisplayName: String = "",
         val openEntrantsGroups: List<EntrantGroupInfo> = emptyList(),
         val roundStatuses: List<RoundStatus> = emptyList(),
-        val grandSlamGroupStandings: Map<String, List<GrandSlamGroupItem>> = emptyMap()
+        val grandSlamGroupStandings: Map<String, List<GrandSlamGroupItem>> = emptyMap(),
+        val hasOpenCpuMatchesInActiveRound: Boolean = false
     ) : TournamentDetailState
 
     data class Review(
@@ -446,6 +447,11 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             calculateGrandSlamGroupStandings(allMatches, userName, userCountryCode, allPlayersMap)
         } else emptyMap()
 
+        val activeRoundMatches = allMatches.filter { it.round == activeRoundKeyInDb }
+        val hasOpenCpuMatchesInActiveRound = activeRoundMatches.any {
+            !it.isCompleted && it.player1Id != USER_ID && it.player2Id != USER_ID
+        }
+
         _uiState.value = TournamentDetailState.Active(
             tournament = tournament,
             event = event,
@@ -472,7 +478,8 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             prevRoundDisplayName = prevRoundDisplayName,
             openEntrantsGroups = openEntrantsGroups,
             roundStatuses = roundStatuses,
-            grandSlamGroupStandings = grandSlamGroupStandings
+            grandSlamGroupStandings = grandSlamGroupStandings,
+            hasOpenCpuMatchesInActiveRound = hasOpenCpuMatchesInActiveRound
         )
     }
 
@@ -727,7 +734,9 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             PLACEHOLDER_PREVIOUS_WINNER_ID -> {
                 if (event == TournamentEvent.EUROPEAN_TOUR && roundKey == TournamentRound.L32.name) {
                     if (isPlayer1) {
-                        app.getString(R.string.tournament_placeholder_top16_seed, matchIndex + 1)
+                        val seedOrder = com.danny.dannyapp.domain.usecase.BracketGenerator.BRACKET_SEED_ORDER_16
+                        val seedRank = (seedOrder.getOrNull(matchIndex) ?: matchIndex) + 1
+                        app.getString(R.string.tournament_placeholder_top16_seed, seedRank)
                     } else {
                         app.getString(R.string.tournament_placeholder_winner_match, 16 - matchIndex)
                     }
@@ -876,14 +885,23 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         viewModelScope.launch {
             _isSimulatingBatch.value = true
             try {
+                var tournament = tournamentDao.getTournamentById(currentTournamentId) ?: return@launch
+                if (tournament.isCompleted) return@launch
+
+                var matches = tournamentMatchDao.getMatchesListForTournament(currentTournamentId)
+                if (matches.isEmpty()) {
+                    generateBracketUseCase(currentTournamentId)
+                    matches = tournamentMatchDao.getMatchesListForTournament(currentTournamentId)
+                }
+
                 while (true) {
-                    val tournament = tournamentDao.getTournamentById(currentTournamentId) ?: break
+                    tournament = tournamentDao.getTournamentById(currentTournamentId) ?: break
                     if (tournament.isCompleted) break
 
-                    val matches = tournamentMatchDao.getMatchesListForTournament(currentTournamentId)
-                    if (matches.isEmpty()) break
+                    val currentMatches = tournamentMatchDao.getMatchesListForTournament(currentTournamentId)
+                    if (currentMatches.isEmpty()) break
 
-                    val uncompleted = matches.filter { !it.isCompleted }
+                    val uncompleted = currentMatches.filter { !it.isCompleted }
                     if (uncompleted.isNotEmpty()) {
                         val careerWithProfile = careerRepository.getCareerById(currentCareerId)
                         val userLevel = careerWithProfile?.career?.level?.coerceIn(1, 10) ?: SkillLevel.DEFAULT.value

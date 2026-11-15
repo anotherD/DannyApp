@@ -318,8 +318,10 @@ class TournamentPreviewHelper(
             val top16Oom = sortedOomTc.take(16)
             val l48Matches = allMatches.filter { it.round == TournamentRound.L48.name }.sortedBy { it.matchIndex }
 
+            val seedOrder = com.danny.dannyapp.domain.usecase.BracketGenerator.BRACKET_SEED_ORDER_16
             return baseMatches.map { match ->
-                val seededPlayer1 = top16Oom.getOrNull(match.matchIndex) ?: PLACEHOLDER_PREVIOUS_WINNER_ID
+                val seedIndex = seedOrder.getOrNull(match.matchIndex) ?: match.matchIndex
+                val seededPlayer1 = top16Oom.getOrNull(seedIndex) ?: PLACEHOLDER_PREVIOUS_WINNER_ID
                 val l48Match = l48Matches.getOrNull(15 - match.matchIndex)
                 val seededPlayer2 = if (l48Match?.isCompleted == true && l48Match.winnerId != null) {
                     l48Match.winnerId

@@ -59,6 +59,11 @@ class TournamentCalendarFragment : Fragment(R.layout.fragment_tournament_calenda
                     }
                     startActivity(intent)
                 }
+            },
+            onSimulateCompleteClick = { model ->
+                viewLifecycleOwner.lifecycleScope.launch {
+                    viewModel.simulateCompleteTournament(model.tournament.id)
+                }
             }
         )
         rvTournaments.adapter = adapter

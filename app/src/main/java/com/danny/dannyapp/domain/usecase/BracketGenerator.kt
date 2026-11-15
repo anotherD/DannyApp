@@ -75,14 +75,20 @@ object BracketGenerator {
      * Top 16 OOM sind im Turnierbaum gesetzt (1..16).
      * Die 16 Pro-Tour-Qualifikanten werden ihnen in Runde 1 frei zugelost.
      */
+    val BRACKET_SEED_ORDER_16 = listOf(0, 15, 7, 8, 3, 12, 4, 11, 1, 14, 6, 9, 2, 13, 5, 10)
+
+    /**
+     * World Matchplay (Offizielles Format 2026):
+     * Top 16 OOM sind im Turnierbaum gesetzt (1..16).
+     * Die 16 Pro-Tour-Qualifikanten werden ihnen in Runde 1 frei zugelost.
+     */
     private fun generateWorldMatchplayRound1(
         top16Oom: List<Long>,
         top16ProTour: List<Long>
     ): List<MatchPairing> {
         val shuffledProTour = top16ProTour.shuffled()
         // Standard-Setzbaum für 16 Seeds (1 vs 16, 8 vs 9, etc. im Baum verteilt)
-        val bracketSeedOrder = listOf(0, 15, 7, 8, 3, 12, 4, 11, 1, 14, 6, 9, 2, 13, 5, 10)
-        return bracketSeedOrder.mapIndexed { matchIdx, seedIndex ->
+        return BRACKET_SEED_ORDER_16.mapIndexed { matchIdx, seedIndex ->
             MatchPairing(
                 round = TournamentRound.L32,
                 matchIndex = matchIdx,
