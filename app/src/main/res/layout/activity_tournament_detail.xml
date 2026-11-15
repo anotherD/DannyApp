@@ -395,8 +395,9 @@
             app:layout_constraintTop_toBottomOf="@id/layoutGroupSelector" />
 
         <!-- Active Bracket ViewPager2 -->
-        <androidx.viewpager2.widget.ViewPager2
-            android:id="@+id/vpActiveBracket"
+        <!-- Active Bracket Custom View -->
+        <com.danny.dannyapp.ui.TournamentBracketView
+            android:id="@+id/bracketViewActive"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginTop="6dp"
@@ -681,8 +682,9 @@
             app:layout_constraintTop_toBottomOf="@id/scrollReviewRoundPills" />
 
         <!-- Review Bracket ViewPager2 -->
-        <androidx.viewpager2.widget.ViewPager2
-            android:id="@+id/vpReviewBracket"
+        <!-- Review Bracket Custom View -->
+        <com.danny.dannyapp.ui.TournamentBracketView
+            android:id="@+id/bracketViewReview"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginTop="6dp"

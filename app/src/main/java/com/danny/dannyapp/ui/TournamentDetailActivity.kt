@@ -3,14 +3,12 @@ package com.danny.dannyapp.ui
 import android.content.res.ColorStateList
 import android.graphics.Typeface
 import android.os.Bundle
-import android.text.InputType
 import android.view.GestureDetector
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.EditText
 import android.widget.HorizontalScrollView
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -19,7 +17,6 @@ import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.core.view.children
 import androidx.lifecycle.Lifecycle
@@ -27,7 +24,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.viewpager2.widget.ViewPager2
 import com.danny.dannyapp.R
 import com.danny.dannyapp.domain.enums.TournamentEvent
 import com.danny.dannyapp.ui.enums.RoundStatus
@@ -36,7 +32,6 @@ import com.danny.dannyapp.ui.model.PrizeMoneyItem
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.launch
 
@@ -83,8 +78,7 @@ class TournamentDetailActivity : BaseActivity() {
     private lateinit var tvDrawAfterRoundInfo: TextView
     private lateinit var layoutEntrantsContainer: LinearLayout
     private lateinit var activeMatchesAdapter: TournamentMatchAdapter
-    private lateinit var vpActiveBracket: ViewPager2
-    private lateinit var activeBracketAdapter: BracketRoundAdapter
+    private lateinit var bracketViewActive: TournamentBracketView
 
     // Review
     private lateinit var cardReviewSummary: MaterialCardView
@@ -104,8 +98,7 @@ class TournamentDetailActivity : BaseActivity() {
     private lateinit var chipGroupReviewRounds: ChipGroup
     private lateinit var rvReviewMatches: RecyclerView
     private lateinit var reviewMatchesAdapter: TournamentMatchAdapter
-    private lateinit var vpReviewBracket: ViewPager2
-    private lateinit var reviewBracketAdapter: BracketRoundAdapter
+    private lateinit var bracketViewReview: TournamentBracketView
     private lateinit var layoutSimulatingOverlay: View
     private lateinit var gestureDetector: GestureDetector
 
@@ -228,8 +221,8 @@ class TournamentDetailActivity : BaseActivity() {
         }
         if (::activeMatchesAdapter.isInitialized) activeMatchesAdapter.notifyDataSetChanged()
         if (::reviewMatchesAdapter.isInitialized) reviewMatchesAdapter.notifyDataSetChanged()
-        if (::activeBracketAdapter.isInitialized) activeBracketAdapter.notifyDataSetChanged()
-        if (::reviewBracketAdapter.isInitialized) reviewBracketAdapter.notifyDataSetChanged()
+        if (::bracketViewActive.isInitialized) bracketViewActive.refreshStyles()
+        if (::bracketViewReview.isInitialized) bracketViewReview.refreshStyles()
     }
 
     private fun initViews() {
@@ -263,7 +256,7 @@ class TournamentDetailActivity : BaseActivity() {
         btnSimulateComplete = findViewById(R.id.btnSimulateComplete)
         btnAdvanceRound = findViewById(R.id.btnAdvanceRound)
         rvMatches = findViewById(R.id.rvMatches)
-        vpActiveBracket = findViewById(R.id.vpActiveBracket)
+        bracketViewActive = findViewById(R.id.bracketViewActive)
         layoutOpenDrawInfo = findViewById(R.id.layoutOpenDrawInfo)
         tvDrawAfterRoundInfo = findViewById(R.id.tvDrawAfterRoundInfo)
         layoutEntrantsContainer = findViewById(R.id.layoutEntrantsContainer)
@@ -285,7 +278,7 @@ class TournamentDetailActivity : BaseActivity() {
         scrollReviewRoundPills = findViewById(R.id.scrollReviewRoundPills)
         chipGroupReviewRounds = findViewById(R.id.chipGroupReviewRounds)
         rvReviewMatches = findViewById(R.id.rvReviewMatches)
-        vpReviewBracket = findViewById(R.id.vpReviewBracket)
+        bracketViewReview = findViewById(R.id.bracketViewReview)
 
         // FABs
         layoutFabContainer = findViewById(R.id.layoutFabContainer)
@@ -306,50 +299,19 @@ class TournamentDetailActivity : BaseActivity() {
         rvReviewMatches.layoutManager = LinearLayoutManager(this)
         rvReviewMatches.adapter = reviewMatchesAdapter
 
-        activeBracketAdapter = BracketRoundAdapter { matchModel ->
+        bracketViewActive.onMatchClick = { matchModel ->
             if (!matchModel.isCompleted && matchModel.isUserMatch) {
                 showUserMatchOptionsDialog(matchModel)
             }
         }
-        reviewBracketAdapter = BracketRoundAdapter { /* read-only */ }
-
-        val screenWidth = resources.displayMetrics.widthPixels
-        val sidePadding = (screenWidth * 0.22).toInt()
-
-        fun setupViewPager(viewPager: ViewPager2, adapter: BracketRoundAdapter) {
-            viewPager.adapter = adapter
-            viewPager.clipToPadding = false
-            viewPager.clipChildren = false
-            viewPager.offscreenPageLimit = 1
-            viewPager.setPadding(sidePadding, 0, sidePadding, 0)
-            (viewPager.getChildAt(0) as? RecyclerView)?.apply {
-                clipToPadding = false
-                clipChildren = false
-            }
+        bracketViewActive.onRoundSelected = { index ->
+            viewModel.selectRound(index)
         }
 
-        setupViewPager(vpActiveBracket, activeBracketAdapter)
-        setupViewPager(vpReviewBracket, reviewBracketAdapter)
-
-        vpActiveBracket.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-            override fun onPageSelected(position: Int) {
-                super.onPageSelected(position)
-                val state = viewModel.uiState.value
-                if (state is TournamentDetailState.Active && state.selectedRoundIndex != position) {
-                    viewModel.selectRound(position)
-                }
-            }
-        })
-
-        vpReviewBracket.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-            override fun onPageSelected(position: Int) {
-                super.onPageSelected(position)
-                val state = viewModel.uiState.value
-                if (state is TournamentDetailState.Review && state.selectedRoundIndex != position) {
-                    viewModel.selectRound(position)
-                }
-            }
-        })
+        bracketViewReview.onMatchClick = { /* read-only */ }
+        bracketViewReview.onRoundSelected = { index ->
+            viewModel.selectRound(index)
+        }
     }
 
     private fun setupListeners() {
@@ -546,15 +508,11 @@ class TournamentDetailActivity : BaseActivity() {
                 if (settingsManager.isBracketViewEnabled) {
                     rvMatches.visibility = View.GONE
                     layoutOpenDrawInfo.visibility = View.GONE
-                    vpActiveBracket.visibility = View.VISIBLE
-                    state.allRoundsMatches.forEachIndexed { index, roundMatches ->
-                        activeBracketAdapter.setRoundMatches(index, roundMatches, state.allRoundsMatches.size)
-                    }
-                    if (vpActiveBracket.currentItem != state.selectedRoundIndex) {
-                        vpActiveBracket.setCurrentItem(state.selectedRoundIndex, true)
-                    }
+                    bracketViewActive.visibility = View.VISIBLE
+                    bracketViewActive.setRounds(state.allRoundsMatches, state.selectedRoundIndex)
+                    bracketViewActive.selectRound(state.selectedRoundIndex, animate = true)
                 } else {
-                    vpActiveBracket.visibility = View.GONE
+                    bracketViewActive.visibility = View.GONE
                     if (state.isOpenDrawInfoVisible) {
                         rvMatches.visibility = View.GONE
                         layoutOpenDrawInfo.visibility = View.VISIBLE
@@ -729,15 +687,11 @@ class TournamentDetailActivity : BaseActivity() {
 
                 if (settingsManager.isBracketViewEnabled) {
                     rvReviewMatches.visibility = View.GONE
-                    vpReviewBracket.visibility = View.VISIBLE
-                    state.allRoundsMatches.forEachIndexed { index, roundMatches ->
-                        reviewBracketAdapter.setRoundMatches(index, roundMatches, state.allRoundsMatches.size)
-                    }
-                    if (vpReviewBracket.currentItem != state.selectedRoundIndex) {
-                        vpReviewBracket.setCurrentItem(state.selectedRoundIndex, true)
-                    }
+                    bracketViewReview.visibility = View.VISIBLE
+                    bracketViewReview.setRounds(state.allRoundsMatches, state.selectedRoundIndex)
+                    bracketViewReview.selectRound(state.selectedRoundIndex, animate = true)
                 } else {
-                    vpReviewBracket.visibility = View.GONE
+                    bracketViewReview.visibility = View.GONE
                     rvReviewMatches.visibility = View.VISIBLE
                     reviewMatchesAdapter.submitList(state.matches)
                 }
@@ -799,14 +753,9 @@ class TournamentDetailActivity : BaseActivity() {
         val userMatchIndex = matches.indexOfFirst { it.isUserMatch }
         if (userMatchIndex != -1) {
             if (settingsManager.isBracketViewEnabled) {
-                val viewPager = when (state) {
-                    is TournamentDetailState.Active -> vpActiveBracket
-                    is TournamentDetailState.Review -> vpReviewBracket
-                    else -> return
-                }
-                val adapter = when (state) {
-                    is TournamentDetailState.Active -> activeBracketAdapter
-                    is TournamentDetailState.Review -> reviewBracketAdapter
+                val bracketView = when (state) {
+                    is TournamentDetailState.Active -> bracketViewActive
+                    is TournamentDetailState.Review -> bracketViewReview
                     else -> return
                 }
                 val roundIndex = when (state) {
@@ -814,7 +763,7 @@ class TournamentDetailActivity : BaseActivity() {
                     is TournamentDetailState.Review -> state.selectedRoundIndex
                     else -> 0
                 }
-                adapter.scrollToMatch(viewPager, roundIndex, userMatchIndex)
+                bracketView.scrollToUserMatch(roundIndex, userMatchIndex)
             } else {
                 val targetRecyclerView = when (state) {
                     is TournamentDetailState.Active -> rvMatches
