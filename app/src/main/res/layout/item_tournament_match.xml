@@ -6,8 +6,8 @@
     android:layout_height="wrap_content"
     android:clipChildren="false"
     android:clipToPadding="false"
-    android:paddingTop="8dp"
-    android:paddingBottom="4dp">
+    android:paddingTop="3dp"
+    android:paddingBottom="0dp">
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardMatch"
@@ -116,7 +116,7 @@
         android:layout_height="wrap_content"
         android:background="@drawable/bg_match_index_badge"
         android:paddingHorizontal="8dp"
-        android:paddingVertical="2dp"
+        android:paddingVertical="1dp"
         android:textColor="?attr/colorOnSurface"
         android:textSize="11sp"
         android:textStyle="bold"
