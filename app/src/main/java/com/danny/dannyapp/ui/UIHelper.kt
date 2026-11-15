@@ -269,11 +269,17 @@ object UiHelper {
         card.setCardBackgroundColor(cardBg)
         card.strokeColor = cardStrokeColor
         card.strokeWidth = cardStrokeWidth
+        card.cardElevation = if (useModern) 2f * context.resources.displayMetrics.density else 0f
 
         if (matchIndexBadge != null) {
             val background = matchIndexBadge.background
             if (background is GradientDrawable) {
                 background.mutate()
+                val badgeFillColor = ContextCompat.getColor(
+                    context,
+                    if (useModern) R.color.surface_et_tint else R.color.anthrazit_flaeche
+                )
+                background.setColor(badgeFillColor)
                 background.setStroke((badgeStrokeWidth * context.resources.displayMetrics.density).toInt(), badgeStrokeColor)
             }
         }

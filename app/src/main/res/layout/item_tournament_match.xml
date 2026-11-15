@@ -115,14 +115,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@drawable/bg_match_index_badge"
+        android:elevation="4dp"
         android:paddingHorizontal="8dp"
         android:paddingVertical="1dp"
         android:textColor="@color/grau_text_gedaempft"
         android:textSize="11sp"
-        app:layout_constraintTop_toTopOf="@id/cardMatch"
         app:layout_constraintBottom_toTopOf="@id/cardMatch"
         app:layout_constraintEnd_toEndOf="@id/cardMatch"
         app:layout_constraintStart_toStartOf="@id/cardMatch"
+        app:layout_constraintTop_toTopOf="@id/cardMatch"
         tools:text="Match #1" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

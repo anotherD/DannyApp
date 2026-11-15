@@ -80,6 +80,7 @@ class BracketRoundAdapter(
 
         fun bind(matches: List<MatchUiModel>) {
             adapter.submitList(matches)
+            adapter.notifyDataSetChanged()
         }
 
         /**
