@@ -71,11 +71,26 @@ object BracketGenerator {
     }
 
     /**
-     * World Matchplay (Offizielles Format 2026):
-     * Top 16 OOM sind im Turnierbaum gesetzt (1..16).
-     * Die 16 Pro-Tour-Qualifikanten werden ihnen in Runde 1 frei zugelost.
+     * Erzeugt die Standard-Setzbaum-Reihenfolge (Faltungs-Algorithmus) für n Seeds,
+     * sodass Seed 1 und Seed 2 frühestens im Finale aufeinandertreffen.
      */
-    val BRACKET_SEED_ORDER_16 = listOf(0, 15, 7, 8, 3, 12, 4, 11, 1, 14, 6, 9, 2, 13, 5, 10)
+    fun buildStandardSeedOrder(n: Int): List<Int> {
+        var order = listOf(0)
+        var currentSize = 1
+        while (currentSize < n) {
+            val nextSize = currentSize * 2
+            order = order.flatMap { seed ->
+                listOf(seed, nextSize - 1 - seed)
+            }
+            currentSize = nextSize
+        }
+        return order
+    }
+
+    /**
+     * Offizielle Setzbaum-Reihenfolge für 16 Seeds nach Faltungs-Algorithmus.
+     */
+    val BRACKET_SEED_ORDER_16 = buildStandardSeedOrder(16)
 
     /**
      * World Matchplay (Offizielles Format 2026):
@@ -159,8 +174,7 @@ object BracketGenerator {
     /**
      * Grand Slam of Darts (16 Gruppen A-P zu je 3 Spielern):
      * Tag 1: Topf 1 (Head) vs Topf 3 (Qualifier)
-     * Tag 2: Topf 2 (Major-Qualifikant) vs Verlierer Tag 1 (wird nach Tag 1 dynamisch erzeugt)
-     * Tag 3: Topf 2 (Major-Qualifikant) vs Sieger Tag 1 (wird nach Tag 1 dynamisch erzeugt)
+     * Verteilt die 16 Gruppenköpfe über BRACKET_SEED_ORDER_16.
      */
     private fun generateGrandSlamGroups(
         top16OomHeads: List<Long>,
@@ -168,12 +182,14 @@ object BracketGenerator {
         pot3Qualifiers: List<Long>
     ): List<MatchPairing> {
         val shuffledPot3 = pot3Qualifiers.shuffled()
+        val seedOrder16 = BRACKET_SEED_ORDER_16
         return (0 until 16).map { groupIdx ->
             val groupLetter = ('A' + groupIdx).toString()
+            val seedIndex = seedOrder16.getOrElse(groupIdx) { groupIdx }
             MatchPairing(
                 round = TournamentRound.GROUP, // Kennzeichnet Gruppenspiel-Phase
                 matchIndex = groupIdx,
-                player1Id = top16OomHeads.getOrElse(groupIdx) { 0L },
+                player1Id = top16OomHeads.getOrElse(seedIndex) { 0L },
                 player2Id = shuffledPot3.getOrElse(groupIdx) { 0L },
                 groupName = groupLetter
             )
@@ -216,16 +232,37 @@ object BracketGenerator {
         ranks33To64Oom: List<Long>,
         remaining64: List<Long>
     ): List<MatchPairing> {
-        val seeded64 = top32Oom + ranks33To64Oom.shuffled()
+        val seedOrder32 = buildStandardSeedOrder(32)
         val unseeded64 = remaining64.shuffled()
-        return seeded64.mapIndexed { index, seedId ->
-            MatchPairing(
-                round = TournamentRound.L128,
-                matchIndex = index,
-                player1Id = seedId,
-                player2Id = unseeded64.getOrElse(index) { 0L }
+        val shuffledRanks33To64 = ranks33To64Oom.shuffled()
+
+        val pairings = mutableListOf<MatchPairing>()
+        for (matchIdx in 0 until 32) {
+            val seedIndex = seedOrder32[matchIdx]
+            val seededPlayer = top32Oom.getOrElse(seedIndex) { 0L }
+            val opponent = unseeded64.getOrElse(matchIdx) { 0L }
+            pairings.add(
+                MatchPairing(
+                    round = TournamentRound.L128,
+                    matchIndex = matchIdx,
+                    player1Id = seededPlayer,
+                    player2Id = opponent
+                )
             )
         }
+        for (matchIdx in 32 until 64) {
+            val player33To64 = shuffledRanks33To64.getOrElse(matchIdx - 32) { 0L }
+            val opponent = unseeded64.getOrElse(matchIdx) { 0L }
+            pairings.add(
+                MatchPairing(
+                    round = TournamentRound.L128,
+                    matchIndex = matchIdx,
+                    player1Id = player33To64,
+                    player2Id = opponent
+                )
+            )
+        }
+        return pairings
     }
 
     /**
