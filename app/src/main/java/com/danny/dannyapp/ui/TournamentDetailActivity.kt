@@ -540,97 +540,110 @@ class TournamentDetailActivity : BaseActivity() {
                     layoutGroupSelector.visibility = View.GONE
                 }
 
-                if (state.isOpenDrawInfoVisible) {
+                if (settingsManager.isBracketViewEnabled) {
                     rvMatches.visibility = View.GONE
-                    layoutOpenDrawInfo.visibility = View.VISIBLE
-                    tvDrawAfterRoundInfo.text = getString(R.string.draw_after_round_info, state.prevRoundDisplayName)
-                    if (state.openEntrantsGroups.isNotEmpty()) {
-                        layoutEntrantsContainer.visibility = View.VISIBLE
-                        layoutEntrantsContainer.removeAllViews()
-                        state.openEntrantsGroups.forEachIndexed { groupIndex, group ->
-                            if (groupIndex > 0) {
-                                val divider = com.google.android.material.divider.MaterialDivider(this).apply {
-                                    layoutParams = LinearLayout.LayoutParams(
-                                        LinearLayout.LayoutParams.MATCH_PARENT,
-                                        LinearLayout.LayoutParams.WRAP_CONTENT
-                                    ).apply {
-                                        topMargin = (8 * resources.displayMetrics.density).toInt()
-                                        bottomMargin = (8 * resources.displayMetrics.density).toInt()
-                                    }
-                                }
-                                layoutEntrantsContainer.addView(divider)
-                            }
-                            val tvGroupTitle = TextView(this).apply {
-                                layoutParams = LinearLayout.LayoutParams(
-                                    LinearLayout.LayoutParams.MATCH_PARENT,
-                                    LinearLayout.LayoutParams.WRAP_CONTENT
-                                ).apply {
-                                    bottomMargin = (4 * resources.displayMetrics.density).toInt()
-                                }
-                                text = group.title
-                                textSize = 14f
-                                setTypeface(null, Typeface.BOLD)
-                                gravity = Gravity.CENTER_HORIZONTAL
-                                val typedValue = android.util.TypedValue()
-                                theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurface, typedValue, true)
-                                if (typedValue.resourceId != 0) {
-                                    setTextColor(ContextCompat.getColor(this@TournamentDetailActivity, typedValue.resourceId))
-                                }
-                            }
-                            layoutEntrantsContainer.addView(tvGroupTitle)
-
-                            group.players.chunked(2).forEach { rowPlayers ->
-                                val rowLayout = LinearLayout(this).apply {
-                                    layoutParams = LinearLayout.LayoutParams(
-                                        LinearLayout.LayoutParams.MATCH_PARENT,
-                                        LinearLayout.LayoutParams.WRAP_CONTENT
-                                    ).apply {
-                                        topMargin = (2 * resources.displayMetrics.density).toInt()
-                                        bottomMargin = (2 * resources.displayMetrics.density).toInt()
-                                    }
-                                    orientation = LinearLayout.HORIZONTAL
-                                    weightSum = 2f
-                                }
-
-                                rowPlayers.forEach { player ->
-                                    val tvPlayer = TextView(this).apply {
-                                        layoutParams = LinearLayout.LayoutParams(
-                                            0,
-                                            LinearLayout.LayoutParams.WRAP_CONTENT,
-                                            1f
-                                        )
-                                        textSize = 13f
-                                        val typedValue = android.util.TypedValue()
-                                        theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurfaceVariant, typedValue, true)
-                                        if (typedValue.resourceId != 0) {
-                                            setTextColor(ContextCompat.getColor(this@TournamentDetailActivity, typedValue.resourceId))
-                                        }
-                                    }
-                                    UiHelper.bindSmartPlayerName(tvPlayer, player, isLeft = true)
-                                    rowLayout.addView(tvPlayer)
-                                }
-
-                                if (rowPlayers.size == 1) {
-                                    val emptyView = View(this).apply {
-                                        layoutParams = LinearLayout.LayoutParams(
-                                            0,
-                                            0,
-                                            1f
-                                        )
-                                    }
-                                    rowLayout.addView(emptyView)
-                                }
-
-                                layoutEntrantsContainer.addView(rowLayout)
-                            }
-                        }
-                    } else {
-                        layoutEntrantsContainer.visibility = View.GONE
+                    layoutOpenDrawInfo.visibility = View.GONE
+                    vpActiveBracket.visibility = View.VISIBLE
+                    state.allRoundsMatches.forEachIndexed { index, roundMatches ->
+                        activeBracketAdapter.setRoundMatches(index, roundMatches, state.allRoundsMatches.size)
+                    }
+                    if (vpActiveBracket.currentItem != state.selectedRoundIndex) {
+                        vpActiveBracket.setCurrentItem(state.selectedRoundIndex, true)
                     }
                 } else {
-                    rvMatches.visibility = View.VISIBLE
-                    layoutOpenDrawInfo.visibility = View.GONE
-                    activeMatchesAdapter.submitList(state.matches)
+                    vpActiveBracket.visibility = View.GONE
+                    if (state.isOpenDrawInfoVisible) {
+                        rvMatches.visibility = View.GONE
+                        layoutOpenDrawInfo.visibility = View.VISIBLE
+                        tvDrawAfterRoundInfo.text = getString(R.string.draw_after_round_info, state.prevRoundDisplayName)
+                        if (state.openEntrantsGroups.isNotEmpty()) {
+                            layoutEntrantsContainer.visibility = View.VISIBLE
+                            layoutEntrantsContainer.removeAllViews()
+                            state.openEntrantsGroups.forEachIndexed { groupIndex, group ->
+                                if (groupIndex > 0) {
+                                    val divider = com.google.android.material.divider.MaterialDivider(this).apply {
+                                        layoutParams = LinearLayout.LayoutParams(
+                                            LinearLayout.LayoutParams.MATCH_PARENT,
+                                            LinearLayout.LayoutParams.WRAP_CONTENT
+                                        ).apply {
+                                            topMargin = (8 * resources.displayMetrics.density).toInt()
+                                            bottomMargin = (8 * resources.displayMetrics.density).toInt()
+                                        }
+                                    }
+                                    layoutEntrantsContainer.addView(divider)
+                                }
+                                val tvGroupTitle = TextView(this).apply {
+                                    layoutParams = LinearLayout.LayoutParams(
+                                        LinearLayout.LayoutParams.MATCH_PARENT,
+                                        LinearLayout.LayoutParams.WRAP_CONTENT
+                                    ).apply {
+                                        bottomMargin = (4 * resources.displayMetrics.density).toInt()
+                                    }
+                                    text = group.title
+                                    textSize = 14f
+                                    setTypeface(null, Typeface.BOLD)
+                                    gravity = Gravity.CENTER_HORIZONTAL
+                                    val typedValue = android.util.TypedValue()
+                                    theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurface, typedValue, true)
+                                    if (typedValue.resourceId != 0) {
+                                        setTextColor(ContextCompat.getColor(this@TournamentDetailActivity, typedValue.resourceId))
+                                    }
+                                }
+                                layoutEntrantsContainer.addView(tvGroupTitle)
+
+                                group.players.chunked(2).forEach { rowPlayers ->
+                                    val rowLayout = LinearLayout(this).apply {
+                                        layoutParams = LinearLayout.LayoutParams(
+                                            LinearLayout.LayoutParams.MATCH_PARENT,
+                                            LinearLayout.LayoutParams.WRAP_CONTENT
+                                        ).apply {
+                                            topMargin = (2 * resources.displayMetrics.density).toInt()
+                                            bottomMargin = (2 * resources.displayMetrics.density).toInt()
+                                        }
+                                        orientation = LinearLayout.HORIZONTAL
+                                        weightSum = 2f
+                                    }
+
+                                    rowPlayers.forEach { player ->
+                                        val tvPlayer = TextView(this).apply {
+                                            layoutParams = LinearLayout.LayoutParams(
+                                                0,
+                                                LinearLayout.LayoutParams.WRAP_CONTENT,
+                                                1f
+                                            )
+                                            textSize = 13f
+                                            val typedValue = android.util.TypedValue()
+                                            theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurfaceVariant, typedValue, true)
+                                            if (typedValue.resourceId != 0) {
+                                                setTextColor(ContextCompat.getColor(this@TournamentDetailActivity, typedValue.resourceId))
+                                            }
+                                        }
+                                        UiHelper.bindSmartPlayerName(tvPlayer, player, isLeft = true)
+                                        rowLayout.addView(tvPlayer)
+                                    }
+
+                                    if (rowPlayers.size == 1) {
+                                        val emptyView = View(this).apply {
+                                            layoutParams = LinearLayout.LayoutParams(
+                                                0,
+                                                0,
+                                                1f
+                                            )
+                                        }
+                                        rowLayout.addView(emptyView)
+                                    }
+
+                                    layoutEntrantsContainer.addView(rowLayout)
+                                }
+                            }
+                        } else {
+                            layoutEntrantsContainer.visibility = View.GONE
+                        }
+                    } else {
+                        rvMatches.visibility = View.VISIBLE
+                        layoutOpenDrawInfo.visibility = View.GONE
+                        activeMatchesAdapter.submitList(state.matches)
+                    }
                 }
             }
 
@@ -711,7 +724,20 @@ class TournamentDetailActivity : BaseActivity() {
                     }
                 }
 
-                reviewMatchesAdapter.submitList(state.matches)
+                if (settingsManager.isBracketViewEnabled) {
+                    rvReviewMatches.visibility = View.GONE
+                    vpReviewBracket.visibility = View.VISIBLE
+                    state.allRoundsMatches.forEachIndexed { index, roundMatches ->
+                        reviewBracketAdapter.setRoundMatches(index, roundMatches, state.allRoundsMatches.size)
+                    }
+                    if (vpReviewBracket.currentItem != state.selectedRoundIndex) {
+                        vpReviewBracket.setCurrentItem(state.selectedRoundIndex, true)
+                    }
+                } else {
+                    vpReviewBracket.visibility = View.GONE
+                    rvReviewMatches.visibility = View.VISIBLE
+                    reviewMatchesAdapter.submitList(state.matches)
+                }
             }
 
             is TournamentDetailState.Error -> {
@@ -758,7 +784,7 @@ class TournamentDetailActivity : BaseActivity() {
     }
 
     /**
-     * Scrollt die Match-Liste zentriert auf das Match des Users in der aktuellen Runde.
+     * Scrollt die Match-Liste oder den Turnierbaum zentriert auf das Match des Users in der aktuellen Runde.
      */
     private fun onFocusUserMatchClicked() {
         val state = viewModel.uiState.value
@@ -767,14 +793,33 @@ class TournamentDetailActivity : BaseActivity() {
             is TournamentDetailState.Review -> state.matches
             else -> emptyList()
         }
-        val targetRecyclerView = when (state) {
-            is TournamentDetailState.Active -> rvMatches
-            is TournamentDetailState.Review -> rvReviewMatches
-            else -> return
-        }
         val userMatchIndex = matches.indexOfFirst { it.isUserMatch }
         if (userMatchIndex != -1) {
-            scrollToMatchCentered(targetRecyclerView, userMatchIndex)
+            if (settingsManager.isBracketViewEnabled) {
+                val viewPager = when (state) {
+                    is TournamentDetailState.Active -> vpActiveBracket
+                    is TournamentDetailState.Review -> vpReviewBracket
+                    else -> return
+                }
+                val adapter = when (state) {
+                    is TournamentDetailState.Active -> activeBracketAdapter
+                    is TournamentDetailState.Review -> reviewBracketAdapter
+                    else -> return
+                }
+                val roundIndex = when (state) {
+                    is TournamentDetailState.Active -> state.selectedRoundIndex
+                    is TournamentDetailState.Review -> state.selectedRoundIndex
+                    else -> 0
+                }
+                adapter.scrollToMatch(viewPager, roundIndex, userMatchIndex)
+            } else {
+                val targetRecyclerView = when (state) {
+                    is TournamentDetailState.Active -> rvMatches
+                    is TournamentDetailState.Review -> rvReviewMatches
+                    else -> return
+                }
+                scrollToMatchCentered(targetRecyclerView, userMatchIndex)
+            }
         }
     }
 
@@ -805,6 +850,7 @@ class TournamentDetailActivity : BaseActivity() {
     private fun onToggleBracketViewClicked() {
         settingsManager.isBracketViewEnabled = !settingsManager.isBracketViewEnabled
         updateBracketFabIcon()
+        renderState(viewModel.uiState.value)
     }
 
     /**

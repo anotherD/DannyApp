@@ -64,6 +64,7 @@ sealed interface TournamentDetailState {
         val availableGroups: List<String>,
         val selectedGroupIndex: Int,
         val matches: List<MatchUiModel>,
+        val allRoundsMatches: List<List<MatchUiModel>>,
         val prizeMoneyItems: List<PrizeMoneyItem>,
         val autoSimulateCpu: Boolean,
         val autoAdvanceRound: Boolean,
@@ -93,6 +94,7 @@ sealed interface TournamentDetailState {
         val availableGroups: List<String>,
         val selectedGroupIndex: Int,
         val matches: List<MatchUiModel>,
+        val allRoundsMatches: List<List<MatchUiModel>>,
         val prizeMoneyItems: List<PrizeMoneyItem>,
         val careerName: String,
         val isQualifier: Boolean = false,
@@ -415,6 +417,35 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         val hostCountryCode = tournament.hostCountry ?: Country.DEFAULT_CODE
         val host = TournamentUiHelper.getTournamentCity(hostCountryCode, tournament.name)
 
+        val allRoundsMatches = availableRounds.map { roundKey ->
+            val dbMatchesForRound = allMatches.filter { it.round == roundKey }
+            val isUkOrEuropeanOpen = event == TournamentEvent.UK_OPEN || event == TournamentEvent.EUROPEAN_OPEN
+            val isUkOpenUngenerated = isUkOrEuropeanOpen && dbMatchesForRound.isEmpty() && roundKey in listOf(
+                TournamentRound.R2_128.name, TournamentRound.R3_96.name, TournamentRound.L64.name,
+                TournamentRound.L32.name, TournamentRound.L16.name, TournamentRound.QF.name, TournamentRound.SF.name, TournamentRound.F.name
+            )
+
+            val roundMatches = if (dbMatchesForRound.isNotEmpty()) {
+                dbMatchesForRound
+            } else if (isUkOpenUngenerated) {
+                emptyList()
+            } else {
+                generatePreviewMatchesWithPropagation(currentTournamentId, roundKey, event, allMatches, tournament.seasonId)
+            }
+
+            val isGsGroup = (event == TournamentEvent.GRAND_SLAM_OF_DARTS && roundKey == TournamentRound.GROUP.name)
+            val filteredRoundMatches = if (isGsGroup && availableGroups.isNotEmpty()) {
+                val selectedGroupLetter = availableGroups[selectedGroupIndex]
+                roundMatches.filter { it.groupName == selectedGroupLetter }
+            } else {
+                roundMatches
+            }
+
+            filteredRoundMatches.map { match ->
+                createMatchUiModel(match, userName, userCountryCode, userLevel, allPlayersMap, roundKey, event, seededPlayerMap)
+            }
+        }
+
         _uiState.value = TournamentDetailState.Active(
             tournament = tournament,
             event = event,
@@ -427,6 +458,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             availableGroups = availableGroups,
             selectedGroupIndex = selectedGroupIndex,
             matches = matchUiModels,
+            allRoundsMatches = allRoundsMatches,
             prizeMoneyItems = prizeMoneyItems,
             autoSimulateCpu = autoSimulateCpu,
             autoAdvanceRound = autoAdvanceRound,
@@ -559,6 +591,26 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         val hostCountryCode = tournament.hostCountry ?: Country.DEFAULT_CODE
         val host = TournamentUiHelper.getTournamentCity(hostCountryCode, tournament.name)
 
+        val allRoundsMatches = availableRounds.map { roundKey ->
+            val dbMatchesForRound = allMatches.filter { it.round == roundKey }
+            val roundMatches = if (dbMatchesForRound.isNotEmpty()) {
+                dbMatchesForRound
+            } else {
+                generatePreviewMatchesForRound(tournament.id, roundKey, event)
+            }
+
+            val isGsGroup = (event == TournamentEvent.GRAND_SLAM_OF_DARTS && roundKey == TournamentRound.GROUP.name)
+            val filteredRoundMatches = if (isGsGroup && availableGroups.isNotEmpty()) {
+                roundMatches.filter { it.groupName == availableGroups[selectedGroupIndex] }
+            } else {
+                roundMatches
+            }
+
+            filteredRoundMatches.map { match ->
+                createMatchUiModel(match, userName, userCountryCode, userLevel, allPlayersMap, roundKey, event, seededPlayerMap)
+            }
+        }
+
         _uiState.value = TournamentDetailState.Review(
             tournament = tournament,
             event = event,
@@ -573,6 +625,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             availableGroups = availableGroups,
             selectedGroupIndex = selectedGroupIndex,
             matches = matchUiModels,
+            allRoundsMatches = allRoundsMatches,
             prizeMoneyItems = prizeMoneyItems,
             careerName = careerName,
             isQualifier = isQualifier,

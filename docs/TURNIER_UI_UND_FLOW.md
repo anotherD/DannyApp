@@ -98,16 +98,21 @@ Ist ein offenes Match mit Beteiligung des Users an der Reihe, erhält der User b
 ### 3.3 Turnierbaum-Ansicht (Bracket View) & Schwebe-Buttons
 * **Schwebe-Buttons unten rechts (`TournamentDetailActivity`):**
   - Sichtbar im aktiven Modus (`TournamentDetailState.Active`) und Rückblick-Modus (`TournamentDetailState.Review`). Ausgeblendet im Vorschau-Modus sowie während der Batch-Simulation (`layoutSimulatingOverlay`).
+  - **Exakt kreisrunde FABs:** Ausgestattet mit `app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full"`.
   - **„Mein Match fokussieren“ (`fabFocusUserMatch`):**
     - Content-Description: `@string/cd_focus_user_match` („Mein Match fokussieren“).
     - Icon: `ic_my_location.xml` (Fadenkreuz-Icon).
     - Prüft, ob die aktuelle Runde ein Match mit `isUserMatch == true` (Beteiligung des Users mit `USER_ID = -1L`) enthält.
-    - Falls ja: Aktiviert (`isEnabled = true`, `alpha = 1.0f`) und scrollt beim Klick `rvMatches` bzw. `rvReviewMatches` zentriert auf das User-Match.
+    - Falls ja: Aktiviert (`isEnabled = true`, `alpha = 1.0f`) und scrollt beim Klick im Listenmodus (`rvMatches` / `rvReviewMatches`) oder im Turnierbaum-Modus (`vpActiveBracket` / `vpReviewBracket`) zentriert auf das User-Match.
     - Falls nein: Deaktiviert und ausgegraut (`isEnabled = false`, `alpha = 0.38f`).
   - **„Ansicht wechseln“ (`fabToggleBracketView`):**
     - Content-Description: `@string/cd_show_bracket_view` („Turnierbaum anzeigen“) bzw. `@string/cd_show_list_view` („Rundenliste anzeigen“).
     - Icons: `ic_bracket_tree.xml` (Turnierbaum-Icon) vs. `ic_view_list.xml` (Listen-Icon).
-    - Schaltet `SettingsManager.isBracketViewEnabled` um (Default: `false`) und wechselt das Icon zwischen Turnierbaum und Liste.
+    - Schaltet `SettingsManager.isBracketViewEnabled` um (Default: `false`), aktualisiert sofort die Ansicht (`renderState`) und wechselt das Icon zwischen Turnierbaum und Liste.
+* **Match-Index-Badge (`bg_match_index_badge.xml`, `item_tournament_match.xml`, `TournamentMatchAdapter.kt`):**
+  - Als `<layer-list>` gestaltet mit abgerundeten oberen Ecken (`topLeftRadius="8dp"`, `topRightRadius="8dp"`, `bottomLeftRadius="0dp"`, `bottomRightRadius="0dp"`), Füllfarbe `@color/anthrazit_flaeche` und Rahmen `@color/grau_rahmen` (`1dp`), wobei die untere Rahmenlinie per `android:bottom="-2dp"` ausgeblendet wird.
+  - Positioniert direkt oberhalb von `cardMatch` (`app:layout_constraintBottom_toTopOf="@id/cardMatch"`, `android:layout_marginBottom="-1dp"`), sodass der Badge wie eine nahtlose Ausbeulung der Match-Karte wirkt.
+  - Textfarbe `@color/grau_text_gedaempft` (ohne Fettdruck). Bei User-Matches (`item.isUserMatch`) wird der Rahmen per `LayerDrawable` und `DrawableCompat.setTint` dynamisch auf `@color/rot_hell` angepasst.
 * **Turnierbaum-Geometrie & ViewPager2-Rundenansicht (`BracketRoundAdapter`, `item_bracket_match.xml`, `vpActiveBracket` / `vpReviewBracket`):**
   - Jede Turnierrunde wird als Seite im `ViewPager2` (`vpActiveBracket` / `vpReviewBracket`) dargestellt.
   - Konfiguriert mit `clipToPadding = false`, `offscreenPageLimit = 1` und seitlichem Padding (~22 % der Bildschirmbreite), sodass die aktive Runde mittig (~56 % Breite) steht und Vorgänger- sowie Nachfolgerrunde jeweils zu ~38–40 % der Kachelbreite angeschnitten sichtbar sind.

@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import androidx.viewpager2.widget.ViewPager2
 import com.danny.dannyapp.R
 import com.danny.dannyapp.ui.model.MatchUiModel
 import com.google.android.material.card.MaterialCardView
@@ -38,6 +39,15 @@ class BracketRoundAdapter(
         } else {
             notifyItemChanged(roundIndex)
         }
+    }
+
+    /**
+     * Smoothly scrolls the specified round's match list to center the match at [matchIndex].
+     */
+    fun scrollToMatch(viewPager: ViewPager2, roundIndex: Int, matchIndex: Int) {
+        val pagerRv = viewPager.getChildAt(0) as? RecyclerView
+        val roundViewHolder = pagerRv?.findViewHolderForAdapterPosition(roundIndex) as? RoundViewHolder
+        roundViewHolder?.scrollToMatch(matchIndex)
     }
 
     override fun getItemCount(): Int = totalRounds
@@ -70,6 +80,27 @@ class BracketRoundAdapter(
 
         fun bind(matches: List<MatchUiModel>) {
             adapter.submitList(matches)
+        }
+
+        /**
+         * Smoothly scrolls to center the match at [matchIndex].
+         */
+        fun scrollToMatch(matchIndex: Int) {
+            if (matchIndex < 0) return
+            val layoutManager = rvBracketRoundMatches.layoutManager as? LinearLayoutManager ?: return
+            val smoothScroller = object : androidx.recyclerview.widget.LinearSmoothScroller(rvBracketRoundMatches.context) {
+                override fun calculateDtToFit(
+                    viewStart: Int,
+                    viewEnd: Int,
+                    boxStart: Int,
+                    boxEnd: Int,
+                    snapPreference: Int
+                ): Int {
+                    return (boxStart + (boxEnd - boxStart) / 2) - (viewStart + (viewEnd - viewStart) / 2)
+                }
+            }
+            smoothScroller.targetPosition = matchIndex
+            layoutManager.startSmoothScroll(smoothScroller)
         }
     }
 

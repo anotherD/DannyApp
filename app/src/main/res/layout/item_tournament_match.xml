@@ -117,13 +117,12 @@
         android:background="@drawable/bg_match_index_badge"
         android:paddingHorizontal="8dp"
         android:paddingVertical="1dp"
-        android:textColor="?attr/colorOnSurface"
+        android:layout_marginBottom="-1dp"
+        android:textColor="@color/grau_text_gedaempft"
         android:textSize="11sp"
-        android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@id/cardMatch"
         app:layout_constraintEnd_toEndOf="@id/cardMatch"
         app:layout_constraintStart_toStartOf="@id/cardMatch"
-        app:layout_constraintTop_toTopOf="@id/cardMatch"
         tools:text="Match #1" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

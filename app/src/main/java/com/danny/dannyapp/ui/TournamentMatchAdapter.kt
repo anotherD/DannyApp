@@ -43,6 +43,18 @@ class TournamentMatchAdapter(
             holder.tvMatchRoundIndex.text = context.getString(R.string.tournament_match_index_format, match.matchIndex + 1)
         }
 
+        val background = holder.tvMatchRoundIndex.background
+        if (background is android.graphics.drawable.LayerDrawable) {
+            val mutableBg = background.mutate() as android.graphics.drawable.LayerDrawable
+            val strokeLayer = mutableBg.getDrawable(0)
+            val strokeColor = if (item.isUserMatch) {
+                ContextCompat.getColor(context, R.color.rot_hell)
+            } else {
+                ContextCompat.getColor(context, R.color.grau_rahmen)
+            }
+            androidx.core.graphics.drawable.DrawableCompat.setTint(strokeLayer, strokeColor)
+        }
+
         UiHelper.bindSmartPlayerName(holder.tvPlayer1Name, item.player1, isLeft = true)
         UiHelper.bindSmartPlayerName(holder.tvPlayer2Name, item.player2, isLeft = false)
 
