@@ -1,6 +1,5 @@
 package com.danny.dannyapp.ui
 
-import android.graphics.Typeface
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -141,111 +140,15 @@ class BracketRoundAdapter(
             UiHelper.bindSmartPlayerName(holder.tvPlayer1Name, item.player1, isLeft = true)
             UiHelper.bindSmartPlayerName(holder.tvPlayer2Name, item.player2, isLeft = true)
 
-            val settingsManager = SettingsManager(context)
-            val useModern = settingsManager.useModernMatchCardStyle
-
-            if (useModern) {
-                if (item.isUserMatch) {
-                    holder.cardBracketMatch.setCardBackgroundColor(ContextCompat.getColor(context, R.color.rot_container_dunkel))
-                    holder.cardBracketMatch.strokeColor = ContextCompat.getColor(context, R.color.rot_hell)
-                    holder.cardBracketMatch.strokeWidth = (2 * context.resources.displayMetrics.density).toInt()
-                } else {
-                    holder.cardBracketMatch.setCardBackgroundColor(ContextCompat.getColor(context, R.color.anthrazit_flaeche))
-                    holder.cardBracketMatch.strokeColor = ContextCompat.getColor(context, R.color.grau_rahmen_dunkel)
-                    holder.cardBracketMatch.strokeWidth = (1 * context.resources.displayMetrics.density).toInt()
-                }
-
-                if (item.isCompleted) {
-                    holder.tvPlayer1Score.text = match.player1Score.toString()
-                    holder.tvPlayer2Score.text = match.player2Score.toString()
-
-                    if (item.winnerId == match.player1Id) {
-                        holder.tvPlayer1Name.setTypeface(null, Typeface.BOLD)
-                        holder.tvPlayer1Name.setTextColor(ContextCompat.getColor(context, R.color.grau_text_hell))
-                        holder.tvPlayer1Score.setTypeface(null, Typeface.BOLD)
-                        holder.tvPlayer1Score.setTextColor(ContextCompat.getColor(context, R.color.grau_text_hell))
-
-                        holder.tvPlayer2Name.setTypeface(null, Typeface.NORMAL)
-                        holder.tvPlayer2Name.setTextColor(ContextCompat.getColor(context, R.color.grau_text_gedaempft))
-                        holder.tvPlayer2Score.setTypeface(null, Typeface.NORMAL)
-                        holder.tvPlayer2Score.setTextColor(ContextCompat.getColor(context, R.color.grau_text_gedaempft))
-                    } else if (item.winnerId == match.player2Id) {
-                        holder.tvPlayer2Name.setTypeface(null, Typeface.BOLD)
-                        holder.tvPlayer2Name.setTextColor(ContextCompat.getColor(context, R.color.grau_text_hell))
-                        holder.tvPlayer2Score.setTypeface(null, Typeface.BOLD)
-                        holder.tvPlayer2Score.setTextColor(ContextCompat.getColor(context, R.color.grau_text_hell))
-
-                        holder.tvPlayer1Name.setTypeface(null, Typeface.NORMAL)
-                        holder.tvPlayer1Name.setTextColor(ContextCompat.getColor(context, R.color.grau_text_gedaempft))
-                        holder.tvPlayer1Score.setTypeface(null, Typeface.NORMAL)
-                        holder.tvPlayer1Score.setTextColor(ContextCompat.getColor(context, R.color.grau_text_gedaempft))
-                    } else {
-                        holder.tvPlayer1Name.setTypeface(null, Typeface.NORMAL)
-                        holder.tvPlayer1Name.setTextColor(ContextCompat.getColor(context, R.color.grau_text_hell))
-                        holder.tvPlayer1Score.setTypeface(null, Typeface.NORMAL)
-                        holder.tvPlayer1Score.setTextColor(ContextCompat.getColor(context, R.color.grau_text_hell))
-
-                        holder.tvPlayer2Name.setTypeface(null, Typeface.NORMAL)
-                        holder.tvPlayer2Name.setTextColor(ContextCompat.getColor(context, R.color.grau_text_hell))
-                        holder.tvPlayer2Score.setTypeface(null, Typeface.NORMAL)
-                        holder.tvPlayer2Score.setTextColor(ContextCompat.getColor(context, R.color.grau_text_hell))
-                    }
-                } else {
-                    holder.tvPlayer1Score.text = "-"
-                    holder.tvPlayer2Score.text = "-"
-
-                    holder.tvPlayer1Name.setTypeface(null, Typeface.NORMAL)
-                    holder.tvPlayer1Name.setTextColor(ContextCompat.getColor(context, R.color.grau_text_hell))
-                    holder.tvPlayer1Score.setTypeface(null, Typeface.NORMAL)
-                    holder.tvPlayer1Score.setTextColor(ContextCompat.getColor(context, R.color.grau_text_hell))
-
-                    holder.tvPlayer2Name.setTypeface(null, Typeface.NORMAL)
-                    holder.tvPlayer2Name.setTextColor(ContextCompat.getColor(context, R.color.grau_text_hell))
-                    holder.tvPlayer2Score.setTypeface(null, Typeface.NORMAL)
-                    holder.tvPlayer2Score.setTextColor(ContextCompat.getColor(context, R.color.grau_text_hell))
-                }
-            } else {
-                // Classic
-                if (item.isUserMatch) {
-                    holder.cardBracketMatch.setCardBackgroundColor(ContextCompat.getColor(context, R.color.rot_container_dunkel))
-                    holder.cardBracketMatch.strokeColor = ContextCompat.getColor(context, R.color.rot_hell)
-                    holder.cardBracketMatch.strokeWidth = (2 * context.resources.displayMetrics.density).toInt()
-                } else {
-                    holder.cardBracketMatch.setCardBackgroundColor(ContextCompat.getColor(context, R.color.anthrazit_flaeche))
-                    holder.cardBracketMatch.strokeColor = ContextCompat.getColor(context, R.color.grau_rahmen_dunkel)
-                    holder.cardBracketMatch.strokeWidth = (1 * context.resources.displayMetrics.density).toInt()
-                }
-
-                if (item.isCompleted) {
-                    holder.tvPlayer1Score.text = match.player1Score.toString()
-                    holder.tvPlayer2Score.text = match.player2Score.toString()
-
-                    if (item.winnerId == match.player1Id) {
-                        holder.tvPlayer1Name.setTypeface(null, Typeface.BOLD)
-                        holder.tvPlayer1Score.setTypeface(null, Typeface.BOLD)
-                        holder.tvPlayer2Name.setTypeface(null, Typeface.NORMAL)
-                        holder.tvPlayer2Score.setTypeface(null, Typeface.NORMAL)
-                    } else if (item.winnerId == match.player2Id) {
-                        holder.tvPlayer2Name.setTypeface(null, Typeface.BOLD)
-                        holder.tvPlayer2Score.setTypeface(null, Typeface.BOLD)
-                        holder.tvPlayer1Name.setTypeface(null, Typeface.NORMAL)
-                        holder.tvPlayer1Score.setTypeface(null, Typeface.NORMAL)
-                    } else {
-                        holder.tvPlayer1Name.setTypeface(null, Typeface.NORMAL)
-                        holder.tvPlayer2Name.setTypeface(null, Typeface.NORMAL)
-                    }
-                } else {
-                    holder.tvPlayer1Score.text = "-"
-                    holder.tvPlayer2Score.text = "-"
-                    holder.tvPlayer1Name.setTypeface(null, Typeface.NORMAL)
-                    holder.tvPlayer2Name.setTypeface(null, Typeface.NORMAL)
-                }
-
-                holder.tvPlayer1Name.setTextColor(ContextCompat.getColor(context, R.color.grau_text_hell))
-                holder.tvPlayer2Name.setTextColor(ContextCompat.getColor(context, R.color.grau_text_hell))
-                holder.tvPlayer1Score.setTextColor(ContextCompat.getColor(context, R.color.grau_text_hell))
-                holder.tvPlayer2Score.setTextColor(ContextCompat.getColor(context, R.color.grau_text_hell))
-            }
+            UiHelper.applyMatchCardStyle(
+                card = holder.cardBracketMatch,
+                item = item,
+                player1Name = holder.tvPlayer1Name,
+                player1Score = holder.tvPlayer1Score,
+                player2Name = holder.tvPlayer2Name,
+                player2Score = holder.tvPlayer2Score,
+                matchIndexBadge = null
+            )
 
             holder.itemView.setOnClickListener {
                 onMatchClick(item)

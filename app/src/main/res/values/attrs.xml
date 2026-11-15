@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <attr name="colorError" format="color" />
-    <attr name="colorErrorContainer" format="color" />
-</resources>

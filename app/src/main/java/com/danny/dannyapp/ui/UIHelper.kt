@@ -3,7 +3,9 @@ package com.danny.dannyapp.ui
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
+import android.graphics.Typeface
 import android.graphics.drawable.Drawable
+import android.graphics.drawable.GradientDrawable
 import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.TextUtils
@@ -13,9 +15,12 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.withSave
 import androidx.core.view.doOnPreDraw
 import com.danny.dannyapp.R
+import com.danny.dannyapp.data.SettingsManager
 import com.danny.dannyapp.domain.enums.SkillLevel
 import com.danny.dannyapp.domain.model.Country
+import com.danny.dannyapp.ui.model.MatchUiModel
 import com.danny.dannyapp.ui.model.PlayerUiInfo
+import com.google.android.material.card.MaterialCardView
 
 /**
  * Returns the corresponding color resource ID for a [SkillLevel].
@@ -202,6 +207,125 @@ object UiHelper {
             val availableForName = (width - seedWidth - flagExtraWidth).coerceAtLeast(0f)
             val ellipsizedName = TextUtils.ellipsize(abbrName, paint, availableForName, TextUtils.TruncateAt.END).toString()
             setFormattedText(ellipsizedName)
+        }
+    }
+
+    /**
+     * Applies the match card background, border stroke, badge stroke, player names text styles,
+     * and scores according to the Modern or Classic style setting.
+     */
+    fun applyMatchCardStyle(
+        card: MaterialCardView,
+        item: MatchUiModel,
+        player1Name: TextView,
+        player1Score: TextView,
+        player2Name: TextView,
+        player2Score: TextView,
+        matchIndexBadge: TextView? = null
+    ) {
+        val context = card.context
+        val match = item.match
+        val settingsManager = SettingsManager(context)
+        val useModern = settingsManager.useModernMatchCardStyle
+
+        val cardBg: Int
+        val cardStrokeColor: Int
+        val cardStrokeWidth: Int
+        val badgeStrokeColor: Int
+        val badgeStrokeWidth: Int
+
+        val colorTextHell = ContextCompat.getColor(context, R.color.grau_text_hell)
+        val colorTextGedaempft = ContextCompat.getColor(context, R.color.grau_text_gedaempft)
+
+        if (useModern) {
+            if (item.isUserMatch) {
+                cardBg = ContextCompat.getColor(context, R.color.rot_container_dunkel)
+                cardStrokeColor = ContextCompat.getColor(context, R.color.rot_hell)
+                cardStrokeWidth = (2 * context.resources.displayMetrics.density).toInt()
+                badgeStrokeColor = ContextCompat.getColor(context, R.color.rot_hell)
+                badgeStrokeWidth = 2
+            } else {
+                cardBg = ContextCompat.getColor(context, R.color.anthrazit_flaeche)
+                cardStrokeColor = ContextCompat.getColor(context, R.color.grau_rahmen_dunkel)
+                cardStrokeWidth = (1 * context.resources.displayMetrics.density).toInt()
+                badgeStrokeColor = ContextCompat.getColor(context, R.color.grau_rahmen)
+                badgeStrokeWidth = 1
+            }
+        } else {
+            cardBg = ContextCompat.getColor(context, if (!item.isCompleted) R.color.surface_grau_heller else R.color.anthrazit_flaeche)
+            if (item.isUserMatch) {
+                cardStrokeColor = ContextCompat.getColor(context, R.color.rot_hell)
+                cardStrokeWidth = (2 * context.resources.displayMetrics.density).toInt()
+                badgeStrokeColor = ContextCompat.getColor(context, R.color.rot_hell)
+                badgeStrokeWidth = 2
+            } else {
+                cardStrokeColor = ContextCompat.getColor(context, R.color.anthrazit_container_hoechst)
+                cardStrokeWidth = (1 * context.resources.displayMetrics.density).toInt()
+                badgeStrokeColor = ContextCompat.getColor(context, R.color.grau_rahmen)
+                badgeStrokeWidth = 1
+            }
+        }
+
+        card.setCardBackgroundColor(cardBg)
+        card.strokeColor = cardStrokeColor
+        card.strokeWidth = cardStrokeWidth
+
+        if (matchIndexBadge != null) {
+            val background = matchIndexBadge.background
+            if (background is GradientDrawable) {
+                background.mutate()
+                background.setStroke((badgeStrokeWidth * context.resources.displayMetrics.density).toInt(), badgeStrokeColor)
+            }
+        }
+
+        if (item.isCompleted) {
+            player1Score.text = match.player1Score.toString()
+            player2Score.text = match.player2Score.toString()
+
+            if (item.winnerId == match.player1Id) {
+                player1Name.setTypeface(null, Typeface.BOLD)
+                player1Score.setTypeface(null, Typeface.BOLD)
+                player1Name.setTextColor(colorTextHell)
+                player1Score.setTextColor(colorTextHell)
+
+                player2Name.setTypeface(null, Typeface.NORMAL)
+                player2Score.setTypeface(null, Typeface.NORMAL)
+                player2Name.setTextColor(if (useModern) colorTextGedaempft else colorTextHell)
+                player2Score.setTextColor(if (useModern) colorTextGedaempft else colorTextHell)
+            } else if (item.winnerId == match.player2Id) {
+                player2Name.setTypeface(null, Typeface.BOLD)
+                player2Score.setTypeface(null, Typeface.BOLD)
+                player2Name.setTextColor(colorTextHell)
+                player2Score.setTextColor(colorTextHell)
+
+                player1Name.setTypeface(null, Typeface.NORMAL)
+                player1Score.setTypeface(null, Typeface.NORMAL)
+                player1Name.setTextColor(if (useModern) colorTextGedaempft else colorTextHell)
+                player1Score.setTextColor(if (useModern) colorTextGedaempft else colorTextHell)
+            } else {
+                player1Name.setTypeface(null, Typeface.NORMAL)
+                player1Score.setTypeface(null, Typeface.NORMAL)
+                player1Name.setTextColor(colorTextHell)
+                player1Score.setTextColor(colorTextHell)
+
+                player2Name.setTypeface(null, Typeface.NORMAL)
+                player2Score.setTypeface(null, Typeface.NORMAL)
+                player2Name.setTextColor(colorTextHell)
+                player2Score.setTextColor(colorTextHell)
+            }
+        } else {
+            player1Score.text = "-"
+            player2Score.text = "-"
+
+            player1Name.setTypeface(null, Typeface.NORMAL)
+            player1Score.setTypeface(null, Typeface.NORMAL)
+            player1Name.setTextColor(colorTextHell)
+            player1Score.setTextColor(colorTextHell)
+
+            player2Name.setTypeface(null, Typeface.NORMAL)
+            player2Score.setTypeface(null, Typeface.NORMAL)
+            player2Name.setTextColor(colorTextHell)
+            player2Score.setTextColor(colorTextHell)
         }
     }
 }
