@@ -344,12 +344,12 @@ class TournamentPreviewHelper(
             val player1Match = prevMatches.getOrNull(2 * match.matchIndex)
             val player2Match = prevMatches.getOrNull(2 * match.matchIndex + 1)
             val player1Id = if (player1Match?.isCompleted == true && player1Match.winnerId != null) {
-                player1Match.winnerId!!
+                player1Match.winnerId
             } else {
                 PLACEHOLDER_PREVIOUS_WINNER_ID
             }
             val player2Id = if (player2Match?.isCompleted == true && player2Match.winnerId != null) {
-                player2Match.winnerId!!
+                player2Match.winnerId
             } else {
                 PLACEHOLDER_PREVIOUS_WINNER_ID
             }

@@ -30,7 +30,7 @@ data class Player(
 
     init {
         require(name.isNotBlank()) { "Name darf nicht leer sein" }
-        require(skill in Player.MIN_LEVEL..Player.MAX_LEVEL) { "Skill level must be between 1 and 10, got $skill" }
+        require(skill in MIN_LEVEL..MAX_LEVEL) { "Skill level must be between 1 and 10, got $skill" }
         require(tourCardYear in 0..2) { "Tour card year must be 0, 1, or 2, got $tourCardYear" }
     }
 

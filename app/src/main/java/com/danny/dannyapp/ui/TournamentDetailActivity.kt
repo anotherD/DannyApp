@@ -173,8 +173,7 @@ class TournamentDetailActivity : BaseActivity() {
     }
 
     private fun onSwipePreviousRound() {
-        val state = viewModel.uiState.value
-        val currentIndex = when (state) {
+        val currentIndex = when (val state = viewModel.uiState.value) {
             is TournamentDetailState.Active -> state.selectedRoundIndex
             is TournamentDetailState.Review -> state.selectedRoundIndex
             else -> return

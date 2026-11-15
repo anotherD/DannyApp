@@ -144,7 +144,7 @@ class TournamentCalendarViewModel(application: Application) : AndroidViewModel(a
                 } else {
                     val finalMatch = matches.find { it.round == "F" || it.round == "FINAL" } ?: matches.lastOrNull()
                     if (finalMatch?.winnerId != null) {
-                        val winnerId = finalMatch.winnerId!!
+                        val winnerId = finalMatch.winnerId
                         winnerName = if (winnerId == USER_ID) "Du" else allPlayers[winnerId]?.name ?: "CPU"
                     }
                 }
