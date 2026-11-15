@@ -21,6 +21,8 @@ import androidx.core.content.ContextCompat
 import com.danny.dannyapp.R
 import com.danny.dannyapp.data.db.USER_ID
 import com.danny.dannyapp.ui.enums.RoundStatus
+import com.danny.dannyapp.domain.enums.TournamentRound
+import com.danny.dannyapp.ui.model.GrandSlamGroupItem
 import com.danny.dannyapp.ui.model.MatchUiModel
 import com.google.android.material.card.MaterialCardView
 import kotlin.math.abs
@@ -40,6 +42,7 @@ class TournamentBracketView @JvmOverloads constructor(
     var onMatchClick: ((MatchUiModel) -> Unit)? = null
     var onRoundSelected: ((Int) -> Unit)? = null
 
+    private var grandSlamGroupStandings: Map<String, List<GrandSlamGroupItem>> = emptyMap()
     private var roundsMatches: List<List<MatchUiModel>> = emptyList()
     private var matchViews: List<List<View>> = emptyList()
     private var headerDisplayNames: List<String> = emptyList()
@@ -99,8 +102,14 @@ class TournamentBracketView @JvmOverloads constructor(
     /**
      * Setzt die Runden- und Match-Daten des Turnierbaums.
      */
-    fun setRounds(roundsMatches: List<List<MatchUiModel>>, initialRoundIndex: Int = 0) {
-        if (this.roundsMatches != roundsMatches) {
+    fun setRounds(
+        roundsMatches: List<List<MatchUiModel>>,
+        initialRoundIndex: Int = 0,
+        grandSlamGroupStandings: Map<String, List<GrandSlamGroupItem>> = emptyMap()
+    ) {
+        val standingsChanged = (this.grandSlamGroupStandings != grandSlamGroupStandings)
+        this.grandSlamGroupStandings = grandSlamGroupStandings
+        if (this.roundsMatches != roundsMatches || standingsChanged) {
             this.roundsMatches = roundsMatches
             focusedAnimator?.cancel()
             overScroller.forceFinished(true)
@@ -220,17 +229,157 @@ class TournamentBracketView @JvmOverloads constructor(
         val inflater = LayoutInflater.from(context)
         val newMatchViews = mutableListOf<List<View>>()
         var insertIndex = 0
-        for (roundMatches in roundsMatches) {
+
+        val firstMatchRoundKey = roundsMatches.firstOrNull()?.firstOrNull()?.match?.round
+        val isGsGroupStage = grandSlamGroupStandings.isNotEmpty() && (firstMatchRoundKey == TournamentRound.GROUP.name)
+
+        for ((roundIdx, roundMatches) in roundsMatches.withIndex()) {
             val currentRoundViews = mutableListOf<View>()
-            for (item in roundMatches) {
-                val cardView = inflater.inflate(R.layout.item_bracket_match, this, false)
-                bindMatchView(cardView, item)
-                addView(cardView, insertIndex++)
-                currentRoundViews.add(cardView)
+            if (roundIdx == 0 && isGsGroupStage) {
+                val groupLetters = ('A'..'P').map { it.toString() }
+                for (groupLetter in groupLetters) {
+                    val standings = grandSlamGroupStandings[groupLetter] ?: emptyList()
+                    val cardView = createGroupCardView(groupLetter, standings)
+                    addView(cardView, insertIndex++)
+                    currentRoundViews.add(cardView)
+                }
+            } else {
+                for (item in roundMatches) {
+                    val cardView = inflater.inflate(R.layout.item_bracket_match, this, false)
+                    bindMatchView(cardView, item)
+                    addView(cardView, insertIndex++)
+                    currentRoundViews.add(cardView)
+                }
             }
             newMatchViews.add(currentRoundViews)
         }
         this.matchViews = newMatchViews
+    }
+
+    private fun createGroupCardView(groupLetter: String, standings: List<GrandSlamGroupItem>): View {
+        val card = MaterialCardView(context).apply {
+            radius = 6f * density
+            cardElevation = 2f * density
+            strokeWidth = (1f * density).toInt()
+            strokeColor = ContextCompat.getColor(context, R.color.grau_rahmen_dunkel)
+            setCardBackgroundColor(ContextCompat.getColor(context, R.color.anthrazit_flaeche))
+            useCompatPadding = false
+        }
+
+        val mainContainer = android.widget.LinearLayout(context).apply {
+            orientation = android.widget.LinearLayout.VERTICAL
+            val pxH = (6 * density).toInt()
+            val pxV = (4 * density).toInt()
+            setPadding(pxH, pxV, pxH, pxV)
+        }
+
+        // Header: "Gruppe A" (left) + "Sp  Diff  Pkt" (right)
+        val headerLayout = android.widget.LinearLayout(context).apply {
+            orientation = android.widget.LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+        }
+
+        val tvTitle = TextView(context).apply {
+            text = context.getString(R.string.group_label, groupLetter)
+            textSize = 11f
+            typeface = Typeface.DEFAULT_BOLD
+            setTextColor(ContextCompat.getColor(context, R.color.white))
+            layoutParams = android.widget.LinearLayout.LayoutParams(0, android.widget.LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+        }
+
+        val tvStatsHeader = TextView(context).apply {
+            text = context.getString(R.string.group_table_header_stats)
+            textSize = 10f
+            typeface = Typeface.DEFAULT_BOLD
+            setTextColor(ContextCompat.getColor(context, R.color.grau_text_gedaempft))
+        }
+
+        headerLayout.addView(tvTitle)
+        headerLayout.addView(tvStatsHeader)
+        mainContainer.addView(headerLayout)
+
+        // Divider
+        val divider = View(context).apply {
+            layoutParams = android.widget.LinearLayout.LayoutParams(
+                android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
+                (1 * density).toInt()
+            ).apply {
+                topMargin = (2 * density).toInt()
+                bottomMargin = (2 * density).toInt()
+            }
+            setBackgroundColor(ContextCompat.getColor(context, R.color.grau_rahmen_dunkel))
+        }
+        mainContainer.addView(divider)
+
+        // 3 Rows
+        val displayItems = standings.take(3)
+        for (i in 0 until 3) {
+            val item = displayItems.getOrNull(i)
+            val rowLayout = android.widget.LinearLayout(context).apply {
+                orientation = android.widget.LinearLayout.HORIZONTAL
+                gravity = Gravity.CENTER_VERTICAL
+                setPadding((2 * density).toInt(), (1 * density).toInt(), (2 * density).toInt(), (1 * density).toInt())
+                if (item != null && item.player.id == USER_ID) {
+                    setBackgroundColor(ContextCompat.getColor(context, R.color.rot_container_dunkel))
+                }
+            }
+
+            val tvRank = TextView(context).apply {
+                text = "${i + 1}."
+                textSize = 10f
+                typeface = if (i == 0) Typeface.DEFAULT_BOLD else Typeface.DEFAULT
+                setTextColor(
+                    if (item != null && item.player.id == USER_ID) ContextCompat.getColor(context, R.color.rot_sehr_hell)
+                    else if (i == 0) ContextCompat.getColor(context, R.color.white)
+                    else ContextCompat.getColor(context, R.color.grau_text_gedaempft)
+                )
+                layoutParams = android.widget.LinearLayout.LayoutParams((14 * density).toInt(), android.widget.LinearLayout.LayoutParams.WRAP_CONTENT)
+            }
+
+            val tvName = TextView(context).apply {
+                textSize = 10f
+                typeface = if (i == 0) Typeface.DEFAULT_BOLD else Typeface.DEFAULT
+                maxLines = 1
+                ellipsize = TextUtils.TruncateAt.END
+                layoutParams = android.widget.LinearLayout.LayoutParams(0, android.widget.LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+                if (item != null) {
+                    UiHelper.bindSmartPlayerName(this, item.player, isLeft = true)
+                    if (item.player.id == USER_ID) {
+                        setTextColor(ContextCompat.getColor(context, R.color.rot_sehr_hell))
+                    } else if (i != 0) {
+                        setTextColor(ContextCompat.getColor(context, R.color.grau_text_gedaempft))
+                    }
+                } else {
+                    text = "-"
+                    setTextColor(ContextCompat.getColor(context, R.color.grau_text_gedaempft))
+                }
+            }
+
+            val tvStats = TextView(context).apply {
+                if (item != null) {
+                    val diffStr = if (item.legDiff > 0) "+${item.legDiff}" else "${item.legDiff}"
+                    text = "%d  %s  %d".format(item.played, diffStr, item.points)
+                } else {
+                    text = "0  0  0"
+                }
+                textSize = 10f
+                typeface = if (i == 0) Typeface.DEFAULT_BOLD else Typeface.DEFAULT
+                gravity = Gravity.END
+                setTextColor(
+                    if (item != null && item.player.id == USER_ID) ContextCompat.getColor(context, R.color.rot_sehr_hell)
+                    else if (i == 0) ContextCompat.getColor(context, R.color.white)
+                    else ContextCompat.getColor(context, R.color.grau_text_gedaempft)
+                )
+            }
+
+            rowLayout.addView(tvRank)
+            rowLayout.addView(tvName)
+            rowLayout.addView(tvStats)
+            mainContainer.addView(rowLayout)
+        }
+
+        card.addView(mainContainer)
+        return card
     }
 
     private fun rebuildHeaderViews() {

@@ -119,9 +119,8 @@ Ist ein offenes Match mit Beteiligung des Users an der Reihe, erhält der User b
   - **Schmale 2-Zeilen-Kachel (`item_bracket_match.xml`):** Kompakte `MaterialCardView` (~68dp hoch) mit zwei Zeilen (Spieler 1 oben, Spieler 2 unten via `UiHelper.bindSmartPlayerName` und Score rechtsbündig, getrennt durch 1dp Trennstrich `@color/grau_rahmen_dunkel`). Gewinner fett (`@color/grau_text_hell`), Verlierer gedämpft (`@color/grau_text_gedaempft`), User-Match (`isUserMatch`) mit 2dp Rahmen `@color/rot_hell` und Hintergrund `@color/rot_container_dunkel`.
   - **Architektur-Entkopplung (`TournamentDialogs`):** Dialoge (`showPrizeMoneyDialog`, `showUserMatchOptionsDialog`, `showSetWinnerDialog`, `showManualScoreInputDialog`, `showLiveGameEnginePlaceholder`) sind in das Objekt `TournamentDialogs` ausgelagert.
 * **Sonderformate im Baum:**
-  - **Grand Slam of Darts:** 3er-Gruppentabelle als vorgeschaltetes Element vor der K.o.-Runde (`L16`).
-  - **Qualifier:** Board-Chips (`Board 1..K` + `Alle`) zur Filterung nach spezifischen Boards.
-  - **UK Open & European Open:** Darstellung des Turnierbaums ab dem jeweils ausgelosten Stand.
+  - **Grand Slam of Darts & Qualifier:** Dynamische 3er-Gruppen-Karten im Grand Slam inkl. automatischer 2:1-Baumverbindung sowie automatische Board-Filterung (`Board 1..K` / `Alle`) bei Qualifier-Turnieren.
+  - **UK Open & European Open:** Umschaltung auf die Auslosungsinformation bei noch nicht gelosten Runden mit horizontaler Wischgeste zurück in ausgeloste Baum-Runden.
 
 
 ---

@@ -200,6 +200,9 @@
     <string name="cd_focus_user_match">Mein Match fokussieren</string>
     <string name="cd_show_bracket_view">Turnierbaum anzeigen</string>
     <string name="cd_show_list_view">Rundenliste anzeigen</string>
+    <string name="bracket_board_all">Alle</string>
+    <string name="bracket_board_format">Board %d</string>
+    <string name="group_table_header_stats">Sp  Diff  Pkt</string>
 
     <!-- Einstellungen & Design -->
     <string name="settings_section_gameplay">Gameplay &amp; Simulation</string>

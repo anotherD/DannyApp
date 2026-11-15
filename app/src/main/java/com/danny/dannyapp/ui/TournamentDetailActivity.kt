@@ -68,6 +68,8 @@ class TournamentDetailActivity : BaseActivity() {
     private lateinit var tvActiveHost: TextView
     private lateinit var scrollRoundPills: HorizontalScrollView
     private lateinit var chipGroupRounds: ChipGroup
+    private lateinit var scrollBoardPills: HorizontalScrollView
+    private lateinit var chipGroupBoards: ChipGroup
     private lateinit var layoutGroupSelector: View
     private lateinit var chipGroupGroups: ChipGroup
     private lateinit var btnSimulateCpuMatches: Button
@@ -96,6 +98,8 @@ class TournamentDetailActivity : BaseActivity() {
     private lateinit var tvReviewUserPrize: TextView
     private lateinit var scrollReviewRoundPills: HorizontalScrollView
     private lateinit var chipGroupReviewRounds: ChipGroup
+    private lateinit var scrollReviewBoardPills: HorizontalScrollView
+    private lateinit var chipGroupReviewBoards: ChipGroup
     private lateinit var rvReviewMatches: RecyclerView
     private lateinit var reviewMatchesAdapter: TournamentMatchAdapter
     private lateinit var bracketViewReview: TournamentBracketView
@@ -106,6 +110,7 @@ class TournamentDetailActivity : BaseActivity() {
     private var careerId: Long = -1L
     private var careerName: String = ""
     private var currentPrizeMoneyItems: List<PrizeMoneyItem> = emptyList()
+    private var selectedBoardFilterIndex: Int = -2
 
     private fun setupSwipeGestures() {
         val density = resources.displayMetrics.density
@@ -250,6 +255,8 @@ class TournamentDetailActivity : BaseActivity() {
         tvActiveHost = findViewById(R.id.tvActiveHost)
         scrollRoundPills = findViewById(R.id.scrollRoundPills)
         chipGroupRounds = findViewById(R.id.chipGroupRounds)
+        scrollBoardPills = findViewById(R.id.scrollBoardPills)
+        chipGroupBoards = findViewById(R.id.chipGroupBoards)
         layoutGroupSelector = findViewById(R.id.layoutGroupSelector)
         chipGroupGroups = findViewById(R.id.chipGroupGroups)
         btnSimulateCpuMatches = findViewById(R.id.btnSimulateCpuMatches)
@@ -277,6 +284,8 @@ class TournamentDetailActivity : BaseActivity() {
         tvReviewUserPrize = findViewById(R.id.tvReviewUserPrize)
         scrollReviewRoundPills = findViewById(R.id.scrollReviewRoundPills)
         chipGroupReviewRounds = findViewById(R.id.chipGroupReviewRounds)
+        scrollReviewBoardPills = findViewById(R.id.scrollReviewBoardPills)
+        chipGroupReviewBoards = findViewById(R.id.chipGroupReviewBoards)
         rvReviewMatches = findViewById(R.id.rvReviewMatches)
         bracketViewReview = findViewById(R.id.bracketViewReview)
 
@@ -507,13 +516,107 @@ class TournamentDetailActivity : BaseActivity() {
 
                 if (settingsManager.isBracketViewEnabled) {
                     scrollRoundPills.visibility = View.GONE
+                    layoutGroupSelector.visibility = View.GONE
                     rvMatches.visibility = View.GONE
-                    layoutOpenDrawInfo.visibility = View.GONE
-                    bracketViewActive.visibility = View.VISIBLE
-                    bracketViewActive.setRoundHeaders(state.availableRoundDisplayNames, state.roundStatuses)
-                    bracketViewActive.setRounds(state.allRoundsMatches, state.selectedRoundIndex)
-                    bracketViewActive.selectRound(state.selectedRoundIndex, animate = true)
+                    if (state.isOpenDrawInfoVisible) {
+                        scrollBoardPills.visibility = View.GONE
+                        bracketViewActive.visibility = View.GONE
+                        layoutOpenDrawInfo.visibility = View.VISIBLE
+                        tvDrawAfterRoundInfo.text = getString(R.string.draw_after_round_info, state.prevRoundDisplayName)
+                        if (state.openEntrantsGroups.isNotEmpty()) {
+                            layoutEntrantsContainer.visibility = View.VISIBLE
+                            layoutEntrantsContainer.removeAllViews()
+                            state.openEntrantsGroups.forEachIndexed { groupIndex, group ->
+                                if (groupIndex > 0) {
+                                    val divider = com.google.android.material.divider.MaterialDivider(this).apply {
+                                        layoutParams = LinearLayout.LayoutParams(
+                                            LinearLayout.LayoutParams.MATCH_PARENT,
+                                            LinearLayout.LayoutParams.WRAP_CONTENT
+                                        ).apply {
+                                            topMargin = (8 * resources.displayMetrics.density).toInt()
+                                            bottomMargin = (8 * resources.displayMetrics.density).toInt()
+                                        }
+                                    }
+                                    layoutEntrantsContainer.addView(divider)
+                                }
+                                val tvGroupTitle = TextView(this).apply {
+                                    layoutParams = LinearLayout.LayoutParams(
+                                        LinearLayout.LayoutParams.MATCH_PARENT,
+                                        LinearLayout.LayoutParams.WRAP_CONTENT
+                                    ).apply {
+                                        bottomMargin = (4 * resources.displayMetrics.density).toInt()
+                                    }
+                                    text = group.title
+                                    textSize = 14f
+                                    setTypeface(null, Typeface.BOLD)
+                                    gravity = Gravity.CENTER_HORIZONTAL
+                                    val typedValue = android.util.TypedValue()
+                                    theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurface, typedValue, true)
+                                    if (typedValue.resourceId != 0) {
+                                        setTextColor(ContextCompat.getColor(this@TournamentDetailActivity, typedValue.resourceId))
+                                    }
+                                }
+                                layoutEntrantsContainer.addView(tvGroupTitle)
+
+                                group.players.chunked(2).forEach { rowPlayers ->
+                                    val rowLayout = LinearLayout(this).apply {
+                                        layoutParams = LinearLayout.LayoutParams(
+                                            LinearLayout.LayoutParams.MATCH_PARENT,
+                                            LinearLayout.LayoutParams.WRAP_CONTENT
+                                        ).apply {
+                                            topMargin = (2 * resources.displayMetrics.density).toInt()
+                                            bottomMargin = (2 * resources.displayMetrics.density).toInt()
+                                        }
+                                        orientation = LinearLayout.HORIZONTAL
+                                        weightSum = 2f
+                                    }
+
+                                    rowPlayers.forEach { player ->
+                                        val tvPlayer = TextView(this).apply {
+                                            layoutParams = LinearLayout.LayoutParams(
+                                                0,
+                                                LinearLayout.LayoutParams.WRAP_CONTENT,
+                                                1f
+                                            )
+                                            textSize = 13f
+                                            val typedValue = android.util.TypedValue()
+                                            theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurfaceVariant, typedValue, true)
+                                            if (typedValue.resourceId != 0) {
+                                                setTextColor(ContextCompat.getColor(this@TournamentDetailActivity, typedValue.resourceId))
+                                            }
+                                        }
+                                        UiHelper.bindSmartPlayerName(tvPlayer, player, isLeft = true)
+                                        rowLayout.addView(tvPlayer)
+                                    }
+
+                                    if (rowPlayers.size == 1) {
+                                        val emptyView = View(this).apply {
+                                            layoutParams = LinearLayout.LayoutParams(
+                                                0,
+                                                0,
+                                                1f
+                                            )
+                                        }
+                                        rowLayout.addView(emptyView)
+                                    }
+
+                                    layoutEntrantsContainer.addView(rowLayout)
+                                }
+                            }
+                        } else {
+                            layoutEntrantsContainer.visibility = View.GONE
+                        }
+                    } else {
+                        layoutOpenDrawInfo.visibility = View.GONE
+                        bracketViewActive.visibility = View.VISIBLE
+                        setupQualifierBoardFilterChips(state.event, state.allRoundsMatches, scrollBoardPills, chipGroupBoards) { filteredRounds ->
+                            bracketViewActive.setRoundHeaders(state.availableRoundDisplayNames, state.roundStatuses)
+                            bracketViewActive.setRounds(filteredRounds, state.selectedRoundIndex, state.grandSlamGroupStandings)
+                            bracketViewActive.selectRound(state.selectedRoundIndex, animate = true)
+                        }
+                    }
                 } else {
+                    scrollBoardPills.visibility = View.GONE
                     scrollRoundPills.visibility = View.VISIBLE
                     bracketViewActive.visibility = View.GONE
                     if (state.isOpenDrawInfoVisible) {
@@ -693,10 +796,13 @@ class TournamentDetailActivity : BaseActivity() {
                     rvReviewMatches.visibility = View.GONE
                     bracketViewReview.visibility = View.VISIBLE
                     val reviewRoundStatuses = List(state.availableRoundDisplayNames.size) { RoundStatus.COMPLETED }
-                    bracketViewReview.setRoundHeaders(state.availableRoundDisplayNames, reviewRoundStatuses)
-                    bracketViewReview.setRounds(state.allRoundsMatches, state.selectedRoundIndex)
-                    bracketViewReview.selectRound(state.selectedRoundIndex, animate = true)
+                    setupQualifierBoardFilterChips(state.event, state.allRoundsMatches, scrollReviewBoardPills, chipGroupReviewBoards) { filteredRounds ->
+                        bracketViewReview.setRoundHeaders(state.availableRoundDisplayNames, reviewRoundStatuses)
+                        bracketViewReview.setRounds(filteredRounds, state.selectedRoundIndex, state.grandSlamGroupStandings)
+                        bracketViewReview.selectRound(state.selectedRoundIndex, animate = true)
+                    }
                 } else {
+                    scrollReviewBoardPills.visibility = View.GONE
                     scrollReviewRoundPills.visibility = View.VISIBLE
                     bracketViewReview.visibility = View.GONE
                     rvReviewMatches.visibility = View.VISIBLE
@@ -745,6 +851,118 @@ class TournamentDetailActivity : BaseActivity() {
 
     private fun showLiveGameEnginePlaceholder() {
         TournamentDialogs.showLiveGameEnginePlaceholder(this)
+    }
+
+    private fun setupQualifierBoardFilterChips(
+        event: TournamentEvent,
+        allRoundsMatches: List<List<MatchUiModel>>,
+        scrollView: HorizontalScrollView,
+        chipGroup: ChipGroup,
+        onFilterChanged: (filteredRounds: List<List<MatchUiModel>>) -> Unit
+    ) {
+        val isQualifier = event in listOf(
+            TournamentEvent.QUALIFIER_ET,
+            TournamentEvent.QUALIFIER_GRAND_SLAM,
+            TournamentEvent.QUALIFIER_WM
+        )
+
+        if (!isQualifier || !settingsManager.isBracketViewEnabled) {
+            scrollView.visibility = View.GONE
+            onFilterChanged(allRoundsMatches)
+            return
+        }
+
+        scrollView.visibility = View.VISIBLE
+        val k = when (event) {
+            TournamentEvent.QUALIFIER_ET -> 10
+            TournamentEvent.QUALIFIER_GRAND_SLAM -> 8
+            TournamentEvent.QUALIFIER_WM -> 4
+            else -> 4
+        }
+
+        if (selectedBoardFilterIndex == -2) {
+            val userMatch = allRoundsMatches.flatten().find { it.isUserMatch }
+            if (userMatch != null) {
+                val roundKey = userMatch.match.round
+                val mIdx = userMatch.match.matchIndex
+                val boardIdx = when (roundKey) {
+                    com.danny.dannyapp.domain.enums.TournamentRound.QUAL_R1.name -> mIdx / 4
+                    com.danny.dannyapp.domain.enums.TournamentRound.QUAL_R2.name -> mIdx / 2
+                    com.danny.dannyapp.domain.enums.TournamentRound.QUAL_FINAL.name -> mIdx
+                    else -> -1
+                }
+                selectedBoardFilterIndex = if (boardIdx in 0 until k) boardIdx else -1
+            } else {
+                selectedBoardFilterIndex = -1
+            }
+        }
+
+        chipGroup.removeAllViews()
+
+        val chipAll = Chip(this).apply {
+            text = getString(R.string.bracket_board_all)
+            isCheckable = true
+            isChecked = (selectedBoardFilterIndex == -1)
+            setOnClickListener {
+                selectedBoardFilterIndex = -1
+                setupQualifierBoardFilterChips(event, allRoundsMatches, scrollView, chipGroup, onFilterChanged)
+            }
+        }
+        chipGroup.addView(chipAll)
+
+        for (b in 0 until k) {
+            val boardIdx = b
+            val chipBoard = Chip(this).apply {
+                text = getString(R.string.bracket_board_format, boardIdx + 1)
+                isCheckable = true
+                isChecked = (selectedBoardFilterIndex == boardIdx)
+                setOnClickListener {
+                    selectedBoardFilterIndex = boardIdx
+                    setupQualifierBoardFilterChips(event, allRoundsMatches, scrollView, chipGroup, onFilterChanged)
+                }
+            }
+            chipGroup.addView(chipBoard)
+        }
+
+        val filtered = filterMatchesForBoard(allRoundsMatches, selectedBoardFilterIndex, k)
+        onFilterChanged(filtered)
+    }
+
+    private fun filterMatchesForBoard(
+        allRoundsMatches: List<List<MatchUiModel>>,
+        boardIndex: Int,
+        k: Int
+    ): List<List<MatchUiModel>> {
+        if (boardIndex < 0 || boardIndex >= k) {
+            return allRoundsMatches
+        }
+
+        return allRoundsMatches.mapNotNull { roundMatches ->
+            if (roundMatches.isEmpty()) return@mapNotNull null
+            val roundKey = roundMatches.first().match.round
+            when (roundKey) {
+                com.danny.dannyapp.domain.enums.TournamentRound.QUAL_PRELIM.name -> null
+                com.danny.dannyapp.domain.enums.TournamentRound.QUAL_R1.name -> {
+                    val boardMatches = roundMatches.filter { it.match.matchIndex in (4 * boardIndex)..(4 * boardIndex + 3) }
+                    if (boardMatches.isEmpty()) null else boardMatches.mapIndexed { idx, item ->
+                        item.copy(match = item.match.copy(matchIndex = idx))
+                    }
+                }
+                com.danny.dannyapp.domain.enums.TournamentRound.QUAL_R2.name -> {
+                    val boardMatches = roundMatches.filter { it.match.matchIndex in (2 * boardIndex)..(2 * boardIndex + 1) }
+                    if (boardMatches.isEmpty()) null else boardMatches.mapIndexed { idx, item ->
+                        item.copy(match = item.match.copy(matchIndex = idx))
+                    }
+                }
+                com.danny.dannyapp.domain.enums.TournamentRound.QUAL_FINAL.name -> {
+                    val boardMatches = roundMatches.filter { it.match.matchIndex == boardIndex }
+                    if (boardMatches.isEmpty()) null else boardMatches.mapIndexed { idx, item ->
+                        item.copy(match = item.match.copy(matchIndex = idx))
+                    }
+                }
+                else -> roundMatches
+            }
+        }
     }
 
     /**
@@ -807,6 +1025,7 @@ class TournamentDetailActivity : BaseActivity() {
      * Schaltet zwischen Rundenliste und Turnierbaum-Ansicht um.
      */
     private fun onToggleBracketViewClicked() {
+        selectedBoardFilterIndex = -2
         settingsManager.isBracketViewEnabled = !settingsManager.isBracketViewEnabled
         updateBracketFabIcon()
         renderState(viewModel.uiState.value)

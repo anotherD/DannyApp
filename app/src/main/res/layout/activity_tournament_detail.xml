@@ -341,6 +341,30 @@
                 app:singleSelection="true" />
         </HorizontalScrollView>
 
+        <!-- Board Selector Chips (for Qualifiers) -->
+        <HorizontalScrollView
+            android:id="@+id/scrollBoardPills"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:clipToPadding="false"
+            android:paddingHorizontal="12dp"
+            android:scrollbars="none"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/scrollRoundPills"
+            tools:visibility="visible">
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chipGroupBoards"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:selectionRequired="true"
+                app:singleLine="true"
+                app:singleSelection="true" />
+        </HorizontalScrollView>
+
         <!-- Group Selector Chips (for Grand Slam) -->
         <LinearLayout
             android:id="@+id/layoutGroupSelector"
@@ -352,7 +376,7 @@
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/scrollRoundPills"
+            app:layout_constraintTop_toBottomOf="@id/scrollBoardPills"
             tools:visibility="visible">
 
             <TextView
@@ -667,6 +691,30 @@
                 app:singleSelection="true" />
         </HorizontalScrollView>
 
+        <!-- Review Board Selector Chips (for Qualifiers) -->
+        <HorizontalScrollView
+            android:id="@+id/scrollReviewBoardPills"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:clipToPadding="false"
+            android:paddingHorizontal="12dp"
+            android:scrollbars="none"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/scrollReviewRoundPills"
+            tools:visibility="visible">
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chipGroupReviewBoards"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:selectionRequired="true"
+                app:singleLine="true"
+                app:singleSelection="true" />
+        </HorizontalScrollView>
+
         <!-- Review Matches RecyclerView -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvReviewMatches"
@@ -679,7 +727,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/scrollReviewRoundPills" />
+            app:layout_constraintTop_toBottomOf="@id/scrollReviewBoardPills" />
 
         <!-- Review Bracket ViewPager2 -->
         <!-- Review Bracket Custom View -->
@@ -695,7 +743,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/scrollReviewRoundPills"
+            app:layout_constraintTop_toBottomOf="@id/scrollReviewBoardPills"
             tools:visibility="gone" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

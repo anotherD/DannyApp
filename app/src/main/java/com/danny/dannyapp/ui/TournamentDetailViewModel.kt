@@ -9,6 +9,7 @@ import com.danny.dannyapp.data.db.AppDatabase
 import com.danny.dannyapp.data.db.CareerRepository
 import com.danny.dannyapp.data.db.PLACEHOLDER_OPEN_DRAW_ID
 import com.danny.dannyapp.data.db.PLACEHOLDER_PREVIOUS_WINNER_ID
+import com.danny.dannyapp.data.db.Player
 import com.danny.dannyapp.data.db.Tournament
 import com.danny.dannyapp.data.db.TournamentMatch
 import com.danny.dannyapp.data.db.USER_ID
@@ -24,6 +25,7 @@ import com.danny.dannyapp.domain.usecase.MatchScoreValidator
 import com.danny.dannyapp.domain.usecase.SimulateCpuMatchUseCase
 import com.danny.dannyapp.ui.enums.RoundStatus
 import com.danny.dannyapp.ui.model.EntrantGroupInfo
+import com.danny.dannyapp.ui.model.GrandSlamGroupItem
 import com.danny.dannyapp.ui.model.MatchUiModel
 import com.danny.dannyapp.ui.model.PlayerUiInfo
 import com.danny.dannyapp.ui.model.PrizeMoneyItem
@@ -77,7 +79,8 @@ sealed interface TournamentDetailState {
         val isOpenDrawInfoVisible: Boolean = false,
         val prevRoundDisplayName: String = "",
         val openEntrantsGroups: List<EntrantGroupInfo> = emptyList(),
-        val roundStatuses: List<RoundStatus> = emptyList()
+        val roundStatuses: List<RoundStatus> = emptyList(),
+        val grandSlamGroupStandings: Map<String, List<GrandSlamGroupItem>> = emptyMap()
     ) : TournamentDetailState
 
     data class Review(
@@ -99,7 +102,8 @@ sealed interface TournamentDetailState {
         val careerName: String,
         val isQualifier: Boolean = false,
         val qualifierWinners: List<PlayerUiInfo>? = emptyList(),
-        val seasonNumber: Int
+        val seasonNumber: Int,
+        val grandSlamGroupStandings: Map<String, List<GrandSlamGroupItem>> = emptyMap()
     ) : TournamentDetailState
 
     data class Error(val message: String) : TournamentDetailState
@@ -433,18 +437,14 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
                 generatePreviewMatchesWithPropagation(currentTournamentId, roundKey, event, allMatches, tournament.seasonId)
             }
 
-            val isGsGroup = (event == TournamentEvent.GRAND_SLAM_OF_DARTS && roundKey == TournamentRound.GROUP.name)
-            val filteredRoundMatches = if (isGsGroup && availableGroups.isNotEmpty()) {
-                val selectedGroupLetter = availableGroups[selectedGroupIndex]
-                roundMatches.filter { it.groupName == selectedGroupLetter }
-            } else {
-                roundMatches
-            }
-
-            filteredRoundMatches.map { match ->
+            roundMatches.map { match ->
                 createMatchUiModel(match, userName, userCountryCode, userLevel, allPlayersMap, roundKey, event, seededPlayerMap)
             }
         }
+
+        val grandSlamGroupStandings = if (event == TournamentEvent.GRAND_SLAM_OF_DARTS) {
+            calculateGrandSlamGroupStandings(allMatches, userName, userCountryCode, allPlayersMap)
+        } else emptyMap()
 
         _uiState.value = TournamentDetailState.Active(
             tournament = tournament,
@@ -471,7 +471,8 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             isOpenDrawInfoVisible = isOpenDrawInfoVisible,
             prevRoundDisplayName = prevRoundDisplayName,
             openEntrantsGroups = openEntrantsGroups,
-            roundStatuses = roundStatuses
+            roundStatuses = roundStatuses,
+            grandSlamGroupStandings = grandSlamGroupStandings
         )
     }
 
@@ -599,17 +600,14 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
                 generatePreviewMatchesForRound(tournament.id, roundKey, event)
             }
 
-            val isGsGroup = (event == TournamentEvent.GRAND_SLAM_OF_DARTS && roundKey == TournamentRound.GROUP.name)
-            val filteredRoundMatches = if (isGsGroup && availableGroups.isNotEmpty()) {
-                roundMatches.filter { it.groupName == availableGroups[selectedGroupIndex] }
-            } else {
-                roundMatches
-            }
-
-            filteredRoundMatches.map { match ->
+            roundMatches.map { match ->
                 createMatchUiModel(match, userName, userCountryCode, userLevel, allPlayersMap, roundKey, event, seededPlayerMap)
             }
         }
+
+        val grandSlamGroupStandings = if (event == TournamentEvent.GRAND_SLAM_OF_DARTS) {
+            calculateGrandSlamGroupStandings(allMatches, userName, userCountryCode, allPlayersMap)
+        } else emptyMap()
 
         _uiState.value = TournamentDetailState.Review(
             tournament = tournament,
@@ -630,8 +628,87 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             careerName = careerName,
             isQualifier = isQualifier,
             qualifierWinners = qualifierWinners,
-            seasonNumber = seasonNumber
+            seasonNumber = seasonNumber,
+            grandSlamGroupStandings = grandSlamGroupStandings
         )
+    }
+
+    private fun calculateGrandSlamGroupStandings(
+        allMatches: List<TournamentMatch>,
+        userName: String,
+        userCountryCode: String,
+        allPlayersMap: Map<Long, Player>
+    ): Map<String, List<GrandSlamGroupItem>> {
+        val groupMatches = allMatches.filter { it.round == TournamentRound.GROUP.name }
+        if (groupMatches.isEmpty()) return emptyMap()
+
+        val result = mutableMapOf<String, List<GrandSlamGroupItem>>()
+        val groups = ('A'..'P').map { it.toString() }
+
+        class GroupStats(val playerId: Long) {
+            var played = 0
+            var wins = 0
+            var legsWon = 0
+            var legsLost = 0
+            val legDiff: Int get() = legsWon - legsLost
+            val points: Int get() = wins * 2
+        }
+
+        for (groupLetter in groups) {
+            val matchesForGroup = groupMatches.filter { it.groupName == groupLetter }
+            if (matchesForGroup.isEmpty()) continue
+
+            val playerIdsInGroup = matchesForGroup.flatMap { listOf(it.player1Id, it.player2Id) }.filter { it != 0L }.distinct()
+            val statsMap = playerIdsInGroup.associateWith { GroupStats(it) }
+
+            for (m in matchesForGroup) {
+                if (m.isCompleted) {
+                    val s1 = statsMap[m.player1Id]
+                    val s2 = statsMap[m.player2Id]
+                    if (s1 != null && s2 != null) {
+                        s1.played++
+                        s2.played++
+                        s1.legsWon += m.player1Score
+                        s1.legsLost += m.player2Score
+                        s2.legsWon += m.player2Score
+                        s2.legsLost += m.player1Score
+
+                        if (m.winnerId == m.player1Id) s1.wins++
+                        else if (m.winnerId == m.player2Id) s2.wins++
+                    }
+                }
+            }
+
+            val sortedStats = statsMap.values.sortedWith(
+                compareByDescending<GroupStats> { it.wins }
+                    .thenByDescending { it.legDiff }
+                    .thenByDescending { it.legsWon }
+                    .thenBy { it.playerId }
+            )
+
+            val items = sortedStats.mapIndexed { index, s ->
+                val pInfo = if (s.playerId == USER_ID) {
+                    PlayerUiInfo(id = USER_ID, name = userName, countryCode = userCountryCode)
+                } else {
+                    val p = allPlayersMap[s.playerId]
+                    PlayerUiInfo(
+                        id = s.playerId,
+                        name = p?.name ?: "CPU #${s.playerId}",
+                        countryCode = p?.countryCode ?: Country.DEFAULT_CODE,
+                        skill = p?.skill ?: SkillLevel.DEFAULT.value
+                    )
+                }
+                GrandSlamGroupItem(
+                    rank = index + 1,
+                    player = pInfo,
+                    played = s.played,
+                    legDiff = s.legDiff,
+                    points = s.points
+                )
+            }
+            result[groupLetter] = items
+        }
+        return result
     }
 
     /**
