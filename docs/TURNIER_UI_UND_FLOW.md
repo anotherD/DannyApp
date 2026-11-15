@@ -150,3 +150,5 @@ Ist ein offenes Match mit Beteiligung des Users an der Reihe, erhält der User b
 * **Wischgeste (Swipe Gesture):** Ergänzt durch einen `GestureDetector` auf der `RecyclerView`:
   - **Swipe nach links:** Schaltet die Sortierung auf **„Nach Name“** um (`btnSortName`).
   - **Swipe nach rechts:** Schaltet die Sortierung auf **„Nach Spielstärke“** um (`btnSortSkill`).
+* **Match-Index-Badges & Seed-Ausrichtung:** Einhellige Positionierung und Styling von Match-Index-Badges in Listen- und Turnierbaumansichten sowie konsistente Anordnung von Setzlisten-Nummern und Landesflaggen über `UiHelper.bindSmartPlayerName`.
+* **Moderne Match-Kachel-Einstellung:** Ergänzung eines globalen Schalters im `SettingsManager` zur umschaltbaren Darstellung moderner vs. klassischer Match-Kacheln in Turnierlisten und Turnierbäumen.

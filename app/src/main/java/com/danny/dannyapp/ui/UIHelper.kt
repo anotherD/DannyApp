@@ -134,8 +134,8 @@ object UiHelper {
 
         fun setFormattedText(playerText: String) {
             val textWithSeed = if (seed != null) {
-                if (isLeft) context.getString(R.string.player_with_seed, seed, playerText)
-                else context.getString(R.string.player_with_seed_right, playerText, seed)
+                if (isLeft) context.getString(R.string.player_with_seed_right, playerText, seed)
+                else context.getString(R.string.player_with_seed, seed, playerText)
             } else {
                 playerText
             }
@@ -154,7 +154,7 @@ object UiHelper {
             val paint = textView.paint
 
             val seedText = if (seed != null) {
-                if (isLeft) "($seed) " else " ($seed)"
+                if (isLeft) " ($seed)" else "($seed) "
             } else ""
             val seedWidth = if (seed != null) paint.measureText(seedText) else 0f
 
@@ -178,8 +178,8 @@ object UiHelper {
 
             fun totalWidth(playerText: String): Float {
                 val textWithSeed = if (seed != null) {
-                    if (isLeft) context.getString(R.string.player_with_seed, seed, playerText)
-                    else context.getString(R.string.player_with_seed_right, playerText, seed)
+                    if (isLeft) context.getString(R.string.player_with_seed_right, playerText, seed)
+                    else context.getString(R.string.player_with_seed, seed, playerText)
                 } else {
                     playerText
                 }

@@ -109,7 +109,7 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- Match Index Badge centered on top border line -->
+    <!-- Match Index Badge centered vertically on top border line of cardMatch -->
     <TextView
         android:id="@+id/tvMatchRoundIndex"
         android:layout_width="wrap_content"
@@ -117,9 +117,9 @@
         android:background="@drawable/bg_match_index_badge"
         android:paddingHorizontal="8dp"
         android:paddingVertical="1dp"
-        android:layout_marginBottom="-1dp"
         android:textColor="@color/grau_text_gedaempft"
         android:textSize="11sp"
+        app:layout_constraintTop_toTopOf="@id/cardMatch"
         app:layout_constraintBottom_toTopOf="@id/cardMatch"
         app:layout_constraintEnd_toEndOf="@id/cardMatch"
         app:layout_constraintStart_toStartOf="@id/cardMatch"

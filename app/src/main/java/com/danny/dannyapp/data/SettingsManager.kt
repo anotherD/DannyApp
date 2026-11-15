@@ -25,11 +25,16 @@ class SettingsManager(context: Context) {
         get() = prefs.getBoolean(KEY_IS_BRACKET_VIEW_ENABLED, false)
         set(value) { prefs.edit { putBoolean(KEY_IS_BRACKET_VIEW_ENABLED, value) } }
 
+    var useModernMatchCardStyle: Boolean
+        get() = prefs.getBoolean(KEY_USE_MODERN_MATCH_CARD_STYLE, true)
+        set(value) { prefs.edit { putBoolean(KEY_USE_MODERN_MATCH_CARD_STYLE, value) } }
+
     companion object {
         private const val PREFS_NAME = "danny_app_settings"
         private const val KEY_DEBUG_MODE = "key_debug_mode"
         private const val KEY_AUTO_SIMULATE_CPU = "key_auto_simulate_cpu"
         private const val KEY_AUTO_ADVANCE_ROUND = "key_auto_advance_round"
         private const val KEY_IS_BRACKET_VIEW_ENABLED = "key_is_bracket_view_enabled"
+        private const val KEY_USE_MODERN_MATCH_CARD_STYLE = "key_use_modern_match_card_style"
     }
 }
