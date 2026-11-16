@@ -76,6 +76,24 @@ val MIGRATION_14_15 = object : Migration(14, 15) {
     }
 }
 
+val MIGRATION_15_16 = object : Migration(15, 16) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("""
+            CREATE TABLE IF NOT EXISTS `tournament_participants` (
+                `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                `tournament_id` INTEGER NOT NULL,
+                `player_id` INTEGER NOT NULL,
+                `seed_number` INTEGER,
+                `qualification_type` TEXT,
+                FOREIGN KEY(`tournament_id`) REFERENCES `tournaments`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE
+            )
+        """)
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_tournament_participants_tournament_id` ON `tournament_participants` (`tournament_id`)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_tournament_participants_player_id` ON `tournament_participants` (`player_id`)")
+        db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_tournament_participants_tournament_id_player_id` ON `tournament_participants` (`tournament_id`, `player_id`)")
+    }
+}
+
 @Database(
     entities = [
         Player::class,
@@ -85,9 +103,10 @@ val MIGRATION_14_15 = object : Migration(14, 15) {
         TourCard::class,
         Tournament::class,
         TournamentMatch::class,
-        TournamentPlacement::class
+        TournamentPlacement::class,
+        TournamentParticipant::class
     ],
-    version = 15,
+    version = 16,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -100,6 +119,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun tournamentDao(): TournamentDao
     abstract fun tournamentMatchDao(): TournamentMatchDao
     abstract fun tournamentPlacementDao(): TournamentPlacementDao
+    abstract fun tournamentParticipantDao(): TournamentParticipantDao
 
     companion object {
         @Volatile
@@ -112,7 +132,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "danny_app_database"
                 )
-                .addMigrations(MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15)
+                .addMigrations(MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15, MIGRATION_15_16)
                 // TODO: Implement proper database migrations before production release to avoid data loss
                 .fallbackToDestructiveMigration(true)
                 .addCallback(DatabaseCallback(context.applicationContext))

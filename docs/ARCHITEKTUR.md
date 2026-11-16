@@ -94,6 +94,7 @@ erDiagram
    - `player_id != USER_ID` -> CPU-Spieler aus `players`.
    - Property `isUser`: `playerId == USER_ID`.
 5. **`players`**: Stammdatenbank aller Dart-Profis (importiert aus `players.csv`).
+6. **`tournament_participants`**: Speichert beim Turnierstart (`GenerateBracketUseCase`) alle qualifizierten Teilnehmer pro Turnier inkl. eingefrorener Setzlistenposition (`seed_number`) und Qualifikationsweg (`qualification_type`).
 
 ---
 

@@ -2,7 +2,6 @@ package com.danny.dannyapp.domain.usecase
 
 import android.content.Context
 import android.util.Log
-import com.danny.dannyapp.domain.model.Country
 import com.danny.dannyapp.data.db.AppDatabase
 import com.danny.dannyapp.data.db.PlayerDao
 import com.danny.dannyapp.data.db.SeasonDao
@@ -10,10 +9,13 @@ import com.danny.dannyapp.data.db.TourCardDao
 import com.danny.dannyapp.data.db.TournamentDao
 import com.danny.dannyapp.data.db.TournamentMatch
 import com.danny.dannyapp.data.db.TournamentMatchDao
+import com.danny.dannyapp.data.db.TournamentParticipant
+import com.danny.dannyapp.data.db.TournamentParticipantDao
 import com.danny.dannyapp.data.db.USER_ID
 import com.danny.dannyapp.domain.enums.OrderOfMeritType
 import com.danny.dannyapp.domain.enums.SkillLevel
 import com.danny.dannyapp.domain.enums.TournamentEvent
+import com.danny.dannyapp.domain.model.Country
 import com.danny.dannyapp.domain.model.MatchPairing
 import com.danny.dannyapp.domain.model.OrderOfMeritEntry
 import kotlinx.coroutines.Dispatchers
@@ -25,6 +27,7 @@ class GenerateBracketUseCase(
     private val tourCardDao: TourCardDao,
     private val playerDao: PlayerDao,
     private val tournamentMatchDao: TournamentMatchDao,
+    private val tournamentParticipantDao: TournamentParticipantDao,
     private val getOrderOfMeritUseCase: GetOrderOfMeritUseCase
 ) {
     constructor(context: Context) : this(
@@ -33,6 +36,7 @@ class GenerateBracketUseCase(
         AppDatabase.getDatabase(context.applicationContext).tourCardDao(),
         AppDatabase.getDatabase(context.applicationContext).playerDao(),
         AppDatabase.getDatabase(context.applicationContext).tournamentMatchDao(),
+        AppDatabase.getDatabase(context.applicationContext).tournamentParticipantDao(),
         GetOrderOfMeritUseCase(context)
     )
 
@@ -121,6 +125,26 @@ class GenerateBracketUseCase(
             return winners
         }
 
+        fun calculateQualifierSeedCount(event: TournamentEvent, totalCount: Int): Int {
+            val targetQualifierCount = when (event) {
+                TournamentEvent.QUALIFIER_ET -> 10
+                TournamentEvent.QUALIFIER_GRAND_SLAM -> 8
+                TournamentEvent.QUALIFIER_WM -> 4
+                else -> 4
+            }
+            val targetCount = when {
+                totalCount > 8 * targetQualifierCount -> 8 * targetQualifierCount
+                totalCount > 4 * targetQualifierCount -> 4 * targetQualifierCount
+                totalCount > 2 * targetQualifierCount -> 2 * targetQualifierCount
+                else -> targetQualifierCount
+            }
+            return if (totalCount > targetCount) {
+                (2 * targetCount - totalCount).coerceAtLeast(targetQualifierCount)
+            } else {
+                targetQualifierCount
+            }
+        }
+
         // Pre-qualified sets for ET and Grand Slam
         val sortedOomTc = getPlayerListSortedByOom(tourCardPlayerIds, oomEntries)
         val top16Oom = sortedOomTc.take(16)
@@ -130,7 +154,7 @@ class GenerateBracketUseCase(
 
         val nonPreqEtTc = tourCardPlayerIds.filterNot { it in etPreQualified }
 
-        val matchPairings: List<MatchPairing> = when (event) {
+        val (matchPairings: List<MatchPairing>, participants: List<TournamentParticipant>) = when (event) {
             TournamentEvent.PLAYERS_CHAMPIONSHIP -> {
                 val tcIds = fillToTargetCount(tourCardPlayerIds, 128, allPlayerIds, oomEntries)
                 val sortedByPt = getPlayerListSortedByOom(tcIds, ptOomEntries)
@@ -143,12 +167,30 @@ class GenerateBracketUseCase(
                 logQualificationGroup("Weitere 96 Tour-Card-Inhaber (Ungesetzt)", remaining96)
                 logI("TournamentQualification", "==================================================")
 
-                BracketGenerator.generateInitialMatches(
+                val pairings = BracketGenerator.generateInitialMatches(
                     event = event,
                     oomSortedIds = sortedByPt,
                     proTourSortedIds = top32,
                     qualifierIds = remaining96
                 )
+
+                val participantList = top32.mapIndexed { index, playerId ->
+                    TournamentParticipant(
+                        tournamentId = tournamentId,
+                        playerId = playerId,
+                        seedNumber = index + 1,
+                        qualificationType = "PT_OOM"
+                    )
+                } + remaining96.map { playerId ->
+                    TournamentParticipant(
+                        tournamentId = tournamentId,
+                        playerId = playerId,
+                        seedNumber = null,
+                        qualificationType = "TOUR_CARD"
+                    )
+                }
+
+                Pair(pairings, participantList)
             }
 
             TournamentEvent.QUALIFIER_ET -> {
@@ -160,10 +202,22 @@ class GenerateBracketUseCase(
                 logQualificationGroup("Teilnehmende Tour-Card-Inhaber im ET Qualifier", sortedNonPreq)
                 logI("TournamentQualification", "==================================================")
 
-                BracketGenerator.generateInitialMatches(
+                val pairings = BracketGenerator.generateInitialMatches(
                     event = event,
                     oomSortedIds = sortedNonPreq
                 )
+
+                val seedCount = calculateQualifierSeedCount(event, sortedNonPreq.size)
+                val participantList = sortedNonPreq.mapIndexed { index, playerId ->
+                    TournamentParticipant(
+                        tournamentId = tournamentId,
+                        playerId = playerId,
+                        seedNumber = if (index < seedCount) index + 1 else null,
+                        qualificationType = "TOUR_CARD"
+                    )
+                }
+
+                Pair(pairings, participantList)
             }
 
             TournamentEvent.EUROPEAN_TOUR -> {
@@ -197,12 +251,76 @@ class GenerateBracketUseCase(
                 logQualificationGroup("5. 2 Andere Qualifier Sieger", otherQualifiers)
                 logI("TournamentQualification", "==================================================")
 
-                BracketGenerator.generateInitialMatches(
+                val pairings = BracketGenerator.generateInitialMatches(
                     event = event,
                     oomSortedIds = top16Oom,
                     proTourSortedIds = top16PtOom,
                     qualifierIds = qualifiersPool
                 )
+
+                val participantList = mutableListOf<TournamentParticipant>()
+                top16Oom.forEachIndexed { index, playerId ->
+                    participantList.add(
+                        TournamentParticipant(
+                            tournamentId = tournamentId,
+                            playerId = playerId,
+                            seedNumber = index + 1,
+                            qualificationType = "OOM"
+                        )
+                    )
+                }
+                top16PtOom.forEachIndexed { index, playerId ->
+                    participantList.add(
+                        TournamentParticipant(
+                            tournamentId = tournamentId,
+                            playerId = playerId,
+                            seedNumber = index + 1,
+                            qualificationType = "PT_OOM"
+                        )
+                    )
+                }
+                tcQualifiers.forEach { playerId ->
+                    participantList.add(
+                        TournamentParticipant(
+                            tournamentId = tournamentId,
+                            playerId = playerId,
+                            seedNumber = null,
+                            qualificationType = "QUALIFIER"
+                        )
+                    )
+                }
+                hostQualifiers.forEach { playerId ->
+                    participantList.add(
+                        TournamentParticipant(
+                            tournamentId = tournamentId,
+                            playerId = playerId,
+                            seedNumber = null,
+                            qualificationType = "HOST_NATION"
+                        )
+                    )
+                }
+                otherQualifiers.forEach { playerId ->
+                    participantList.add(
+                        TournamentParticipant(
+                            tournamentId = tournamentId,
+                            playerId = playerId,
+                            seedNumber = null,
+                            qualificationType = "QUALIFIER"
+                        )
+                    )
+                }
+                qualifiersPool.filterNot { qId -> participantList.any { it.playerId == qId } }.forEach { playerId ->
+                    participantList.add(
+                        TournamentParticipant(
+                            tournamentId = tournamentId,
+                            playerId = playerId,
+                            seedNumber = null,
+                            qualificationType = "QUALIFIER"
+                        )
+                    )
+                }
+
+                Pair(pairings, participantList)
             }
 
             TournamentEvent.UK_OPEN, TournamentEvent.EUROPEAN_OPEN -> {
@@ -219,11 +337,29 @@ class GenerateBracketUseCase(
                 logQualificationGroup("32 Non-Tourcard Qualifikanten", final32Qualifiers)
                 logI("TournamentQualification", "==================================================")
 
-                BracketGenerator.generateInitialMatches(
+                val pairings = BracketGenerator.generateInitialMatches(
                     event = event,
                     oomSortedIds = sortedTcOom,
                     qualifierIds = final32Qualifiers
                 )
+
+                val participantList = sortedTcOom.map { playerId ->
+                    TournamentParticipant(
+                        tournamentId = tournamentId,
+                        playerId = playerId,
+                        seedNumber = null,
+                        qualificationType = "TOUR_CARD"
+                    )
+                } + final32Qualifiers.map { playerId ->
+                    TournamentParticipant(
+                        tournamentId = tournamentId,
+                        playerId = playerId,
+                        seedNumber = null,
+                        qualificationType = "QUALIFIER"
+                    )
+                }
+
+                Pair(pairings, participantList)
             }
 
             TournamentEvent.WORLD_MATCHPLAY -> {
@@ -238,11 +374,29 @@ class GenerateBracketUseCase(
                 logQualificationGroup("2. Top 16 Pro Tour Order of Merit (Ungesetzte Qualifikanten)", top16Pt)
                 logI("TournamentQualification", "==================================================")
 
-                BracketGenerator.generateInitialMatches(
+                val pairings = BracketGenerator.generateInitialMatches(
                     event = event,
                     oomSortedIds = top16Oom,
                     proTourSortedIds = top16Pt
                 )
+
+                val participantList = top16Oom.mapIndexed { index, playerId ->
+                    TournamentParticipant(
+                        tournamentId = tournamentId,
+                        playerId = playerId,
+                        seedNumber = index + 1,
+                        qualificationType = "OOM"
+                    )
+                } + top16Pt.map { playerId ->
+                    TournamentParticipant(
+                        tournamentId = tournamentId,
+                        playerId = playerId,
+                        seedNumber = null,
+                        qualificationType = "PT_OOM"
+                    )
+                }
+
+                Pair(pairings, participantList)
             }
 
             TournamentEvent.WORLD_GRAND_PRIX -> {
@@ -258,11 +412,29 @@ class GenerateBracketUseCase(
                 logQualificationGroup("3. Top 16 Pro Tour Order of Merit (Ungesetzt)", top16Pt)
                 logI("TournamentQualification", "==================================================")
 
-                BracketGenerator.generateInitialMatches(
+                val pairings = BracketGenerator.generateInitialMatches(
                     event = event,
                     oomSortedIds = top16Oom,
                     proTourSortedIds = top16Pt
                 )
+
+                val participantList = top16Oom.mapIndexed { index, playerId ->
+                    TournamentParticipant(
+                        tournamentId = tournamentId,
+                        playerId = playerId,
+                        seedNumber = index + 1,
+                        qualificationType = "OOM"
+                    )
+                } + top16Pt.map { playerId ->
+                    TournamentParticipant(
+                        tournamentId = tournamentId,
+                        playerId = playerId,
+                        seedNumber = null,
+                        qualificationType = "PT_OOM"
+                    )
+                }
+
+                Pair(pairings, participantList)
             }
 
             TournamentEvent.EUROPEAN_CHAMPIONSHIP -> {
@@ -274,11 +446,22 @@ class GenerateBracketUseCase(
                 logQualificationGroup("Top 32 European Tour Order of Merit", final32Et)
                 logI("TournamentQualification", "==================================================")
 
-                BracketGenerator.generateInitialMatches(
+                val pairings = BracketGenerator.generateInitialMatches(
                     event = event,
                     oomSortedIds = emptyList(),
                     qualifierIds = final32Et
                 )
+
+                val participantList = final32Et.mapIndexed { index, playerId ->
+                    TournamentParticipant(
+                        tournamentId = tournamentId,
+                        playerId = playerId,
+                        seedNumber = index + 1,
+                        qualificationType = "ET_OOM"
+                    )
+                }
+
+                Pair(pairings, participantList)
             }
 
             TournamentEvent.QUALIFIER_GRAND_SLAM -> {
@@ -293,10 +476,22 @@ class GenerateBracketUseCase(
                 logQualificationGroup("Teilnehmende Tour-Card-Inhaber im Grand Slam Qualifier", sortedNonPreq)
                 logI("TournamentQualification", "==================================================")
 
-                BracketGenerator.generateInitialMatches(
+                val pairings = BracketGenerator.generateInitialMatches(
                     event = event,
                     oomSortedIds = sortedNonPreq
                 )
+
+                val seedCount = calculateQualifierSeedCount(event, sortedNonPreq.size)
+                val participantList = sortedNonPreq.mapIndexed { index, playerId ->
+                    TournamentParticipant(
+                        tournamentId = tournamentId,
+                        playerId = playerId,
+                        seedNumber = if (index < seedCount) index + 1 else null,
+                        qualificationType = "TOUR_CARD"
+                    )
+                }
+
+                Pair(pairings, participantList)
             }
 
             TournamentEvent.GRAND_SLAM_OF_DARTS -> {
@@ -318,12 +513,37 @@ class GenerateBracketUseCase(
                 logQualificationGroup("Topf 3: 8 TCHQ Sieger + 8 Andere Qualifier", pot3)
                 logI("TournamentQualification", "==================================================")
 
-                BracketGenerator.generateInitialMatches(
+                val pairings = BracketGenerator.generateInitialMatches(
                     event = event,
                     oomSortedIds = top16Oom,
                     proTourSortedIds = pot2,
                     qualifierIds = pot3
                 )
+
+                val participantList = top16Oom.mapIndexed { index, playerId ->
+                    TournamentParticipant(
+                        tournamentId = tournamentId,
+                        playerId = playerId,
+                        seedNumber = index + 1,
+                        qualificationType = "OOM"
+                    )
+                } + pot2.map { playerId ->
+                    TournamentParticipant(
+                        tournamentId = tournamentId,
+                        playerId = playerId,
+                        seedNumber = null,
+                        qualificationType = "PT_OOM"
+                    )
+                } + pot3.map { playerId ->
+                    TournamentParticipant(
+                        tournamentId = tournamentId,
+                        playerId = playerId,
+                        seedNumber = null,
+                        qualificationType = "QUALIFIER"
+                    )
+                }
+
+                Pair(pairings, participantList)
             }
 
             TournamentEvent.PLAYERS_CHAMPIONSHIP_FINALS -> {
@@ -335,11 +555,22 @@ class GenerateBracketUseCase(
                 logQualificationGroup("Top 64 Players Championship Order of Merit", final64Pc)
                 logI("TournamentQualification", "==================================================")
 
-                BracketGenerator.generateInitialMatches(
+                val pairings = BracketGenerator.generateInitialMatches(
                     event = event,
                     oomSortedIds = emptyList(),
                     qualifierIds = final64Pc
                 )
+
+                val participantList = final64Pc.mapIndexed { index, playerId ->
+                    TournamentParticipant(
+                        tournamentId = tournamentId,
+                        playerId = playerId,
+                        seedNumber = index + 1,
+                        qualificationType = "PC_OOM"
+                    )
+                }
+
+                Pair(pairings, participantList)
             }
 
             TournamentEvent.QUALIFIER_WM -> {
@@ -357,10 +588,22 @@ class GenerateBracketUseCase(
                 logQualificationGroup("Teilnehmende Tour-Card-Inhaber im WM Qualifier", sortedNonPreq)
                 logI("TournamentQualification", "==================================================")
 
-                BracketGenerator.generateInitialMatches(
+                val pairings = BracketGenerator.generateInitialMatches(
                     event = event,
                     oomSortedIds = sortedNonPreq
                 )
+
+                val seedCount = calculateQualifierSeedCount(event, sortedNonPreq.size)
+                val participantList = sortedNonPreq.mapIndexed { index, playerId ->
+                    TournamentParticipant(
+                        tournamentId = tournamentId,
+                        playerId = playerId,
+                        seedNumber = if (index < seedCount) index + 1 else null,
+                        qualificationType = "TOUR_CARD"
+                    )
+                }
+
+                Pair(pairings, participantList)
             }
 
             TournamentEvent.WORLD_CHAMPIONSHIP -> {
@@ -401,11 +644,36 @@ class GenerateBracketUseCase(
                 logQualificationGroup("4. 44 Internationale Non-TC Qualifikanten", nonTc44Full)
                 logI("TournamentQualification", "==================================================")
 
-                BracketGenerator.generateInitialMatches(
+                val pairings = BracketGenerator.generateInitialMatches(
                     event = event,
                     oomSortedIds = top32Oom + ranks33To64,
                     qualifierIds = remaining64Pool
                 )
+
+                val participantList = top32Oom.mapIndexed { index, playerId ->
+                    TournamentParticipant(
+                        tournamentId = tournamentId,
+                        playerId = playerId,
+                        seedNumber = index + 1,
+                        qualificationType = "OOM"
+                    )
+                } + ranks33To64.map { playerId ->
+                    TournamentParticipant(
+                        tournamentId = tournamentId,
+                        playerId = playerId,
+                        seedNumber = null,
+                        qualificationType = "PT_OOM"
+                    )
+                } + remaining64Pool.map { playerId ->
+                    TournamentParticipant(
+                        tournamentId = tournamentId,
+                        playerId = playerId,
+                        seedNumber = null,
+                        qualificationType = "QUALIFIER"
+                    )
+                }
+
+                Pair(pairings, participantList)
             }
         }
 
@@ -420,6 +688,7 @@ class GenerateBracketUseCase(
             )
         }
 
+        tournamentParticipantDao.insertParticipants(participants.distinctBy { it.playerId })
         tournamentMatchDao.insertMatches(tournamentMatches)
         tournamentMatchDao.getMatchesListForTournament(tournamentId)
     }
