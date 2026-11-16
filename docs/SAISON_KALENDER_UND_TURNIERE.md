@@ -48,7 +48,7 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
     *   PC 25 – 26 (Leicester, England): `"ENG"` (2x)
     *   PC 27 – 30 (Leicester / Den Bosch): `"ENG"`, `"NDL"`, `"ENG"`, `"NDL"`
     *   PC 31 – 34 (Wigan / Maastricht): `"ENG"`, `"NDL"`, `"NDL"`, `"NDL"`
-*   **Auslosung:** Top 32 der *Pro Tour Order of Merit* sind gesetzt und werden im Bracket verteilt. Die restlichen 96 Spieler werden frei zugelost. Da beim Start einer Karriere die *Pro Tour Order of Merit* noch leer ist, werden hierfür die Top 32 zufällig ermittelt.
+*   **Auslosung:** Die Top 32 der *Pro Tour Order of Merit* sind nach dem offiziellen Standard-Setzbaum (`buildStandardSeedOrder(32)`) über alle 16 Boards (64 Erstrunden-Matches) verteilt (Seed `seedOrder32[i]` auf Match `2 * i`, dazwischen ungesetzte Partien auf Match `2 * i + 1`), sodass `(1)` und `(2)` frühestens im Finale aufeinandertreffen. Die restlichen 96 Spieler werden frei zugelost.
 *   **Preisgeldaufschlüsselung (Gesamt: £150.000 pro Event):**
 
 | Platzierung / Runde | Enum-Key | Anzahl Spieler | Preisgeld pro Spieler |

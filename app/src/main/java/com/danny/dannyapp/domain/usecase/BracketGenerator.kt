@@ -218,13 +218,38 @@ object BracketGenerator {
         topSeeds: List<Long>,
         unseededPool: List<Long>
     ): List<MatchPairing> {
-        val allPlayers = (topSeeds + unseededPool).toMutableList()
-        val remaining = allPlayers.drop(topSeeds.size).shuffled().toMutableList()
-        return (0 until allPlayers.size / 2).map { index ->
-            val p1 = if (index < topSeeds.size) topSeeds[index] else remaining.removeAt(0)
-            val p2 = remaining.removeAt(0)
-            MatchPairing(round = round, matchIndex = index, player1Id = p1, player2Id = p2)
+        val seedOrder32 = buildStandardSeedOrder(32)
+        val unseeded = unseededPool.shuffled().toMutableList()
+        val pairings = mutableListOf<MatchPairing>()
+
+        for (i in 0 until 32) {
+            val seedIndex = seedOrder32[i]
+            val seededPlayer = topSeeds.getOrElse(seedIndex) { 0L }
+            val unseededOpponent = if (unseeded.isNotEmpty()) unseeded.removeAt(0) else 0L
+
+            // Match 2 * i (Seed vs Unseeded)
+            pairings.add(
+                MatchPairing(
+                    round = round,
+                    matchIndex = 2 * i,
+                    player1Id = seededPlayer,
+                    player2Id = unseededOpponent
+                )
+            )
+
+            // Match 2 * i + 1 (Unseeded vs Unseeded)
+            val p1 = if (unseeded.isNotEmpty()) unseeded.removeAt(0) else 0L
+            val p2 = if (unseeded.isNotEmpty()) unseeded.removeAt(0) else 0L
+            pairings.add(
+                MatchPairing(
+                    round = round,
+                    matchIndex = 2 * i + 1,
+                    player1Id = p1,
+                    player2Id = p2
+                )
+            )
         }
+        return pairings.sortedBy { it.matchIndex }
     }
 
     private fun generateWorldChampionshipRound1(

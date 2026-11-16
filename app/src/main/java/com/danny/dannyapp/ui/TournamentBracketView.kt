@@ -775,7 +775,7 @@ class TournamentBracketView @JvmOverloads constructor(
 
         for ((r, list) in matchViews.withIndex()) {
             val roundMatches = roundsMatches.getOrNull(r)
-            val isOpenDraw = roundMatches.isNullOrEmpty() && (openEntrantsGroups.isNotEmpty() || isOpenDrawInfoVisible)
+            val isOpenDraw = roundMatches.isNullOrEmpty() && (openDrawInfoMap.containsKey(r) || openEntrantsGroups.isNotEmpty() || isOpenDrawInfoVisible)
             for (child in list) {
                 if (isOpenDraw) {
                     child.measure(childWidthSpec, infoCardHeightSpec)
@@ -823,7 +823,7 @@ class TournamentBracketView @JvmOverloads constructor(
             val childRight = childLeft + columnWidth
 
             val roundMatches = roundsMatches.getOrNull(r)
-            val isOpenDraw = roundMatches.isNullOrEmpty() && (openEntrantsGroups.isNotEmpty() || isOpenDrawInfoVisible)
+            val isOpenDraw = roundMatches.isNullOrEmpty() && (openDrawInfoMap.containsKey(r) || openEntrantsGroups.isNotEmpty() || isOpenDrawInfoVisible)
 
             val diff = focusedRoundFloat - r
             val scale = if (diff <= 0f) {
