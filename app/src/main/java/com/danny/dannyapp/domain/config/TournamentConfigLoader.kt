@@ -56,7 +56,7 @@ object TournamentConfigLoader {
      */
     fun loadFromStream(inputStream: InputStream): SeasonConfig {
         val json = inputStream.bufferedReader().use { it.readText() }
-        return parse(json)
+        return parse(json).also { cachedConfig = it }
     }
 
     /**
@@ -255,6 +255,99 @@ object TournamentConfigLoader {
                     "hostCity darf für Kalendereintrag ${entry.order} ('${entry.name}') nicht leer sein."
                 )
             }
+        }
+
+        val duplicateNames = calendar.map { it.name }
+            .groupingBy { it }
+            .eachCount()
+            .filter { it.value > 1 }
+            .keys
+        if (duplicateNames.isNotEmpty()) {
+            throw IllegalStateException(
+                "Duplizierte Turniernamen im Kalender gefunden: ${duplicateNames.joinToString()}."
+            )
+        }
+
+        val majorEvents = listOf(
+            TournamentEvent.UK_OPEN,
+            TournamentEvent.EUROPEAN_OPEN,
+            TournamentEvent.WORLD_MATCHPLAY,
+            TournamentEvent.WORLD_GRAND_PRIX,
+            TournamentEvent.EUROPEAN_CHAMPIONSHIP,
+            TournamentEvent.GRAND_SLAM_OF_DARTS,
+            TournamentEvent.PLAYERS_CHAMPIONSHIP_FINALS,
+            TournamentEvent.WORLD_CHAMPIONSHIP
+        )
+        for (major in majorEvents) {
+            val count = calendar.count { it.type == major }
+            if (count != 1) {
+                throw IllegalStateException(
+                    "Major-Event '$major' muss exakt 1x im Kalender vorkommen, Ist: $count."
+                )
+            }
+        }
+
+        val europeanTourEntries = calendar.filter { it.type == TournamentEvent.EUROPEAN_TOUR }
+        val qualifierEtEntries = calendar.filter { it.type == TournamentEvent.QUALIFIER_ET }
+        if (europeanTourEntries.size != qualifierEtEntries.size) {
+            throw IllegalStateException(
+                "Anzahl der EUROPEAN_TOUR-Events (${europeanTourEntries.size}) und QUALIFIER_ET-Events (${qualifierEtEntries.size}) stimmt nicht überein."
+            )
+        }
+        val etQualifierMap = qualifierEtEntries.associateBy { it.name }
+        for (etEntry in europeanTourEntries) {
+            val expectedQualifierName = "${etEntry.name} Qualifier"
+            val qualifierEntry = etQualifierMap[expectedQualifierName]
+                ?: throw IllegalStateException(
+                    "Zu European Tour Event '${etEntry.name}' fehlt der Qualifier '$expectedQualifierName'."
+                )
+            if (qualifierEntry.order >= etEntry.order) {
+                throw IllegalStateException(
+                    "Qualifier '${qualifierEntry.name}' (order=${qualifierEntry.order}) muss vor dem Hauptturnier '${etEntry.name}' (order=${etEntry.order}) stattfinden."
+                )
+            }
+        }
+
+        val grandSlamQualifiers = calendar.filter { it.type == TournamentEvent.QUALIFIER_GRAND_SLAM }
+        if (grandSlamQualifiers.size != 1) {
+            throw IllegalStateException(
+                "Es muss genau einen QUALIFIER_GRAND_SLAM im Kalender geben, Ist: ${grandSlamQualifiers.size}."
+            )
+        }
+        val grandSlamEvent = calendar.single { it.type == TournamentEvent.GRAND_SLAM_OF_DARTS }
+        if (grandSlamQualifiers[0].order >= grandSlamEvent.order) {
+            throw IllegalStateException(
+                "QUALIFIER_GRAND_SLAM (order=${grandSlamQualifiers[0].order}) muss vor GRAND_SLAM_OF_DARTS (order=${grandSlamEvent.order}) stattfinden."
+            )
+        }
+
+        val wmQualifiers = calendar.filter { it.type == TournamentEvent.QUALIFIER_WM }
+        if (wmQualifiers.size != 1) {
+            throw IllegalStateException(
+                "Es muss genau einen QUALIFIER_WM im Kalender geben, Ist: ${wmQualifiers.size}."
+            )
+        }
+        val wmEvent = calendar.single { it.type == TournamentEvent.WORLD_CHAMPIONSHIP }
+        if (wmQualifiers[0].order >= wmEvent.order) {
+            throw IllegalStateException(
+                "QUALIFIER_WM (order=${wmQualifiers[0].order}) muss vor WORLD_CHAMPIONSHIP (order=${wmEvent.order}) stattfinden."
+            )
+        }
+
+        val europeanChampionship = calendar.single { it.type == TournamentEvent.EUROPEAN_CHAMPIONSHIP }
+        val maxEtOrder = europeanTourEntries.maxOfOrNull { it.order } ?: 0
+        if (europeanChampionship.order <= maxEtOrder) {
+            throw IllegalStateException(
+                "EUROPEAN_CHAMPIONSHIP (order=${europeanChampionship.order}) muss nach dem letzten EUROPEAN_TOUR-Event (order=$maxEtOrder) stattfinden."
+            )
+        }
+
+        val playersChampionshipFinals = calendar.single { it.type == TournamentEvent.PLAYERS_CHAMPIONSHIP_FINALS }
+        val lastPcOrder = calendar.filter { it.type == TournamentEvent.PLAYERS_CHAMPIONSHIP }.maxOfOrNull { it.order } ?: 0
+        if (playersChampionshipFinals.order <= lastPcOrder) {
+            throw IllegalStateException(
+                "PLAYERS_CHAMPIONSHIP_FINALS (order=${playersChampionshipFinals.order}) muss nach dem letzten PLAYERS_CHAMPIONSHIP-Event (order=$lastPcOrder) stattfinden."
+            )
         }
     }
 
