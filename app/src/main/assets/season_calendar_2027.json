@@ -1,0 +1,1145 @@
+{
+  "seasonYear": 2027,
+  "source": "https://www.pdc.tv/news/2026/september/25/european-open-historic-french-event-headline-2027-pdc-calendar/",
+  "events": {
+    "PLAYERS_CHAMPIONSHIP": {
+      "totalPrizeFund": 150000.0,
+      "prizes": {
+        "WINNER": 15000.0,
+        "F": 10000.0,
+        "SF": 6500.0,
+        "QF": 4000.0,
+        "L16": 3000.0,
+        "L32": 2000.0,
+        "L64": 1250.0,
+        "L128": 0.0
+      },
+      "distances": {
+        "L128": {
+          "bestOf": 11,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        },
+        "L64": {
+          "bestOf": 11,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        },
+        "L32": {
+          "bestOf": 11,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        },
+        "L16": {
+          "bestOf": 11,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        },
+        "QF": {
+          "bestOf": 11,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        },
+        "SF": {
+          "bestOf": 13,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        },
+        "F": {
+          "bestOf": 15,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        }
+      }
+    },
+    "EUROPEAN_TOUR": {
+      "totalPrizeFund": 230000.0,
+      "prizes": {
+        "WINNER": 35000.0,
+        "F": 15000.0,
+        "SF": 10000.0,
+        "QF": 8000.0,
+        "L16": 5000.0,
+        "L32": 3500.0,
+        "L48": 2000.0
+      },
+      "distances": {
+        "L48": {
+          "bestOf": 11,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        },
+        "L32": {
+          "bestOf": 11,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        },
+        "L16": {
+          "bestOf": 11,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        },
+        "QF": {
+          "bestOf": 11,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        },
+        "SF": {
+          "bestOf": 13,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        },
+        "F": {
+          "bestOf": 15,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        }
+      }
+    },
+    "UK_OPEN": {
+      "totalPrizeFund": 750000.0,
+      "prizes": {
+        "WINNER": 120000.0,
+        "F": 60000.0,
+        "SF": 35000.0,
+        "QF": 20000.0,
+        "L16": 12500.0,
+        "L32": 7500.0,
+        "L64": 3000.0,
+        "R3_96": 2000.0,
+        "R2_128": 1250.0,
+        "R1_160": 0.0
+      },
+      "distances": {
+        "R1_160": {
+          "bestOf": 11,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        },
+        "R2_128": {
+          "bestOf": 11,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        },
+        "R3_96": {
+          "bestOf": 11,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        },
+        "L64": {
+          "bestOf": 19,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        },
+        "L32": {
+          "bestOf": 19,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        },
+        "L16": {
+          "bestOf": 19,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        },
+        "QF": {
+          "bestOf": 19,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        },
+        "SF": {
+          "bestOf": 21,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        },
+        "F": {
+          "bestOf": 21,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        }
+      }
+    },
+    "EUROPEAN_OPEN": {
+      "totalPrizeFund": 750000.0,
+      "prizes": {
+        "WINNER": 120000.0,
+        "F": 60000.0,
+        "SF": 35000.0,
+        "QF": 20000.0,
+        "L16": 12500.0,
+        "L32": 7500.0,
+        "L64": 3000.0,
+        "R3_96": 2000.0,
+        "R2_128": 1250.0,
+        "R1_160": 0.0
+      },
+      "distances": {
+        "R1_160": {
+          "bestOf": 11,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        },
+        "R2_128": {
+          "bestOf": 11,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        },
+        "R3_96": {
+          "bestOf": 11,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        },
+        "L64": {
+          "bestOf": 19,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        },
+        "L32": {
+          "bestOf": 19,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        },
+        "L16": {
+          "bestOf": 19,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        },
+        "QF": {
+          "bestOf": 19,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        },
+        "SF": {
+          "bestOf": 21,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        },
+        "F": {
+          "bestOf": 21,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        }
+      }
+    },
+    "WORLD_MATCHPLAY": {
+      "totalPrizeFund": 1000000.0,
+      "prizes": {
+        "WINNER": 225000.0,
+        "F": 125000.0,
+        "SF": 65000.0,
+        "QF": 35000.0,
+        "L16": 22500.0,
+        "L32": 12500.0
+      },
+      "distances": {
+        "L32": {
+          "bestOf": 19,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": true
+        },
+        "L16": {
+          "bestOf": 21,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": true
+        },
+        "QF": {
+          "bestOf": 31,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": true
+        },
+        "SF": {
+          "bestOf": 33,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": true
+        },
+        "F": {
+          "bestOf": 35,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": true
+        }
+      }
+    },
+    "WORLD_GRAND_PRIX": {
+      "totalPrizeFund": 750000.0,
+      "prizes": {
+        "WINNER": 150000.0,
+        "F": 80000.0,
+        "SF": 50000.0,
+        "QF": 35000.0,
+        "L16": 20000.0,
+        "L32": 7500.0
+      },
+      "distances": {
+        "L32": {
+          "bestOf": 3,
+          "format": "SETS_DOUBLE_IN_OUT",
+          "legsPerSet": 3,
+          "twoClearLegsRule": true
+        },
+        "L16": {
+          "bestOf": 5,
+          "format": "SETS_DOUBLE_IN_OUT",
+          "legsPerSet": 3,
+          "twoClearLegsRule": true
+        },
+        "QF": {
+          "bestOf": 5,
+          "format": "SETS_DOUBLE_IN_OUT",
+          "legsPerSet": 3,
+          "twoClearLegsRule": true
+        },
+        "SF": {
+          "bestOf": 9,
+          "format": "SETS_DOUBLE_IN_OUT",
+          "legsPerSet": 3,
+          "twoClearLegsRule": true
+        },
+        "F": {
+          "bestOf": 11,
+          "format": "SETS_DOUBLE_IN_OUT",
+          "legsPerSet": 3,
+          "twoClearLegsRule": true
+        }
+      }
+    },
+    "EUROPEAN_CHAMPIONSHIP": {
+      "totalPrizeFund": 750000.0,
+      "prizes": {
+        "WINNER": 150000.0,
+        "F": 80000.0,
+        "SF": 50000.0,
+        "QF": 35000.0,
+        "L16": 20000.0,
+        "L32": 7500.0
+      },
+      "distances": {
+        "L32": {
+          "bestOf": 11,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        },
+        "L16": {
+          "bestOf": 19,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        },
+        "QF": {
+          "bestOf": 19,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        },
+        "SF": {
+          "bestOf": 21,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        },
+        "F": {
+          "bestOf": 21,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        }
+      }
+    },
+    "GRAND_SLAM_OF_DARTS": {
+      "totalPrizeFund": 1000000.0,
+      "prizes": {
+        "WINNER": 200000.0,
+        "F": 100000.0,
+        "SF": 60000.0,
+        "QF": 35000.0,
+        "L16": 20000.0,
+        "GROUP_2ND": 12500.0,
+        "GROUP_3RD": 5000.0
+      },
+      "distances": {
+        "GROUP": {
+          "bestOf": 9,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        },
+        "L16": {
+          "bestOf": 19,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        },
+        "QF": {
+          "bestOf": 31,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        },
+        "SF": {
+          "bestOf": 31,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        },
+        "F": {
+          "bestOf": 31,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        }
+      }
+    },
+    "PLAYERS_CHAMPIONSHIP_FINALS": {
+      "totalPrizeFund": 750000.0,
+      "prizes": {
+        "WINNER": 130000.0,
+        "F": 70000.0,
+        "SF": 40000.0,
+        "QF": 27500.0,
+        "L16": 15000.0,
+        "L32": 7000.0,
+        "L64": 4000.0
+      },
+      "distances": {
+        "L64": {
+          "bestOf": 11,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        },
+        "L32": {
+          "bestOf": 11,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        },
+        "L16": {
+          "bestOf": 19,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        },
+        "QF": {
+          "bestOf": 19,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        },
+        "SF": {
+          "bestOf": 21,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        },
+        "F": {
+          "bestOf": 21,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        }
+      }
+    },
+    "WORLD_CHAMPIONSHIP": {
+      "totalPrizeFund": 5000000.0,
+      "prizes": {
+        "WINNER": 1000000.0,
+        "F": 400000.0,
+        "SF": 200000.0,
+        "QF": 100000.0,
+        "L16": 60000.0,
+        "L32": 35000.0,
+        "L64": 25000.0,
+        "L128": 15000.0
+      },
+      "distances": {
+        "L128": {
+          "bestOf": 5,
+          "format": "SETS_BEST_OF_5_LEGS",
+          "legsPerSet": 5,
+          "twoClearLegsRule": true
+        },
+        "L64": {
+          "bestOf": 5,
+          "format": "SETS_BEST_OF_5_LEGS",
+          "legsPerSet": 5,
+          "twoClearLegsRule": true
+        },
+        "L32": {
+          "bestOf": 7,
+          "format": "SETS_BEST_OF_5_LEGS",
+          "legsPerSet": 5,
+          "twoClearLegsRule": true
+        },
+        "L16": {
+          "bestOf": 7,
+          "format": "SETS_BEST_OF_5_LEGS",
+          "legsPerSet": 5,
+          "twoClearLegsRule": true
+        },
+        "QF": {
+          "bestOf": 9,
+          "format": "SETS_BEST_OF_5_LEGS",
+          "legsPerSet": 5,
+          "twoClearLegsRule": true
+        },
+        "SF": {
+          "bestOf": 11,
+          "format": "SETS_BEST_OF_5_LEGS",
+          "legsPerSet": 5,
+          "twoClearLegsRule": true
+        },
+        "F": {
+          "bestOf": 13,
+          "format": "SETS_BEST_OF_5_LEGS",
+          "legsPerSet": 5,
+          "twoClearLegsRule": true
+        }
+      }
+    },
+    "QUALIFIER_ET": {
+      "totalPrizeFund": 0.0,
+      "prizes": {},
+      "distances": {
+        "QUAL_PRELIM": {
+          "bestOf": 11,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        },
+        "QUAL_R1": {
+          "bestOf": 11,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        },
+        "QUAL_R2": {
+          "bestOf": 11,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        },
+        "QUAL_FINAL": {
+          "bestOf": 11,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        }
+      }
+    },
+    "QUALIFIER_GRAND_SLAM": {
+      "totalPrizeFund": 0.0,
+      "prizes": {},
+      "distances": {
+        "QUAL_PRELIM": {
+          "bestOf": 11,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        },
+        "QUAL_R1": {
+          "bestOf": 11,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        },
+        "QUAL_R2": {
+          "bestOf": 11,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        },
+        "QUAL_FINAL": {
+          "bestOf": 11,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        }
+      }
+    },
+    "QUALIFIER_WM": {
+      "totalPrizeFund": 0.0,
+      "prizes": {},
+      "distances": {
+        "QUAL_PRELIM": {
+          "bestOf": 11,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        },
+        "QUAL_R1": {
+          "bestOf": 11,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        },
+        "QUAL_R2": {
+          "bestOf": 11,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        },
+        "QUAL_FINAL": {
+          "bestOf": 11,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        }
+      }
+    }
+  },
+  "calendar": [
+    {
+      "order": 1,
+      "name": "Baltic Sea Darts Open Qualifier",
+      "type": "QUALIFIER_ET",
+      "hostCountry": "ENG",
+      "hostCity": "Milton Keynes"
+    },
+    {
+      "order": 2,
+      "name": "Players Championship 1",
+      "type": "PLAYERS_CHAMPIONSHIP",
+      "hostCountry": "ENG",
+      "hostCity": "Milton Keynes"
+    },
+    {
+      "order": 3,
+      "name": "Players Championship 2",
+      "type": "PLAYERS_CHAMPIONSHIP",
+      "hostCountry": "ENG",
+      "hostCity": "Milton Keynes"
+    },
+    {
+      "order": 4,
+      "name": "Poland Darts Open Qualifier",
+      "type": "QUALIFIER_ET",
+      "hostCountry": "ENG",
+      "hostCity": "Milton Keynes"
+    },
+    {
+      "order": 5,
+      "name": "International Darts Open Qualifier",
+      "type": "QUALIFIER_ET",
+      "hostCountry": "ENG",
+      "hostCity": "Milton Keynes"
+    },
+    {
+      "order": 6,
+      "name": "Baltic Sea Darts Open",
+      "type": "EUROPEAN_TOUR",
+      "hostCountry": "DEU",
+      "hostCity": "Kiel"
+    },
+    {
+      "order": 7,
+      "name": "Players Championship 3",
+      "type": "PLAYERS_CHAMPIONSHIP",
+      "hostCountry": "ENG",
+      "hostCity": "Wigan"
+    },
+    {
+      "order": 8,
+      "name": "Players Championship 4",
+      "type": "PLAYERS_CHAMPIONSHIP",
+      "hostCountry": "ENG",
+      "hostCity": "Wigan"
+    },
+    {
+      "order": 9,
+      "name": "Poland Darts Open",
+      "type": "EUROPEAN_TOUR",
+      "hostCountry": "POL",
+      "hostCity": "Krakau"
+    },
+    {
+      "order": 10,
+      "name": "Players Championship 5",
+      "type": "PLAYERS_CHAMPIONSHIP",
+      "hostCountry": "ENG",
+      "hostCity": "Wigan"
+    },
+    {
+      "order": 11,
+      "name": "Players Championship 6",
+      "type": "PLAYERS_CHAMPIONSHIP",
+      "hostCountry": "ENG",
+      "hostCity": "Wigan"
+    },
+    {
+      "order": 12,
+      "name": "International Darts Open",
+      "type": "EUROPEAN_TOUR",
+      "hostCountry": "DEU",
+      "hostCity": "Riesa"
+    },
+    {
+      "order": 13,
+      "name": "UK Open",
+      "type": "UK_OPEN",
+      "hostCountry": "ENG",
+      "hostCity": "Minehead"
+    },
+    {
+      "order": 14,
+      "name": "Darts Grand Prix de France Qualifier",
+      "type": "QUALIFIER_ET",
+      "hostCountry": "ENG",
+      "hostCity": "Leicester"
+    },
+    {
+      "order": 15,
+      "name": "Players Championship 7",
+      "type": "PLAYERS_CHAMPIONSHIP",
+      "hostCountry": "ENG",
+      "hostCity": "Leicester"
+    },
+    {
+      "order": 16,
+      "name": "Players Championship 8",
+      "type": "PLAYERS_CHAMPIONSHIP",
+      "hostCountry": "ENG",
+      "hostCity": "Leicester"
+    },
+    {
+      "order": 17,
+      "name": "German Darts Grand Prix Qualifier",
+      "type": "QUALIFIER_ET",
+      "hostCountry": "ENG",
+      "hostCity": "Leicester"
+    },
+    {
+      "order": 18,
+      "name": "European Darts Grand Prix Qualifier",
+      "type": "QUALIFIER_ET",
+      "hostCountry": "ENG",
+      "hostCity": "Leicester"
+    },
+    {
+      "order": 19,
+      "name": "European Darts Trophy Qualifier",
+      "type": "QUALIFIER_ET",
+      "hostCountry": "ENG",
+      "hostCity": "Leicester"
+    },
+    {
+      "order": 20,
+      "name": "Darts Grand Prix de France",
+      "type": "EUROPEAN_TOUR",
+      "hostCountry": "FRA",
+      "hostCity": "Liévin"
+    },
+    {
+      "order": 21,
+      "name": "German Darts Grand Prix",
+      "type": "EUROPEAN_TOUR",
+      "hostCountry": "DEU",
+      "hostCity": "München"
+    },
+    {
+      "order": 22,
+      "name": "European Darts Grand Prix",
+      "type": "EUROPEAN_TOUR",
+      "hostCountry": "DEU",
+      "hostCity": "Sindelfingen"
+    },
+    {
+      "order": 23,
+      "name": "Players Championship 9",
+      "type": "PLAYERS_CHAMPIONSHIP",
+      "hostCountry": "ENG",
+      "hostCity": "Wigan"
+    },
+    {
+      "order": 24,
+      "name": "Players Championship 10",
+      "type": "PLAYERS_CHAMPIONSHIP",
+      "hostCountry": "ENG",
+      "hostCity": "Wigan"
+    },
+    {
+      "order": 25,
+      "name": "Austrian Darts Open Qualifier",
+      "type": "QUALIFIER_ET",
+      "hostCountry": "ENG",
+      "hostCity": "Leicester"
+    },
+    {
+      "order": 26,
+      "name": "Czech Darts Open Qualifier",
+      "type": "QUALIFIER_ET",
+      "hostCountry": "ENG",
+      "hostCity": "Leicester"
+    },
+    {
+      "order": 27,
+      "name": "European Darts Trophy",
+      "type": "EUROPEAN_TOUR",
+      "hostCountry": "DEU",
+      "hostCity": "Göttingen"
+    },
+    {
+      "order": 28,
+      "name": "Players Championship 11",
+      "type": "PLAYERS_CHAMPIONSHIP",
+      "hostCountry": "ENG",
+      "hostCity": "Leicester"
+    },
+    {
+      "order": 29,
+      "name": "Players Championship 12",
+      "type": "PLAYERS_CHAMPIONSHIP",
+      "hostCountry": "ENG",
+      "hostCity": "Leicester"
+    },
+    {
+      "order": 30,
+      "name": "Austrian Darts Open",
+      "type": "EUROPEAN_TOUR",
+      "hostCountry": "AUT",
+      "hostCity": "Graz"
+    },
+    {
+      "order": 31,
+      "name": "Players Championship 13",
+      "type": "PLAYERS_CHAMPIONSHIP",
+      "hostCountry": "DEU",
+      "hostCity": "Hildesheim"
+    },
+    {
+      "order": 32,
+      "name": "Players Championship 14",
+      "type": "PLAYERS_CHAMPIONSHIP",
+      "hostCountry": "DEU",
+      "hostCity": "Hildesheim"
+    },
+    {
+      "order": 33,
+      "name": "Players Championship 15",
+      "type": "PLAYERS_CHAMPIONSHIP",
+      "hostCountry": "DEU",
+      "hostCity": "Hildesheim"
+    },
+    {
+      "order": 34,
+      "name": "Players Championship 16",
+      "type": "PLAYERS_CHAMPIONSHIP",
+      "hostCountry": "DEU",
+      "hostCity": "Hildesheim"
+    },
+    {
+      "order": 35,
+      "name": "Czech Darts Open",
+      "type": "EUROPEAN_TOUR",
+      "hostCountry": "CZE",
+      "hostCity": "Prag"
+    },
+    {
+      "order": 36,
+      "name": "Players Championship 17",
+      "type": "PLAYERS_CHAMPIONSHIP",
+      "hostCountry": "ENG",
+      "hostCity": "Wigan"
+    },
+    {
+      "order": 37,
+      "name": "Players Championship 18",
+      "type": "PLAYERS_CHAMPIONSHIP",
+      "hostCountry": "ENG",
+      "hostCity": "Wigan"
+    },
+    {
+      "order": 38,
+      "name": "German Darts Open Qualifier",
+      "type": "QUALIFIER_ET",
+      "hostCountry": "ENG",
+      "hostCity": "Wigan"
+    },
+    {
+      "order": 39,
+      "name": "Slovak Darts Open Qualifier",
+      "type": "QUALIFIER_ET",
+      "hostCountry": "ENG",
+      "hostCity": "Wigan"
+    },
+    {
+      "order": 40,
+      "name": "Players Championship 19",
+      "type": "PLAYERS_CHAMPIONSHIP",
+      "hostCountry": "DEU",
+      "hostCity": "Hildesheim"
+    },
+    {
+      "order": 41,
+      "name": "Players Championship 20",
+      "type": "PLAYERS_CHAMPIONSHIP",
+      "hostCountry": "DEU",
+      "hostCity": "Hildesheim"
+    },
+    {
+      "order": 42,
+      "name": "European Open",
+      "type": "EUROPEAN_OPEN",
+      "hostCountry": "AUT",
+      "hostCity": "Salzburg"
+    },
+    {
+      "order": 43,
+      "name": "Players Championship 21",
+      "type": "PLAYERS_CHAMPIONSHIP",
+      "hostCountry": "ENG",
+      "hostCity": "Leicester"
+    },
+    {
+      "order": 44,
+      "name": "Players Championship 22",
+      "type": "PLAYERS_CHAMPIONSHIP",
+      "hostCountry": "ENG",
+      "hostCity": "Leicester"
+    },
+    {
+      "order": 45,
+      "name": "Belgian Darts Open Qualifier",
+      "type": "QUALIFIER_ET",
+      "hostCountry": "ENG",
+      "hostCity": "Leicester"
+    },
+    {
+      "order": 46,
+      "name": "Swiss Darts Trophy Qualifier",
+      "type": "QUALIFIER_ET",
+      "hostCountry": "ENG",
+      "hostCity": "Leicester"
+    },
+    {
+      "order": 47,
+      "name": "German Darts Open",
+      "type": "EUROPEAN_TOUR",
+      "hostCountry": "DEU",
+      "hostCity": "Leverkusen"
+    },
+    {
+      "order": 48,
+      "name": "World Matchplay",
+      "type": "WORLD_MATCHPLAY",
+      "hostCountry": "ENG",
+      "hostCity": "Blackpool"
+    },
+    {
+      "order": 49,
+      "name": "Players Championship 23",
+      "type": "PLAYERS_CHAMPIONSHIP",
+      "hostCountry": "DEU",
+      "hostCity": "Hildesheim"
+    },
+    {
+      "order": 50,
+      "name": "Players Championship 24",
+      "type": "PLAYERS_CHAMPIONSHIP",
+      "hostCountry": "DEU",
+      "hostCity": "Hildesheim"
+    },
+    {
+      "order": 51,
+      "name": "Players Championship 25",
+      "type": "PLAYERS_CHAMPIONSHIP",
+      "hostCountry": "ENG",
+      "hostCity": "Leicester"
+    },
+    {
+      "order": 52,
+      "name": "Players Championship 26",
+      "type": "PLAYERS_CHAMPIONSHIP",
+      "hostCountry": "ENG",
+      "hostCity": "Leicester"
+    },
+    {
+      "order": 53,
+      "name": "Slovak Darts Open",
+      "type": "EUROPEAN_TOUR",
+      "hostCountry": "SVK",
+      "hostCity": "Bratislava"
+    },
+    {
+      "order": 54,
+      "name": "Belgian Darts Open",
+      "type": "EUROPEAN_TOUR",
+      "hostCountry": "BEL",
+      "hostCity": "Gent"
+    },
+    {
+      "order": 55,
+      "name": "Players Championship 27",
+      "type": "PLAYERS_CHAMPIONSHIP",
+      "hostCountry": "ENG",
+      "hostCity": "Leicester"
+    },
+    {
+      "order": 56,
+      "name": "Players Championship 28",
+      "type": "PLAYERS_CHAMPIONSHIP",
+      "hostCountry": "ENG",
+      "hostCity": "Leicester"
+    },
+    {
+      "order": 57,
+      "name": "Swiss Darts Trophy",
+      "type": "EUROPEAN_TOUR",
+      "hostCountry": "SUI",
+      "hostCity": "Basel"
+    },
+    {
+      "order": 58,
+      "name": "Players Championship 29",
+      "type": "PLAYERS_CHAMPIONSHIP",
+      "hostCountry": "NLD",
+      "hostCity": "Den Bosch"
+    },
+    {
+      "order": 59,
+      "name": "Players Championship 30",
+      "type": "PLAYERS_CHAMPIONSHIP",
+      "hostCountry": "NLD",
+      "hostCity": "Den Bosch"
+    },
+    {
+      "order": 60,
+      "name": "Hungarian Darts Trophy Qualifier",
+      "type": "QUALIFIER_ET",
+      "hostCountry": "NLD",
+      "hostCity": "Den Bosch"
+    },
+    {
+      "order": 61,
+      "name": "Dutch Darts Championship Qualifier",
+      "type": "QUALIFIER_ET",
+      "hostCountry": "NLD",
+      "hostCity": "Den Bosch"
+    },
+    {
+      "order": 62,
+      "name": "World Grand Prix",
+      "type": "WORLD_GRAND_PRIX",
+      "hostCountry": "ENG",
+      "hostCity": "Leicester"
+    },
+    {
+      "order": 63,
+      "name": "Players Championship 31",
+      "type": "PLAYERS_CHAMPIONSHIP",
+      "hostCountry": "ENG",
+      "hostCity": "Milton Keynes"
+    },
+    {
+      "order": 64,
+      "name": "Players Championship 32",
+      "type": "PLAYERS_CHAMPIONSHIP",
+      "hostCountry": "ENG",
+      "hostCity": "Milton Keynes"
+    },
+    {
+      "order": 65,
+      "name": "Hungarian Darts Trophy",
+      "type": "EUROPEAN_TOUR",
+      "hostCountry": "HUN",
+      "hostCity": "Budapest"
+    },
+    {
+      "order": 66,
+      "name": "Dutch Darts Championship",
+      "type": "EUROPEAN_TOUR",
+      "hostCountry": "NLD",
+      "hostCity": "Maastricht"
+    },
+    {
+      "order": 67,
+      "name": "Players Championship 33",
+      "type": "PLAYERS_CHAMPIONSHIP",
+      "hostCountry": "NLD",
+      "hostCity": "Maastricht"
+    },
+    {
+      "order": 68,
+      "name": "Players Championship 34",
+      "type": "PLAYERS_CHAMPIONSHIP",
+      "hostCountry": "NLD",
+      "hostCity": "Maastricht"
+    },
+    {
+      "order": 69,
+      "name": "Grand Slam Qualifier",
+      "type": "QUALIFIER_GRAND_SLAM",
+      "hostCountry": "NLD",
+      "hostCity": "Maastricht"
+    },
+    {
+      "order": 70,
+      "name": "European Championship",
+      "type": "EUROPEAN_CHAMPIONSHIP",
+      "hostCountry": "DEU",
+      "hostCity": "Dortmund"
+    },
+    {
+      "order": 71,
+      "name": "Grand Slam of Darts",
+      "type": "GRAND_SLAM_OF_DARTS",
+      "hostCountry": "ENG",
+      "hostCity": "Wolverhampton"
+    },
+    {
+      "order": 72,
+      "name": "Players Championship Finals",
+      "type": "PLAYERS_CHAMPIONSHIP_FINALS",
+      "hostCountry": "ENG",
+      "hostCity": "Minehead"
+    },
+    {
+      "order": 73,
+      "name": "World Championship Qualifier",
+      "type": "QUALIFIER_WM",
+      "hostCountry": "ENG",
+      "hostCity": "Leicester"
+    },
+    {
+      "order": 74,
+      "name": "World Championship",
+      "type": "WORLD_CHAMPIONSHIP",
+      "hostCountry": "ENG",
+      "hostCity": "London"
+    }
+  ]
+}

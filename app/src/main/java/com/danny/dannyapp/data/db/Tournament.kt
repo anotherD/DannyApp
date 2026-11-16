@@ -32,7 +32,9 @@ data class Tournament(
     @ColumnInfo(name = "is_completed")
     val isCompleted: Boolean = false,
     @ColumnInfo(name = "host_country")
-    val hostCountry: String? = null
+    val hostCountry: String? = null,
+    @ColumnInfo(name = "host_city")
+    val hostCity: String? = null
 ) {
     init {
         require(name.isNotBlank()) { "Tournament name must not be blank" }

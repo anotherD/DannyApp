@@ -1,5 +1,6 @@
 package com.danny.dannyapp.domain.enums
 
+import com.danny.dannyapp.domain.config.TournamentConfigLoader
 import com.danny.dannyapp.domain.model.MatchDistance
 
 enum class TournamentEvent(val totalPrizeFund: Double) {
@@ -20,9 +21,68 @@ enum class TournamentEvent(val totalPrizeFund: Double) {
     QUALIFIER_WM(0.0);
 
     /**
+     * Liefert die zentrale Rundenfolge für dieses Turnier (identisch zu
+     * `TournamentPreviewHelper.getRoundSequence`), damit Use-Cases und Validator
+     * dieselbe Reihenfolge nutzen.
+     */
+    fun getRoundSequence(): List<TournamentRound> {
+        return when (this) {
+            QUALIFIER_ET, QUALIFIER_GRAND_SLAM, QUALIFIER_WM -> listOf(
+                TournamentRound.QUAL_PRELIM,
+                TournamentRound.QUAL_R1,
+                TournamentRound.QUAL_R2,
+                TournamentRound.QUAL_FINAL
+            )
+            PLAYERS_CHAMPIONSHIP -> listOf(
+                TournamentRound.L128, TournamentRound.L64, TournamentRound.L32,
+                TournamentRound.L16, TournamentRound.QF, TournamentRound.SF, TournamentRound.F
+            )
+            EUROPEAN_TOUR -> listOf(
+                TournamentRound.L48, TournamentRound.L32, TournamentRound.L16,
+                TournamentRound.QF, TournamentRound.SF, TournamentRound.F
+            )
+            UK_OPEN, EUROPEAN_OPEN -> listOf(
+                TournamentRound.R1_160, TournamentRound.R2_128, TournamentRound.R3_96,
+                TournamentRound.L64, TournamentRound.L32, TournamentRound.L16,
+                TournamentRound.QF, TournamentRound.SF, TournamentRound.F
+            )
+            WORLD_MATCHPLAY, WORLD_GRAND_PRIX, EUROPEAN_CHAMPIONSHIP -> listOf(
+                TournamentRound.L32, TournamentRound.L16, TournamentRound.QF,
+                TournamentRound.SF, TournamentRound.F
+            )
+            GRAND_SLAM_OF_DARTS -> listOf(
+                TournamentRound.GROUP, TournamentRound.L16, TournamentRound.QF,
+                TournamentRound.SF, TournamentRound.F
+            )
+            PLAYERS_CHAMPIONSHIP_FINALS -> listOf(
+                TournamentRound.L64, TournamentRound.L32, TournamentRound.L16,
+                TournamentRound.QF, TournamentRound.SF, TournamentRound.F
+            )
+            WORLD_CHAMPIONSHIP -> listOf(
+                TournamentRound.L128, TournamentRound.L64, TournamentRound.L32,
+                TournamentRound.L16, TournamentRound.QF, TournamentRound.SF, TournamentRound.F
+            )
+        }
+    }
+
+    /**
+     * Liefert den Gesamtpreisgeld-Topf aus der zentralen JSON-Konfiguration.
+     * Fallback auf den eingebauten Wert, falls die Konfiguration noch nicht geladen wurde.
+     */
+    val effectiveTotalPrizeFund: Double
+        get() = TournamentConfigLoader.safeConfig()
+            ?.events?.get(this)?.totalPrizeFund ?: totalPrizeFund
+
+    /**
      * Liefert die offizielle Match-Distanz (Best-of-Legs oder Best-of-Sets) für die jeweilige Runde.
+     * Werte werden zentral aus der JSON-Konfiguration gelesen; bei fehlender Konfiguration
+     * greift das eingebauten Fallback-Werte.
      */
     fun getMatchDistance(round: TournamentRound): MatchDistance {
+        val configured = TournamentConfigLoader.safeConfig()
+            ?.events?.get(this)?.distances?.get(round)
+        if (configured != null) return configured
+
         return when (this) {
             QUALIFIER_ET, QUALIFIER_GRAND_SLAM, QUALIFIER_WM -> MatchDistance(11, MatchFormatType.LEGS, 1)
             PLAYERS_CHAMPIONSHIP, EUROPEAN_TOUR -> when (round) {
@@ -81,6 +141,8 @@ enum class TournamentEvent(val totalPrizeFund: Double) {
 
     /**
      * Gibt das für die Order of Merit gewertete Preisgeld zurück.
+     * Werte werden zentral aus der JSON-Konfiguration gelesen; bei fehlender Konfiguration
+     * greifen die eingebauten Fallback-Werte.
      * @param round Die erreichte Runde (bzw. Ausscheiderunde)
      * @param isPreQualifiedSeedRelevant True, wenn der Spieler auf der European Tour vorqualifiziert war (Top 16 OOM / Top 16 PT OOM)
      * @param lostFirstMatch True, wenn der Spieler sein allererstes Match im Turnier verloren hat
@@ -95,6 +157,10 @@ enum class TournamentEvent(val totalPrizeFund: Double) {
         if (this == EUROPEAN_TOUR && isPreQualifiedSeedRelevant && lostFirstMatch) {
             return 0.0
         }
+
+        val configured = TournamentConfigLoader.safeConfig()
+            ?.events?.get(this)?.prizes?.get(round)
+        if (configured != null) return configured
 
         return when (this) {
             PLAYERS_CHAMPIONSHIP -> when (round) {

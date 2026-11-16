@@ -16,7 +16,7 @@ Um Nullable-Fremdschlüssel-Probleme und komplexe Boolean-Flags zu vermeiden, er
 
 Die Tabellenstrukturen für den Turnierbetrieb wurden wie folgt implementiert:
 
-*   **`Tournament` (`tournaments`)**: Speichert Saisonturniere mit `id`, `season_id`, `name`, `type` (`PLAYERS_CHAMPIONSHIP`, `EUROPEAN_TOUR`, `UK_OPEN`, `EUROPEAN_OPEN`, `WORLD_MATCHPLAY`, `WORLD_GRAND_PRIX`, `EUROPEAN_CHAMPIONSHIP`, `GRAND_SLAM_OF_DARTS`, `PLAYERS_CHAMPIONSHIP_FINALS`, `WORLD_CHAMPIONSHIP`, `QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIFIER_WM`), `order` (1–74), `is_completed` und `host_country` (`host_country`, ISO-3-Code, z. B. `"ENG"`, `"DEU"`, `"AUT"`, `"NDL"`, `"BEL"`, `"HUN"`, `"CZE"`, `"SUI"`, `"FRA"`, `"POL"`). Jedes Turnier im Kalender verfügt zwingend über einen gültigen ISO-3 `host_country`.
+*   **`Tournament` (`tournaments`)**: Speichert Saisonturniere mit `id`, `season_id`, `name`, `type` (`PLAYERS_CHAMPIONSHIP`, `EUROPEAN_TOUR`, `UK_OPEN`, `EUROPEAN_OPEN`, `WORLD_MATCHPLAY`, `WORLD_GRAND_PRIX`, `EUROPEAN_CHAMPIONSHIP`, `GRAND_SLAM_OF_DARTS`, `PLAYERS_CHAMPIONSHIP_FINALS`, `WORLD_CHAMPIONSHIP`, `QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIFIER_WM`), `order` (1–74), `is_completed` und `host_country` (`host_country`, ISO-3-Code, z. B. `"ENG"`, `"DEU"`, `"AUT"`, `"NDL"`, `"BEL"`, `"HUN"`, `"CZE"`, `"SUI"`, `"FRA"`, `"POL"`), host_city (z. B. "Milton Keynes", "Dortmund"). Jedes Turnier im Kalender verfügt zwingend über einen gültigen ISO-3 `host_country`.
 *   **`TournamentMatch` (`tournament_matches`)**: Verwaltet alle Einzelpartien mit `id`, `tournament_id`, `round`, `match_index`, `player_1_id`, `player_2_id` (jeweils Spieler-ID oder `USER_ID = -1L`), Scores, `winner_id` und `is_completed`.
 *   **`TournamentPlacement` (`tournament_placements`)**: Erfasst die errungenen Platzierungen und Preisgelder pro Spieler zur Berechnung der Ranglisten (`id`, `tournament_id`, `player_id`, `reached_round`, `prize_money`).
 
@@ -30,6 +30,7 @@ Eine Saison umfasst insgesamt **74 Turniere**:
 * ET Tour Card Qualifier (`QUALIFIER_ET`): 15 pro Saison
 * MAJOR: Major-Turniere, 8 pro Saison (`UK Open`, `European Open`, `World Matchplay`, `World Grand Prix`, `European Championship`, `Grand Slam of Darts`, `Players Championship Finals`, `World Championship`)
 * Major Qualifiers: 2 pro Saison (`QUALIFIER_GRAND_SLAM` vor dem Grand Slam of Darts, `QUALIFIER_WM` vor der World Championship)
+* **Zentrale Kalender- & Turnier-Konfiguration (`app/src/main/assets/season_calendar_2027.json`):** Die chronologische Reihenfolge aller 74 Saisonturniere (`order` 1–74), deren exakte Austragungsstädte (`hostCity`) und Länder (`hostCountry`) sowie die Runden-Preisgelder und Match-Distanzen (`events`) sind zentral in `season_calendar_2027.json` gepflegt.
 
 Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
 
@@ -37,17 +38,21 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
 *   **Teilnehmer:** 128 Spieler.
 *   **Zusammensetzung & Qualifikation:**
     1. Alle 128 Tour-Card-Inhaber (inklusive User mit ID `-1L`).
-*   **Gastgeberländer & Austragungsorte (2027):** Die 34 Players Championships folgen exakt dem offiziellen Spielplan an den Standorten England (Milton Keynes, Wigan, Leicester; `"ENG"`), Deutschland (Hildesheim; `"DEU"`) und Niederlande (Den Bosch; `"NDL"`):
-    *   PC 01 – 02 (Milton Keynes, England): `"ENG"` / `"ENG"`
-    *   PC 03 – 06 (Wigan, England): `"ENG"` (4x)
-    *   PC 07 – 08 (Leicester, England): `"ENG"` (2x)
-    *   PC 09 – 12 (Wigan / Leicester, England): `"ENG"` (4x)
-    *   PC 13 – 17 (Hildesheim / Wigan): `"DEU"`, `"ENG"`, `"DEU"`, `"ENG"`, `"DEU"`
-    *   PC 18 – 20 (Wigan / Hildesheim): `"ENG"`, `"DEU"`, `"ENG"`
-    *   PC 21 – 24 (Leicester / Hildesheim): `"ENG"`, `"DEU"`, `"ENG"`, `"DEU"`
-    *   PC 25 – 26 (Leicester, England): `"ENG"` (2x)
-    *   PC 27 – 30 (Leicester / Den Bosch): `"ENG"`, `"NDL"`, `"ENG"`, `"NDL"`
-    *   PC 31 – 34 (Wigan / Maastricht): `"ENG"`, `"NDL"`, `"NDL"`, `"NDL"`
+* **Gastgeberländer & Austragungsorte (2027):** Die 34 Players Championships folgen dem offiziellen PDC-Kalender 2027:
+  * PC 01 – 02: Milton Keynes (`"ENG"`)
+  * PC 03 – 06: Wigan (`"ENG"`)
+  * PC 07 – 08: Leicester (`"ENG"`)
+  * PC 09 – 10: Wigan (`"ENG"`)
+  * PC 11 – 12: Leicester (`"ENG"`)
+  * PC 13 – 16: Hildesheim (`"DEU"`)
+  * PC 17 – 18: Wigan (`"ENG"`)
+  * PC 19 – 20: Hildesheim (`"DEU"`)
+  * PC 21 – 22: Leicester (`"ENG"`)
+  * PC 23 – 24: Hildesheim (`"DEU"`)
+  * PC 25 – 28: Leicester (`"ENG"`)
+  * PC 29 – 30: Den Bosch (`"NLD"`)
+  * PC 31 – 32: Milton Keynes (`"ENG"`)
+  * PC 33 – 34: Maastricht (`"NLD"`)
 *   **Auslosung:** Die Top 32 der *Pro Tour Order of Merit* sind nach dem offiziellen Standard-Setzbaum (`buildStandardSeedOrder(32)`) über alle 16 Boards (64 Erstrunden-Matches) verteilt (Seed `seedOrder32[i]` auf Match `2 * i`, dazwischen ungesetzte Partien auf Match `2 * i + 1`), sodass `(1)` und `(2)` frühestens im Finale aufeinandertreffen. Die restlichen 96 Spieler werden frei zugelost.
 *   **Preisgeldaufschlüsselung (Gesamt: £150.000 pro Event):**
 
@@ -175,7 +180,7 @@ Alle Tour Card Holder Qualifier (`QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIF
     *   *Reale PDC:* Die 32 Nicht-Tourcard-Plätze setzen sich in der Realität zusammen aus den **Top 8 der Challenge Tour Order of Merit**, den **Top 8 der Development Tour Order of Merit** (jeweils des Vorjahres, sofern keine Tour Card gewonnen wurde) sowie **16 Amateur-Qualifikanten** (8x Rileys Amateur Qualifiers + 8x PDC in the Community Qualifiers). In der App wird dies aktuell vereinfacht über die Top 32 Nicht-Tourcard-Spieler nach `skill DESC` abgebildet.
 
 #### 2.2 European Open (Neues PDC-Major ab 2027)
-*   **Gastgeberland:** Österreich (`"AUT"`)
+* **Gastgeberland & Austragungsort:** Salzburg, Österreich (`"AUT"`)
 *   Alles genau wie bei den UK Open (160 Teilnehmer, gestaffelter Rundeneinstieg und identische Preisgeldverteilung mit **£750.000** Gesamtpreisgeld).
 *   **Hinweis zur App-Vereinfachung vs. reale PDC-Regeln:**
     *   *Reale PDC:* Bei der Premiere ab 2027 in Salzburg (160 Spieler) teilen sich die 32 Nicht-Tourcard-Plätze auf in **Top 4 Challenge Tour**, **Top 4 Development Tour**, **8 PDC Europe Next Gen / START Qualifier** sowie **16 internationale Qualifikanten**. In der App wird dies wie bei den UK Open über die Top 32 Nicht-Tourcard-Spieler nach `skill DESC` abgebildet.
@@ -459,3 +464,4 @@ Die folgenden zentralen Komponenten sind vollständig implementiert:
 *   **PDC-Ankündigung der Preisgelderhöhung ab 2026:** [PDC News: Biggest prize money increase in PDC history confirmed](https://www.pdc.tv/news/2025/03/31/biggest-prize-money-increase-pdc-history-confirmed)
 *   **PDC-Erweiterung European Open & European Tour 2027:** [PDC News: Major expansion announced for PDC European events in 2027](https://www.pdc.tv/news/2026/september/25/major-expansion-announced-for-pdc-european-events-in-2027)
 *   **Turnierspezifische Verifizierungen 2026/2027:** [Wikipedia – 2026 PDC Players Championship series](https://en.wikipedia.org/wiki/2026_PDC_Players_Championship_series), [Wikipedia – 2026 World Matchplay](https://en.wikipedia.org/wiki/2026_World_Matchplay), [Wikipedia – 2026 UK Open](https://en.wikipedia.org/wiki/2026_UK_Open), [Sky Sports – Grand Slam of Darts 2026](https://www.skysports.com/darts/news/13610214/grand-slam-of-darts-2026-schedule-new-format-players-prize-money-past-winners-as-luke-littler-looks-to-retain-title), [Wikipedia – 2027 PDC World Darts Championship](https://en.wikipedia.org/wiki/2027_PDC_World_Darts_Championship).
+* **Offizieller PDC-Saisonkalender 2027 (Termine, Reihenfolge & Austragungsstädte):** [PDC News: European Open & historic French event headline 2027 PDC calendar](https://pdc.tv), [PDC Pro Tour 2027 (Wikipedia)](https://wikipedia.org), [Qualifikationsturniere für die European Darts Tour 2027 (Wikipedia)](https://de.wikipedia.org/wiki/Qualifikationsturniere_f%C3%BCr_die_European_Darts_Tour_2027).
