@@ -48,6 +48,7 @@ class TournamentBracketView @JvmOverloads constructor(
     private var openEntrantsGroups: List<EntrantGroupInfo> = emptyList()
     private var prevRoundDisplayName: String = ""
     private var isOpenDrawInfoVisible: Boolean = false
+    private var openDrawInfoMap: Map<Int, Pair<String, List<EntrantGroupInfo>>> = emptyMap()
 
     private var roundsMatches: List<List<MatchUiModel>> = emptyList()
     private var matchViews: List<List<View>> = emptyList()
@@ -114,16 +115,20 @@ class TournamentBracketView @JvmOverloads constructor(
         grandSlamGroupStandings: Map<String, List<GrandSlamGroupItem>> = emptyMap(),
         prevRoundDisplayName: String = "",
         openEntrantsGroups: List<EntrantGroupInfo> = emptyList(),
-        isOpenDrawInfoVisible: Boolean = false
+        isOpenDrawInfoVisible: Boolean = false,
+        openDrawInfoMap: Map<Int, Pair<String, List<EntrantGroupInfo>>> = emptyMap()
     ) {
+        val roundsChanged = (this.roundsMatches != roundsMatches)
         val standingsChanged = (this.grandSlamGroupStandings != grandSlamGroupStandings)
-        val openDrawChanged = (this.openEntrantsGroups != openEntrantsGroups || this.prevRoundDisplayName != prevRoundDisplayName || this.isOpenDrawInfoVisible != isOpenDrawInfoVisible)
+        val openDrawChanged = (this.openEntrantsGroups != openEntrantsGroups || this.prevRoundDisplayName != prevRoundDisplayName || this.isOpenDrawInfoVisible != isOpenDrawInfoVisible || this.openDrawInfoMap != openDrawInfoMap)
+        
         this.grandSlamGroupStandings = grandSlamGroupStandings
         this.prevRoundDisplayName = prevRoundDisplayName
         this.openEntrantsGroups = openEntrantsGroups
         this.isOpenDrawInfoVisible = isOpenDrawInfoVisible
+        this.openDrawInfoMap = openDrawInfoMap
 
-        if (this.roundsMatches != roundsMatches || standingsChanged || openDrawChanged) {
+        if (roundsChanged || standingsChanged || openDrawChanged) {
             this.roundsMatches = roundsMatches
             focusedAnimator?.cancel()
             overScroller.forceFinished(true)
@@ -131,7 +136,9 @@ class TournamentBracketView @JvmOverloads constructor(
             val targetRound = initialRoundIndex.coerceIn(0, (roundsMatches.size - 1).coerceAtLeast(0))
             selectedRoundIndex = targetRound
             focusedRoundFloat = targetRound.toFloat()
-            scrollYOffset = 0f
+            if (roundsChanged) {
+                scrollYOffset = 0f
+            }
 
             rebuildViews()
             requestLayout()
@@ -257,6 +264,11 @@ class TournamentBracketView @JvmOverloads constructor(
                     addView(cardView, insertIndex++)
                     currentRoundViews.add(cardView)
                 }
+            } else if (roundMatches.isEmpty() && openDrawInfoMap.containsKey(roundIdx)) {
+                val (prevName, groups) = openDrawInfoMap[roundIdx]!!
+                val infoCardView = createOpenDrawInfoCardView(prevName, groups)
+                addView(infoCardView, insertIndex++)
+                currentRoundViews.add(infoCardView)
             } else if (roundMatches.isEmpty() && (openEntrantsGroups.isNotEmpty() || isOpenDrawInfoVisible)) {
                 val infoCardView = createOpenDrawInfoCardView(prevRoundDisplayName, openEntrantsGroups)
                 addView(infoCardView, insertIndex++)

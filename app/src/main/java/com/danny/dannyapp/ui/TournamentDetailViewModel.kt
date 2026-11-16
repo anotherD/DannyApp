@@ -81,7 +81,8 @@ sealed interface TournamentDetailState {
         val openEntrantsGroups: List<EntrantGroupInfo> = emptyList(),
         val roundStatuses: List<RoundStatus> = emptyList(),
         val grandSlamGroupStandings: Map<String, List<GrandSlamGroupItem>> = emptyMap(),
-        val hasOpenCpuMatchesInActiveRound: Boolean = false
+        val hasOpenCpuMatchesInActiveRound: Boolean = false,
+        val openDrawInfoMap: Map<Int, Pair<String, List<EntrantGroupInfo>>> = emptyMap()
     ) : TournamentDetailState
 
     data class Review(
@@ -479,6 +480,21 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             calculateGrandSlamGroupStandings(allMatches, userName, userCountryCode, allPlayersMap)
         } else emptyMap()
 
+        val openDrawInfoMap = mutableMapOf<Int, Pair<String, List<EntrantGroupInfo>>>()
+        for ((r, roundKey) in availableRounds.withIndex()) {
+            val dbMatchesForRound = allMatches.filter { it.round == roundKey }
+            val isUkOrEuropeanOpen = event == TournamentEvent.UK_OPEN || event == TournamentEvent.EUROPEAN_OPEN
+            val isUkOpenUngenerated = isUkOrEuropeanOpen && dbMatchesForRound.isEmpty() && roundKey in listOf(
+                TournamentRound.R2_128.name, TournamentRound.R3_96.name, TournamentRound.L64.name,
+                TournamentRound.L32.name, TournamentRound.L16.name, TournamentRound.QF.name, TournamentRound.SF.name, TournamentRound.F.name
+            )
+            if (isUkOpenUngenerated) {
+                val prevName = availableRoundDisplayNames.getOrNull(r - 1) ?: ""
+                val groups = getUkOpenEntrantGroups(currentTournamentId, careerId, roundKey, allMatches, event)
+                openDrawInfoMap[r] = prevName to groups
+            }
+        }
+
         val activeRoundMatches = allMatches.filter { it.round == activeRoundKeyInDb }
         val hasOpenCpuMatchesInActiveRound = activeRoundMatches.any {
             !it.isCompleted && it.player1Id != USER_ID && it.player2Id != USER_ID
@@ -511,7 +527,8 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             openEntrantsGroups = openEntrantsGroups,
             roundStatuses = roundStatuses,
             grandSlamGroupStandings = grandSlamGroupStandings,
-            hasOpenCpuMatchesInActiveRound = hasOpenCpuMatchesInActiveRound
+            hasOpenCpuMatchesInActiveRound = hasOpenCpuMatchesInActiveRound,
+            openDrawInfoMap = openDrawInfoMap
         )
     }
 

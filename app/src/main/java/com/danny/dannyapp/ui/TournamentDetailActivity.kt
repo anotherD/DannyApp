@@ -527,7 +527,8 @@ class TournamentDetailActivity : BaseActivity() {
                             state.grandSlamGroupStandings,
                             state.prevRoundDisplayName,
                             state.openEntrantsGroups,
-                            state.isOpenDrawInfoVisible
+                            state.isOpenDrawInfoVisible,
+                            state.openDrawInfoMap
                         )
                         bracketViewActive.selectRound(state.selectedRoundIndex, animate = true)
                     }

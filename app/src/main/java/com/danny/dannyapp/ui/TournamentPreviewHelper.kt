@@ -104,6 +104,8 @@ class TournamentPreviewHelper(
         seasonId: Long,
         tournamentId: Long = 0L
     ): Map<Long, Int> {
+        if (event == TournamentEvent.UK_OPEN || event == TournamentEvent.EUROPEAN_OPEN) return emptyMap()
+
         if (tournamentId > 0L) {
             val seededParticipants = tournamentParticipantDao.getSeededParticipantsForTournament(tournamentId)
             if (seededParticipants.isNotEmpty()) {
