@@ -22,6 +22,8 @@ class TournamentMatchAdapter(
         val tvPlayer1Score: TextView = view.findViewById(R.id.tvPlayer1Score)
         val tvPlayer2Name: TextView = view.findViewById(R.id.tvPlayer2Name)
         val tvPlayer2Score: TextView = view.findViewById(R.id.tvPlayer2Score)
+        val layoutBoardHeader: View = view.findViewById(R.id.layoutBoardHeader)
+        val tvBoardHeader: TextView = view.findViewById(R.id.tvBoardHeader)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -34,6 +36,31 @@ class TournamentMatchAdapter(
         val item = getItem(position)
         val match = item.match
         val context = holder.itemView.context
+
+        val roundKey = match.round
+        val isQualifierRound = roundKey in listOf(
+            com.danny.dannyapp.domain.enums.TournamentRound.QUAL_R1.name,
+            com.danny.dannyapp.domain.enums.TournamentRound.QUAL_R2.name,
+            com.danny.dannyapp.domain.enums.TournamentRound.QUAL_FINAL.name
+        )
+
+        if (isQualifierRound) {
+            val matchesPerBoard = when (roundKey) {
+                com.danny.dannyapp.domain.enums.TournamentRound.QUAL_R1.name -> 4
+                com.danny.dannyapp.domain.enums.TournamentRound.QUAL_R2.name -> 2
+                com.danny.dannyapp.domain.enums.TournamentRound.QUAL_FINAL.name -> 1
+                else -> 4
+            }
+            if (match.matchIndex % matchesPerBoard == 0) {
+                val boardIdx = match.matchIndex / matchesPerBoard
+                holder.layoutBoardHeader.visibility = View.VISIBLE
+                holder.tvBoardHeader.text = context.getString(R.string.bracket_board_format, boardIdx + 1)
+            } else {
+                holder.layoutBoardHeader.visibility = View.GONE
+            }
+        } else {
+            holder.layoutBoardHeader.visibility = View.GONE
+        }
 
         if (!match.groupName.isNullOrBlank()) {
             holder.tvMatchRoundIndex.text = context.getString(R.string.tournament_match_group_index_format, match.groupName, match.matchIndex + 1)

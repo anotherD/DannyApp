@@ -543,7 +543,9 @@ class TournamentPreviewHelper(
                 val byeCount = (16 * boardCount - nonPreqCount).coerceAtLeast(0)
                 val byePlayers = nonPreqTc.take(byeCount)
                 val prelimMatches = allMatches.filter { it.round == TournamentRound.QUAL_PRELIM.name }.sortedBy { it.matchIndex }
-                val prelimWinners = prelimMatches.map { it.winnerId ?: PLACEHOLDER_PREVIOUS_WINNER_ID }
+                val prelimWinners = prelimMatches.mapIndexed { idx, match ->
+                    match.winnerId ?: (-1000L - idx)
+                }
                 val mainFieldPlayers = byePlayers + prelimWinners
 
                 val boardPlayers = mutableMapOf<Int, MutableList<Long>>()

@@ -729,9 +729,9 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         roundKey: String,
         app: Application
     ): String? {
-        return when (playerId) {
-            PLACEHOLDER_OPEN_DRAW_ID -> app.getString(R.string.match_tbd_open_draw)
-            PLACEHOLDER_PREVIOUS_WINNER_ID -> {
+        return when {
+            playerId == PLACEHOLDER_OPEN_DRAW_ID -> app.getString(R.string.match_tbd_open_draw)
+            playerId == PLACEHOLDER_PREVIOUS_WINNER_ID -> {
                 if (event == TournamentEvent.EUROPEAN_TOUR && roundKey == TournamentRound.L32.name) {
                     if (isPlayer1) {
                         val seedOrder = com.danny.dannyapp.domain.usecase.BracketGenerator.BRACKET_SEED_ORDER_16
@@ -743,6 +743,10 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
                 } else {
                     app.getString(R.string.tournament_placeholder_winner, 2 * matchIndex + if (isPlayer1) 1 else 2)
                 }
+            }
+            playerId <= -1000L && playerId > -2000L -> {
+                val prelimIdx = (-1000L - playerId).toInt() + 1
+                app.getString(R.string.tournament_placeholder_winner, prelimIdx)
             }
             else -> null
         }

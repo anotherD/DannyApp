@@ -203,12 +203,12 @@ object BracketGenerator {
     ): List<MatchPairing> {
         val all16Seeds = top8Oom + ranks9To16Oom.shuffled()
         val unseeded = proTourUnseeded.shuffled()
-        return all16Seeds.mapIndexed { index, seedId ->
+        return BRACKET_SEED_ORDER_16.mapIndexed { matchIdx, seedIndex ->
             MatchPairing(
                 round = TournamentRound.L32,
-                matchIndex = index,
-                player1Id = seedId,
-                player2Id = unseeded.getOrElse(index) { 0L }
+                matchIndex = matchIdx,
+                player1Id = all16Seeds.getOrElse(seedIndex) { 0L },
+                player2Id = unseeded.getOrElse(matchIdx) { 0L }
             )
         }
     }

@@ -661,6 +661,16 @@ class TournamentBracketView @JvmOverloads constructor(
         val headerHeight = 40f * density
         val paddingTopPx = paddingTop.toFloat() + headerHeight + 8f * density
 
+        val sizeCurr = roundsMatches.getOrNull(r)?.size ?: 0
+        val sizeNext = roundsMatches.getOrNull(r + 1)?.size ?: 0
+        if (sizeCurr > 0 && sizeNext > 0 && sizeCurr < sizeNext) {
+            val targetM = getTargetMatchIndex(r, m)
+            val targetY = computeIntegerFocusY(r + 1, targetM, focusInt)
+            val minSpacing = 76f * density
+            val fallbackY = paddingTopPx + m * minSpacing + tileHeight / 2f
+            return max(targetY, fallbackY)
+        }
+
         if (r == focusInt) {
             return paddingTopPx + m * baseSlotHeight + tileHeight / 2f
         }
@@ -717,20 +727,30 @@ class TournamentBracketView @JvmOverloads constructor(
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         val viewWidth = MeasureSpec.getSize(widthMeasureSpec)
+        val viewHeight = MeasureSpec.getSize(heightMeasureSpec)
 
         val columnWidth = (viewWidth * 0.56f).toInt()
         val tileHeightPx = (68 * density).toInt()
         val headerChildHeightPx = (32 * density).toInt()
+        val headerAreaHeight = (40 * density).toInt()
+        val infoCardHeightPx = if (viewHeight > 0) viewHeight - headerAreaHeight - (16 * density).toInt() else (500 * density).toInt()
 
         val childWidthSpec = MeasureSpec.makeMeasureSpec(columnWidth, MeasureSpec.EXACTLY)
         val childHeightSpec = MeasureSpec.makeMeasureSpec(tileHeightPx, MeasureSpec.EXACTLY)
+        val infoCardHeightSpec = MeasureSpec.makeMeasureSpec(infoCardHeightPx.coerceAtLeast((200 * density).toInt()), MeasureSpec.EXACTLY)
 
         val headerChildWidthSpec = MeasureSpec.makeMeasureSpec(columnWidth, MeasureSpec.AT_MOST)
         val headerChildHeightSpec = MeasureSpec.makeMeasureSpec(headerChildHeightPx, MeasureSpec.EXACTLY)
 
-        for (list in matchViews) {
+        for ((r, list) in matchViews.withIndex()) {
+            val roundMatches = roundsMatches.getOrNull(r)
+            val isOpenDraw = roundMatches.isNullOrEmpty() && (openEntrantsGroups.isNotEmpty() || isOpenDrawInfoVisible)
             for (child in list) {
-                child.measure(childWidthSpec, childHeightSpec)
+                if (isOpenDraw) {
+                    child.measure(childWidthSpec, infoCardHeightSpec)
+                } else {
+                    child.measure(childWidthSpec, childHeightSpec)
+                }
             }
         }
         for (headerChild in headerViews) {
@@ -771,25 +791,30 @@ class TournamentBracketView @JvmOverloads constructor(
             val childLeft = (columnCenterX - columnWidth / 2f).toInt()
             val childRight = childLeft + columnWidth
 
+            val roundMatches = roundsMatches.getOrNull(r)
+            val isOpenDraw = roundMatches.isNullOrEmpty() && (openEntrantsGroups.isNotEmpty() || isOpenDrawInfoVisible)
+
             val diff = focusedRoundFloat - r
-            val sizeCurr = roundsMatches.getOrNull(r)?.size ?: 0
-            val sizeNext = roundsMatches.getOrNull(r + 1)?.size ?: 0
             val scale = if (diff <= 0f) {
                 1.0f
             } else {
-                if (sizeNext == sizeCurr) 1.0f
-                else if (sizeCurr < sizeNext) 0.55f
-                else (1.0f - 0.54f * diff).coerceIn(0.46f, 1.0f)
+                (1.0f - 0.54f * diff).coerceIn(0.46f, 1.0f)
             }
 
             val views = matchViews[r]
             for (m in views.indices) {
                 val childView = views[m]
-                val childCenterY = computeMatchCenterY(r, m, focusedRoundFloat) - scrollYOffset
-                val childTop = (childCenterY - tileHeight / 2f).toInt()
-                val childBottom = childTop + tileHeight.toInt()
+                if (isOpenDraw) {
+                    val childTop = (paddingTop + headerAreaHeight).toInt()
+                    val childBottom = childTop + childView.measuredHeight
+                    childView.layout(childLeft, childTop, childRight, childBottom)
+                } else {
+                    val childCenterY = computeMatchCenterY(r, m, focusedRoundFloat) - scrollYOffset
+                    val childTop = (childCenterY - tileHeight / 2f).toInt()
+                    val childBottom = childTop + tileHeight.toInt()
 
-                childView.layout(childLeft, childTop, childRight, childBottom)
+                    childView.layout(childLeft, childTop, childRight, childBottom)
+                }
                 childView.pivotX = childView.width.toFloat()
                 childView.pivotY = childView.height / 2f
                 childView.scaleX = scale
@@ -810,6 +835,7 @@ class TournamentBracketView @JvmOverloads constructor(
             for (r in 0 until numRounds - 1) {
                 val roundMatchesR = roundsMatches.getOrNull(r) ?: continue
                 val roundMatchesNext = roundsMatches.getOrNull(r + 1) ?: continue
+                if (roundMatchesNext.isEmpty()) continue
                 val viewsNext = matchViews.getOrNull(r + 1) ?: continue
                 val viewsCurr = matchViews.getOrNull(r) ?: continue
                 val sizeCurr = roundMatchesR.size

@@ -520,7 +520,18 @@ class TournamentDetailActivity : BaseActivity() {
                     scrollBoardPills.visibility = View.VISIBLE
                     bracketViewActive.visibility = View.VISIBLE
                     setupQualifierBoardFilterChips(state.event, state.allRoundsMatches, scrollBoardPills, chipGroupBoards) { filteredRounds ->
-                        bracketViewActive.setRoundHeaders(state.availableRoundDisplayNames, state.roundStatuses)
+                        val hasPrelim = state.allRoundsMatches.any { it.firstOrNull()?.match?.round == com.danny.dannyapp.domain.enums.TournamentRound.QUAL_PRELIM.name }
+                        val headers = if (selectedBoardFilterIndex >= 0 && hasPrelim && filteredRounds.size < state.availableRoundDisplayNames.size) {
+                            state.availableRoundDisplayNames.drop(1)
+                        } else {
+                            state.availableRoundDisplayNames
+                        }
+                        val statuses = if (selectedBoardFilterIndex >= 0 && hasPrelim && filteredRounds.size < state.roundStatuses.size) {
+                            state.roundStatuses.drop(1)
+                        } else {
+                            state.roundStatuses
+                        }
+                        bracketViewActive.setRoundHeaders(headers, statuses)
                         bracketViewActive.setRounds(
                             filteredRounds,
                             state.selectedRoundIndex,
@@ -860,21 +871,15 @@ class TournamentDetailActivity : BaseActivity() {
                 com.danny.dannyapp.domain.enums.TournamentRound.QUAL_PRELIM.name -> null
                 com.danny.dannyapp.domain.enums.TournamentRound.QUAL_R1.name -> {
                     val boardMatches = roundMatches.filter { it.match.matchIndex in (4 * boardIndex)..(4 * boardIndex + 3) }
-                    if (boardMatches.isEmpty()) null else boardMatches.mapIndexed { idx, item ->
-                        item.copy(match = item.match.copy(matchIndex = idx))
-                    }
+                    if (boardMatches.isEmpty()) null else boardMatches
                 }
                 com.danny.dannyapp.domain.enums.TournamentRound.QUAL_R2.name -> {
                     val boardMatches = roundMatches.filter { it.match.matchIndex in (2 * boardIndex)..(2 * boardIndex + 1) }
-                    if (boardMatches.isEmpty()) null else boardMatches.mapIndexed { idx, item ->
-                        item.copy(match = item.match.copy(matchIndex = idx))
-                    }
+                    if (boardMatches.isEmpty()) null else boardMatches
                 }
                 com.danny.dannyapp.domain.enums.TournamentRound.QUAL_FINAL.name -> {
                     val boardMatches = roundMatches.filter { it.match.matchIndex == boardIndex }
-                    if (boardMatches.isEmpty()) null else boardMatches.mapIndexed { idx, item ->
-                        item.copy(match = item.match.copy(matchIndex = idx))
-                    }
+                    if (boardMatches.isEmpty()) null else boardMatches
                 }
                 else -> roundMatches
             }
