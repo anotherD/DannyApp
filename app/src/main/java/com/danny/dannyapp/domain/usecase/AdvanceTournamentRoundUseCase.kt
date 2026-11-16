@@ -305,7 +305,7 @@ class AdvanceTournamentRoundUseCase(
                             round = TournamentRound.L32.name,
                             matchIndex = i,
                             player1Id = targetTop16[seedIndex],
-                            player2Id = winners.getOrElse(15 - i) { 0L }
+                            player2Id = winners.getOrElse(15 - seedIndex) { 0L }
                         )
                     }
                 } else {

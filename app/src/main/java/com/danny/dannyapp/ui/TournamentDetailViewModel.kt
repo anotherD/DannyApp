@@ -364,7 +364,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         val userCountryCode = careerWithProfile?.countryCode ?: Country.DEFAULT_USER_CODE
 
         val allPlayersMap = playerDao.getAllPlayersList().associateBy { it.id }
-        val seededPlayerMap = getSeededPlayerMap(event, tournament.seasonId)
+        val seededPlayerMap = getSeededPlayerMap(event, tournament.seasonId, allMatches)
 
         val k = when (event) {
             TournamentEvent.QUALIFIER_ET -> 10
@@ -623,7 +623,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             }
         } else null
 
-        val seededPlayerMap = getSeededPlayerMap(event, tournament.seasonId)
+        val seededPlayerMap = getSeededPlayerMap(event, tournament.seasonId, allMatches)
 
         val k = when (event) {
             TournamentEvent.QUALIFIER_ET -> 10
@@ -1171,9 +1171,10 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
      */
     private suspend fun getSeededPlayerMap(
         event: TournamentEvent,
-        seasonId: Long
+        seasonId: Long,
+        allMatches: List<TournamentMatch> = emptyList()
     ): Map<Long, Int> {
-        return previewHelper.getSeededPlayerMap(event, seasonId)
+        return previewHelper.getSeededPlayerMap(event, seasonId, allMatches)
     }
 
     /**

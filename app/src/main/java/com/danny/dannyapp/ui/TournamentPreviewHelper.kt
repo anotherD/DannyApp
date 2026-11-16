@@ -94,10 +94,23 @@ class TournamentPreviewHelper(
 
     /**
      * Maps player IDs to their seed numbers for a given [TournamentEvent] and [seasonId].
+     * If [allMatches] is provided and contains stored first-round matches, seeds are derived
+     * deterministically from those matches to freeze the seeding during an active tournament.
      */
-    suspend fun getSeededPlayerMap(event: TournamentEvent, seasonId: Long): Map<Long, Int> {
+    suspend fun getSeededPlayerMap(
+        event: TournamentEvent,
+        seasonId: Long,
+        allMatches: List<TournamentMatch> = emptyList()
+    ): Map<Long, Int> {
         val season = seasonDao.getSeasonById(seasonId) ?: return emptyMap()
         val careerId = season.careerId
+
+        if (allMatches.isNotEmpty()) {
+            val frozenMap = buildFrozenSeedMapFromMatches(event, seasonId, careerId, allMatches)
+            if (frozenMap.isNotEmpty()) {
+                return frozenMap
+            }
+        }
 
         val tourCards = tourCardDao.getTourCardsListForSeason(seasonId)
         val tourCardPlayerIds = tourCards.map { it.tourCard.playerId }.distinct()
@@ -200,6 +213,100 @@ class TournamentPreviewHelper(
                 sortedNonPrequalified.take(seedCount).mapIndexed { index, id -> id to (index + 1) }.toMap()
             }
         }
+    }
+
+    private suspend fun buildFrozenSeedMapFromMatches(
+        event: TournamentEvent,
+        seasonId: Long,
+        careerId: Long,
+        allMatches: List<TournamentMatch>
+    ): Map<Long, Int> {
+        val seedMap = mutableMapOf<Long, Int>()
+        when (event) {
+            TournamentEvent.EUROPEAN_TOUR -> {
+                val l48Matches = allMatches.filter { it.round == TournamentRound.L48.name && it.matchIndex in 0..15 }
+                l48Matches.forEach { match ->
+                    if (match.player1Id > 0L && match.player1Id != PLACEHOLDER_PREVIOUS_WINNER_ID) {
+                        seedMap[match.player1Id] = match.matchIndex + 1
+                    }
+                }
+                val l32Matches = allMatches.filter { it.round == TournamentRound.L32.name && it.matchIndex in 0..15 }
+                if (l32Matches.isNotEmpty()) {
+                    val seedOrder = com.danny.dannyapp.domain.usecase.BracketGenerator.BRACKET_SEED_ORDER_16
+                    l32Matches.forEach { match ->
+                        if (match.player1Id > 0L && match.player1Id != PLACEHOLDER_PREVIOUS_WINNER_ID) {
+                            val seedIndex = seedOrder.getOrNull(match.matchIndex) ?: match.matchIndex
+                            seedMap[match.player1Id] = seedIndex + 1
+                        }
+                    }
+                } else {
+                    val tourCards = tourCardDao.getTourCardsListForSeason(seasonId)
+                    val tourCardPlayerIds = tourCards.map { it.tourCard.playerId }.distinct()
+                    val oomEntries = getOrderOfMeritUseCase(careerId, OrderOfMeritType.OOM)
+                    val sortedOomTc = getPlayerListSortedByOom(tourCardPlayerIds, oomEntries)
+                    val top16Oom = sortedOomTc.take(16)
+                    top16Oom.forEachIndexed { index, id ->
+                        seedMap[id] = index + 1
+                    }
+                }
+            }
+            TournamentEvent.WORLD_MATCHPLAY, TournamentEvent.WORLD_GRAND_PRIX -> {
+                val l32Matches = allMatches.filter { it.round == TournamentRound.L32.name && it.matchIndex in 0..15 }
+                val seedOrder = com.danny.dannyapp.domain.usecase.BracketGenerator.BRACKET_SEED_ORDER_16
+                l32Matches.forEach { match ->
+                    if (match.player1Id > 0L && match.player1Id != PLACEHOLDER_PREVIOUS_WINNER_ID) {
+                        val seedIndex = seedOrder.getOrNull(match.matchIndex) ?: match.matchIndex
+                        seedMap[match.player1Id] = seedIndex + 1
+                    }
+                }
+            }
+            TournamentEvent.GRAND_SLAM_OF_DARTS -> {
+                val groupMatches = allMatches.filter { it.round == TournamentRound.GROUP.name && it.matchIndex in 0..15 }
+                val seedOrder = com.danny.dannyapp.domain.usecase.BracketGenerator.BRACKET_SEED_ORDER_16
+                groupMatches.forEach { match ->
+                    if (match.player1Id > 0L && match.player1Id != PLACEHOLDER_PREVIOUS_WINNER_ID) {
+                        val seedIndex = seedOrder.getOrNull(match.matchIndex) ?: match.matchIndex
+                        seedMap[match.player1Id] = seedIndex + 1
+                    }
+                }
+            }
+            TournamentEvent.PLAYERS_CHAMPIONSHIP -> {
+                val l128Matches = allMatches.filter { it.round == TournamentRound.L128.name && it.matchIndex in 0..31 }
+                l128Matches.forEach { match ->
+                    if (match.player1Id > 0L && match.player1Id != PLACEHOLDER_PREVIOUS_WINNER_ID) {
+                        seedMap[match.player1Id] = match.matchIndex + 1
+                    }
+                }
+            }
+            TournamentEvent.EUROPEAN_CHAMPIONSHIP -> {
+                val l32Matches = allMatches.filter { it.round == TournamentRound.L32.name && it.matchIndex in 0..15 }
+                l32Matches.forEach { match ->
+                    if (match.player1Id > 0L && match.player1Id != PLACEHOLDER_PREVIOUS_WINNER_ID) {
+                        seedMap[match.player1Id] = match.matchIndex + 1
+                    }
+                }
+            }
+            TournamentEvent.PLAYERS_CHAMPIONSHIP_FINALS -> {
+                val l64Matches = allMatches.filter { it.round == TournamentRound.L64.name && it.matchIndex in 0..31 }
+                l64Matches.forEach { match ->
+                    if (match.player1Id > 0L && match.player1Id != PLACEHOLDER_PREVIOUS_WINNER_ID) {
+                        seedMap[match.player1Id] = match.matchIndex + 1
+                    }
+                }
+            }
+            TournamentEvent.WORLD_CHAMPIONSHIP -> {
+                val l128Matches = allMatches.filter { it.round == TournamentRound.L128.name && it.matchIndex in 0..31 }
+                val seedOrder32 = com.danny.dannyapp.domain.usecase.BracketGenerator.buildStandardSeedOrder(32)
+                l128Matches.forEach { match ->
+                    if (match.player1Id > 0L && match.player1Id != PLACEHOLDER_PREVIOUS_WINNER_ID) {
+                        val seedIndex = seedOrder32.getOrNull(match.matchIndex) ?: match.matchIndex
+                        seedMap[match.player1Id] = seedIndex + 1
+                    }
+                }
+            }
+            else -> {}
+        }
+        return seedMap
     }
 
     /**
@@ -322,7 +429,7 @@ class TournamentPreviewHelper(
             return baseMatches.map { match ->
                 val seedIndex = seedOrder.getOrNull(match.matchIndex) ?: match.matchIndex
                 val seededPlayer1 = top16Oom.getOrNull(seedIndex) ?: PLACEHOLDER_PREVIOUS_WINNER_ID
-                val l48Match = l48Matches.getOrNull(15 - match.matchIndex)
+                val l48Match = l48Matches.getOrNull(15 - seedIndex)
                 val seededPlayer2 = if (l48Match?.isCompleted == true && l48Match.winnerId != null) {
                     l48Match.winnerId
                 } else {

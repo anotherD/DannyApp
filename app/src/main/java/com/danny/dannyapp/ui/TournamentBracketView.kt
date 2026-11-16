@@ -622,9 +622,21 @@ class TournamentBracketView @JvmOverloads constructor(
             sizeCurr == sizeNext -> {
                 if (matchItem?.isCompleted == true && (matchItem.winnerId ?: 0L) > 0L) {
                     val idx = roundMatchesNext.indexOfFirst { it.player1.id == matchItem.winnerId || it.player2.id == matchItem.winnerId }
-                    if (idx >= 0) idx else if (headerDisplayNames.getOrNull(r)?.contains("L48") == true) sizeNext - 1 - m else m
+                    if (idx >= 0) {
+                        idx
+                    } else if (headerDisplayNames.getOrNull(r)?.contains("L48") == true) {
+                        val targetIdx = com.danny.dannyapp.domain.usecase.BracketGenerator.BRACKET_SEED_ORDER_16.indexOf(sizeNext - 1 - m)
+                        if (targetIdx >= 0) targetIdx else m
+                    } else {
+                        m
+                    }
                 } else {
-                    if (headerDisplayNames.getOrNull(r)?.contains("L48") == true) sizeNext - 1 - m else m
+                    if (headerDisplayNames.getOrNull(r)?.contains("L48") == true) {
+                        val targetIdx = com.danny.dannyapp.domain.usecase.BracketGenerator.BRACKET_SEED_ORDER_16.indexOf(sizeNext - 1 - m)
+                        if (targetIdx >= 0) targetIdx else m
+                    } else {
+                        m
+                    }
                 }
             }
             sizeCurr < sizeNext -> {
@@ -686,8 +698,7 @@ class TournamentBracketView @JvmOverloads constructor(
                 val y2 = computeIntegerFocusY(r - 1, 2 * m + 1, focusInt)
                 (y1 + y2) / 2f
             } else if (sizePrev == sizeCurr) {
-                val prevM = (0 until sizePrev).firstOrNull { getTargetMatchIndex(r - 1, it) == m } ?: m
-                computeIntegerFocusY(r - 1, prevM, focusInt)
+                paddingTopPx + m * baseSlotHeight + tileHeight / 2f
             } else {
                 computeIntegerFocusY(r - 1, m, focusInt)
             }
