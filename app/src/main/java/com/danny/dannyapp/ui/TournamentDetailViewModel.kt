@@ -487,7 +487,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         }
 
         val grandSlamGroupStandings = if (event == TournamentEvent.GRAND_SLAM_OF_DARTS) {
-            calculateGrandSlamGroupStandings(allMatches, userName, userCountryCode, allPlayersMap)
+            calculateGrandSlamGroupStandings(allMatches, userName, userCountryCode, allPlayersMap, tournament.seasonId, tournament.id)
         } else emptyMap()
 
         val openDrawInfoMap = mutableMapOf<Int, Pair<String, List<EntrantGroupInfo>>>()
@@ -708,7 +708,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         }
 
         val grandSlamGroupStandings = if (event == TournamentEvent.GRAND_SLAM_OF_DARTS) {
-            calculateGrandSlamGroupStandings(allMatches, userName, userCountryCode, allPlayersMap)
+            calculateGrandSlamGroupStandings(allMatches, userName, userCountryCode, allPlayersMap, tournament.seasonId, tournament.id)
         } else emptyMap()
 
         _uiState.value = TournamentDetailState.Review(
@@ -735,14 +735,18 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         )
     }
 
-    private fun calculateGrandSlamGroupStandings(
+    private suspend fun calculateGrandSlamGroupStandings(
         allMatches: List<TournamentMatch>,
         userName: String,
         userCountryCode: String,
-        allPlayersMap: Map<Long, Player>
+        allPlayersMap: Map<Long, Player>,
+        seasonId: Long,
+        tournamentId: Long
     ): Map<String, List<GrandSlamGroupItem>> {
         val groupMatches = allMatches.filter { it.round == TournamentRound.GROUP.name }
         if (groupMatches.isEmpty()) return emptyMap()
+
+        val seededPlayerMap = getSeededPlayerMap(TournamentEvent.GRAND_SLAM_OF_DARTS, seasonId, tournamentId)
 
         val result = mutableMapOf<String, List<GrandSlamGroupItem>>()
         val groups = ('A'..'P').map { it.toString() }
@@ -789,15 +793,17 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             )
 
             val items = sortedStats.mapIndexed { index, s ->
+                val pSeed = seededPlayerMap[s.playerId]
                 val pInfo = if (s.playerId == USER_ID) {
-                    PlayerUiInfo(id = USER_ID, name = userName, countryCode = userCountryCode)
+                    PlayerUiInfo(id = USER_ID, name = userName, countryCode = userCountryCode, seed = pSeed)
                 } else {
                     val p = allPlayersMap[s.playerId]
                     PlayerUiInfo(
                         id = s.playerId,
                         name = p?.name ?: "CPU #${s.playerId}",
                         countryCode = p?.countryCode ?: Country.DEFAULT_CODE,
-                        skill = p?.skill ?: SkillLevel.DEFAULT.value
+                        skill = p?.skill ?: SkillLevel.DEFAULT.value,
+                        seed = pSeed
                     )
                 }
                 GrandSlamGroupItem(
@@ -844,6 +850,11 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             playerId <= -1000L && playerId > -2000L -> {
                 val prelimIdx = (-1000L - playerId).toInt() + 1
                 app.getString(R.string.tournament_placeholder_winner, prelimIdx)
+            }
+            playerId <= -9000L && playerId > -9020L -> {
+                val groupIdx = (-9000L - playerId).toInt()
+                val groupLetter = ('A' + groupIdx).toString()
+                app.getString(R.string.grand_slam_group_winner_format, groupLetter)
             }
             else -> null
         }

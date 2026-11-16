@@ -427,15 +427,47 @@ class TournamentBracketView @JvmOverloads constructor(
             layoutParams = android.widget.LinearLayout.LayoutParams(0, android.widget.LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
         }
 
-        val tvStatsHeader = TextView(context).apply {
-            text = context.getString(R.string.group_table_header_stats)
+        val widthPlayed = (28 * density).toInt()
+        val widthDiff = (40 * density).toInt()
+        val widthPoints = (32 * density).toInt()
+
+        val tvHeaderPlayed = TextView(context).apply {
+            text = context.getString(R.string.group_table_header_played)
             textSize = 10f
             typeface = Typeface.DEFAULT_BOLD
+            gravity = Gravity.END or Gravity.CENTER_VERTICAL
+            maxLines = 1
+            fontFeatureSettings = "tnum"
             setTextColor(ContextCompat.getColor(context, R.color.grau_text_gedaempft))
+            layoutParams = android.widget.LinearLayout.LayoutParams(widthPlayed, android.widget.LinearLayout.LayoutParams.WRAP_CONTENT)
+        }
+
+        val tvHeaderDiff = TextView(context).apply {
+            text = context.getString(R.string.group_table_header_diff)
+            textSize = 10f
+            typeface = Typeface.DEFAULT_BOLD
+            gravity = Gravity.END or Gravity.CENTER_VERTICAL
+            maxLines = 1
+            fontFeatureSettings = "tnum"
+            setTextColor(ContextCompat.getColor(context, R.color.grau_text_gedaempft))
+            layoutParams = android.widget.LinearLayout.LayoutParams(widthDiff, android.widget.LinearLayout.LayoutParams.WRAP_CONTENT)
+        }
+
+        val tvHeaderPoints = TextView(context).apply {
+            text = context.getString(R.string.group_table_header_points)
+            textSize = 10f
+            typeface = Typeface.DEFAULT_BOLD
+            gravity = Gravity.END or Gravity.CENTER_VERTICAL
+            maxLines = 1
+            fontFeatureSettings = "tnum"
+            setTextColor(ContextCompat.getColor(context, R.color.grau_text_gedaempft))
+            layoutParams = android.widget.LinearLayout.LayoutParams(widthPoints, android.widget.LinearLayout.LayoutParams.WRAP_CONTENT)
         }
 
         headerLayout.addView(tvTitle)
-        headerLayout.addView(tvStatsHeader)
+        headerLayout.addView(tvHeaderPlayed)
+        headerLayout.addView(tvHeaderDiff)
+        headerLayout.addView(tvHeaderPoints)
         mainContainer.addView(headerLayout)
 
         val divider = View(context).apply {
@@ -493,26 +525,60 @@ class TournamentBracketView @JvmOverloads constructor(
                 }
             }
 
-            val tvStats = TextView(context).apply {
-                if (item != null) {
-                    val diffStr = if (item.legDiff > 0) "+${item.legDiff}" else "${item.legDiff}"
-                    text = "%d  %s  %d".format(item.played, diffStr, item.points)
-                } else {
-                    text = "0  0  0"
-                }
+            val statsTextColor = if (item != null && item.player.id == USER_ID) {
+                ContextCompat.getColor(context, R.color.rot_sehr_hell)
+            } else if (i == 0) {
+                ContextCompat.getColor(context, R.color.white)
+            } else {
+                ContextCompat.getColor(context, R.color.grau_text_gedaempft)
+            }
+
+            val tvPlayed = TextView(context).apply {
+                text = item?.played?.toString() ?: "0"
                 textSize = 10f
                 typeface = if (i == 0) Typeface.DEFAULT_BOLD else Typeface.DEFAULT
-                gravity = Gravity.END
-                setTextColor(
-                    if (item != null && item.player.id == USER_ID) ContextCompat.getColor(context, R.color.rot_sehr_hell)
-                    else if (i == 0) ContextCompat.getColor(context, R.color.white)
-                    else ContextCompat.getColor(context, R.color.grau_text_gedaempft)
-                )
+                if (i == 0) paint.isFakeBoldText = true
+                gravity = Gravity.END or Gravity.CENTER_VERTICAL
+                maxLines = 1
+                fontFeatureSettings = "tnum"
+                setTextColor(statsTextColor)
+                layoutParams = android.widget.LinearLayout.LayoutParams(widthPlayed, android.widget.LinearLayout.LayoutParams.WRAP_CONTENT)
+            }
+
+            val diffStr = if (item != null) {
+                if (item.legDiff > 0) "+${item.legDiff}" else "${item.legDiff}"
+            } else {
+                "0"
+            }
+            val tvDiff = TextView(context).apply {
+                text = diffStr
+                textSize = 10f
+                typeface = if (i == 0) Typeface.DEFAULT_BOLD else Typeface.DEFAULT
+                if (i == 0) paint.isFakeBoldText = true
+                gravity = Gravity.END or Gravity.CENTER_VERTICAL
+                maxLines = 1
+                fontFeatureSettings = "tnum"
+                setTextColor(statsTextColor)
+                layoutParams = android.widget.LinearLayout.LayoutParams(widthDiff, android.widget.LinearLayout.LayoutParams.WRAP_CONTENT)
+            }
+
+            val tvPoints = TextView(context).apply {
+                text = item?.points?.toString() ?: "0"
+                textSize = 10f
+                typeface = if (i == 0) Typeface.DEFAULT_BOLD else Typeface.DEFAULT
+                if (i == 0) paint.isFakeBoldText = true
+                gravity = Gravity.END or Gravity.CENTER_VERTICAL
+                maxLines = 1
+                fontFeatureSettings = "tnum"
+                setTextColor(statsTextColor)
+                layoutParams = android.widget.LinearLayout.LayoutParams(widthPoints, android.widget.LinearLayout.LayoutParams.WRAP_CONTENT)
             }
 
             rowLayout.addView(tvRank)
             rowLayout.addView(tvName)
-            rowLayout.addView(tvStats)
+            rowLayout.addView(tvPlayed)
+            rowLayout.addView(tvDiff)
+            rowLayout.addView(tvPoints)
             mainContainer.addView(rowLayout)
         }
 

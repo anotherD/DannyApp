@@ -245,6 +245,20 @@ class TournamentPreviewHelper(
 
         val placeholderPlayerId = if (isNoFixedTree) PLACEHOLDER_OPEN_DRAW_ID else PLACEHOLDER_PREVIOUS_WINNER_ID
 
+        if (event == TournamentEvent.GRAND_SLAM_OF_DARTS && roundEnum == TournamentRound.L16) {
+            return (0 until matchCount).map { matchIndex ->
+                TournamentMatch(
+                    id = -2000L - (roundEnum.ordinal * 100) - matchIndex,
+                    tournamentId = tournamentId,
+                    round = roundKey,
+                    matchIndex = matchIndex,
+                    player1Id = -9000L - (2 * matchIndex),
+                    player2Id = -9000L - (2 * matchIndex + 1),
+                    isCompleted = false
+                )
+            }
+        }
+
         return (0 until matchCount).map { matchIndex ->
             TournamentMatch(
                 id = -2000L - (roundEnum.ordinal * 100) - matchIndex,
@@ -272,6 +286,61 @@ class TournamentPreviewHelper(
     ): List<TournamentMatch> {
         val baseMatches = generatePreviewMatchesForRound(tournamentId, roundKey, event)
         val roundEnum = try { TournamentRound.valueOf(roundKey) } catch (_: Exception) { return baseMatches }
+
+        if (event == TournamentEvent.GRAND_SLAM_OF_DARTS && roundEnum == TournamentRound.L16) {
+            val groupMatches = allMatches.filter { it.round == TournamentRound.GROUP.name }
+            val groupWinners = mutableMapOf<String, Long>()
+            for (groupIdx in 0 until 16) {
+                val groupLetter = ('A' + groupIdx).toString()
+                val matchesForGroup = groupMatches.filter { it.groupName == groupLetter }
+                if (matchesForGroup.isNotEmpty() && matchesForGroup.all { it.isCompleted }) {
+                    val playerIdsInGroup = matchesForGroup.flatMap { listOf(it.player1Id, it.player2Id) }.distinct()
+                    class GroupStats(val playerId: Long) {
+                        var wins = 0
+                        var legsWon = 0
+                        var legsLost = 0
+                        val legDiff: Int get() = legsWon - legsLost
+                    }
+                    val statsMap = playerIdsInGroup.associateWith { GroupStats(it) }
+                    for (m in matchesForGroup) {
+                        val s1 = statsMap[m.player1Id]
+                        val s2 = statsMap[m.player2Id]
+                        if (s1 != null && s2 != null) {
+                            s1.legsWon += m.player1Score
+                            s1.legsLost += m.player2Score
+                            s2.legsWon += m.player2Score
+                            s2.legsLost += m.player1Score
+                            if (m.winnerId == m.player1Id) s1.wins++
+                            else if (m.winnerId == m.player2Id) s2.wins++
+                        }
+                    }
+                    val sorted = statsMap.values.sortedWith(
+                        compareByDescending<GroupStats> { it.wins }
+                            .thenByDescending { it.legDiff }
+                            .thenByDescending { it.legsWon }
+                    )
+                    if (sorted.isNotEmpty()) {
+                        groupWinners[groupLetter] = sorted[0].playerId
+                    }
+                }
+            }
+
+            return (0 until 8).map { matchIndex ->
+                val groupLetter1 = ('A' + 2 * matchIndex).toString()
+                val groupLetter2 = ('A' + (2 * matchIndex + 1)).toString()
+                val p1Id = groupWinners[groupLetter1] ?: (-9000L - (2 * matchIndex))
+                val p2Id = groupWinners[groupLetter2] ?: (-9000L - (2 * matchIndex + 1))
+                TournamentMatch(
+                    id = -2000L - (roundEnum.ordinal * 100) - matchIndex,
+                    tournamentId = tournamentId,
+                    round = roundKey,
+                    matchIndex = matchIndex,
+                    player1Id = p1Id,
+                    player2Id = p2Id,
+                    isCompleted = false
+                )
+            }
+        }
 
         if (event in listOf(TournamentEvent.QUALIFIER_ET, TournamentEvent.QUALIFIER_GRAND_SLAM, TournamentEvent.QUALIFIER_WM)) {
             return generateQualifierPreviewMatches(

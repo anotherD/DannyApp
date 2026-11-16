@@ -204,6 +204,10 @@
     <string name="bracket_board_all">Alle</string>
     <string name="bracket_board_format">Board %d</string>
     <string name="group_table_header_stats">Sp  Diff  Pkt</string>
+    <string name="grand_slam_group_winner_format">Sieger Gruppe %1$s</string>
+    <string name="group_table_header_played">Sp</string>
+    <string name="group_table_header_diff">Diff</string>
+    <string name="group_table_header_points">Pkt</string>
 
     <!-- Einstellungen & Design -->
     <string name="settings_section_gameplay">Gameplay &amp; Simulation</string>
