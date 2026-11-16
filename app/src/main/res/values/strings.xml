@@ -147,6 +147,7 @@
     <string name="entrant_reason_qualifier_seeds">Gesetzte Gruppenköpfe (Top %d OOM)</string>
     <string name="entrant_reason_qualifier_byes">Freilose (Order of Merit)</string>
     <string name="entrant_reason_round_winners">Sieger %1$s</string>
+    <string name="simulating_short">Simuliert…</string>
 
     <!-- User-Match-Steuerung -->
     <string name="user_match_control_title">User-Match Steuerung</string>

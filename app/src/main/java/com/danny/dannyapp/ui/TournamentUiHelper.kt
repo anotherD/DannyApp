@@ -204,7 +204,8 @@ object TournamentUiHelper {
         model: TournamentUiModel,
         onTournamentClick: (TournamentUiModel) -> Unit,
         onStartTournamentClick: (TournamentUiModel) -> Unit,
-        onSimulateCompleteClick: (TournamentUiModel) -> Unit
+        onSimulateCompleteClick: (TournamentUiModel) -> Unit,
+        simulatingTournamentId: Long? = null
     ) {
         val context = itemView.context
         val tournament = model.tournament
@@ -250,9 +251,13 @@ object TournamentUiHelper {
             }
         }
 
+        val isSimulatingAny = simulatingTournamentId != null
+        val isThisSimulating = simulatingTournamentId == tournament.id
+
         if (model.status == TournamentStatus.PLANNED && model.isNextPlanned) {
             btnStartTournament.visibility = View.VISIBLE
-            btnStartTournament.setOnClickListener { onStartTournamentClick(model) }
+            btnStartTournament.isEnabled = !isSimulatingAny
+            btnStartTournament.setOnClickListener { if (!isSimulatingAny) onStartTournamentClick(model) }
         } else {
             btnStartTournament.visibility = View.GONE
         }
@@ -262,7 +267,13 @@ object TournamentUiHelper {
         val isEligibleForQuickSim = debugMode && (model.status == TournamentStatus.ACTIVE || (model.status == TournamentStatus.PLANNED && model.isNextPlanned))
         if (isEligibleForQuickSim) {
             btnSimulateCompleteTournament.visibility = View.VISIBLE
-            btnSimulateCompleteTournament.setOnClickListener { onSimulateCompleteClick(model) }
+            btnSimulateCompleteTournament.isEnabled = !isSimulatingAny
+            if (isThisSimulating) {
+                btnSimulateCompleteTournament.text = context.getString(R.string.simulating_short)
+            } else {
+                btnSimulateCompleteTournament.text = context.getString(R.string.tournament_simulate_complete)
+            }
+            btnSimulateCompleteTournament.setOnClickListener { if (!isSimulatingAny) onSimulateCompleteClick(model) }
         } else {
             btnSimulateCompleteTournament.visibility = View.GONE
         }

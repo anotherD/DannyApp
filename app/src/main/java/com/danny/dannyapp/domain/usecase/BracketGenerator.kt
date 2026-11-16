@@ -161,12 +161,14 @@ object BracketGenerator {
         seededIds: List<Long>
     ): List<MatchPairing> {
         val n = seededIds.size
-        return (0 until n / 2).map { i ->
+        val seedOrder = buildStandardSeedOrder(n)
+        return (0 until n / 2).map { matchIdx ->
+            val seedIndex = seedOrder[matchIdx]
             MatchPairing(
                 round = round,
-                matchIndex = i,
-                player1Id = seededIds[i],
-                player2Id = seededIds[n - 1 - i]
+                matchIndex = matchIdx,
+                player1Id = seededIds.getOrElse(seedIndex) { 0L },
+                player2Id = seededIds.getOrElse(n - 1 - seedIndex) { 0L }
             )
         }
     }
@@ -258,34 +260,60 @@ object BracketGenerator {
         remaining64: List<Long>
     ): List<MatchPairing> {
         val seedOrder32 = buildStandardSeedOrder(32)
-        val unseeded64 = remaining64.shuffled()
         val shuffledRanks33To64 = ranks33To64Oom.shuffled()
+        val unseeded64 = remaining64.shuffled()
 
         val pairings = mutableListOf<MatchPairing>()
-        for (matchIdx in 0 until 32) {
-            val seedIndex = seedOrder32[matchIdx]
+        for (i in 0 until 32) {
+            val seedIndex = seedOrder32[i]
             val seededPlayer = top32Oom.getOrElse(seedIndex) { 0L }
-            val opponent = unseeded64.getOrElse(matchIdx) { 0L }
             pairings.add(
                 MatchPairing(
                     round = TournamentRound.L128,
-                    matchIndex = matchIdx,
+                    matchIndex = 2 * i,
                     player1Id = seededPlayer,
-                    player2Id = opponent
+                    player2Id = unseeded64.getOrElse(2 * i) { 0L }
+                )
+            )
+            val player33To64 = shuffledRanks33To64.getOrElse(i) { 0L }
+            pairings.add(
+                MatchPairing(
+                    round = TournamentRound.L128,
+                    matchIndex = 2 * i + 1,
+                    player1Id = player33To64,
+                    player2Id = unseeded64.getOrElse(2 * i + 1) { 0L }
                 )
             )
         }
-        for (matchIdx in 32 until 64) {
-            val player33To64 = shuffledRanks33To64.getOrElse(matchIdx - 32) { 0L }
-            val opponent = unseeded64.getOrElse(matchIdx) { 0L }
-            pairings.add(
-                MatchPairing(
-                    round = TournamentRound.L128,
-                    matchIndex = matchIdx,
-                    player1Id = player33To64,
-                    player2Id = opponent
-                )
-            )
+        return pairings.sortedBy { it.matchIndex }
+    }
+
+    /**
+     * Erzeugt die Erstrunden-Paarungen für Qualifier-Turniere über die Board-Setzliste.
+     */
+    fun buildQualifierRound1Pairings(
+        tournamentId: Long,
+        boardCount: Int,
+        mainFieldPlayers: List<Long>
+    ): List<MatchPairing> {
+        val pairings = mutableListOf<MatchPairing>()
+        val remainingPlayers = mainFieldPlayers.drop(2 * boardCount).toMutableList()
+
+        for (b in 0 until boardCount) {
+            val seedTop = mainFieldPlayers.getOrNull(b) ?: 0L
+            val seedBottom = mainFieldPlayers.getOrNull(2 * boardCount - 1 - b) ?: 0L
+
+            val p0_2 = if (remainingPlayers.isNotEmpty()) remainingPlayers.removeAt(0) else 0L
+            val p1_1 = if (remainingPlayers.isNotEmpty()) remainingPlayers.removeAt(0) else 0L
+            val p1_2 = if (remainingPlayers.isNotEmpty()) remainingPlayers.removeAt(0) else 0L
+            val p2_1 = if (remainingPlayers.isNotEmpty()) remainingPlayers.removeAt(0) else 0L
+            val p2_2 = if (remainingPlayers.isNotEmpty()) remainingPlayers.removeAt(0) else 0L
+            val p3_2 = if (remainingPlayers.isNotEmpty()) remainingPlayers.removeAt(0) else 0L
+
+            pairings.add(MatchPairing(round = TournamentRound.QUAL_R1, matchIndex = 4 * b + 0, player1Id = seedTop, player2Id = p0_2))
+            pairings.add(MatchPairing(round = TournamentRound.QUAL_R1, matchIndex = 4 * b + 1, player1Id = p1_1, player2Id = p1_2))
+            pairings.add(MatchPairing(round = TournamentRound.QUAL_R1, matchIndex = 4 * b + 2, player1Id = p2_1, player2Id = p2_2))
+            pairings.add(MatchPairing(round = TournamentRound.QUAL_R1, matchIndex = 4 * b + 3, player1Id = seedBottom, player2Id = p3_2))
         }
         return pairings
     }
@@ -323,39 +351,7 @@ object BracketGenerator {
                 )
             }
         } else {
-            val boardPlayers = mutableMapOf<Int, MutableList<Long>>()
-            for (b in 0 until K) {
-                boardPlayers[b] = mutableListOf()
-            }
-            oomSortedIds.forEachIndexed { index, id ->
-                val boardIdx = index % K
-                boardPlayers[boardIdx]?.add(id)
-            }
-
-            val pairings = mutableListOf<MatchPairing>()
-            for (b in 0 until K) {
-                val list = boardPlayers[b] ?: mutableListOf()
-                val seedId = oomSortedIds.getOrNull(b)
-                if (seedId != null && seedId in list && list.first() != seedId) {
-                    list.remove(seedId)
-                    list.add(0, seedId)
-                }
-                for (mIdx in 0 until 4) {
-                    val p1 = list.getOrNull(2 * mIdx)
-                    val p2 = list.getOrNull(2 * mIdx + 1)
-                    if (p1 != null && p2 != null) {
-                        pairings.add(
-                            MatchPairing(
-                                round = TournamentRound.QUAL_R1,
-                                matchIndex = 4 * b + mIdx,
-                                player1Id = p1,
-                                player2Id = p2
-                            )
-                        )
-                    }
-                }
-            }
-            return pairings
+            return buildQualifierRound1Pairings(0L, K, oomSortedIds)
         }
     }
 

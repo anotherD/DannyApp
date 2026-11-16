@@ -93,7 +93,7 @@ class CareerOverviewFragment : Fragment(R.layout.fragment_career_overview) {
                             if (targetModel != null) {
                                 tvNoActiveTournament.visibility = View.GONE
                                 containerActiveTournament.visibility = View.VISIBLE
-                                bindActiveTournament(containerActiveTournament, targetModel)
+                                bindActiveTournament(containerActiveTournament, targetModel, state.simulatingTournamentId)
                             } else {
                                 containerActiveTournament.removeAllViews()
                                 containerActiveTournament.visibility = View.GONE
@@ -106,7 +106,7 @@ class CareerOverviewFragment : Fragment(R.layout.fragment_career_overview) {
         }
     }
 
-    private fun bindActiveTournament(container: FrameLayout, model: TournamentUiModel) {
+    private fun bindActiveTournament(container: FrameLayout, model: TournamentUiModel, simulatingTournamentId: Long?) {
         container.removeAllViews()
         val inflater = LayoutInflater.from(requireContext())
         val itemView = inflater.inflate(R.layout.item_tournament, container, false)
@@ -137,7 +137,8 @@ class CareerOverviewFragment : Fragment(R.layout.fragment_career_overview) {
                 viewLifecycleOwner.lifecycleScope.launch {
                     calendarViewModel.simulateCompleteTournament(uiModel.tournament.id)
                 }
-            }
+            },
+            simulatingTournamentId = simulatingTournamentId
         )
 
         container.addView(itemView)

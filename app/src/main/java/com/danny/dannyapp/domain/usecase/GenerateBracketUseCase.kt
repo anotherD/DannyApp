@@ -132,17 +132,7 @@ class GenerateBracketUseCase(
                 TournamentEvent.QUALIFIER_WM -> 4
                 else -> 4
             }
-            val targetCount = when {
-                totalCount > 8 * targetQualifierCount -> 8 * targetQualifierCount
-                totalCount > 4 * targetQualifierCount -> 4 * targetQualifierCount
-                totalCount > 2 * targetQualifierCount -> 2 * targetQualifierCount
-                else -> targetQualifierCount
-            }
-            return if (totalCount > targetCount) {
-                (2 * targetCount - totalCount).coerceAtLeast(targetQualifierCount)
-            } else {
-                targetQualifierCount
-            }
+            return (2 * targetQualifierCount).coerceAtMost(totalCount)
         }
 
         // Pre-qualified sets for ET and Grand Slam

@@ -836,7 +836,7 @@ class TournamentBracketView @JvmOverloads constructor(
             for (m in views.indices) {
                 val childView = views[m]
                 if (isOpenDraw) {
-                    val childTop = (paddingTop + headerAreaHeight).toInt()
+                    val childTop = (paddingTop + headerAreaHeight + 8f * density).toInt()
                     val childBottom = childTop + childView.measuredHeight
                     childView.layout(childLeft, childTop, childRight, childBottom)
                 } else {

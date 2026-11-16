@@ -86,6 +86,7 @@ class TournamentCalendarFragment : Fragment(R.layout.fragment_tournament_calenda
                             rvTournaments.visibility = RecyclerView.GONE
                         }
                         is TournamentCalendarState.Success -> {
+                            adapter.simulatingTournamentId = state.simulatingTournamentId
                             adapter.submitList(state.tournaments) {
                                 if (!hasScrolledToActive && state.tournaments.isNotEmpty()) {
                                     val targetIndex = state.tournaments.indexOfFirst { it.status == TournamentStatus.ACTIVE || it.isNextPlanned }

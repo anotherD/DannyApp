@@ -15,6 +15,14 @@ class TournamentCalendarAdapter(
     private val onSimulateCompleteClick: (TournamentUiModel) -> Unit
 ) : ListAdapter<TournamentUiModel, TournamentCalendarAdapter.TournamentViewHolder>(TournamentDiffCallback) {
 
+    var simulatingTournamentId: Long? = null
+        set(value) {
+            if (field != value) {
+                field = value
+                notifyDataSetChanged()
+            }
+        }
+
     class TournamentViewHolder(view: View) : RecyclerView.ViewHolder(view)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TournamentViewHolder {
@@ -25,7 +33,7 @@ class TournamentCalendarAdapter(
 
     override fun onBindViewHolder(holder: TournamentViewHolder, position: Int) {
         val model = getItem(position)
-        TournamentUiHelper.bindTournamentTile(holder.itemView, model, onTournamentClick, onStartTournamentClick, onSimulateCompleteClick)
+        TournamentUiHelper.bindTournamentTile(holder.itemView, model, onTournamentClick, onStartTournamentClick, onSimulateCompleteClick, simulatingTournamentId)
     }
 
     private object TournamentDiffCallback : DiffUtil.ItemCallback<TournamentUiModel>() {

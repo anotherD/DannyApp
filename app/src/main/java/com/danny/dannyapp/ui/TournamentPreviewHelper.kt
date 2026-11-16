@@ -580,39 +580,17 @@ class TournamentPreviewHelper(
                 }
                 val mainFieldPlayers = byePlayers + prelimWinners
 
-                val boardPlayers = mutableMapOf<Int, MutableList<Long>>()
-                for (boardIndex in 0 until boardCount) {
-                    boardPlayers[boardIndex] = mutableListOf()
+                val pairings = com.danny.dannyapp.domain.usecase.BracketGenerator.buildQualifierRound1Pairings(tournamentId, boardCount, mainFieldPlayers)
+                pairings.mapIndexed { matchIdx, pairing ->
+                    TournamentMatch(
+                        id = -3000L - matchIdx,
+                        tournamentId = tournamentId,
+                        round = roundKey,
+                        matchIndex = pairing.matchIndex,
+                        player1Id = if (pairing.player1Id == 0L) PLACEHOLDER_PREVIOUS_WINNER_ID else pairing.player1Id,
+                        player2Id = if (pairing.player2Id == 0L) PLACEHOLDER_PREVIOUS_WINNER_ID else pairing.player2Id
+                    )
                 }
-                mainFieldPlayers.forEachIndexed { index, playerId ->
-                    val boardIndex = index % boardCount
-                    boardPlayers[boardIndex]?.add(playerId)
-                }
-
-                val round1Matches = mutableListOf<TournamentMatch>()
-                for (boardIndex in 0 until boardCount) {
-                    val playerList = boardPlayers[boardIndex] ?: mutableListOf()
-                    val seedId = nonPreqTc.getOrNull(boardIndex)
-                    if (seedId != null && seedId in playerList && playerList.first() != seedId) {
-                        playerList.remove(seedId)
-                        playerList.add(0, seedId)
-                    }
-                    for (matchIdx in 0 until 4) {
-                        val player1Id = playerList.getOrNull(2 * matchIdx) ?: PLACEHOLDER_PREVIOUS_WINNER_ID
-                        val player2Id = playerList.getOrNull(2 * matchIdx + 1) ?: PLACEHOLDER_PREVIOUS_WINNER_ID
-                        round1Matches.add(
-                            TournamentMatch(
-                                id = -3000L - (boardIndex * 10) - matchIdx,
-                                tournamentId = tournamentId,
-                                round = roundKey,
-                                matchIndex = 4 * boardIndex + matchIdx,
-                                player1Id = player1Id,
-                                player2Id = player2Id
-                            )
-                        )
-                    }
-                }
-                round1Matches
             }
             TournamentRound.QUAL_R2 -> {
                 val r1Matches = allMatches.filter { it.round == TournamentRound.QUAL_R1.name }.sortedBy { it.matchIndex }

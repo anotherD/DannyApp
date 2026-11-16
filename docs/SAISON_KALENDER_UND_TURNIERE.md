@@ -126,7 +126,7 @@ Alle Tour Card Holder Qualifier (`QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIF
 * **`QUALIFIER_WM`:** K = 4 Boards (4 Sieger) -> Hauptrunden: **32 -> 16 -> 8 -> 4 Sieger** (`QUAL_R1` [16 Matches] -> `QUAL_R2` [8 Matches] -> `QUAL_FINAL` [4 Matches]).
 
 **Vorrunde, Gruppenköpfe & Freilose (Byes):**
-* **Offizielle Board-Setzliste:** Die Top `K` teilnehmenden Tour-Card-Inhaber (gemäß OOM) sind als Gruppenköpfe (`Seed 1..K`) der `K` Boards gesetzt, sodass sie erst im `QUAL_FINAL` aufeinandertreffen können.
+* **Offizielle Board-Setzliste:** Die Top `2 * K` teilnehmenden Tour-Card-Inhaber (gemäß PDC Order of Merit) sind als Seeds `(1)` bis `(2 * K)` über die `K` Boards verteilt (Board `b`: Seed `b + 1` in Match 1 und Seed `2 * K - b` in Match 4), sodass kein Seed in `QUAL_R1` auf einen anderen Seed trifft und die beiden Top-Seeds eines Boards erst im `QUAL_FINAL` aufeinandertreffen können.
 * Das Hauptfeld vor `QUAL_R1` ist als `K` getrennte 8er-Boards (insgesamt `8 * K` Startplätze) aufgebaut.
 * Ist die Anzahl der teilnehmenden Tour-Card-Inhaber N größer als `8 * K`:
     * Die obersten `16 * K - N` gesetzten Spieler (inkl. `Seed 1..K`) erhalten ein Freilos in `QUAL_PRELIM` und stehen auf festen Board-Positionen in `QUAL_R1`.
@@ -243,7 +243,8 @@ Alle Tour Card Holder Qualifier (`QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIF
     * K.O.-System
     * Leg
 *   **Setzliste:** 
-    * Setzung strikt nach Rangliste (Platz 1 gegen Platz 32). Reines K.o.-System im Leg-Format.
+    * Alle 32 Teilnehmer sind nach der *European Tour Order of Merit* gesetzt (`(1)` bis `(32)`) und spielen nach dem 32er-Standard-Setzbaum (`seedOrder32[i]` vs. `31 - seedOrder32[i]`), sodass `(1)` und `(2)` frühestens im Finale aufeinandertreffen.
+
 *   **Preisgeldaufschlüsselung (Gesamt: £750.000):**
 
 | Platzierung / Runde | Enum-Key | Anzahl Spieler | Preisgeld pro Spieler |
@@ -325,7 +326,8 @@ Alle Tour Card Holder Qualifier (`QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIF
 *   **Modus:**
     * Leg
 *   **Setzliste:**
-    * Setzung strikt nach Rangliste der Players Championship Order of Merit (Platz 1 gegen Platz 64). Reines K.O.-System im Leg-Format.
+    * Alle 64 Teilnehmer sind nach der *Players Championship Order of Merit* gesetzt (`(1)` bis `(64)`) und spielen nach dem 64er-Standard-Setzbaum (`seedOrder64[i]` vs. `63 - seedOrder64[i]`), sodass `(1)` und `(2)` frühestens im Finale aufeinandertreffen.
+
 *   **Preisgeldaufschlüsselung (Gesamt: £750.000):**
 
 | Platzierung / Runde | Enum-Key | Anzahl Spieler | Preisgeld pro Spieler |
