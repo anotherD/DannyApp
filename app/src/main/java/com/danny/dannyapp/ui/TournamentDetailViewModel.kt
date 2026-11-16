@@ -323,7 +323,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
 
         val isOpenDrawInfoVisible = isUkOpenUngenerated
         val openEntrantsGroups = if (isOpenDrawInfoVisible) {
-            getUkOpenEntrantGroups(careerId, currentRoundKey, allMatches, event)
+            getUkOpenEntrantGroups(currentTournamentId, careerId, currentRoundKey, allMatches, event)
         } else {
             emptyList()
         }
@@ -1212,12 +1212,14 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
      * Retrieves entrant group information for open draw events.
      */
     private suspend fun getUkOpenEntrantGroups(
+        tournamentId: Long,
         careerId: Long,
         roundKey: String,
         allMatches: List<TournamentMatch>,
         event: TournamentEvent
     ): List<EntrantGroupInfo> {
         return previewHelper.getUkOpenEntrantGroups(
+            tournamentId = tournamentId,
             careerId = careerId,
             roundKey = roundKey,
             allMatches = allMatches,

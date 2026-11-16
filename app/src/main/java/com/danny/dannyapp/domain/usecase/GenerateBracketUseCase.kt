@@ -343,12 +343,33 @@ class GenerateBracketUseCase(
                     qualifierIds = final32Qualifiers
                 )
 
-                val participantList = sortedTcOom.map { playerId ->
+                val participantList = sortedTcOom.take(32).mapIndexed { index, playerId ->
+                    TournamentParticipant(
+                        tournamentId = tournamentId,
+                        playerId = playerId,
+                        seedNumber = index + 1,
+                        qualificationType = "OOM_TOP_32"
+                    )
+                } + sortedTcOom.drop(32).take(32).mapIndexed { index, playerId ->
+                    TournamentParticipant(
+                        tournamentId = tournamentId,
+                        playerId = playerId,
+                        seedNumber = 33 + index,
+                        qualificationType = "OOM_33_64"
+                    )
+                } + sortedTcOom.drop(64).take(32).mapIndexed { index, playerId ->
+                    TournamentParticipant(
+                        tournamentId = tournamentId,
+                        playerId = playerId,
+                        seedNumber = 65 + index,
+                        qualificationType = "OOM_65_96"
+                    )
+                } + sortedTcOom.drop(96).take(32).map { playerId ->
                     TournamentParticipant(
                         tournamentId = tournamentId,
                         playerId = playerId,
                         seedNumber = null,
-                        qualificationType = "TOUR_CARD"
+                        qualificationType = "OOM_97_128"
                     )
                 } + final32Qualifiers.map { playerId ->
                     TournamentParticipant(

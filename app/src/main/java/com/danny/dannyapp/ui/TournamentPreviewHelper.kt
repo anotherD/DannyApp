@@ -324,13 +324,19 @@ class TournamentPreviewHelper(
         }
 
         if (event == TournamentEvent.EUROPEAN_TOUR && roundEnum == TournamentRound.L32) {
-            val season = seasonDao.getSeasonById(seasonId)
-            val careerId = season?.careerId ?: currentCareerId
-            val tourCards = tourCardDao.getTourCardsListForSeason(seasonId)
-            val tourCardPlayerIds = tourCards.map { it.tourCard.playerId }.distinct()
-            val oomEntries = getOrderOfMeritUseCase(careerId, OrderOfMeritType.OOM)
-            val sortedOomTc = getPlayerListSortedByOom(tourCardPlayerIds, oomEntries)
-            val top16Oom = sortedOomTc.take(16)
+            val storedParticipants = tournamentParticipantDao.getParticipantsForTournament(tournamentId)
+            val storedOom = storedParticipants.filter { it.qualificationType == "OOM" }.sortedBy { it.seedNumber ?: Int.MAX_VALUE }.map { it.playerId }
+            val top16Oom = if (storedOom.isNotEmpty()) {
+                storedOom
+            } else {
+                val season = seasonDao.getSeasonById(seasonId)
+                val careerId = season?.careerId ?: currentCareerId
+                val tourCards = tourCardDao.getTourCardsListForSeason(seasonId)
+                val tourCardPlayerIds = tourCards.map { it.tourCard.playerId }.distinct()
+                val oomEntries = getOrderOfMeritUseCase(careerId, OrderOfMeritType.OOM)
+                val sortedOomTc = getPlayerListSortedByOom(tourCardPlayerIds, oomEntries)
+                sortedOomTc.take(16)
+            }
             val l48Matches = allMatches.filter { it.round == TournamentRound.L48.name }.sortedBy { it.matchIndex }
 
             val seedOrder = com.danny.dannyapp.domain.usecase.BracketGenerator.BRACKET_SEED_ORDER_16
@@ -378,12 +384,18 @@ class TournamentPreviewHelper(
      * Builds entrant group information for open draw events like UK Open or European Open.
      */
     suspend fun getUkOpenEntrantGroups(
+        tournamentId: Long,
         careerId: Long,
         roundKey: String,
         allMatches: List<TournamentMatch>,
         event: TournamentEvent,
         currentCareerId: Long
     ): List<EntrantGroupInfo> {
+        val storedParticipants = tournamentParticipantDao.getParticipantsForTournament(tournamentId)
+        val stored65To96 = storedParticipants.filter { it.qualificationType == "OOM_65_96" }.sortedBy { it.seedNumber ?: Int.MAX_VALUE }.map { it.playerId }
+        val stored33To64 = storedParticipants.filter { it.qualificationType == "OOM_33_64" }.sortedBy { it.seedNumber ?: Int.MAX_VALUE }.map { it.playerId }
+        val storedTop32 = storedParticipants.filter { it.qualificationType == "OOM_TOP_32" }.sortedBy { it.seedNumber ?: Int.MAX_VALUE }.map { it.playerId }
+
         val oomEntries = getOrderOfMeritUseCase(careerId, OrderOfMeritType.OOM)
         val allPlayers = playerDao.getAllPlayersList()
         val allPlayerIds = (listOf(USER_ID) + allPlayers.map { it.id }).distinct()
@@ -412,15 +424,18 @@ class TournamentPreviewHelper(
 
         when (roundKey) {
             TournamentRound.R2_128.name -> {
-                val players = sortedPlayerIds.drop(64).take(32).mapIndexed { index, id -> createEntrantPlayerInfo(id, 65 + index) }
+                val pIds = if (stored65To96.isNotEmpty()) stored65To96 else sortedPlayerIds.drop(64).take(32)
+                val players = pIds.mapIndexed { index, id -> createEntrantPlayerInfo(id, 65 + index) }
                 groups.add(EntrantGroupInfo(title = context.getString(R.string.entrant_reason_oom_65_96), players = players))
             }
             TournamentRound.R3_96.name -> {
-                val players = sortedPlayerIds.drop(32).take(32).mapIndexed { index, id -> createEntrantPlayerInfo(id, 33 + index) }
+                val pIds = if (stored33To64.isNotEmpty()) stored33To64 else sortedPlayerIds.drop(32).take(32)
+                val players = pIds.mapIndexed { index, id -> createEntrantPlayerInfo(id, 33 + index) }
                 groups.add(EntrantGroupInfo(title = context.getString(R.string.entrant_reason_oom_33_64), players = players))
             }
             TournamentRound.L64.name -> {
-                val players = sortedPlayerIds.take(32).mapIndexed { index, id -> createEntrantPlayerInfo(id, 1 + index) }
+                val pIds = if (storedTop32.isNotEmpty()) storedTop32 else sortedPlayerIds.take(32)
+                val players = pIds.mapIndexed { index, id -> createEntrantPlayerInfo(id, 1 + index) }
                 groups.add(EntrantGroupInfo(title = context.getString(R.string.entrant_reason_oom_top_32), players = players))
             }
         }

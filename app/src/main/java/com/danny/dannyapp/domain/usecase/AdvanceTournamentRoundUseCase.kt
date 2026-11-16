@@ -10,6 +10,7 @@ import com.danny.dannyapp.data.db.Tournament
 import com.danny.dannyapp.data.db.TournamentDao
 import com.danny.dannyapp.data.db.TournamentMatch
 import com.danny.dannyapp.data.db.TournamentMatchDao
+import com.danny.dannyapp.data.db.TournamentParticipantDao
 import com.danny.dannyapp.data.db.TournamentPlacement
 import com.danny.dannyapp.data.db.TournamentPlacementDao
 import com.danny.dannyapp.data.db.USER_ID
@@ -28,6 +29,7 @@ class AdvanceTournamentRoundUseCase(
     private val seasonDao: SeasonDao,
     private val tourCardDao: TourCardDao,
     private val playerDao: PlayerDao,
+    private val tournamentParticipantDao: TournamentParticipantDao,
     private val getOrderOfMeritUseCase: GetOrderOfMeritUseCase
 ) {
     constructor(context: Context) : this(
@@ -37,6 +39,7 @@ class AdvanceTournamentRoundUseCase(
         AppDatabase.getDatabase(context.applicationContext).seasonDao(),
         AppDatabase.getDatabase(context.applicationContext).tourCardDao(),
         AppDatabase.getDatabase(context.applicationContext).playerDao(),
+        AppDatabase.getDatabase(context.applicationContext).tournamentParticipantDao(),
         GetOrderOfMeritUseCase(context)
     )
 
@@ -203,6 +206,8 @@ class AdvanceTournamentRoundUseCase(
             return@withContext true
         }
 
+        val participants = tournamentParticipantDao.getParticipantsForTournament(tournamentId)
+
         val season = seasonDao.getSeasonById(tournament.seasonId)
             ?: throw IllegalArgumentException("Season not found for tournament: ${tournament.seasonId}")
         val careerId = season.careerId
@@ -217,11 +222,16 @@ class AdvanceTournamentRoundUseCase(
         val ptOomEntries = getOrderOfMeritUseCase(careerId, OrderOfMeritType.PT_OOM)
 
         val preQualifiedEtSeeds = if (event == TournamentEvent.EUROPEAN_TOUR) {
-            val sortedOomTc = getPlayerListSortedByOom(tourCardPlayerIds, oomEntries, allPlayers)
-            val top16Oom = sortedOomTc.take(16)
-            val remainingTcAfterOom = tourCardPlayerIds.filterNot { it in top16Oom }
-            val top16PtOom = getPlayerListSortedByOom(remainingTcAfterOom, ptOomEntries, allPlayers).take(16)
-            (top16Oom + top16PtOom).toSet()
+            val stored = participants.filter { it.qualificationType in listOf("OOM", "PT_OOM") }.map { it.playerId }
+            if (stored.isNotEmpty()) {
+                stored.toSet()
+            } else {
+                val sortedOomTc = getPlayerListSortedByOom(tourCardPlayerIds, oomEntries, allPlayers)
+                val top16Oom = sortedOomTc.take(16)
+                val remainingTcAfterOom = tourCardPlayerIds.filterNot { it in top16Oom }
+                val top16PtOom = getPlayerListSortedByOom(remainingTcAfterOom, ptOomEntries, allPlayers).take(16)
+                (top16Oom + top16PtOom).toSet()
+            }
         } else emptySet()
 
         // 1. Record placements for all losers in currentRoundMatches
@@ -293,9 +303,14 @@ class AdvanceTournamentRoundUseCase(
             TournamentEvent.EUROPEAN_TOUR -> {
                 if (currentRoundEnum == TournamentRound.L48) {
                     // ET R2 (L32): Top 16 OOM seeds play against winners of L48 crosswise
-                    val sortedOomTc = getPlayerListSortedByOom(tourCardPlayerIds, oomEntries, allPlayers)
-                    val top16Oom = sortedOomTc.take(16)
-                    val targetTop16 = fillToTargetCount(top16Oom, 16, allPlayerIds, oomEntries, allPlayers)
+                    val storedOom = participants.filter { it.qualificationType == "OOM" }.sortedBy { it.seedNumber ?: Int.MAX_VALUE }.map { it.playerId }
+                    val targetTop16 = if (storedOom.isNotEmpty()) {
+                        storedOom
+                    } else {
+                        val sortedOomTc = getPlayerListSortedByOom(tourCardPlayerIds, oomEntries, allPlayers)
+                        val top16Oom = sortedOomTc.take(16)
+                        fillToTargetCount(top16Oom, 16, allPlayerIds, oomEntries, allPlayers)
+                    }
 
                     val seedOrder = BracketGenerator.BRACKET_SEED_ORDER_16
                     (0 until 16).map { i ->
@@ -314,14 +329,20 @@ class AdvanceTournamentRoundUseCase(
             }
 
             TournamentEvent.UK_OPEN, TournamentEvent.EUROPEAN_OPEN -> {
+                val stored65To96 = participants.filter { it.qualificationType == "OOM_65_96" }.sortedBy { it.seedNumber ?: Int.MAX_VALUE }.map { it.playerId }
+                val stored33To64 = participants.filter { it.qualificationType == "OOM_33_64" }.sortedBy { it.seedNumber ?: Int.MAX_VALUE }.map { it.playerId }
+                val storedTop32 = participants.filter { it.qualificationType == "OOM_TOP_32" }.sortedBy { it.seedNumber ?: Int.MAX_VALUE }.map { it.playerId }
+
                 val sortedTcOom = getPlayerListSortedByOom(tourCardPlayerIds, oomEntries, allPlayers)
                 val fullOom = fillToTargetCount(sortedTcOom, 128, allPlayerIds, oomEntries, allPlayers)
+                val oom65To96 = if (stored65To96.isNotEmpty()) stored65To96 else fullOom.drop(64).take(32)
+                val oom33To64 = if (stored33To64.isNotEmpty()) stored33To64 else fullOom.drop(32).take(32)
+                val top32Oom = if (storedTop32.isNotEmpty()) storedTop32 else fullOom.take(32)
                 val shuffledWinners = winners.shuffled()
 
                 when (currentRoundEnum) {
                     TournamentRound.R1_160 -> {
                         // R2_128: OOM ranks 65-96 (32 players) vs 32 winners of R1_160
-                        val oom65To96 = fullOom.drop(64).take(32)
                         (0 until 32).map { i ->
                             TournamentMatch(
                                 tournamentId = tournamentId,
@@ -334,7 +355,6 @@ class AdvanceTournamentRoundUseCase(
                     }
                     TournamentRound.R2_128 -> {
                         // R3_96: OOM ranks 33-64 (32 players) vs 32 winners of R2_128
-                        val oom33To64 = fullOom.drop(32).take(32)
                         (0 until 32).map { i ->
                             TournamentMatch(
                                 tournamentId = tournamentId,
@@ -347,7 +367,6 @@ class AdvanceTournamentRoundUseCase(
                     }
                     TournamentRound.R3_96 -> {
                         // L64: Top 32 OOM (32 players) vs 32 winners of R3_96
-                        val top32Oom = fullOom.take(32)
                         (0 until 32).map { i ->
                             TournamentMatch(
                                 tournamentId = tournamentId,
@@ -395,8 +414,14 @@ class AdvanceTournamentRoundUseCase(
         val sortedOom = getPlayerListSortedByOom(allPlayerIds, oomEntries, allPlayers)
         val top16Oom = sortedOom.take(16)
         val remainingForPt = allPlayerIds.filterNot { it in top16Oom }
-        val pot2 = getPlayerListSortedByOom(remainingForPt, ptOomEntries, allPlayers).take(16)
-        val pot2Full = fillToTargetCount(pot2, 16, remainingForPt, ptOomEntries, allPlayers)
+        val participants = tournamentParticipantDao.getParticipantsForTournament(tournament.id)
+        val storedPot2 = participants.filter { it.qualificationType == "PT_OOM" }.sortedBy { it.id }.map { it.playerId }
+        val pot2Full = if (storedPot2.isNotEmpty()) {
+            fillToTargetCount(storedPot2, 16, remainingForPt, ptOomEntries, allPlayers)
+        } else {
+            val pot2 = getPlayerListSortedByOom(remainingForPt, ptOomEntries, allPlayers).take(16)
+            fillToTargetCount(pot2, 16, remainingForPt, ptOomEntries, allPlayers)
+        }
 
         if (allGroupMatches.size == 16) {
             // Day 1 completed (16 matches: pot1 vs pot3). Now generate Day 2 and Day 3 (32 matches total).
