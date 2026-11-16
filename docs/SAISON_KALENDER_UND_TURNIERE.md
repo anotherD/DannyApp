@@ -131,7 +131,7 @@ Alle Tour Card Holder Qualifier (`QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIF
 * Ist die Anzahl der teilnehmenden Tour-Card-Inhaber N größer als `8 * K`:
     * Die obersten `16 * K - N` gesetzten Spieler (inkl. `Seed 1..K`) erhalten ein Freilos in `QUAL_PRELIM` und stehen auf festen Board-Positionen in `QUAL_R1`.
     * Nur die untersten `2 * (N - 8 * K)` Spieler spielen in `QUAL_PRELIM` (`QUAL_PRELIM`) um die restlichen freien Plätze der `K` Boards.
-* **Round-Robin-Verteilung der freien Slots:** Die übrigen gesetzten Freilos-Spieler (`byePlayers.drop(2 * K)`) und alle Vorrundensieger (`prelimWinners`) werden in `buildQualifierRound1Pairings` zu einem gemeinsamen Pool zusammengefasst und im Round-Robin (`slotIndex % K`) auf die `K` Boards verteilt. Jedes Board erhält dabei exakt 6 freie Slots (`p0_2`, `p1_1`, `p1_2`, `p2_1`, `p2_2`, `p3_2`), die gleichmäßig mit ungesetzten Freilos-Spielern und Vorrundensiegern gefüllt werden.
+* **Freie Auslosung der restlichen Board-Slots:** Alle nicht zu den Top `2 * K` Seeds gehörenden Freilos-Spieler (`byePlayers.drop(2 * K)`) sowie die Plätze für die Vorrundensieger (`prelimWinners`) werden frei zugelost (`.shuffled()`) und auf die `6 * K` freien Erstrunden-Plätze der `K` Boards verteilt.
 * **Fester K.o.-Baum ab `QUAL_R1`:** Ab `QUAL_R1` läuft jedes Board als fester K.o.-Baum (`QUAL_R1` -> `QUAL_R2` -> `QUAL_FINAL`) ohne erneutes Mischen.
 * **Qualifikations-Logging:** Bei jeder Auslosung (`GenerateBracketUseCase`) wird ein strukturierter Log-Bericht (`Log.i("TournamentQualification", ...)`) mit allen Teilnehmern, ihrem Qualifikationsweg und ihrer Platzierung ausgegeben.
 

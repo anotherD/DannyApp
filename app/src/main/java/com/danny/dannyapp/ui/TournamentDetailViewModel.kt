@@ -374,16 +374,25 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             else -> 4
         }
 
+        // QUAL_R1-Matches (DB oder Preview) zur Board-Zuordnung der Vorrundensieger
+        val qualR1Matches = allMatches.filter { it.round == TournamentRound.QUAL_R1.name }
+            .ifEmpty {
+                generatePreviewMatchesWithPropagation(
+                    currentTournamentId,
+                    TournamentRound.QUAL_R1.name,
+                    event,
+                    allMatches,
+                    tournament.seasonId
+                )
+            }
+
         val rawMatchUiModels = filteredMatches.map { match ->
             createMatchUiModel(match, userName, userCountryCode, userLevel, allPlayersMap, currentRoundKey, event, seededPlayerMap)
         }
 
         val matchUiModels = if (currentRoundKey == TournamentRound.QUAL_PRELIM.name) {
-            val prelimCount = rawMatchUiModels.size
-            val byeCount = 8 * k - prelimCount
             rawMatchUiModels.map { model ->
-                val unseededByeCount = (byeCount - 2 * k).coerceAtLeast(0)
-                val board = (unseededByeCount + model.match.matchIndex) % k
+                val board = resolvePrelimTargetBoard(qualR1Matches, model.match.matchIndex, model.match.winnerId, k)
                 model.copy(targetBoard = board)
             }.sortedWith(
                 compareBy<MatchUiModel> { it.targetBoard ?: 0 }
@@ -466,11 +475,8 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             }
 
             if (roundKey == TournamentRound.QUAL_PRELIM.name) {
-                val prelimCount = roundModels.size
-                val byeCount = 8 * k - prelimCount
                 roundModels.map { model ->
-                    val unseededByeCount = (byeCount - 2 * k).coerceAtLeast(0)
-                    val board = (unseededByeCount + model.match.matchIndex) % k
+                    val board = resolvePrelimTargetBoard(qualR1Matches, model.match.matchIndex, model.match.winnerId, k)
                     model.copy(targetBoard = board)
                 }
             } else {
@@ -651,16 +657,19 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             else -> 4
         }
 
+        // QUAL_R1-Matches (DB oder Preview) zur Board-Zuordnung der Vorrundensieger
+        val qualR1Matches = allMatches.filter { it.round == TournamentRound.QUAL_R1.name }
+            .ifEmpty {
+                generatePreviewMatchesForRound(tournament.id, TournamentRound.QUAL_R1.name, event)
+            }
+
         val rawMatchUiModels = filteredMatches.map { match ->
             createMatchUiModel(match, userName, userCountryCode, userLevel, allPlayersMap, currentRoundKey, event, seededPlayerMap)
         }
 
         val matchUiModels = if (currentRoundKey == TournamentRound.QUAL_PRELIM.name) {
-            val prelimCount = rawMatchUiModels.size
-            val byeCount = 8 * k - prelimCount
             rawMatchUiModels.map { model ->
-                val unseededByeCount = (byeCount - 2 * k).coerceAtLeast(0)
-                val board = (unseededByeCount + model.match.matchIndex) % k
+                val board = resolvePrelimTargetBoard(qualR1Matches, model.match.matchIndex, model.match.winnerId, k)
                 model.copy(targetBoard = board)
             }.sortedWith(
                 compareBy<MatchUiModel> { it.targetBoard ?: 0 }
@@ -687,11 +696,8 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             }
 
             if (roundKey == TournamentRound.QUAL_PRELIM.name) {
-                val prelimCount = roundModels.size
-                val byeCount = 8 * k - prelimCount
                 roundModels.map { model ->
-                    val unseededByeCount = (byeCount - 2 * k).coerceAtLeast(0)
-                    val board = (unseededByeCount + model.match.matchIndex) % k
+                    val board = resolvePrelimTargetBoard(qualR1Matches, model.match.matchIndex, model.match.winnerId, k)
                     model.copy(targetBoard = board)
                 }
             } else {
@@ -839,6 +845,26 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             }
             else -> null
         }
+    }
+
+    /**
+     * Ermittelt das Ziel-Board eines Vorrunden-Spielers aus den QUAL_R1-Matches:
+     * Prüft, in welchem Board (matchIndex / 4) der Platzhalter (-1000L - prelimMatchIndex)
+     * oder der bereits ermittelte Gewinner (winnerId) des Vorrunden-Matches steht.
+     * Fallback: prelimMatchIndex % k.
+     */
+    private fun resolvePrelimTargetBoard(
+        qualR1Matches: List<TournamentMatch>,
+        prelimMatchIndex: Int,
+        winnerId: Long?,
+        k: Int
+    ): Int {
+        val placeholderId = -1000L - prelimMatchIndex
+        val r1Match = qualR1Matches.firstOrNull { r1 ->
+            r1.player1Id == placeholderId || r1.player2Id == placeholderId ||
+                (winnerId != null && (r1.player1Id == winnerId || r1.player2Id == winnerId))
+        }
+        return r1Match?.let { it.matchIndex / 4 } ?: (prelimMatchIndex % k)
     }
 
     /**

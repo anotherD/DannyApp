@@ -291,6 +291,8 @@ object BracketGenerator {
     /**
      * Erzeugt die Erstrunden-Paarungen für Qualifier-Turniere über die Board-Setzliste.
      * Freilose (byePlayers) und Vorrundensieger (prelimWinners) werden getrennt übergeben.
+     * Die Top 2 * K Seeds behalten ihre festen Positionen; alle übrigen Freilos-Spieler und
+     * Vorrundensieger werden vor der Verteilung auf die 6 freien Slots je Board frei zugelost.
      *
      * @param boardCount Anzahl der Boards (K)
      * @param byePlayers Gesetzte Freilos-Spieler, sortiert
@@ -303,22 +305,12 @@ object BracketGenerator {
     ): List<MatchPairing> {
         val pairings = mutableListOf<MatchPairing>()
         val unseededByes = byePlayers.drop(2 * boardCount)
-        val freePool = unseededByes + prelimWinners
-
-        // Round-robin: freePool[i] -> board (i % boardCount), slot (i / boardCount)
-        val boardSlots = Array(boardCount) { LongArray(6) { 0L } }
-        for ((i, player) in freePool.withIndex()) {
-            val board = i % boardCount
-            val slot = i / boardCount
-            if (slot < 6) {
-                boardSlots[board][slot] = player
-            }
-        }
+        val freePool = (unseededByes + prelimWinners).shuffled()
 
         for (b in 0 until boardCount) {
             val seedTop = byePlayers.getOrNull(b) ?: 0L
             val seedBottom = byePlayers.getOrNull(2 * boardCount - 1 - b) ?: 0L
-            val slots = boardSlots[b]
+            val slots = LongArray(6) { slotIndex -> freePool.getOrElse(b * 6 + slotIndex) { 0L } }
 
             pairings.add(MatchPairing(round = TournamentRound.QUAL_R1, matchIndex = 4 * b + 0, player1Id = seedTop, player2Id = slots[0]))
             pairings.add(MatchPairing(round = TournamentRound.QUAL_R1, matchIndex = 4 * b + 1, player1Id = slots[1], player2Id = slots[2]))
@@ -327,8 +319,6 @@ object BracketGenerator {
         }
         return pairings
     }
-
-
 
     /**
      * Erzeugt die Erstrunden-Paarungen für Qualifier-Turniere (QUALIFIER_ET, QUALIFIER_GRAND_SLAM, QUALIFIER_WM)

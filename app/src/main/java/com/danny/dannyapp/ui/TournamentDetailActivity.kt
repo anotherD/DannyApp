@@ -854,11 +854,9 @@ class TournamentDetailActivity : BaseActivity() {
             return allRoundsMatches
         }
 
-        val prelimRoundList = allRoundsMatches.firstOrNull { list ->
-            list.firstOrNull()?.match?.round == com.danny.dannyapp.domain.enums.TournamentRound.QUAL_PRELIM.name
-        }
-        val prelimCount = prelimRoundList?.size ?: 0
-        val byeCount = 8 * k - prelimCount
+        val qualR1Models = allRoundsMatches.firstOrNull { list ->
+            list.firstOrNull()?.match?.round == com.danny.dannyapp.domain.enums.TournamentRound.QUAL_R1.name
+        } ?: emptyList()
 
         return allRoundsMatches.map { roundMatches ->
             if (roundMatches.isEmpty()) return@map emptyList()
@@ -866,8 +864,8 @@ class TournamentDetailActivity : BaseActivity() {
             when (roundKey) {
                 com.danny.dannyapp.domain.enums.TournamentRound.QUAL_PRELIM.name -> {
                     roundMatches.filter { matchModel ->
-                        val unseededByeCount = (byeCount - 2 * k).coerceAtLeast(0)
-                        val targetBoard = matchModel.targetBoard ?: ((unseededByeCount + matchModel.match.matchIndex) % k)
+                        val targetBoard = matchModel.targetBoard
+                            ?: resolvePrelimTargetBoard(qualR1Models, matchModel, k)
                         targetBoard == boardIndex
                     }
                 }
@@ -883,6 +881,25 @@ class TournamentDetailActivity : BaseActivity() {
                 else -> roundMatches
             }
         }
+    }
+
+    /**
+     * Ermittelt das Ziel-Board eines Vorrunden-Spielers aus den QUAL_R1-Matches:
+     * Prüft, in welchem Board der Platzhalter (-1000L - matchIndex) oder der Gewinner steht.
+     * Fallback: matchIndex % k.
+     */
+    private fun resolvePrelimTargetBoard(
+        qualR1Models: List<MatchUiModel>,
+        prelimModel: MatchUiModel,
+        k: Int
+    ): Int {
+        val placeholderId = -1000L - prelimModel.match.matchIndex
+        val winnerId = prelimModel.match.winnerId
+        val r1Model = qualR1Models.firstOrNull { r1 ->
+            r1.match.player1Id == placeholderId || r1.match.player2Id == placeholderId ||
+                (winnerId != null && (r1.match.player1Id == winnerId || r1.match.player2Id == winnerId))
+        }
+        return r1Model?.let { it.match.matchIndex / 4 } ?: (prelimModel.match.matchIndex % k)
     }
 
     /**
