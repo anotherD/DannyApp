@@ -630,9 +630,20 @@ class TournamentBracketView @JvmOverloads constructor(
             sizeCurr < sizeNext -> {
                 if (matchItem?.isCompleted == true && (matchItem.winnerId ?: 0L) > 0L) {
                     val idx = roundMatchesNext.indexOfFirst { it.player1.id == matchItem.winnerId || it.player2.id == matchItem.winnerId }
-                    if (idx >= 0) idx else (sizeNext - sizeCurr + m)
+                    if (idx >= 0) return idx
+                }
+                if (matchItem != null) {
+                    val targetBoard = matchItem.targetBoard
+                    if (targetBoard != null) {
+                        val targetGlobalIndex = 4 * targetBoard + 3
+                        val idx = roundMatchesNext.indexOfFirst { it.match.matchIndex == targetGlobalIndex }
+                        if (idx >= 0) return idx
+                    }
+                }
+                if (sizeNext == 4) {
+                    min(3, sizeNext - 1)
                 } else {
-                    sizeNext - sizeCurr + m
+                    (sizeNext - sizeCurr + m).coerceIn(0, sizeNext - 1)
                 }
             }
             else -> m / 2
@@ -661,16 +672,6 @@ class TournamentBracketView @JvmOverloads constructor(
         val headerHeight = 40f * density
         val paddingTopPx = paddingTop.toFloat() + headerHeight + 8f * density
 
-        val sizeCurr = roundsMatches.getOrNull(r)?.size ?: 0
-        val sizeNext = roundsMatches.getOrNull(r + 1)?.size ?: 0
-        if (sizeCurr > 0 && sizeNext > 0 && sizeCurr < sizeNext) {
-            val targetM = getTargetMatchIndex(r, m)
-            val targetY = computeIntegerFocusY(r + 1, targetM, focusInt)
-            val minSpacing = 76f * density
-            val fallbackY = paddingTopPx + m * minSpacing + tileHeight / 2f
-            return max(targetY, fallbackY)
-        }
-
         if (r == focusInt) {
             return paddingTopPx + m * baseSlotHeight + tileHeight / 2f
         }
@@ -678,11 +679,13 @@ class TournamentBracketView @JvmOverloads constructor(
         if (r > focusInt) {
             val sizePrev = roundsMatches.getOrNull(r - 1)?.size ?: 0
             val sizeCurr = roundsMatches.getOrNull(r)?.size ?: 0
-            return if (sizePrev == sizeCurr * 2) {
+            return if (sizePrev < sizeCurr) {
+                paddingTopPx + m * baseSlotHeight + tileHeight / 2f
+            } else if (sizePrev == sizeCurr * 2) {
                 val y1 = computeIntegerFocusY(r - 1, 2 * m, focusInt)
                 val y2 = computeIntegerFocusY(r - 1, 2 * m + 1, focusInt)
                 (y1 + y2) / 2f
-            } else if (sizePrev == sizeCurr || sizePrev < sizeCurr) {
+            } else if (sizePrev == sizeCurr) {
                 val prevM = (0 until sizePrev).firstOrNull { getTargetMatchIndex(r - 1, it) == m } ?: m
                 computeIntegerFocusY(r - 1, prevM, focusInt)
             } else {
@@ -691,7 +694,12 @@ class TournamentBracketView @JvmOverloads constructor(
         } else {
             val sizeCurr = roundsMatches.getOrNull(r)?.size ?: 0
             val sizeNext = roundsMatches.getOrNull(r + 1)?.size ?: 0
-            return if (sizeNext == sizeCurr || sizeCurr < sizeNext) {
+            return if (sizeCurr < sizeNext) {
+                val targetM = getTargetMatchIndex(r, m)
+                val targetY = computeIntegerFocusY(r + 1, targetM, focusInt)
+                val fallbackY = paddingTopPx + m * baseSlotHeight + tileHeight / 2f
+                max(targetY, fallbackY)
+            } else if (sizeNext == sizeCurr) {
                 val targetM = getTargetMatchIndex(r, m)
                 computeIntegerFocusY(r + 1, targetM, focusInt)
             } else if (sizeNext * 2 == sizeCurr) {

@@ -10,5 +10,6 @@ data class MatchUiModel(
     val isCompleted: Boolean,
     val winnerId: Long?,
     val scoreText: String,
-    val roundDisplayName: String
+    val roundDisplayName: String,
+    val targetBoard: Int? = null
 )

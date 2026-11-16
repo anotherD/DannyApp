@@ -366,8 +366,29 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         val allPlayersMap = playerDao.getAllPlayersList().associateBy { it.id }
         val seededPlayerMap = getSeededPlayerMap(event, tournament.seasonId)
 
-        val matchUiModels = filteredMatches.map { match ->
+        val k = when (event) {
+            TournamentEvent.QUALIFIER_ET -> 10
+            TournamentEvent.QUALIFIER_GRAND_SLAM -> 8
+            TournamentEvent.QUALIFIER_WM -> 4
+            else -> 4
+        }
+
+        val rawMatchUiModels = filteredMatches.map { match ->
             createMatchUiModel(match, userName, userCountryCode, userLevel, allPlayersMap, currentRoundKey, event, seededPlayerMap)
+        }
+
+        val matchUiModels = if (currentRoundKey == TournamentRound.QUAL_PRELIM.name) {
+            val prelimCount = rawMatchUiModels.size
+            val byeCount = 8 * k - prelimCount
+            rawMatchUiModels.map { model ->
+                val board = (byeCount + model.match.matchIndex) % k
+                model.copy(targetBoard = board)
+            }.sortedWith(
+                compareBy<MatchUiModel> { it.targetBoard ?: 0 }
+                    .thenBy { it.match.matchIndex }
+            )
+        } else {
+            rawMatchUiModels
         }
 
         val isCurrentRoundCompleted = dbMatchesForRound.isNotEmpty() && dbMatchesForRound.all { it.isCompleted }
@@ -438,8 +459,19 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
                 generatePreviewMatchesWithPropagation(currentTournamentId, roundKey, event, allMatches, tournament.seasonId)
             }
 
-            roundMatches.map { match ->
+            val roundModels = roundMatches.map { match ->
                 createMatchUiModel(match, userName, userCountryCode, userLevel, allPlayersMap, roundKey, event, seededPlayerMap)
+            }
+
+            if (roundKey == TournamentRound.QUAL_PRELIM.name) {
+                val prelimCount = roundModels.size
+                val byeCount = 8 * k - prelimCount
+                roundModels.map { model ->
+                    val board = (byeCount + model.match.matchIndex) % k
+                    model.copy(targetBoard = board)
+                }
+            } else {
+                roundModels
             }
         }
 
@@ -592,9 +624,32 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         } else null
 
         val seededPlayerMap = getSeededPlayerMap(event, tournament.seasonId)
-        val matchUiModels = filteredMatches.map { match ->
+
+        val k = when (event) {
+            TournamentEvent.QUALIFIER_ET -> 10
+            TournamentEvent.QUALIFIER_GRAND_SLAM -> 8
+            TournamentEvent.QUALIFIER_WM -> 4
+            else -> 4
+        }
+
+        val rawMatchUiModels = filteredMatches.map { match ->
             createMatchUiModel(match, userName, userCountryCode, userLevel, allPlayersMap, currentRoundKey, event, seededPlayerMap)
         }
+
+        val matchUiModels = if (currentRoundKey == TournamentRound.QUAL_PRELIM.name) {
+            val prelimCount = rawMatchUiModels.size
+            val byeCount = 8 * k - prelimCount
+            rawMatchUiModels.map { model ->
+                val board = (byeCount + model.match.matchIndex) % k
+                model.copy(targetBoard = board)
+            }.sortedWith(
+                compareBy<MatchUiModel> { it.targetBoard ?: 0 }
+                    .thenBy { it.match.matchIndex }
+            )
+        } else {
+            rawMatchUiModels
+        }
+
         val prizeMoneyItems = getPrizeMoneyItems(event)
         val hostCountryCode = tournament.hostCountry ?: Country.DEFAULT_CODE
         val host = TournamentUiHelper.getTournamentCity(hostCountryCode, tournament.name)
@@ -607,8 +662,19 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
                 generatePreviewMatchesForRound(tournament.id, roundKey, event)
             }
 
-            roundMatches.map { match ->
+            val roundModels = roundMatches.map { match ->
                 createMatchUiModel(match, userName, userCountryCode, userLevel, allPlayersMap, roundKey, event, seededPlayerMap)
+            }
+
+            if (roundKey == TournamentRound.QUAL_PRELIM.name) {
+                val prelimCount = roundModels.size
+                val byeCount = 8 * k - prelimCount
+                roundModels.map { model ->
+                    val board = (byeCount + model.match.matchIndex) % k
+                    model.copy(targetBoard = board)
+                }
+            } else {
+                roundModels
             }
         }
 

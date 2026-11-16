@@ -44,7 +44,16 @@ class TournamentMatchAdapter(
             com.danny.dannyapp.domain.enums.TournamentRound.QUAL_FINAL.name
         )
 
-        if (isQualifierRound) {
+        if (roundKey == com.danny.dannyapp.domain.enums.TournamentRound.QUAL_PRELIM.name) {
+            val targetBoard = item.targetBoard
+            val prevTargetBoard = if (position > 0) getItem(position - 1).targetBoard else null
+            if (targetBoard != null && (position == 0 || targetBoard != prevTargetBoard)) {
+                holder.layoutBoardHeader.visibility = View.VISIBLE
+                holder.tvBoardHeader.text = context.getString(R.string.bracket_board_format, targetBoard + 1)
+            } else {
+                holder.layoutBoardHeader.visibility = View.GONE
+            }
+        } else if (isQualifierRound) {
             val matchesPerBoard = when (roundKey) {
                 com.danny.dannyapp.domain.enums.TournamentRound.QUAL_R1.name -> 4
                 com.danny.dannyapp.domain.enums.TournamentRound.QUAL_R2.name -> 2
