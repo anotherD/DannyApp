@@ -578,9 +578,8 @@ class TournamentPreviewHelper(
                 val prelimWinners = prelimMatches.mapIndexed { idx, match ->
                     match.winnerId ?: (-1000L - idx)
                 }
-                val mainFieldPlayers = byePlayers + prelimWinners
 
-                val pairings = com.danny.dannyapp.domain.usecase.BracketGenerator.buildQualifierRound1Pairings(tournamentId, boardCount, mainFieldPlayers)
+                val pairings = com.danny.dannyapp.domain.usecase.BracketGenerator.buildQualifierRound1Pairings(boardCount, byePlayers, prelimWinners)
                 pairings.mapIndexed { matchIdx, pairing ->
                     TournamentMatch(
                         id = -3000L - matchIdx,

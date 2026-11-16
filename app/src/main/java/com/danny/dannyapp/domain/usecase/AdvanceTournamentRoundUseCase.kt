@@ -109,9 +109,8 @@ class AdvanceTournamentRoundUseCase(
                     val byeCount = (16 * K - N).coerceAtLeast(0)
                     val byePlayers = nonPreqTc.take(byeCount)
                     val prelimWinners = currentRoundMatches.sortedBy { it.matchIndex }.mapNotNull { it.winnerId }
-                    val mainFieldPlayers = byePlayers + prelimWinners
 
-                    val pairings = BracketGenerator.buildQualifierRound1Pairings(tournamentId, K, mainFieldPlayers)
+                    val pairings = BracketGenerator.buildQualifierRound1Pairings(K, byePlayers, prelimWinners)
                     pairings.map { pairing ->
                         TournamentMatch(
                             tournamentId = tournamentId,

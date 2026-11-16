@@ -161,7 +161,7 @@ object BracketGenerator {
         seededIds: List<Long>
     ): List<MatchPairing> {
         val n = seededIds.size
-        val seedOrder = buildStandardSeedOrder(n)
+        val seedOrder = buildStandardSeedOrder(n / 2)
         return (0 until n / 2).map { matchIdx ->
             val seedIndex = seedOrder[matchIdx]
             MatchPairing(
@@ -290,33 +290,45 @@ object BracketGenerator {
 
     /**
      * Erzeugt die Erstrunden-Paarungen für Qualifier-Turniere über die Board-Setzliste.
+     * Freilose (byePlayers) und Vorrundensieger (prelimWinners) werden getrennt übergeben.
+     *
+     * @param boardCount Anzahl der Boards (K)
+     * @param byePlayers Gesetzte Freilos-Spieler, sortiert
+     * @param prelimWinners Sieger der Vorrunde
      */
     fun buildQualifierRound1Pairings(
-        tournamentId: Long,
         boardCount: Int,
-        mainFieldPlayers: List<Long>
+        byePlayers: List<Long>,
+        prelimWinners: List<Long>
     ): List<MatchPairing> {
         val pairings = mutableListOf<MatchPairing>()
-        val remainingPlayers = mainFieldPlayers.drop(2 * boardCount).toMutableList()
+        val unseededByes = byePlayers.drop(2 * boardCount)
+        val freePool = unseededByes + prelimWinners
+
+        // Round-robin: freePool[i] -> board (i % boardCount), slot (i / boardCount)
+        val boardSlots = Array(boardCount) { LongArray(6) { 0L } }
+        for ((i, player) in freePool.withIndex()) {
+            val board = i % boardCount
+            val slot = i / boardCount
+            if (slot < 6) {
+                boardSlots[board][slot] = player
+            }
+        }
 
         for (b in 0 until boardCount) {
-            val seedTop = mainFieldPlayers.getOrNull(b) ?: 0L
-            val seedBottom = mainFieldPlayers.getOrNull(2 * boardCount - 1 - b) ?: 0L
+            val seedTop = byePlayers.getOrNull(b) ?: 0L
+            val seedBottom = byePlayers.getOrNull(2 * boardCount - 1 - b) ?: 0L
+            val slots = boardSlots[b]
 
-            val p0_2 = if (remainingPlayers.isNotEmpty()) remainingPlayers.removeAt(0) else 0L
-            val p1_1 = if (remainingPlayers.isNotEmpty()) remainingPlayers.removeAt(0) else 0L
-            val p1_2 = if (remainingPlayers.isNotEmpty()) remainingPlayers.removeAt(0) else 0L
-            val p2_1 = if (remainingPlayers.isNotEmpty()) remainingPlayers.removeAt(0) else 0L
-            val p2_2 = if (remainingPlayers.isNotEmpty()) remainingPlayers.removeAt(0) else 0L
-            val p3_2 = if (remainingPlayers.isNotEmpty()) remainingPlayers.removeAt(0) else 0L
-
-            pairings.add(MatchPairing(round = TournamentRound.QUAL_R1, matchIndex = 4 * b + 0, player1Id = seedTop, player2Id = p0_2))
-            pairings.add(MatchPairing(round = TournamentRound.QUAL_R1, matchIndex = 4 * b + 1, player1Id = p1_1, player2Id = p1_2))
-            pairings.add(MatchPairing(round = TournamentRound.QUAL_R1, matchIndex = 4 * b + 2, player1Id = p2_1, player2Id = p2_2))
-            pairings.add(MatchPairing(round = TournamentRound.QUAL_R1, matchIndex = 4 * b + 3, player1Id = seedBottom, player2Id = p3_2))
+            pairings.add(MatchPairing(round = TournamentRound.QUAL_R1, matchIndex = 4 * b + 0, player1Id = seedTop, player2Id = slots[0]))
+            pairings.add(MatchPairing(round = TournamentRound.QUAL_R1, matchIndex = 4 * b + 1, player1Id = slots[1], player2Id = slots[2]))
+            pairings.add(MatchPairing(round = TournamentRound.QUAL_R1, matchIndex = 4 * b + 2, player1Id = slots[3], player2Id = slots[4]))
+            pairings.add(MatchPairing(round = TournamentRound.QUAL_R1, matchIndex = 4 * b + 3, player1Id = seedBottom, player2Id = slots[5]))
         }
         return pairings
     }
+
+
 
     /**
      * Erzeugt die Erstrunden-Paarungen für Qualifier-Turniere (QUALIFIER_ET, QUALIFIER_GRAND_SLAM, QUALIFIER_WM)
@@ -351,7 +363,7 @@ object BracketGenerator {
                 )
             }
         } else {
-            return buildQualifierRound1Pairings(0L, K, oomSortedIds)
+            return buildQualifierRound1Pairings(K, oomSortedIds, emptyList())
         }
     }
 

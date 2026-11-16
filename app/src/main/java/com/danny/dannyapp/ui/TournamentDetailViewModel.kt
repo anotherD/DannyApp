@@ -382,7 +382,8 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             val prelimCount = rawMatchUiModels.size
             val byeCount = 8 * k - prelimCount
             rawMatchUiModels.map { model ->
-                val board = (byeCount + model.match.matchIndex) % k
+                val unseededByeCount = (byeCount - 2 * k).coerceAtLeast(0)
+                val board = (unseededByeCount + model.match.matchIndex) % k
                 model.copy(targetBoard = board)
             }.sortedWith(
                 compareBy<MatchUiModel> { it.targetBoard ?: 0 }
@@ -468,7 +469,8 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
                 val prelimCount = roundModels.size
                 val byeCount = 8 * k - prelimCount
                 roundModels.map { model ->
-                    val board = (byeCount + model.match.matchIndex) % k
+                    val unseededByeCount = (byeCount - 2 * k).coerceAtLeast(0)
+                    val board = (unseededByeCount + model.match.matchIndex) % k
                     model.copy(targetBoard = board)
                 }
             } else {
@@ -657,7 +659,8 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             val prelimCount = rawMatchUiModels.size
             val byeCount = 8 * k - prelimCount
             rawMatchUiModels.map { model ->
-                val board = (byeCount + model.match.matchIndex) % k
+                val unseededByeCount = (byeCount - 2 * k).coerceAtLeast(0)
+                val board = (unseededByeCount + model.match.matchIndex) % k
                 model.copy(targetBoard = board)
             }.sortedWith(
                 compareBy<MatchUiModel> { it.targetBoard ?: 0 }
@@ -687,7 +690,8 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
                 val prelimCount = roundModels.size
                 val byeCount = 8 * k - prelimCount
                 roundModels.map { model ->
-                    val board = (byeCount + model.match.matchIndex) % k
+                    val unseededByeCount = (byeCount - 2 * k).coerceAtLeast(0)
+                    val board = (unseededByeCount + model.match.matchIndex) % k
                     model.copy(targetBoard = board)
                 }
             } else {

@@ -866,7 +866,8 @@ class TournamentDetailActivity : BaseActivity() {
             when (roundKey) {
                 com.danny.dannyapp.domain.enums.TournamentRound.QUAL_PRELIM.name -> {
                     roundMatches.filter { matchModel ->
-                        val targetBoard = matchModel.targetBoard ?: ((byeCount + matchModel.match.matchIndex) % k)
+                        val unseededByeCount = (byeCount - 2 * k).coerceAtLeast(0)
+                        val targetBoard = matchModel.targetBoard ?: ((unseededByeCount + matchModel.match.matchIndex) % k)
                         targetBoard == boardIndex
                     }
                 }
