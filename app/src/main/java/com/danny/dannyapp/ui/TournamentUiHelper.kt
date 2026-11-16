@@ -22,47 +22,12 @@ object TournamentUiHelper {
         return TournamentRound.fromKey(roundKey)?.displayNameResId?.let { context.getString(it) } ?: roundKey
     }
 
-    fun getTournamentCity(hostCountry: String, tournamentName: String): String {
-        val nameLower = tournamentName.lowercase()
-        when {
-            nameLower.contains("uk open") -> return "Minehead"
-            nameLower.contains("world matchplay") -> return "Blackpool"
-            nameLower.contains("world grand prix") -> return "Leicester"
-            nameLower.contains("european championship") -> return "Dortmund"
-            nameLower.contains("grand slam") -> return "Wolverhampton"
-            nameLower.contains("players championship finals") -> return "Minehead"
-            nameLower.contains("world championship") -> return "London"
-            nameLower.contains("european open") -> return "Graz"
-            nameLower.contains("baltic sea") -> return "Kiel"
-            nameLower.contains("poland") -> return "Krakau"
-            nameLower.contains("international darts open") -> return "Riesa"
-            nameLower.contains("france") -> return "Liévin"
-            nameLower.contains("german darts grand prix") -> return "München"
-            nameLower.contains("european darts grand prix") -> return "Sindelfingen"
-            nameLower.contains("european darts trophy") -> return "Göttingen"
-            nameLower.contains("austrian darts open") -> return "Graz"
-            nameLower.contains("czech") -> return "Prag"
-            nameLower.contains("german darts open") -> return "Leverkusen"
-            nameLower.contains("slovak") -> return "Bratislava"
-            nameLower.contains("belgian") -> return "Gent"
-            nameLower.contains("swiss") -> return "Basel"
-            nameLower.contains("hungarian") -> return "Budapest"
-            nameLower.contains("dutch") -> return "Maastricht"
+    fun getTournamentCity(hostCountry: String?, hostCity: String? = null): String {
+        if (!hostCity.isNullOrBlank()) {
+            return hostCity
         }
-        return when (hostCountry.uppercase()) {
-            "ENG" -> "Wigan"
-            "DEU" -> "Hildesheim"
-            "NLD" -> "Den Bosch"
-            "AUT" -> "Graz"
-            "CZE" -> "Prag"
-            "SVK" -> "Bratislava"
-            "BEL" -> "Gent"
-            "SUI" -> "Basel"
-            "HUN" -> "Budapest"
-            "POL" -> "Krakau"
-            "FRA" -> "Liévin"
-            else -> hostCountry
-        }
+        val countryCode = hostCountry ?: Country.DEFAULT_CODE
+        return Country.getDisplayName(countryCode)
     }
 
     data class TypeBadgeInfo(val text: String, val colorResId: Int)
@@ -229,7 +194,7 @@ object TournamentUiHelper {
         tvTournamentStatus.background?.setTint(ContextCompat.getColor(context, statusBadgeInfo.colorResId))
 
         val host = tournament.hostCountry ?: Country.DEFAULT_CODE
-        val city = getTournamentCity(host, tournament.name)
+        val city = getTournamentCity(tournament.hostCountry, tournament.hostCity)
         UiHelper.formatFlagAndText(tvTournamentDetails, host, city)
 
         val cardView = itemView as? MaterialCardView
@@ -303,7 +268,7 @@ object TournamentUiHelper {
         tvTypeBadge.backgroundTintList = ContextCompat.getColorStateList(context, typeBadgeInfo.colorResId)
 
         val host = tournament.hostCountry ?: Country.DEFAULT_CODE
-        val city = getTournamentCity(host, tournament.name)
+        val city = getTournamentCity(tournament.hostCountry, tournament.hostCity)
         UiHelper.formatFlagAndText(tvHost, host, city)
 
         if (headerCard != null) {

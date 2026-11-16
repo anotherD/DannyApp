@@ -38,8 +38,8 @@ object TournamentDialogs {
         event: TournamentEvent?
     ) {
         if (prizeMoneyItems.isEmpty()) return
-        val totalPrize = if (event != null && event.totalPrizeFund > 0) {
-            context.getString(R.string.tournament_total_prize_fund_format, event.totalPrizeFund.toLong())
+        val totalPrize = if (event != null && event.effectiveTotalPrizeFund > 0) {
+            context.getString(R.string.tournament_total_prize_fund_format, event.effectiveTotalPrizeFund.toLong())
         } else {
             context.getString(R.string.tournament_qualifying_no_prize)
         }

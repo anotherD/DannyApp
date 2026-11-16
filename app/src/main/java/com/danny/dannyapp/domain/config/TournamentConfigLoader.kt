@@ -192,7 +192,19 @@ object TournamentConfigLoader {
     private fun validatePrizes(event: TournamentEvent, ruleConfig: EventRuleConfig) {
         if (ruleConfig.totalPrizeFund <= 0.0) return
 
-        val expectedRounds = event.getRoundSequence() + TournamentRound.WINNER
+        val expectedRounds = if (event == TournamentEvent.GRAND_SLAM_OF_DARTS) {
+            listOf(
+                TournamentRound.GROUP_2ND,
+                TournamentRound.GROUP_3RD,
+                TournamentRound.L16,
+                TournamentRound.QF,
+                TournamentRound.SF,
+                TournamentRound.F,
+                TournamentRound.WINNER
+            )
+        } else {
+            event.getRoundSequence() + TournamentRound.WINNER
+        }
         for (round in expectedRounds) {
             if (round !in ruleConfig.prizes) {
                 throw IllegalStateException(

@@ -15,7 +15,7 @@ Die App folgt den empfohlenen Android-Architekturprinzipien mit **Model-View-Vie
 [ Repository Layer: CareerRepository, UserProfileRepository, SeasonRepository ]
                  │
                  ▼
-[ Local Data Layer: Room DB (AppDatabase v12) ]
+[ Local Data Layer: Room DB (AppDatabase v17 mit MIGRATION_16_17 für host_city) ]
    ├── UserProfileDao
    ├── CareerDao
    ├── SeasonDao
@@ -25,9 +25,9 @@ Die App folgt den empfohlenen Android-Architekturprinzipien mit **Model-View-Vie
 
 ---
 
-## 🗄️ 2. Room Datenbank Schema & Paketstruktur (`AppDatabase` v12)
+## 🗄️ 2. Room Datenbank Schema & Paketstruktur (`AppDatabase` v17)
 
-- **Domain Models (`com.danny.dannyapp.domain.model`):** `Country` (rein fachliches Modell ohne Android-UI-Abhängigkeiten; Sonderflaggen-Auflösung via `Country.hasCustomFlag`), `MatchDistance`, `MatchPairing`, `OrderOfMeritEntry`.
+- **Domain Config (`com.danny.dannyapp.domain.config`):** `TournamentConfigLoader` (lädt und validiert `assets/season_calendar_2027.json` per Fail-Fast-Prüfung als Single Source of Truth für Saisonkalender, Städte, Runden-Preisgelder und Match-Distanzen).
 - **Domain Enums (`com.danny.dannyapp.domain.enums`):** `TournamentEvent`, `TournamentRound`, `OrderOfMeritType`, `MatchFormatType`, `SkillLevel` (reines Enum ohne UI-Farbreferenzen; Farbzuordnung erfolgt entkoppelt in `UiHelper.toColorResId()`).
 - **Domain Use Cases (`com.danny.dannyapp.domain.usecase`):** `AdvanceTournamentRoundUseCase`, `BracketGenerator`, `GenerateBracketUseCase`, `GenerateSeasonCalendarUseCase`, `GetOrderOfMeritUseCase`, `MatchScoreValidator` (Kapselung von `validateMatchScore` und `generateScoresForWinner`), `SimulateCpuMatchUseCase`, `TournamentProgressionUseCase`.
 - **UI Helper & Orchestrierung (`com.danny.dannyapp.ui`):** `TournamentPreviewHelper` (entflochtene Vorschau-, Setzlisten- und Rundensequenz-Logik für `TournamentDetailViewModel`), `UiHelper`, `TournamentUiHelper`.

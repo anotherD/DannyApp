@@ -13,6 +13,7 @@ import com.danny.dannyapp.data.db.Player
 import com.danny.dannyapp.data.db.Tournament
 import com.danny.dannyapp.data.db.TournamentMatch
 import com.danny.dannyapp.data.db.USER_ID
+import com.danny.dannyapp.domain.config.TournamentConfigLoader
 import com.danny.dannyapp.domain.enums.MatchFormatType
 import com.danny.dannyapp.domain.enums.SkillLevel
 import com.danny.dannyapp.domain.enums.TournamentEvent
@@ -160,6 +161,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
      * Loads the tournament details for the given [tournamentId] and [careerId].
      */
     fun loadTournament(tournamentId: Long, careerId: Long) {
+        TournamentConfigLoader.loadFromAssets(getApplication())
         this.currentTournamentId = tournamentId
         this.currentCareerId = careerId
         hasUserSelectedRound = false
@@ -249,10 +251,10 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         seasonNumber: Int
     ) {
         val hostCountryCode = tournament.hostCountry ?: Country.DEFAULT_CODE
-        val host = TournamentUiHelper.getTournamentCity(hostCountryCode, tournament.name)
+        val host = TournamentUiHelper.getTournamentCity(tournament.hostCountry, tournament.hostCity)
 
-        val totalPrizeText = if (event.totalPrizeFund > 0) {
-            getApplication<Application>().getString(R.string.tournament_total_prize_fund_format, event.totalPrizeFund.toLong())
+        val totalPrizeText = if (event.effectiveTotalPrizeFund > 0) {
+            getApplication<Application>().getString(R.string.tournament_total_prize_fund_format, event.effectiveTotalPrizeFund.toLong())
         } else {
             getApplication<Application>().getString(R.string.tournament_qualifying_no_prize)
         }
@@ -452,7 +454,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         }
 
         val hostCountryCode = tournament.hostCountry ?: Country.DEFAULT_CODE
-        val host = TournamentUiHelper.getTournamentCity(hostCountryCode, tournament.name)
+        val host = TournamentUiHelper.getTournamentCity(tournament.hostCountry, tournament.hostCity)
 
         val allRoundsMatches = availableRounds.map { roundKey ->
             val dbMatchesForRound = allMatches.filter { it.round == roundKey }
@@ -681,7 +683,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
 
         val prizeMoneyItems = getPrizeMoneyItems(event)
         val hostCountryCode = tournament.hostCountry ?: Country.DEFAULT_CODE
-        val host = TournamentUiHelper.getTournamentCity(hostCountryCode, tournament.name)
+        val host = TournamentUiHelper.getTournamentCity(tournament.hostCountry, tournament.hostCity)
 
         val allRoundsMatches = availableRounds.map { roundKey ->
             val dbMatchesForRound = allMatches.filter { it.round == roundKey }

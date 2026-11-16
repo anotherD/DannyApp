@@ -45,46 +45,7 @@ class TournamentPreviewHelper(
         event: TournamentEvent,
         allMatches: List<TournamentMatch> = emptyList()
     ): List<TournamentRound> {
-        val fullSequence = when (event) {
-            TournamentEvent.QUALIFIER_ET,
-            TournamentEvent.QUALIFIER_GRAND_SLAM,
-            TournamentEvent.QUALIFIER_WM -> listOf(
-                TournamentRound.QUAL_PRELIM,
-                TournamentRound.QUAL_R1,
-                TournamentRound.QUAL_R2,
-                TournamentRound.QUAL_FINAL
-            )
-            TournamentEvent.PLAYERS_CHAMPIONSHIP -> listOf(
-                TournamentRound.L128, TournamentRound.L64, TournamentRound.L32,
-                TournamentRound.L16, TournamentRound.QF, TournamentRound.SF, TournamentRound.F
-            )
-            TournamentEvent.EUROPEAN_TOUR -> listOf(
-                TournamentRound.L48, TournamentRound.L32, TournamentRound.L16,
-                TournamentRound.QF, TournamentRound.SF, TournamentRound.F
-            )
-            TournamentEvent.UK_OPEN, TournamentEvent.EUROPEAN_OPEN -> listOf(
-                TournamentRound.R1_160, TournamentRound.R2_128, TournamentRound.R3_96,
-                TournamentRound.L64, TournamentRound.L32, TournamentRound.L16,
-                TournamentRound.QF, TournamentRound.SF, TournamentRound.F
-            )
-            TournamentEvent.WORLD_MATCHPLAY, TournamentEvent.WORLD_GRAND_PRIX, TournamentEvent.EUROPEAN_CHAMPIONSHIP -> listOf(
-                TournamentRound.L32, TournamentRound.L16, TournamentRound.QF,
-                TournamentRound.SF, TournamentRound.F
-            )
-            TournamentEvent.GRAND_SLAM_OF_DARTS -> listOf(
-                TournamentRound.GROUP, TournamentRound.L16, TournamentRound.QF,
-                TournamentRound.SF, TournamentRound.F
-            )
-            TournamentEvent.PLAYERS_CHAMPIONSHIP_FINALS -> listOf(
-                TournamentRound.L64, TournamentRound.L32, TournamentRound.L16,
-                TournamentRound.QF, TournamentRound.SF, TournamentRound.F
-            )
-            TournamentEvent.WORLD_CHAMPIONSHIP -> listOf(
-                TournamentRound.L128, TournamentRound.L64, TournamentRound.L32,
-                TournamentRound.L16, TournamentRound.QF, TournamentRound.SF, TournamentRound.F
-            )
-            else -> listOf(TournamentRound.L32, TournamentRound.L16)
-        }
+        val fullSequence = event.getRoundSequence()
 
         if (allMatches.isEmpty()) return fullSequence
 

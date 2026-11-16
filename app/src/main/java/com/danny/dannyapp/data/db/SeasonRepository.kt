@@ -1,6 +1,7 @@
 package com.danny.dannyapp.data.db
 
 import android.content.Context
+import com.danny.dannyapp.domain.config.TournamentConfigLoader
 import com.danny.dannyapp.domain.usecase.GenerateSeasonCalendarUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -10,15 +11,19 @@ class SeasonRepository(
     private val seasonDao: SeasonDao,
     private val tourCardDao: TourCardDao,
     private val playerDao: PlayerDao,
-    private val tournamentDao: TournamentDao
+    private val tournamentDao: TournamentDao,
+    private val context: Context? = null
 ) {
 
     constructor(context: Context) : this(
         AppDatabase.getDatabase(context.applicationContext).seasonDao(),
         AppDatabase.getDatabase(context.applicationContext).tourCardDao(),
         AppDatabase.getDatabase(context.applicationContext).playerDao(),
-        AppDatabase.getDatabase(context.applicationContext).tournamentDao()
-    )
+        AppDatabase.getDatabase(context.applicationContext).tournamentDao(),
+        context
+    ) {
+        TournamentConfigLoader.loadFromAssets(context)
+    }
 
     constructor(
         seasonDao: SeasonDao,
@@ -79,7 +84,7 @@ class SeasonRepository(
 
         tourCardDao.insertTourCards(tourCards)
 
-        val generateCalendarUseCase = GenerateSeasonCalendarUseCase(tournamentDao)
+        val generateCalendarUseCase = GenerateSeasonCalendarUseCase(tournamentDao, context)
         generateCalendarUseCase(seasonId)
 
         seasonId
