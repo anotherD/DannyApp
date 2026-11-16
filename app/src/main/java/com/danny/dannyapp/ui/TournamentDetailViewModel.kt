@@ -804,7 +804,9 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
                         val seedRank = (seedOrder.getOrNull(matchIndex) ?: matchIndex) + 1
                         app.getString(R.string.tournament_placeholder_top16_seed, seedRank)
                     } else {
-                        app.getString(R.string.tournament_placeholder_winner_match, 16 - matchIndex)
+                        val seedOrder = com.danny.dannyapp.domain.usecase.BracketGenerator.BRACKET_SEED_ORDER_16
+                        val seedIndex = seedOrder.getOrNull(matchIndex) ?: matchIndex
+                        app.getString(R.string.tournament_placeholder_winner, 16 - seedIndex)
                     }
                 } else {
                     app.getString(R.string.tournament_placeholder_winner, 2 * matchIndex + if (isPlayer1) 1 else 2)
