@@ -46,7 +46,10 @@ Beim Saisonwechsel wird die bisherige Saison als abgeschlossen markiert (`isComp
 * **Sofortige Sieger-Weiterleitung (`propagateWinnerOnMatchCompleted`):**
   * Sobald ein Match abgeschlossen ist, wird der Sieger sofort in den entsprechenden Slot der Folgerunde eingetragen (ausgenommen Turniere mit offener Auslosung).
   * Beim *Grand Slam of Darts* werden nach Tag 1 der Gruppenphase Verlierer und Sieger automatisch in die Partien von Tag 2 und Tag 3 eingetragen.
-* **Rundenfortschritt & Abschluss (`AdvanceTournamentRoundUseCase`):**
-  * Sind alle Runden eines Turniers abgeschlossen, werden die Preisgelder der Verlierer (ohne Duplikate) sowie das Sieger-Preisgeld (`WINNER`) in `tournament_placements` gebucht und das Turnier als abgeschlossen markiert (`isCompleted = true`).
-  * Bei Qualifiern (`QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIFIER_WM`) wird das Turnier nach Abschluss von `QUAL_FINAL` ohne Preisgeldbuchung beendet.
-  * Ist `autoAdvanceRound == false`, erscheint nach Abschluss aller Matches einer Runde der Button zum Weiterschalten; ist `autoAdvanceRound == true`, erfolgt der Wechsel automatisch.
+* **Zentrale Zustandsmaschine & Rundenfortschritt (`AdvanceTournamentRoundUseCase`):**
+  * Ermittelt über `evaluateTournamentState(...)` als *Single Source of Truth* den Rundenstatus und die aktive Runde direkt aus der Datenbank.
+  * Die Preisgelder jeder abgeschlossenen Runde werden **sofort** beim Rundenwechsel verbucht; nach dem Finale wird das Sieger-Preisgeld eingetragen und das Turnier als abgeschlossen markiert.
+  * Bei Qualifiern (`QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIFIER_WM`) wird das Turnier nach Abschluss des Qualifikationsfinales ohne Preisgeldbuchung beendet.
+  * Das Weiterschalten erfolgt entweder manuell nach Abschluss aller Matches einer Runde oder bei aktivem Schnellfortschritt automatisch.
+* **Zentrale Turniersimulation (`TournamentProgressionUseCase`):**
+  * Steuert über `simulateCompleteTournament(...)` die komplette Turniersimulation zentral von der Bracket-Erstellung über realistische CPU- und User-Matches bis zum Turnierabschluss.

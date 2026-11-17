@@ -484,7 +484,6 @@ class AdvanceTournamentRoundUseCase(
             val tourCardsWithPlayer = tourCardDao.getTourCardsListForSeason(season?.id ?: 0L)
             val tourCardPlayerIds = tourCardsWithPlayer.map { it.tourCard.playerId }.distinct()
             val allPlayers = playerDao.getAllPlayersList()
-            val allPlayerIds = (listOf(USER_ID) + allPlayers.map { it.id }).distinct()
             val oomEntries = getOrderOfMeritUseCase(careerId, OrderOfMeritType.OOM)
 
             val participants = tournamentParticipantDao.getParticipantsForTournament(tournament.id)
@@ -493,7 +492,7 @@ class AdvanceTournamentRoundUseCase(
             val storedTop32 = participants.filter { it.qualificationType == "OOM_TOP_32" }.sortedBy { it.seedNumber ?: Int.MAX_VALUE }.map { it.playerId }
 
             val sortedTcOom = getPlayerListSortedByOom(tourCardPlayerIds, oomEntries, allPlayers)
-            val fullOom = fillToTargetCount(sortedTcOom, 128, allPlayerIds, oomEntries, allPlayers)
+            val fullOom = sortedTcOom
             val oom65To96 = if (stored65To96.isNotEmpty()) stored65To96 else fullOom.drop(64).take(32)
             val oom33To64 = if (stored33To64.isNotEmpty()) stored33To64 else fullOom.drop(32).take(32)
             val top32Oom = if (storedTop32.isNotEmpty()) storedTop32 else fullOom.take(32)
@@ -715,36 +714,5 @@ class AdvanceTournamentRoundUseCase(
                     if (it == USER_ID) "User" else dbPlayerMap[it]?.name ?: ""
                 }
         )
-    }
-
-    /**
-     * Fills an initial list of players up to [targetCount] with fallback candidates sorted by OOM.
-     */
-    private fun fillToTargetCount(
-        initialList: List<Long>,
-        targetCount: Int,
-        fallbackCandidates: List<Long>,
-        oomList: List<OrderOfMeritEntry>,
-        allPlayers: List<Player>
-    ): List<Long> {
-        if (initialList.size >= targetCount) {
-            return initialList.take(targetCount)
-        }
-        val result = initialList.toMutableList()
-        val oomMap = oomList.associateBy { it.playerId }
-        val dbPlayerMap = allPlayers.associateBy { it.id }
-        val remainingCandidates = fallbackCandidates
-            .filterNot { it in result }
-            .sortedWith(
-                compareBy<Long> { oomMap[it]?.rank ?: Int.MAX_VALUE }
-                    .thenByDescending { oomMap[it]?.prizeMoney ?: 0.0 }
-                    .thenByDescending { if (it == USER_ID) SkillLevel.DEFAULT.value else dbPlayerMap[it]?.skill ?: SkillLevel.DEFAULT.value }
-            )
-
-        for (candidate in remainingCandidates) {
-            if (result.size >= targetCount) break
-            result.add(candidate)
-        }
-        return result
     }
 }

@@ -401,8 +401,8 @@ Um das MVVM-Muster sauber einzuhalten, ist die komplexe Geschäfts- und Berechnu
 *   **`GenerateSeasonCalendarUseCase`**: Erzeugt die chronologische Liste aller Saisonturniere aus `season_calendar_2027.json`.
 *   **`GenerateBracketUseCase`**: Generiert die Paarungen für anstehende Turniere und speichert eingefrorene Teilnehmer/Setzlisten (`tournament_participants`).
 *   **`SimulateCpuMatchUseCase`**: Simuliert CPU-Matches basierend auf Skill und Wahrscheinlichkeiten.
-*   **`AdvanceTournamentRoundUseCase`**: Steuert den Rundenfortschritt nach Abschluss aller Partien einer Runde und beendet Qualifier-Turniere (`QUALIFIER_ET` = 10, `QUALIFIER_GRAND_SLAM` = 8, `QUALIFIER_WM` = 4), sobald die Zielanzahl an Siegern feststeht.
-*   **`TournamentProgressionUseCase`**: Verwaltet den Gesamtfortschritt eines Turniers.
+*   **`AdvanceTournamentRoundUseCase`**: Zentrale Zustandsmaschine für den Turnierfortschritt; ermittelt über `evaluateTournamentState(...)` als *Single Source of Truth* Rundenstatus und aktive Runde direkt aus der Datenbank, verbucht Preisgelder jeder abgeschlossenen Runde **sofort** beim Rundenwechsel, steuert den Rundenfortschritt und beendet Qualifier-Turniere (`QUALIFIER_ET` = 10, `QUALIFIER_GRAND_SLAM` = 8, `QUALIFIER_WM` = 4), sobald die Zielanzahl an Siegern feststeht.
+*   **`TournamentProgressionUseCase`**: Verwaltet den Gesamtfortschritt eines Turniers und steuert über `simulateCompleteTournament(...)` die komplette Turniersimulation zentral von der Bracket-Erstellung über realistische CPU- und User-Matches bis zum Turnierabschluss.
 *   **`GetOrderOfMeritUseCase`**: Berechnet und liefert die 4 dynamischen Ranglisten (`OOM`, `PT OOM`, `PC OOM`, `ET OOM`).
 
 ---
