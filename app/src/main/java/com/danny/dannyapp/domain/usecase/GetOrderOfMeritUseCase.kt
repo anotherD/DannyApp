@@ -14,6 +14,10 @@ import com.danny.dannyapp.domain.enums.OrderOfMeritType
 import com.danny.dannyapp.domain.enums.SkillLevel
 import com.danny.dannyapp.domain.model.OrderOfMeritEntry
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 
 class GetOrderOfMeritUseCase(
@@ -147,5 +151,25 @@ class GetOrderOfMeritUseCase(
         sorted.mapIndexed { index, entry ->
             entry.copy(rank = index + 1)
         }
+    }
+
+    /**
+     * Beobachtet reaktiv Saisons und Platzierungen für eine Karriere
+     * und emittiert bei jeder Änderung die berechneten Order of Merit Einträge.
+     */
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    fun observeOrderOfMerit(careerId: Long, type: OrderOfMeritType): Flow<List<OrderOfMeritEntry>> {
+        return seasonDao.getSeasonsForCareer(careerId)
+            .flatMapLatest { seasons ->
+                val seasonIds = seasons.map { it.id }
+                if (seasonIds.isEmpty()) {
+                    flowOf(emptyList())
+                } else {
+                    placementDao.getPlacementsFlowForSeasons(seasonIds)
+                }
+            }
+            .map {
+                invoke(careerId, type)
+            }
     }
 }

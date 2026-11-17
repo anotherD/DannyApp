@@ -259,12 +259,7 @@ class TournamentQualificationUseCase(
                 }
                 val nonPrequalified = tourCardPlayerIds.filterNot { it in prequalifiedSet }
                 val sortedNonPrequalified = sortPlayerIdsByOom(nonPrequalified, oomEntries, allPlayers)
-                val targetQualifierCount = when (event) {
-                    TournamentEvent.QUALIFIER_ET -> 10
-                    TournamentEvent.QUALIFIER_GRAND_SLAM -> 8
-                    TournamentEvent.QUALIFIER_WM -> 4
-                    else -> 4
-                }
+                val targetQualifierCount = if (event.qualifierBoardCount > 0) event.qualifierBoardCount else 4
                 val nonPrequalifiedCount = sortedNonPrequalified.size
                 val targetCount = when {
                     nonPrequalifiedCount > 8 * targetQualifierCount -> 8 * targetQualifierCount
@@ -530,24 +525,9 @@ class TournamentQualificationUseCase(
             TournamentRound.L48 -> 24
             TournamentRound.R1_160, TournamentRound.R2_128, TournamentRound.R3_96 -> 32
             TournamentRound.GROUP -> 16
-            TournamentRound.QUAL_FINAL -> when (event) {
-                TournamentEvent.QUALIFIER_ET -> 10
-                TournamentEvent.QUALIFIER_GRAND_SLAM -> 8
-                TournamentEvent.QUALIFIER_WM -> 4
-                else -> 4
-            }
-            TournamentRound.QUAL_R2 -> when (event) {
-                TournamentEvent.QUALIFIER_ET -> 20
-                TournamentEvent.QUALIFIER_GRAND_SLAM -> 16
-                TournamentEvent.QUALIFIER_WM -> 8
-                else -> 8
-            }
-            TournamentRound.QUAL_R1 -> when (event) {
-                TournamentEvent.QUALIFIER_ET -> 40
-                TournamentEvent.QUALIFIER_GRAND_SLAM -> 32
-                TournamentEvent.QUALIFIER_WM -> 16
-                else -> 16
-            }
+            TournamentRound.QUAL_FINAL -> if (event.qualifierBoardCount > 0) event.qualifierBoardCount else 4
+            TournamentRound.QUAL_R2 -> 2 * (if (event.qualifierBoardCount > 0) event.qualifierBoardCount else 4)
+            TournamentRound.QUAL_R1 -> 4 * (if (event.qualifierBoardCount > 0) event.qualifierBoardCount else 4)
             TournamentRound.QUAL_PRELIM -> when (event) {
                 TournamentEvent.QUALIFIER_ET -> 16
                 TournamentEvent.QUALIFIER_GRAND_SLAM -> 32
@@ -613,12 +593,7 @@ class TournamentQualificationUseCase(
         fallbackCareerId: Long,
         fallbackMatches: List<TournamentMatch>
     ): List<TournamentMatch> {
-        val boardCount = when (event) {
-            TournamentEvent.QUALIFIER_ET -> 10
-            TournamentEvent.QUALIFIER_GRAND_SLAM -> 8
-            TournamentEvent.QUALIFIER_WM -> 4
-            else -> 4
-        }
+        val boardCount = if (event.qualifierBoardCount > 0) event.qualifierBoardCount else 4
         val season = seasonDao.getSeasonById(seasonId)
         val careerId = season?.careerId ?: fallbackCareerId
         val tourCards = tourCardDao.getTourCardsListForSeason(seasonId)

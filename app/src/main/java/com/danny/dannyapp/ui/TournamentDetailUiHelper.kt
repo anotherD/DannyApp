@@ -114,12 +114,7 @@ object TournamentDetailUiHelper {
      * Returns the number of qualifier boards for the given tournament event.
      */
     fun getQualifierBoardCount(event: TournamentEvent): Int {
-        return when (event) {
-            TournamentEvent.QUALIFIER_ET -> 10
-            TournamentEvent.QUALIFIER_GRAND_SLAM -> 8
-            TournamentEvent.QUALIFIER_WM -> 4
-            else -> 4
-        }
+        return if (event.qualifierBoardCount > 0) event.qualifierBoardCount else 4
     }
 
     /**

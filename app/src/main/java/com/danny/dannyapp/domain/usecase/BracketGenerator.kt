@@ -331,12 +331,7 @@ object BracketGenerator {
         event: TournamentEvent,
         oomSortedIds: List<Long>
     ): List<MatchPairing> {
-        val K = when (event) {
-            TournamentEvent.QUALIFIER_ET -> 10
-            TournamentEvent.QUALIFIER_GRAND_SLAM -> 8
-            TournamentEvent.QUALIFIER_WM -> 4
-            else -> 4
-        }
+        val K = if (event.qualifierBoardCount > 0) event.qualifierBoardCount else 4
 
         val N = oomSortedIds.size
         if (N == 0) return emptyList()
@@ -358,12 +353,7 @@ object BracketGenerator {
     }
 
     fun getQualifierRoundForMatchCount(matchCount: Int, event: TournamentEvent = TournamentEvent.QUALIFIER_WM): TournamentRound {
-        val K = when (event) {
-            TournamentEvent.QUALIFIER_ET -> 10
-            TournamentEvent.QUALIFIER_GRAND_SLAM -> 8
-            TournamentEvent.QUALIFIER_WM -> 4
-            else -> 4
-        }
+        val K = if (event.qualifierBoardCount > 0) event.qualifierBoardCount else 4
         return when {
             matchCount > 4 * K -> TournamentRound.QUAL_PRELIM
             matchCount > 2 * K -> TournamentRound.QUAL_R1
