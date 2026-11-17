@@ -34,7 +34,10 @@ data class Tournament(
     @ColumnInfo(name = "host_country")
     val hostCountry: String? = null,
     @ColumnInfo(name = "host_city")
-    val hostCity: String? = null
+    val hostCity: String? = null,
+    /** Schlüssel der aktuell aktiven Runde (entspricht dem Namen eines [TournamentRound]-Eintrags); null, wenn das Turnier abgeschlossen ist. */
+    @ColumnInfo(name = "current_round")
+    val currentRound: String? = null
 ) {
     init {
         require(name.isNotBlank()) { "Tournament name must not be blank" }

@@ -50,23 +50,25 @@ class AdvanceTournamentRoundUseCase(
     )
 
     /**
-     * Evaluates the current state of a tournament directly from the database (Single Source of Truth).
-     * Determines active round, phase of each round, and whether the round can be advanced.
+     * Ermittelt den aktuellen Zustand eines Turniers direkt aus der Datenbank (Single Source of Truth).
+     * Die aktive Runde wird vorrangig aus dem am Turnier persistierten Rundenschlüssel gelesen;
+     * als Fallback für ältere Datensätze ohne persistierten Rundenschlüssel wird die erste Runde
+     * mit offenen oder noch nicht verbuchten Matches herangezogen.
      *
-     * @param tournamentId The ID of the tournament to evaluate.
-     * @return [TournamentProgressState] containing the evaluation result, or null if tournament not found or no matches exist.
+     * @param tournamentId Die ID des zu bewertenden Turniers.
+     * @return [TournamentProgressState] mit Rundenstatus und Fortschrittsinfos, oder null wenn kein Turnier/Matches gefunden.
      */
     suspend fun evaluateTournamentState(tournamentId: Long): TournamentProgressState? = withContext(Dispatchers.IO) {
         val tournament = tournamentDao.getTournamentById(tournamentId) ?: return@withContext null
         val allMatches = tournamentMatchDao.getMatchesListForTournament(tournamentId)
         if (allMatches.isEmpty()) return@withContext null
-        val existingPlacements = tournamentPlacementDao.getPlacementsListForTournament(tournamentId)
 
         val event = try { TournamentEvent.valueOf(tournament.type) } catch (_: Exception) { return@withContext null }
         val fullSequence = event.getRoundSequence()
         val firstRoundInMatches = fullSequence.firstOrNull { round -> allMatches.any { it.round == round.name } } ?: fullSequence.first()
         val roundSequence = fullSequence.dropWhile { it != firstRoundInMatches }
 
+        // Abgeschlossenes Turnier: alle Runden COMPLETED, keine aktive Runde
         if (tournament.isCompleted) {
             return@withContext TournamentProgressState(
                 activeRound = null,
@@ -77,100 +79,29 @@ class AdvanceTournamentRoundUseCase(
             )
         }
 
-        val isQualifier = event in listOf(
-            TournamentEvent.QUALIFIER_ET,
-            TournamentEvent.QUALIFIER_GRAND_SLAM,
-            TournamentEvent.QUALIFIER_WM
-        )
-
-        if (isQualifier) {
-            val openRound = roundSequence.firstOrNull { round ->
-                val matches = allMatches.filter { it.round == round.name }
-                matches.isNotEmpty() && matches.any { !it.isCompleted }
+        // Aktive Runde: bevorzugt aus persistiertem Rundenschlüssel lesen; Fallback für Alt-Datensätze
+        val activeRound: TournamentRound = tournament.currentRound
+            ?.let { roundKey -> TournamentRound.entries.find { it.name == roundKey } }
+            ?: roundSequence.firstOrNull { round ->
+                val roundMatches = allMatches.filter { it.round == round.name }
+                roundMatches.isNotEmpty() && roundMatches.any { !it.isCompleted }
             }
-
-            val activeRound: TournamentRound
-            val canAdvanceRound: Boolean
-            if (openRound != null) {
-                activeRound = openRound
-                canAdvanceRound = false
-            } else {
-                activeRound = TournamentRound.QUAL_FINAL
-                canAdvanceRound = true
+            ?: roundSequence.firstOrNull { round ->
+                allMatches.any { it.round == round.name }
             }
+            ?: return@withContext null
 
-            val roundPhases = mutableMapOf<TournamentRound, TournamentRoundPhase>()
-            var foundActive = false
-            for (round in roundSequence) {
-                when {
-                    round == activeRound -> {
-                        roundPhases[round] = TournamentRoundPhase.ACTIVE
-                        foundActive = true
-                    }
-                    !foundActive -> {
-                        roundPhases[round] = TournamentRoundPhase.COMPLETED
-                    }
-                    else -> {
-                        roundPhases[round] = TournamentRoundPhase.PENDING
-                    }
-                }
-            }
-
-            val activeRoundMatches = allMatches.filter { it.round == activeRound.name }
-            val hasOpenCpuMatches = activeRoundMatches.any { match ->
-                !match.isCompleted && match.player1Id > 0L && match.player2Id > 0L
-            }
-
-            return@withContext TournamentProgressState(
-                activeRound = activeRound,
-                roundPhases = roundPhases,
-                canAdvanceRound = canAdvanceRound,
-                isFinalRound = (activeRound == TournamentRound.QUAL_FINAL),
-                hasOpenCpuMatchesInActiveRound = hasOpenCpuMatches
-            )
-        }
-
-        var determinedActiveRound: TournamentRound? = null
-        var canAdvanceRound = false
-        val roundPhases = mutableMapOf<TournamentRound, TournamentRoundPhase>()
-
-        for (round in roundSequence) {
-            if (determinedActiveRound != null) {
-                roundPhases[round] = TournamentRoundPhase.PENDING
-                continue
-            }
-
-            val roundMatches = allMatches.filter { it.round == round.name }
-            if (roundMatches.isEmpty()) {
-                roundPhases[round] = TournamentRoundPhase.PENDING
-                continue
-            }
-
-            if (roundMatches.any { !it.isCompleted }) {
-                determinedActiveRound = round
-                canAdvanceRound = false
-                roundPhases[round] = TournamentRoundPhase.ACTIVE
-            } else {
-                val isAdvanced = isRoundAlreadyAdvancedOrAccounted(
-                    event = event,
-                    round = round,
-                    roundSequence = roundSequence,
-                    roundMatches = roundMatches,
-                    allMatches = allMatches,
-                    existingPlacements = existingPlacements
-                )
-                if (!isAdvanced) {
-                    determinedActiveRound = round
-                    canAdvanceRound = true
-                    roundPhases[round] = TournamentRoundPhase.ACTIVE
-                } else {
-                    roundPhases[round] = TournamentRoundPhase.COMPLETED
-                }
+        // Rundenphasen: alle vor activeRound -> COMPLETED, activeRound selbst -> ACTIVE, danach -> PENDING
+        val roundPhases = roundSequence.associateWith { round ->
+            when {
+                round == activeRound -> TournamentRoundPhase.ACTIVE
+                roundSequence.indexOf(round) < roundSequence.indexOf(activeRound) -> TournamentRoundPhase.COMPLETED
+                else -> TournamentRoundPhase.PENDING
             }
         }
 
-        val activeRound = determinedActiveRound
-        val activeRoundMatches = if (activeRound != null) allMatches.filter { it.round == activeRound.name } else emptyList()
+        val activeRoundMatches = allMatches.filter { it.round == activeRound.name }
+        val canAdvanceRound = activeRoundMatches.isNotEmpty() && activeRoundMatches.all { it.isCompleted }
         val hasOpenCpuMatches = activeRoundMatches.any { match ->
             !match.isCompleted && match.player1Id > 0L && match.player2Id > 0L
         }
@@ -186,47 +117,13 @@ class AdvanceTournamentRoundUseCase(
     }
 
     /**
-     * Checks whether a completed round was already advanced or accounted for in the database.
-     */
-    private fun isRoundAlreadyAdvancedOrAccounted(
-        event: TournamentEvent,
-        round: TournamentRound,
-        roundSequence: List<TournamentRound>,
-        roundMatches: List<TournamentMatch>,
-        allMatches: List<TournamentMatch>,
-        existingPlacements: List<TournamentPlacement>
-    ): Boolean {
-        if (event == TournamentEvent.GRAND_SLAM_OF_DARTS && round == TournamentRound.GROUP) {
-            val l16Matches = allMatches.filter { it.round == TournamentRound.L16.name }
-            return l16Matches.isNotEmpty() && l16Matches.any { it.player1Id > 0L || it.player1Id == USER_ID }
-        }
-
-        if ((event == TournamentEvent.UK_OPEN || event == TournamentEvent.EUROPEAN_OPEN) && round != TournamentRound.F) {
-            val currentIndex = roundSequence.indexOf(round)
-            val nextRound = if (currentIndex != -1 && currentIndex + 1 < roundSequence.size) roundSequence[currentIndex + 1] else null
-            return nextRound != null && allMatches.any { it.round == nextRound.name }
-        }
-
-        if (round == TournamentRound.F) {
-            return existingPlacements.any { it.reachedRound == TournamentRound.WINNER.name }
-        } else {
-            val losers = roundMatches.mapNotNull { match ->
-                val winnerId = match.winnerId ?: return@mapNotNull null
-                if (match.player1Id == winnerId) match.player2Id else match.player1Id
-            }
-            if (losers.isEmpty()) {
-                return true
-            }
-            return existingPlacements.any { it.reachedRound == round.name }
-        }
-    }
-
-    /**
-     * Advances the tournament round if all conditions are met according to [evaluateTournamentState].
-     * Records prize money placements immediately and updates matches for the next round or completes tournament.
+     * Schaltet das Turnier zur nächsten Runde weiter, sofern alle Matches der aktiven Runde abgeschlossen sind.
+     * Verbucht Preisgelder der abgeschlossenen Runde sofort; bei der Finalrunde wird das Turnier abgeschlossen
+     * und die aktive Runde am Turnier auf null gesetzt. Bei allen anderen Runden wird die Folgerunde am Turnier
+     * persistiert.
      *
-     * @param tournamentId The ID of the tournament to advance.
-     * @return `true` if round advancement or tournament completion was executed, `false` otherwise.
+     * @param tournamentId Die ID des weiterzuschaltenden Turniers.
+     * @return `true` wenn der Rundenwechsel oder Turnierabschluss erfolgreich ausgeführt wurde, sonst `false`.
      */
     suspend operator fun invoke(tournamentId: Long): Boolean = withContext(Dispatchers.IO) {
         val state = evaluateTournamentState(tournamentId) ?: return@withContext false
@@ -246,7 +143,8 @@ class AdvanceTournamentRoundUseCase(
         )
 
         if (state.isFinalRound) {
-            tournamentDao.updateTournament(tournament.copy(isCompleted = true))
+            // Turnier abgeschlossen: aktive Runde löschen und Turnier als fertig markieren
+            tournamentDao.updateTournament(tournament.copy(isCompleted = true, currentRound = null))
             return@withContext true
         }
 
@@ -256,6 +154,15 @@ class AdvanceTournamentRoundUseCase(
             currentRound = activeRound,
             allMatches = allMatches
         )
+
+        // Folgerunde am Turnier persistieren
+        val roundSequence = event.getRoundSequence()
+        val activeIndex = roundSequence.indexOf(activeRound)
+        val nextRound = if (activeIndex >= 0) roundSequence.getOrNull(activeIndex + 1) else null
+        if (nextRound != null) {
+            tournamentDao.updateTournament(tournament.copy(currentRound = nextRound.name))
+        }
+
         return@withContext true
     }
 

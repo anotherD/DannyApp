@@ -939,6 +939,16 @@ class GenerateBracketUseCase(
 
         tournamentParticipantDao.insertParticipants(participants.distinctBy { it.playerId })
         tournamentMatchDao.insertMatches(tournamentMatches)
+
+        // Startrunde am Turnier persistieren: erste Runde der Sequenz, für die tatsächlich Matches angelegt wurden
+        val fullRoundSequence = event.getRoundSequence()
+        val startRound = fullRoundSequence.firstOrNull { round ->
+            tournamentMatches.any { match -> match.round == round.name }
+        }
+        if (startRound != null) {
+            tournamentDao.updateTournament(tournament.copy(currentRound = startRound.name))
+        }
+
         tournamentMatchDao.getMatchesListForTournament(tournamentId)
     }
 

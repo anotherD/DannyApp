@@ -43,12 +43,14 @@ Beim Saisonwechsel wird die bisherige Saison als abgeschlossen markiert (`isComp
   * Für alle Turniere mit festem Turnierbaum werden beim Turnierstart bereits **alle Runden** (von Runde 1 bis Finale bzw. Gruppenphase bis Finale) in `tournament_matches` angelegt.
   * Noch nicht feststehende Paarungen nutzen Platzhalter-IDs (`PLACEHOLDER_PREVIOUS_WINNER_ID = -999L`, Gruppen-Sieger-IDs oder Vorrunden-Platzhalter).
   * `UK_OPEN` und `EUROPEAN_OPEN` nutzen ab Runde 2 eine offene Runden-für-Runden-Auslosung.
+  * **Persistente Startrunde:** Unmittelbar nach der Bracket-Erzeugung wird die erste tatsächlich angelegte Runde als aktive Startrunde direkt am Turnier gespeichert.
 * **Sofortige Sieger-Weiterleitung (`propagateWinnerOnMatchCompleted`):**
   * Sobald ein Match abgeschlossen ist, wird der Sieger sofort in den entsprechenden Slot der Folgerunde eingetragen (ausgenommen Turniere mit offener Auslosung).
   * Beim *Grand Slam of Darts* werden nach Tag 1 der Gruppenphase Verlierer und Sieger automatisch in die Partien von Tag 2 und Tag 3 eingetragen.
 * **Zentrale Zustandsmaschine & Rundenfortschritt (`AdvanceTournamentRoundUseCase`):**
-  * Ermittelt über `evaluateTournamentState(...)` als *Single Source of Truth* den Rundenstatus und die aktive Runde direkt aus der Datenbank.
-  * Die Preisgelder jeder abgeschlossenen Runde werden **sofort** beim Rundenwechsel verbucht; nach dem Finale wird das Sieger-Preisgeld eingetragen und das Turnier als abgeschlossen markiert.
+  * Ermittelt über `evaluateTournamentState(...)` als *Single Source of Truth* den Rundenstatus: Die **aktive Runde wird vorrangig direkt vom Turnier selbst gelesen** (dort bei jedem Rundenwechsel fortgeschrieben); für ältere Datensätze ohne gespeicherte Runde greift ein Fallback auf die erste Runde mit offenen Matches.
+  * Alle Runden vor der aktiven Runde gelten als abgeschlossen, alle danach als ausstehend – einheitlich für alle Turnierarten inkl. Qualifier, ohne gesonderte Sonderbehandlung.
+  * Die Preisgelder jeder abgeschlossenen Runde werden **sofort** beim Rundenwechsel verbucht; nach dem Finale wird das Sieger-Preisgeld eingetragen, das Turnier als abgeschlossen markiert und die aktive Runde am Turnier gelöscht.
   * Bei Qualifiern (`QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIFIER_WM`) wird das Turnier nach Abschluss des Qualifikationsfinales ohne Preisgeldbuchung beendet.
   * Das Weiterschalten erfolgt entweder manuell nach Abschluss aller Matches einer Runde oder bei aktivem Schnellfortschritt automatisch.
 * **Zentrale Turniersimulation (`TournamentProgressionUseCase`):**

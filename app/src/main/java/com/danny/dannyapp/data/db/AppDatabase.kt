@@ -100,6 +100,13 @@ val MIGRATION_16_17 = object : Migration(16, 17) {
     }
 }
 
+/** Migration: Speichert die aktuell aktive Turnierrunde direkt am Turnier als persistente Single Source of Truth. */
+val MIGRATION_17_18 = object : Migration(17, 18) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE tournaments ADD COLUMN current_round TEXT")
+    }
+}
+
 @Database(
     entities = [
         Player::class,
@@ -112,7 +119,7 @@ val MIGRATION_16_17 = object : Migration(16, 17) {
         TournamentPlacement::class,
         TournamentParticipant::class
     ],
-    version = 17,
+    version = 18,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -138,7 +145,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "danny_app_database"
                 )
-                .addMigrations(MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15, MIGRATION_15_16, MIGRATION_16_17)
+                .addMigrations(MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15, MIGRATION_15_16, MIGRATION_16_17, MIGRATION_17_18)
                 // TODO: Implement proper database migrations before production release to avoid data loss
                 .fallbackToDestructiveMigration(true)
                 .addCallback(DatabaseCallback(context.applicationContext))
