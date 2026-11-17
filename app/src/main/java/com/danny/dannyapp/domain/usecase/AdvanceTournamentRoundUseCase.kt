@@ -37,6 +37,8 @@ class AdvanceTournamentRoundUseCase(
     private val tournamentParticipantDao: TournamentParticipantDao,
     private val getOrderOfMeritUseCase: GetOrderOfMeritUseCase
 ) {
+    /** Single source of truth for group-stage standings – shared with the advance logic. */
+    private val calculateGroupStandingsUseCase: CalculateGroupStandingsUseCase = CalculateGroupStandingsUseCase()
     constructor(context: Context) : this(
         AppDatabase.getDatabase(context.applicationContext).tournamentDao(),
         AppDatabase.getDatabase(context.applicationContext).tournamentMatchDao(),
@@ -178,56 +180,29 @@ class AdvanceTournamentRoundUseCase(
             val groupMatches = allMatches.filter { it.round == TournamentRound.GROUP.name }
             val l16Matches = allMatches.filter { it.round == TournamentRound.L16.name }.sortedBy { it.matchIndex }
             if (groupMatches.size == 48 && l16Matches.isNotEmpty()) {
+                // Delegate all standings calculation to the domain use-case (single source of truth).
+                val standingsByGroup = calculateGroupStandingsUseCase(groupMatches)
+
                 val groupWinners = mutableListOf<Long>()
                 for (groupIdx in 0 until 16) {
                     val groupLetter = ('A' + groupIdx).toString()
-                    val matchesForGroup = groupMatches.filter { it.groupName == groupLetter }
-                    val playerIdsInGroup = matchesForGroup.flatMap { listOf(it.player1Id, it.player2Id) }.distinct()
+                    val sortedGroup = standingsByGroup[groupLetter] ?: emptyList()
 
-                    class GroupPlayerStats(
-                        val playerId: Long,
-                        var wins: Int = 0,
-                        var legsWon: Int = 0,
-                        var legsLost: Int = 0
-                    ) {
-                        val legDiff: Int get() = legsWon - legsLost
-                    }
-
-                    val statsMap = playerIdsInGroup.associateWith { GroupPlayerStats(it) }
-                    for (match in matchesForGroup) {
-                        val player1Stats = statsMap[match.player1Id]
-                        val player2Stats = statsMap[match.player2Id]
-                        if (player1Stats != null && player2Stats != null) {
-                            player1Stats.legsWon += match.player1Score
-                            player1Stats.legsLost += match.player2Score
-                            player2Stats.legsWon += match.player2Score
-                            player2Stats.legsLost += match.player1Score
-                            if (match.winnerId == match.player1Id) player1Stats.wins++
-                            else if (match.winnerId == match.player2Id) player2Stats.wins++
-                        }
-                    }
-
-                    val sortedGroup = statsMap.values.sortedWith(
-                        compareByDescending<GroupPlayerStats> { it.wins }
-                            .thenByDescending { it.legDiff }
-                            .thenByDescending { it.legsWon }
-                    )
-
-                    if (sortedGroup.isNotEmpty()) {
-                        val winnerId = sortedGroup[0].playerId
-                        groupWinners.add(winnerId)
+                    val groupWinner = sortedGroup.firstOrNull()
+                    if (groupWinner != null) {
+                        groupWinners.add(groupWinner.playerId)
                         tournamentPlacementDao.upsertPlayerPlacement(
                             tournamentId = tournament.id,
-                            playerId = winnerId,
+                            playerId = groupWinner.playerId,
                             reachedRound = TournamentRound.L16.name,
                             prizeMoney = event.getRankingPrizeMoney(TournamentRound.L16)
                         )
                     }
-                    if (sortedGroup.size >= 2) {
-                        val secondId = sortedGroup[1].playerId
+                    val groupRunnerUp = sortedGroup.getOrNull(1)
+                    if (groupRunnerUp != null) {
                         tournamentPlacementDao.upsertPlayerPlacement(
                             tournamentId = tournament.id,
-                            playerId = secondId,
+                            playerId = groupRunnerUp.playerId,
                             reachedRound = TournamentRound.GROUP_2ND.name,
                             prizeMoney = event.getRankingPrizeMoney(TournamentRound.GROUP_2ND)
                         )

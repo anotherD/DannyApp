@@ -21,11 +21,14 @@ class CalculateGroupStandingsUseCase {
      * [GroupStandingEntry] sorted by the tournament rules.
      */
     operator fun invoke(groupMatches: List<TournamentMatch>): Map<String, List<GroupStandingEntry>> {
-        // Filter only matches that belong to the GROUP round.
-        val filtered = groupMatches.filter { it.round == TournamentRound.GROUP.name }
+        // Filter only matches that belong to the GROUP round and have a non-blank group name,
+        // so that an empty-string key "" can never appear in the result map.
+        val filtered = groupMatches.filter {
+            it.round == TournamentRound.GROUP.name && !it.groupName.isNullOrBlank()
+        }
 
-        // Group matches by their group name (A‑P). Null group names are ignored.
-        val matchesByGroup = filtered.groupBy { it.groupName ?: "" }
+        // Group matches by their group name (A‑P).
+        val matchesByGroup = filtered.groupBy { it.groupName!! }
 
         val result = mutableMapOf<String, List<GroupStandingEntry>>()
 

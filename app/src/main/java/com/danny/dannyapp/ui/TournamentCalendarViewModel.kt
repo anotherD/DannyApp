@@ -13,7 +13,10 @@ import com.danny.dannyapp.data.db.USER_ID
 import com.danny.dannyapp.domain.usecase.AdvanceTournamentRoundUseCase
 import com.danny.dannyapp.domain.usecase.GenerateBracketUseCase
 import com.danny.dannyapp.domain.usecase.GenerateSeasonCalendarUseCase
+import com.danny.dannyapp.domain.usecase.GetTournamentSummaryUseCase
+import com.danny.dannyapp.domain.usecase.TournamentPhaseState
 import com.danny.dannyapp.domain.usecase.TournamentProgressionUseCase
+import com.danny.dannyapp.domain.usecase.TournamentSummary
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -48,6 +51,9 @@ class TournamentCalendarViewModel(application: Application) : AndroidViewModel(a
     private val generateBracketUseCase = GenerateBracketUseCase(application)
     private val advanceTournamentRoundUseCase = AdvanceTournamentRoundUseCase(application)
     private val tournamentProgressionUseCase = TournamentProgressionUseCase(application)
+
+    /** Domain use-case: single source of truth for season-level tournament summaries. */
+    private val getTournamentSummaryUseCase = GetTournamentSummaryUseCase()
 
     private val _simulatingTournamentId = MutableStateFlow<Long?>(null)
 
@@ -92,6 +98,14 @@ class TournamentCalendarViewModel(application: Application) : AndroidViewModel(a
         }
     }
 
+    /**
+     * Builds the [TournamentUiModel] list for the season calendar by delegating all
+     * status/winner/phase logic to [GetTournamentSummaryUseCase] (single source of truth).
+     *
+     * Active rounds are fetched once per active tournament via [AdvanceTournamentRoundUseCase]
+     * and passed into the domain use-case; the ViewModel only maps the resulting
+     * [TournamentSummary] objects onto UI models.
+     */
     private suspend fun buildTournamentUiModels(
         tournaments: List<Tournament>,
         matchesList: List<TournamentMatch>,
@@ -99,80 +113,65 @@ class TournamentCalendarViewModel(application: Application) : AndroidViewModel(a
         allPlayers: Map<Long, com.danny.dannyapp.data.db.Player>,
         userCountryCode: String
     ): List<TournamentUiModel> {
-        val sorted = tournaments.sortedBy { val order = it.order; order }
         val matchesByTournament = matchesList.groupBy { it.tournamentId }
         val placementsByTournament = placementsList.groupBy { it.tournamentId }
 
-        val hasActiveTournament = sorted.any { t ->
-            !t.isCompleted && (matchesByTournament[t.id]?.isNotEmpty() == true)
-        }
-
-        var nextAssigned = false
-
-        return sorted.map { tournament ->
-            val matches = matchesByTournament[tournament.id] ?: emptyList()
-            val status: TournamentStatus
-            val isNextPlanned: Boolean
-
-            if (tournament.isCompleted) {
-                status = TournamentStatus.COMPLETED
-                isNextPlanned = false
-            } else if (matches.isNotEmpty()) {
-                status = TournamentStatus.ACTIVE
-                isNextPlanned = false
-            } else {
-                status = TournamentStatus.PLANNED
-                if (!hasActiveTournament && !nextAssigned) {
-                    isNextPlanned = true
-                    nextAssigned = true
-                } else {
-                    isNextPlanned = false
-                }
+        // Determine the active round for every tournament that is not completed and has matches.
+        val activeRoundsByTournament: Map<Long, TournamentRound?> = tournaments
+            .filter { !it.isCompleted && (matchesByTournament[it.id]?.isNotEmpty() == true) }
+            .associate { tournament ->
+                tournament.id to advanceTournamentRoundUseCase.evaluateTournamentState(tournament.id)?.activeRound
             }
 
-            var winnerName: String? = null
-            var qualifierWinners: List<PlayerUiInfo>? = null
-            var userReachedRound: String? = null
-            var activeRoundName: String? = null
+        val summaries = getTournamentSummaryUseCase.buildSeasonSummaries(
+            tournaments = tournaments,
+            matchesByTournament = matchesByTournament,
+            placementsByTournament = placementsByTournament,
+            activeRoundsByTournament = activeRoundsByTournament
+        )
 
-            val isMultiWinnerQualifier = tournament.type in listOf("QUALIFIER_ET", "QUALIFIER_GRAND_SLAM", "QUALIFIER_WM")
+        return summaries.map { summary ->
+            val status = when (summary.phaseState) {
+                TournamentPhaseState.COMPLETED -> TournamentStatus.COMPLETED
+                TournamentPhaseState.ACTIVE -> TournamentStatus.ACTIVE
+                TournamentPhaseState.PLANNED -> TournamentStatus.PLANNED
+            }
 
-            if (status == TournamentStatus.COMPLETED) {
-                if (isMultiWinnerQualifier) {
-                    val qualFinalMatches = matches.filter { it.round == TournamentRound.QUAL_FINAL.name }.sortedBy { it.matchIndex }
-                    qualifierWinners = qualFinalMatches.mapNotNull { m ->
-                        val winnerId = m.winnerId ?: return@mapNotNull null
-                        if (winnerId == USER_ID) {
-                            PlayerUiInfo(id = USER_ID, name = "Du", countryCode = userCountryCode)
-                        } else {
-                            val p = allPlayers[winnerId]
-                            PlayerUiInfo(id = winnerId, name = p?.name ?: "CPU #${winnerId}", countryCode = p?.countryCode ?: Country.DEFAULT_CODE, skill = p?.skill ?: SkillLevel.DEFAULT.value)
-                        }
+            // Resolve winner name from winnerId supplied by the domain use-case.
+            val winnerName: String? = summary.winnerId?.let { winnerId ->
+                if (winnerId == USER_ID) "Du" else allPlayers[winnerId]?.name ?: "CPU"
+            }
+
+            // Resolve qualifier winners to PlayerUiInfo (player names, flags, skill levels).
+            val qualifierWinners: List<PlayerUiInfo>? = if (summary.qualifierWinnerIds.isNotEmpty()) {
+                summary.qualifierWinnerIds.map { winnerId ->
+                    if (winnerId == USER_ID) {
+                        PlayerUiInfo(id = USER_ID, name = "Du", countryCode = userCountryCode)
+                    } else {
+                        val dbPlayer = allPlayers[winnerId]
+                        PlayerUiInfo(
+                            id = winnerId,
+                            name = dbPlayer?.name ?: "CPU #$winnerId",
+                            countryCode = dbPlayer?.countryCode ?: Country.DEFAULT_CODE,
+                            skill = dbPlayer?.skill ?: SkillLevel.DEFAULT.value
+                        )
                     }
-                } else {
-                    val finalMatch = matches.find { it.round == "F" || it.round == "FINAL" } ?: matches.lastOrNull()
-                    if (finalMatch?.winnerId != null) {
-                        val winnerId = finalMatch.winnerId
-                        winnerName = if (winnerId == USER_ID) "Du" else allPlayers[winnerId]?.name ?: "CPU"
-                    }
                 }
+            } else null
 
-                val placements = placementsByTournament[tournament.id] ?: emptyList()
-                val userPlacement = placements.find { it.playerId == USER_ID }
-                if (userPlacement != null) {
-                    userReachedRound = TournamentUiHelper.getDisplayRoundName(userPlacement.reachedRound, getApplication())
-                }
-            } else if (status == TournamentStatus.ACTIVE) {
-                val activeRound = advanceTournamentRoundUseCase.evaluateTournamentState(tournament.id)?.activeRound
-                if (activeRound != null) {
-                    activeRoundName = TournamentUiHelper.getDisplayRoundName(activeRound.name, getApplication())
-                }
+            // Translate the domain round name to a human-readable display string.
+            val activeRoundName: String? = summary.activeRound?.let { activeRound ->
+                TournamentUiHelper.getDisplayRoundName(activeRound.name, getApplication())
+            }
+
+            val userReachedRound: String? = summary.userReachedRound?.let { reachedRound ->
+                TournamentUiHelper.getDisplayRoundName(reachedRound, getApplication())
             }
 
             TournamentUiModel(
-                tournament = tournament,
+                tournament = summary.tournament,
                 status = status,
-                isNextPlanned = isNextPlanned,
+                isNextPlanned = summary.isNextPlanned,
                 winnerName = winnerName,
                 qualifierWinners = qualifierWinners,
                 userReachedRound = userReachedRound,

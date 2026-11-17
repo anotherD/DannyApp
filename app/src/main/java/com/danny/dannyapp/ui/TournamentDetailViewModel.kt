@@ -22,7 +22,10 @@ import com.danny.dannyapp.domain.model.Country
 import com.danny.dannyapp.domain.model.MatchDistance
 import com.danny.dannyapp.domain.model.TournamentRoundPhase
 import com.danny.dannyapp.domain.usecase.AdvanceTournamentRoundUseCase
+import com.danny.dannyapp.domain.usecase.CalculateGroupStandingsUseCase
 import com.danny.dannyapp.domain.usecase.GenerateBracketUseCase
+import com.danny.dannyapp.domain.usecase.GetTournamentSummaryUseCase
+import com.danny.dannyapp.domain.model.GroupStandingEntry
 import com.danny.dannyapp.domain.usecase.MatchScoreValidator
 import com.danny.dannyapp.domain.usecase.SimulateCpuMatchUseCase
 import com.danny.dannyapp.domain.usecase.TournamentProgressionUseCase
@@ -134,6 +137,12 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
     private val advanceTournamentRoundUseCase = AdvanceTournamentRoundUseCase(application)
     private val tournamentProgressionUseCase = TournamentProgressionUseCase(application)
     private val previewHelper = TournamentPreviewHelper(application)
+
+    /** Domain use-case: single source of truth for Grand-Slam group standings. */
+    private val calculateGroupStandingsUseCase = CalculateGroupStandingsUseCase()
+
+    /** Domain use-case: single source of truth for season-level tournament summaries. */
+    private val getTournamentSummaryUseCase = GetTournamentSummaryUseCase()
 
     private val _uiState = MutableStateFlow<TournamentDetailState>(TournamentDetailState.Loading)
     val uiState: StateFlow<TournamentDetailState> = _uiState.asStateFlow()
@@ -267,14 +276,20 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
 
         val prizeItems = getPrizeMoneyItems(event)
 
-        val sortedTournaments = allTournaments.sortedBy { it.order }
-        val hasActiveTournament = sortedTournaments.any { tourney ->
-            !tourney.isCompleted && tournamentMatchDao.getMatchesListForTournament(tourney.id).isNotEmpty()
-        }
-        val earliestPlanned = sortedTournaments.firstOrNull { tourney ->
-            !tourney.isCompleted && tournamentMatchDao.getMatchesListForTournament(tourney.id).isEmpty()
-        }
-        val isNextPlanned = !hasActiveTournament && (earliestPlanned?.id == tournament.id)
+        // Collect matches for all non-completed tournaments to let the domain use-case decide
+        // which is the "next planned" entry without duplicating that logic here.
+        val matchesByTournamentForSummary = allTournaments
+            .filter { !it.isCompleted }
+            .associate { tourney ->
+                tourney.id to tournamentMatchDao.getMatchesListForTournament(tourney.id)
+            }
+        val summaries = getTournamentSummaryUseCase.buildSeasonSummaries(
+            tournaments = allTournaments,
+            matchesByTournament = matchesByTournamentForSummary,
+            placementsByTournament = emptyMap(),
+            activeRoundsByTournament = emptyMap()
+        )
+        val isNextPlanned = summaries.find { it.tournament.id == tournament.id }?.isNextPlanned ?: false
 
         _uiState.value = TournamentDetailState.Preview(
             tournament = tournament,
@@ -727,6 +742,11 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         )
     }
 
+    /**
+     * Calculates the Grand-Slam group standings by delegating to [CalculateGroupStandingsUseCase]
+     * (single source of truth) and mapping the domain [GroupStandingEntry] objects to
+     * [GrandSlamGroupItem] UI models, enriched with player names, flags and seeding info.
+     */
     private suspend fun calculateGrandSlamGroupStandings(
         allMatches: List<TournamentMatch>,
         userName: String,
@@ -735,80 +755,45 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         seasonId: Long,
         tournamentId: Long
     ): Map<String, List<GrandSlamGroupItem>> {
-        val groupMatches = allMatches.filter { it.round == TournamentRound.GROUP.name }
-        if (groupMatches.isEmpty()) return emptyMap()
+        if (allMatches.none { it.round == TournamentRound.GROUP.name }) return emptyMap()
 
         val seededPlayerMap = getSeededPlayerMap(TournamentEvent.GRAND_SLAM_OF_DARTS, seasonId, tournamentId)
 
-        val result = mutableMapOf<String, List<GrandSlamGroupItem>>()
-        val groups = ('A'..'P').map { it.toString() }
+        // Domain use-case performs all statistics and sorting – no duplicated logic here.
+        val standingsByGroup = calculateGroupStandingsUseCase(allMatches)
 
-        class GroupStats(val playerId: Long) {
-            var played = 0
-            var wins = 0
-            var legsWon = 0
-            var legsLost = 0
-            val legDiff: Int get() = legsWon - legsLost
-            val points: Int get() = wins * 2
-        }
-
-        for (groupLetter in groups) {
-            val matchesForGroup = groupMatches.filter { it.groupName == groupLetter }
-            if (matchesForGroup.isEmpty()) continue
-
-            val playerIdsInGroup = matchesForGroup.flatMap { listOf(it.player1Id, it.player2Id) }.filter { it != 0L }.distinct()
-            val statsMap = playerIdsInGroup.associateWith { GroupStats(it) }
-
-            for (m in matchesForGroup) {
-                if (m.isCompleted) {
-                    val s1 = statsMap[m.player1Id]
-                    val s2 = statsMap[m.player2Id]
-                    if (s1 != null && s2 != null) {
-                        s1.played++
-                        s2.played++
-                        s1.legsWon += m.player1Score
-                        s1.legsLost += m.player2Score
-                        s2.legsWon += m.player2Score
-                        s2.legsLost += m.player1Score
-
-                        if (m.winnerId == m.player1Id) s1.wins++
-                        else if (m.winnerId == m.player2Id) s2.wins++
-                    }
-                }
-            }
-
-            val sortedStats = statsMap.values.sortedWith(
-                compareByDescending<GroupStats> { it.wins }
-                    .thenByDescending { it.legDiff }
-                    .thenByDescending { it.legsWon }
-                    .thenBy { it.playerId }
-            )
-
-            val items = sortedStats.mapIndexed { index, s ->
-                val pSeed = seededPlayerMap[s.playerId]
-                val pInfo = if (s.playerId == USER_ID) {
-                    PlayerUiInfo(id = USER_ID, name = userName, countryCode = userCountryCode, seed = pSeed)
-                } else {
-                    val p = allPlayersMap[s.playerId]
+        return ('A'..'P').mapNotNull { groupChar ->
+            val groupLetter = groupChar.toString()
+            val entries = standingsByGroup[groupLetter] ?: return@mapNotNull null
+            val items = entries.map { entry ->
+                val playerSeed = seededPlayerMap[entry.playerId]
+                val playerUiInfo = if (entry.playerId == USER_ID) {
                     PlayerUiInfo(
-                        id = s.playerId,
-                        name = p?.name ?: "CPU #${s.playerId}",
-                        countryCode = p?.countryCode ?: Country.DEFAULT_CODE,
-                        skill = p?.skill ?: SkillLevel.DEFAULT.value,
-                        seed = pSeed
+                        id = USER_ID,
+                        name = userName,
+                        countryCode = userCountryCode,
+                        seed = playerSeed
+                    )
+                } else {
+                    val dbPlayer = allPlayersMap[entry.playerId]
+                    PlayerUiInfo(
+                        id = entry.playerId,
+                        name = dbPlayer?.name ?: "CPU #${entry.playerId}",
+                        countryCode = dbPlayer?.countryCode ?: Country.DEFAULT_CODE,
+                        skill = dbPlayer?.skill ?: SkillLevel.DEFAULT.value,
+                        seed = playerSeed
                     )
                 }
                 GrandSlamGroupItem(
-                    rank = index + 1,
-                    player = pInfo,
-                    played = s.played,
-                    legDiff = s.legDiff,
-                    points = s.points
+                    rank = entry.rank,
+                    player = playerUiInfo,
+                    played = entry.played,
+                    legDiff = entry.legDiff,
+                    points = entry.points
                 )
             }
-            result[groupLetter] = items
-        }
-        return result
+            groupLetter to items
+        }.toMap()
     }
 
     /**
