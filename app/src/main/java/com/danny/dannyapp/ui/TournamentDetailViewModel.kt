@@ -83,7 +83,8 @@ sealed interface TournamentDetailState {
         val roundStatuses: List<RoundStatus> = emptyList(),
         val grandSlamGroupStandings: Map<String, List<GrandSlamGroupItem>> = emptyMap(),
         val hasOpenCpuMatchesInActiveRound: Boolean = false,
-        val openDrawInfoMap: Map<Int, Pair<String, List<EntrantGroupInfo>>> = emptyMap()
+        val openDrawInfoMap: Map<Int, Pair<String, List<EntrantGroupInfo>>> = emptyMap(),
+        val isFinalRound: Boolean = false
     ) : TournamentDetailState
 
     data class Review(
@@ -432,21 +433,19 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         // Trigger Auto-Advance if all matches in current round are completed
         if (autoAdvanceRound && canAdvanceRound) {
             lastAcknowledgedRoundKey = currentRoundKey
-            val advanced = advanceTournamentRoundUseCase(currentTournamentId)
-            if (advanced) {
-                val reloadedTournament = tournamentDao.getTournamentById(currentTournamentId)
-                val newMatches = tournamentMatchDao.getMatchesListForTournament(currentTournamentId)
-                if (reloadedTournament?.isCompleted == true) {
-                    buildReviewState(reloadedTournament, event, newMatches, careerName, seasonNumber)
-                    return
-                } else {
-                    val nextActiveRound = sequence.firstOrNull { r -> newMatches.filter { it.round == r.name }.any { !it.isCompleted } }
-                    hasUserSelectedRound = false
-                    selectedRoundIndex = availableRounds.indexOf(nextActiveRound?.name).coerceAtLeast(0)
-                    selectedRoundIndexFlow.value = selectedRoundIndex
-                    buildActiveState(reloadedTournament ?: tournament, event, newMatches, careerName, seasonNumber)
-                    return
-                }
+            advanceTournamentRoundUseCase(currentTournamentId)
+            val reloadedTournament = tournamentDao.getTournamentById(currentTournamentId)
+            val newMatches = tournamentMatchDao.getMatchesListForTournament(currentTournamentId)
+            if (reloadedTournament?.isCompleted == true) {
+                buildReviewState(reloadedTournament, event, newMatches, careerName, seasonNumber)
+                return
+            } else {
+                val nextActiveRound = sequence.firstOrNull { r -> newMatches.filter { it.round == r.name }.any { !it.isCompleted } }
+                hasUserSelectedRound = false
+                selectedRoundIndex = availableRounds.indexOf(nextActiveRound?.name).coerceAtLeast(0)
+                selectedRoundIndexFlow.value = selectedRoundIndex
+                buildActiveState(reloadedTournament ?: tournament, event, newMatches, careerName, seasonNumber)
+                return
             }
         }
 
@@ -518,6 +517,8 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             }
         }
 
+        val isFinalRound = (activeRoundKeyInDb == TournamentRound.F.name || activeRoundKeyInDb == TournamentRound.QUAL_FINAL.name)
+
         _uiState.value = TournamentDetailState.Active(
             tournament = tournament,
             event = event,
@@ -546,7 +547,8 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             roundStatuses = roundStatuses,
             grandSlamGroupStandings = grandSlamGroupStandings,
             hasOpenCpuMatchesInActiveRound = hasOpenCpuMatchesInActiveRound,
-            openDrawInfoMap = openDrawInfoMap
+            openDrawInfoMap = openDrawInfoMap,
+            isFinalRound = isFinalRound
         )
     }
 
@@ -1091,7 +1093,11 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
                     }
 
                     val advanced = advanceTournamentRoundUseCase(currentTournamentId)
-                    if (!advanced) break
+                    val updatedTournament = tournamentDao.getTournamentById(currentTournamentId)
+                    if (updatedTournament?.isCompleted == true) break
+                    val refreshedMatches = tournamentMatchDao.getMatchesListForTournament(currentTournamentId)
+                    val remainingPlayable = refreshedMatches.filter { !it.isCompleted && (it.player1Id > 0L || it.player1Id == USER_ID) && (it.player2Id > 0L || it.player2Id == USER_ID) }
+                    if (!advanced && remainingPlayable.isEmpty()) break
                 }
             } finally {
                 _isSimulatingBatch.value = false

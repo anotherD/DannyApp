@@ -130,6 +130,7 @@
     <string name="tournament_venue_format">Austragungsort: %1$s %2$s</string>
     <string name="btn_simulate_cpu">CPU simulieren</string>
     <string name="btn_advance_round">Nächste Runde</string>
+    <string name="btn_finish_tournament">Turnier abschließen</string>
     <string name="dialog_close">Schließen</string>
     <string name="qualifier_winners_prefix">Qualifier-Gewinner: %1$s</string>
     <string name="match_tbd_open_draw">Freie Auslosung</string>

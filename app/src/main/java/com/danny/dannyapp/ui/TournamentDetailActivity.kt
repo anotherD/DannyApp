@@ -448,6 +448,7 @@ class TournamentDetailActivity : BaseActivity() {
                 btnSimulateCpuMatches.visibility = if (debugMode && state.hasOpenCpuMatchesInActiveRound) View.VISIBLE else View.GONE
                 btnAdvanceRound.visibility = if (state.canAdvanceRound) View.VISIBLE else View.GONE
                 btnAdvanceRound.isEnabled = state.canAdvanceRound
+                btnAdvanceRound.setText(if (state.isFinalRound) R.string.btn_finish_tournament else R.string.btn_advance_round)
 
                 currentPrizeMoneyItems = state.prizeMoneyItems
 

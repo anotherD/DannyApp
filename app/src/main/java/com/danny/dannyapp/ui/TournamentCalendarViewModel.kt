@@ -254,7 +254,11 @@ class TournamentCalendarViewModel(application: Application) : AndroidViewModel(a
                             }
 
                             val advanced = advanceRound(tournamentId)
-                            if (!advanced) break
+                            val updatedTournament = tournamentDao.getTournamentById(tournamentId)
+                            if (updatedTournament?.isCompleted == true) break
+                            val refreshedMatches = tournamentMatchDao.getMatchesListForTournament(tournamentId)
+                            val remainingPlayable = refreshedMatches.filter { !it.isCompleted && (it.player1Id > 0L || it.player1Id == USER_ID) && (it.player2Id > 0L || it.player2Id == USER_ID) }
+                            if (!advanced && remainingPlayable.isEmpty()) break
                         }
                     } catch (_: Exception) {}
                 }

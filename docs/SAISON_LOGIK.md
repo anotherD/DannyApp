@@ -96,10 +96,24 @@ Beim Saisonwechsel (`createSeason(careerId)`):
   - Für alle Turniere mit festem Turnierbaum (alle außer `UK_OPEN` und `EUROPEAN_OPEN`) werden beim ersten Aufruf von `GenerateBracketUseCase` bereits **alle Runden des Turniers** (von Runde 1 bis Finale bzw. Gruppenphase bis Finale) in `tournament_matches` angelegt und persistiert.
   - Dabei werden Platzhalter wie `PLACEHOLDER_PREVIOUS_WINNER_ID` (`-999L`), Open-Draw-IDs oder Vorrunden-Platzhalter verwendet.
   - `UK_OPEN` und `EUROPEAN_OPEN` behalten ihre offene Runden-für-Runden-Auslosung bei.
-* **Slot-Befüllung & Rundenfortschritt (`AdvanceTournamentRoundUseCase` & `TournamentDetailViewModel`):**
-  - **Sofortige Sieger-Eintragung (`propagateWinnerOnMatchCompleted`):** Nach Abschluss eines Matches (egal ob CPU-Match über `SimulateCpuMatchUseCase`, User-Match über `setUserMatchWinner` / `setManualUserMatchScore`, oder Kalender-Simulation) wird der Sieger sofort per `propagateWinnerOnMatchCompleted` in den nächsten Turnierbaum-Slot eingetragen (außer bei offener Auslosung wie `UK_OPEN` und `EUROPEAN_OPEN`).
-  - **Rundenwechsel (Manuell vs. Automatisch):** Eine Runde gilt erst dann als abgeschlossen und bereit zum Weiterschalten, wenn `isCurrentRoundCompleted == true`.
-    - `canAdvanceRound` ist vereinfacht auf `(currentRoundKey == activeRoundKeyInDb) && isCurrentRoundCompleted` reduziert, da `propagateWinnerOnMatchCompleted` Sieger sofort in die Folgerunde einträgt.
-    - Bei `autoAdvanceRound == false` wird nach Abschluss aller Matches einer Runde in dieser Runde der Button **„Nächste Runde“** (`canAdvanceRound = true`) angezeigt. Erst nach Klick auf den Button wird die nächste Runde betreten.
-    - Bei `autoAdvanceRound == true` schaltet das System nach Rundenabschluss automatisch auf die nächste Runde weiter und ermittelt die neue aktive Runde.
+* **Rundenermittlung (`AdvanceTournamentRoundUseCase.invoke`):**
+  - Zuerst wird geprüft, ob **alle** Runden der Sequenz abgeschlossen sind (`allRoundsCompleted`). Wenn ja:
+    - Qualifier-Turniere (`QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIFIER_WM`): Turnier als abgeschlossen markieren (`isCompleted = true`) und `true` zurückgeben.
+    - Normale Turniere: Verlierer-Placements aller abgeschlossenen Runden iterieren (Dedupe über `existingPlacementPlayerIds`), Finale-Sieger erhält `WINNER`-Placement, Turnier als abgeschlossen markieren und `true` zurückgeben.
+  - Falls nicht alle Runden abgeschlossen sind: erste Runde in der Sequenz ermitteln, die **mindestens ein unvollendetes Match** enthält (`matches.any { !it.isCompleted }`). Falls keine solche Runde existiert, letzte Runde der Sequenz verwenden.
+  - **Grand Slam of Darts Tag-1-Prüfung:** Wenn alle Day-1-Gruppen-Matches abgeschlossen sind und Day-2-Matches noch Platzhalter für den Vorgänger-Sieger enthalten, werden diese automatisch befüllt und `true` zurückgegeben.
+* **Slot-Befüllung (`propagateWinnerOnMatchCompleted`):** Nach Abschluss eines Matches (CPU-Match über `SimulateCpuMatchUseCase`, User-Match über `setUserMatchWinner` / `setManualUserMatchScore`, oder Kalender-Simulation) wird der Sieger sofort per `propagateWinnerOnMatchCompleted` in den nächsten Turnierbaum-Slot eingetragen (außer bei offener Auslosung wie `UK_OPEN` und `EUROPEAN_OPEN`).
+* **Verlierer-Placements:** Für Verlierer aller **abgeschlossenen** Runden wird ein `TournamentPlacement` angelegt, sofern noch kein Placement für diesen Spieler existiert. Dedupe erfolgt über `existingPlacementPlayerIds`. Das Finale erhält ein separates `WINNER`-Placement.
+* **Rundenwechsel (Manuell vs. Automatisch):** Eine Runde gilt erst dann als abgeschlossen und bereit zum Weiterschalten, wenn `isCurrentRoundCompleted == true`.
+  - `canAdvanceRound` ist vereinfacht auf `(currentRoundKey == activeRoundKeyInDb) && isCurrentRoundCompleted` reduziert.
+  - Bei `autoAdvanceRound == false` wird nach Abschluss aller Matches einer Runde der Button **„Nächste Runde“** (`canAdvanceRound = true`) angezeigt. Erst nach Klick wird die nächste Runde betreten.
+  - Bei `autoAdvanceRound == true` schaltet das System nach Rundenabschluss automatisch auf die nächste Runde weiter. Der Rückgabewert von `advanceTournamentRoundUseCase` wird ignoriert; stattdessen wird die neue aktive Runde aus den Matches mit unvollendeten Matches bestimmt.
+  - `TournamentDetailState.Active` enthält das neue Feld `isFinalRound` (`true` wenn `activeRoundKeyInDb == TournamentRound.F.name || activeRoundKeyInDb == TournamentRound.QUAL_FINAL.name`).
+* **Button-Beschriftung (`TournamentDetailActivity`):** Im Active-Zweig von `renderState` wird `btnAdvanceRound` mit `R.string.btn_finish_tournament` beschriftet, wenn `state.isFinalRound == true`, andernfalls mit `R.string.btn_advance_round`.
+* **Simulation (`simulateCompleteTournament` in `TournamentDetailViewModel` und `TournamentCalendarViewModel`):** Die `while (true)`-Schleife bricht nicht mehr bei `advanced == false` ab, sondern erst wenn **beides** zutrifft: kein Fortschritt (`!advanced`) **und** keine spielbaren unvollendeten Matches (`remainingPlayable.isEmpty()`), oder das Turnier ist als abgeschlossen markiert (`isCompleted == true`).
+
+* **Fehlerhistorie (behoben):**
+  1. `propagateWinnerOnMatchCompleted` befüllte die Folgerunde bereits beim Match-Abschluss, sodass `invoke()` die gerade abgeschlossene Runde übersprang, in der neuen Runde `isCompleted == false` sah und `false` zurückgab. → Rundenermittlung auf „erste Runde mit unvollendeten Matches, sonst letzte Runde“ umgestellt.
+  2. Die gleiche Propagation bewirkte, dass `advanceRound(tournamentId)` bei Zwischenrunden `false` lieferte, obwohl noch unvollständige Matches in der Folgerunde existierten → `while (true)` brach zu früh ab. → Abbruchbedingung auf `!advanced && remainingPlayable.isEmpty()` bzw. `isCompleted == true` geändert.
+  3. Auto-Advance-Block in `buildActiveState` war vom `advanced`-Flag abhängig; das Button-Text „Nächste Runde“ blieb auch im Finale stehen. → Auto-Advance entkoppelt vom Rückgabewert, `isFinalRound` eingeführt, Button-Beschriftung entsprechend angepasst.
 
