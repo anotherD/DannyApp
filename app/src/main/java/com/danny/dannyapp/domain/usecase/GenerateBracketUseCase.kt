@@ -941,7 +941,8 @@ class GenerateBracketUseCase(
             }
         }
 
-        tournamentParticipantDao.insertParticipants(participants.distinctBy { it.playerId })
+        val uniqueParticipants = participants.distinctBy { it.playerId }
+        tournamentParticipantDao.insertParticipants(uniqueParticipants)
 
         if (event !in listOf(TournamentEvent.QUALIFIER_ET, TournamentEvent.QUALIFIER_GRAND_SLAM, TournamentEvent.QUALIFIER_WM)) {
             val initialPlacements = mutableListOf<TournamentPlacement>()
@@ -1016,7 +1017,7 @@ class GenerateBracketUseCase(
                 }
             }
             if (initialPlacements.isNotEmpty()) {
-                tournamentPlacementDao.insertPlacements(initialPlacements)
+                tournamentPlacementDao.insertPlacements(initialPlacements.distinctBy { it.playerId })
             }
         }
 
