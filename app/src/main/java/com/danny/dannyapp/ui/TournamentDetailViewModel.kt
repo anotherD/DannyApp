@@ -449,9 +449,8 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
                     buildReviewState(reloadedTournament, event, newMatches, careerName, seasonNumber)
                     return
                 } else {
-                    val latestGenerated = sequence.lastOrNull { round -> newMatches.any { it.round == round.name } }
-                    selectedRoundIndex = if (latestGenerated != null) availableRounds.indexOf(latestGenerated.name).coerceAtLeast(0) else 0
-                    selectedRoundIndexFlow.value = selectedRoundIndex
+                    hasUserSelectedRound = false
+                    selectedRoundIndex = -1
                     buildActiveState(reloadedTournament ?: tournament, event, newMatches, careerName, seasonNumber)
                     return
                 }
@@ -464,12 +463,12 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             ""
         }
 
-        val roundStatuses = availableRounds.map { roundKey ->
+        val activeIndex = availableRounds.indexOf(activeRoundKeyInDb)
+        val roundStatuses = availableRounds.mapIndexed { idx, roundKey ->
             val matchesInRound = allMatches.filter { it.round == roundKey }
             when {
-                matchesInRound.isNotEmpty() && matchesInRound.all { it.isCompleted } -> RoundStatus.COMPLETED
-                matchesInRound.isNotEmpty() && matchesInRound.any { !it.isCompleted } -> RoundStatus.ACTIVE
                 roundKey == activeRoundKeyInDb -> RoundStatus.ACTIVE
+                idx < activeIndex && matchesInRound.isNotEmpty() && matchesInRound.all { it.isCompleted } -> RoundStatus.COMPLETED
                 else -> RoundStatus.PENDING
             }
         }
@@ -1136,11 +1135,13 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
                 val matches = tournamentMatchDao.getMatchesListForTournament(currentTournamentId)
                 val sequence = getRoundSequence(event, matches)
                 val availableRounds = sequence.map { it.name }
-                val roundKeysInMatches = matches.map { it.round }.distinct()
-                val latestRound = sequence.lastOrNull { it.name in roundKeysInMatches }
-                if (latestRound != null) {
-                    val newIndex = availableRounds.indexOf(latestRound.name)
+                val nextActiveRound = sequence.firstOrNull { r ->
+                    matches.filter { it.round == r.name }.any { !it.isCompleted }
+                } ?: sequence.lastOrNull { it.name in matches.map { m -> m.round }.distinct() }
+                if (nextActiveRound != null) {
+                    val newIndex = availableRounds.indexOf(nextActiveRound.name)
                     if (newIndex != -1) {
+                        hasUserSelectedRound = false
                         selectedRoundIndex = newIndex
                         selectedRoundIndexFlow.value = newIndex
                     }

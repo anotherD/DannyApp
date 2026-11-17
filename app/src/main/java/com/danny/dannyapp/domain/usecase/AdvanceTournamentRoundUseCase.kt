@@ -55,20 +55,26 @@ class AdvanceTournamentRoundUseCase(
         val roundSequence = event.getRoundSequence()
 
 
-        // Find the active round according to prompt instruction:
-        // Die aktive Runde ist die letzte Runde in roundSequence, in der Matches mit echten Teilnehmern existieren.
-        val currentRoundEnum = roundSequence.lastOrNull { round ->
+        val currentRoundEnum = roundSequence.firstOrNull { round ->
             val matches = allMatches.filter { it.round == round.name }
-            matches.isNotEmpty() && matches.any { match ->
-                (match.player1Id > 0L || match.player1Id == USER_ID) &&
-                    (match.player2Id > 0L || match.player2Id == USER_ID)
+            if (matches.isEmpty()) return@firstOrNull false
+            val hasIncompleteMatches = matches.any { !it.isCompleted }
+            if (hasIncompleteMatches) {
+                true
+            } else {
+                val nextRoundIdx = roundSequence.indexOf(round) + 1
+                if (nextRoundIdx in roundSequence.indices) {
+                    val nextRound = roundSequence[nextRoundIdx]
+                    val nextMatches = allMatches.filter { it.round == nextRound.name }
+                    nextMatches.isNotEmpty() && nextMatches.any {
+                        (it.player1Id < 0L && it.player1Id != USER_ID) ||
+                            (it.player2Id < 0L && it.player2Id != USER_ID)
+                    }
+                } else false
             }
+        } ?: roundSequence.lastOrNull { round ->
+            allMatches.any { it.round == round.name }
         } ?: return@withContext false
-
-        val currentRoundMatches = allMatches.filter { it.round == currentRoundEnum.name }
-        if (currentRoundMatches.isEmpty() || currentRoundMatches.any { !it.isCompleted }) {
-            return@withContext false // Not all matches in current round are finished yet
-        }
 
         // Special handling for Grand Slam of Darts group stage
         if (event == TournamentEvent.GRAND_SLAM_OF_DARTS) {
@@ -180,6 +186,11 @@ class AdvanceTournamentRoundUseCase(
                     return@withContext true
                 }
             }
+        }
+
+        val currentRoundMatches = allMatches.filter { it.round == currentRoundEnum.name }
+        if (currentRoundMatches.isEmpty() || currentRoundMatches.any { !it.isCompleted }) {
+            return@withContext false // Not all matches in current round are finished yet
         }
 
         // Special handling for qualifier tournaments (QUALIFIER_ET, QUALIFIER_GRAND_SLAM, QUALIFIER_WM)

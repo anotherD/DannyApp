@@ -97,7 +97,7 @@ Beim Saisonwechsel (`createSeason(careerId)`):
   - Dabei werden Platzhalter wie `PLACEHOLDER_PREVIOUS_WINNER_ID` (`-999L`), Open-Draw-IDs oder Vorrunden-Platzhalter verwendet.
   - `UK_OPEN` und `EUROPEAN_OPEN` behalten ihre offene Runden-für-Runden-Auslosung bei.
 * **Slot-Befüllung & Rundenfortschritt (`AdvanceTournamentRoundUseCase` & `TournamentDetailViewModel`):**
-  - Die aktive Runde wird in `AdvanceTournamentRoundUseCase` als die **letzte** Runde in `roundSequence` ermittelt, in der Matches mit echten Teilnehmern existieren (`roundSequence.lastOrNull`), um ein zu frühes Abbrechen nach Abschluss einer Zwischenrunde zu verhindern.
+  - Die aktive Runde wird in `AdvanceTournamentRoundUseCase` als die **erste** Runde in `roundSequence` ermittelt, in der noch unvollständige Matches vorliegen bzw. Platzhalter der Folgerunde befüllt werden müssen (`roundSequence.firstOrNull`), um u. a. bei Qualifier-Freilosen (`QUAL_PRELIM`) oder im Grand Slam die korrekte Runde fortzuschalten.
   - Im `TournamentDetailViewModel` (`buildActiveState`) wird `canAdvanceRound` über die spielbaren Matches (mit echten Spielern) der aktiven Runde sowie das Vorhandensein unvollständiger Platzhalter oder das Fehlen echter Spieler in der nächsten Runde geprüft (`!hasNextRealPlayers` bzw. `hasUnpopulatedPlaceholderMatchesInRound`), da der persistente Turnierbaum alle Runden vorab generiert.
   - Grand Slam of Darts und Qualifier-Turniere aktualisieren ihre bestehenden Match-Slots analog (Tag-1-Verlierer/Sieger für Tag 2/3, Gruppensieger für L16, etc.).
 
