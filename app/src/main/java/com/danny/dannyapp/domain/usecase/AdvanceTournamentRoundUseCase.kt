@@ -44,6 +44,87 @@ class AdvanceTournamentRoundUseCase(
         GetOrderOfMeritUseCase(context)
     )
 
+    /**
+     * Propagates the winner of a completed match immediately into the corresponding next round slot.
+     */
+    suspend fun propagateWinnerOnMatchCompleted(match: TournamentMatch) = withContext(Dispatchers.IO) {
+        val tournament = tournamentDao.getTournamentById(match.tournamentId) ?: return@withContext
+        val event = try { TournamentEvent.valueOf(tournament.type) } catch (_: Exception) { return@withContext }
+        if (event == TournamentEvent.UK_OPEN || event == TournamentEvent.EUROPEAN_OPEN) {
+            return@withContext
+        }
+        val winnerId = match.winnerId ?: return@withContext
+        val allMatches = tournamentMatchDao.getMatchesListForTournament(match.tournamentId)
+        val roundSequence = event.getRoundSequence()
+
+        // 1. Grand Slam of Darts (GROUP Tag 1, match.round == TournamentRound.GROUP.name && match.matchIndex in 0..15)
+        if (event == TournamentEvent.GRAND_SLAM_OF_DARTS && match.round == TournamentRound.GROUP.name && match.matchIndex in 0..15) {
+            val groupIdx = match.matchIndex
+            val groupLetter = ('A' + groupIdx).toString()
+            val loserId = if (match.player1Id == winnerId) match.player2Id else match.player1Id
+            val groupMatches = allMatches.filter { it.round == TournamentRound.GROUP.name }
+            val day2Match = groupMatches.find { it.groupName == groupLetter && it.matchIndex == 16 + groupIdx }
+            val day3Match = groupMatches.find { it.groupName == groupLetter && it.matchIndex == 32 + groupIdx }
+            if (day2Match != null) {
+                tournamentMatchDao.updateMatch(day2Match.copy(player2Id = loserId))
+            }
+            if (day3Match != null) {
+                tournamentMatchDao.updateMatch(day3Match.copy(player2Id = winnerId))
+            }
+            return@withContext
+        }
+
+        // 2. Qualifier (QUAL_PRELIM)
+        if (match.round == TournamentRound.QUAL_PRELIM.name) {
+            val qualR1Matches = allMatches.filter { it.round == TournamentRound.QUAL_R1.name }
+            val placeholderId = -1000L - match.matchIndex
+            for (m in qualR1Matches) {
+                var updated = m
+                var changed = false
+                if (m.player1Id == placeholderId) {
+                    updated = updated.copy(player1Id = winnerId)
+                    changed = true
+                }
+                if (m.player2Id == placeholderId) {
+                    updated = updated.copy(player2Id = winnerId)
+                    changed = true
+                }
+                if (changed) {
+                    tournamentMatchDao.updateMatch(updated)
+                }
+            }
+            return@withContext
+        }
+
+        // 3. European Tour (L48)
+        if (event == TournamentEvent.EUROPEAN_TOUR && match.round == TournamentRound.L48.name) {
+            val l32Matches = allMatches.filter { it.round == TournamentRound.L32.name }
+            val targetIdx = BracketGenerator.BRACKET_SEED_ORDER_16.indexOf(15 - match.matchIndex)
+            val l32Match = l32Matches.find { it.matchIndex == targetIdx }
+            if (l32Match != null) {
+                tournamentMatchDao.updateMatch(l32Match.copy(player2Id = winnerId))
+            }
+            return@withContext
+        }
+
+        // 4. Alle anderen K.o.-Runden (Standard-Baum, Qualifier QUAL_R1 -> QUAL_R2 -> QUAL_FINAL, Grand Slam ab L16)
+        val currentRoundEnum = try { TournamentRound.valueOf(match.round) } catch (_: Exception) { return@withContext }
+        val currentIdx = roundSequence.indexOf(currentRoundEnum)
+        if (currentIdx < 0) return@withContext
+        val nextRoundEnum = roundSequence.getOrNull(currentIdx + 1) ?: return@withContext
+        val nextMatches = allMatches.filter { it.round == nextRoundEnum.name }
+        val targetMatchIndex = match.matchIndex / 2
+        val nextMatch = nextMatches.find { it.matchIndex == targetMatchIndex }
+        if (nextMatch != null) {
+            val updatedNext = if (match.matchIndex % 2 == 0) {
+                nextMatch.copy(player1Id = winnerId)
+            } else {
+                nextMatch.copy(player2Id = winnerId)
+            }
+            tournamentMatchDao.updateMatch(updatedNext)
+        }
+    }
+
     suspend operator fun invoke(tournamentId: Long): Boolean = withContext(Dispatchers.IO) {
         val tournament = tournamentDao.getTournamentById(tournamentId) ?: return@withContext false
         if (tournament.isCompleted) return@withContext false
@@ -53,7 +134,6 @@ class AdvanceTournamentRoundUseCase(
         if (allMatches.isEmpty()) return@withContext false
 
         val roundSequence = event.getRoundSequence()
-
 
         val currentRoundEnum = roundSequence.firstOrNull { round ->
             val matches = allMatches.filter { it.round == round.name }

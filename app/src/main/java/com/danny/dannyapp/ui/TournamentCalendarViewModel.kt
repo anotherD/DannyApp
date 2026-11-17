@@ -246,6 +246,7 @@ class TournamentCalendarViewModel(application: Application) : AndroidViewModel(a
                                             isCompleted = true
                                         )
                                         tournamentMatchDao.updateMatch(updated)
+                                        advanceRound.propagateWinnerOnMatchCompleted(updated)
                                     } else {
                                         simulateCpu(match)
                                     }

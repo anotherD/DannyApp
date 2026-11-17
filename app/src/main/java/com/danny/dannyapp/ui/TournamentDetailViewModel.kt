@@ -141,6 +141,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
 
     private var currentTournamentId: Long = -1L
     private var currentCareerId: Long = -1L
+    private var lastAcknowledgedRoundKey: String? = null
 
     private var selectedRoundIndex: Int = 0
     private var selectedGroupIndex: Int = 0
@@ -165,6 +166,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         this.currentTournamentId = tournamentId
         this.currentCareerId = careerId
         hasUserSelectedRound = false
+        lastAcknowledgedRoundKey = null
 
         loadJob?.cancel()
         loadJob = viewModelScope.launch {
@@ -296,32 +298,28 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         val sequence = getRoundSequence(event, allMatches)
         val availableRounds = sequence.map { it.name }
 
-        val activeRoundKeyInDb = sequence.firstOrNull { round ->
-            val matches = allMatches.filter { it.round == round.name }
-            matches.any { m ->
-                (m.player1Id > 0L || m.player1Id == USER_ID) &&
-                (m.player2Id > 0L || m.player2Id == USER_ID) &&
-                !m.isCompleted
-            }
-        }?.name ?: sequence.lastOrNull { round ->
-            allMatches.filter { it.round == round.name }.any { m ->
-                (m.player1Id > 0L || m.player1Id == USER_ID) &&
-                (m.player2Id > 0L || m.player2Id == USER_ID)
-            }
-        }?.name ?: availableRounds.firstOrNull() ?: ""
-
-        val activeRoundDisplayName = TournamentUiHelper.getDisplayRoundName(activeRoundKeyInDb, getApplication())
-
-        if (selectedRoundIndex !in availableRounds.indices) {
-            val activeIndex = availableRounds.indexOf(activeRoundKeyInDb)
-            selectedRoundIndex = if (activeIndex != -1) activeIndex else availableRounds.lastIndex.coerceAtLeast(0)
-            selectedRoundIndexFlow.value = selectedRoundIndex
-        }
-
         val currentRoundKey = availableRounds.getOrNull(selectedRoundIndex) ?: ""
         val availableRoundDisplayNames = availableRounds.map { TournamentUiHelper.getDisplayRoundName(it, getApplication()) }
 
         val dbMatchesForRound = allMatches.filter { it.round == currentRoundKey }
+        val isCurrentRoundCompleted = dbMatchesForRound.isNotEmpty() && dbMatchesForRound.all { it.isCompleted }
+
+        val firstIncompleteRound = sequence.firstOrNull { round ->
+            val matches = allMatches.filter { it.round == round.name }
+            matches.any { !it.isCompleted }
+        }
+
+        val activeRoundKeyInDb = if (!autoAdvanceRound && isCurrentRoundCompleted && lastAcknowledgedRoundKey != currentRoundKey) {
+            currentRoundKey
+        } else {
+            firstIncompleteRound?.name ?: sequence.lastOrNull { round ->
+                allMatches.filter { it.round == round.name }.any { m ->
+                    (m.player1Id > 0L || m.player1Id == USER_ID) &&
+                    (m.player2Id > 0L || m.player2Id == USER_ID)
+                }
+            }?.name ?: availableRounds.firstOrNull() ?: ""
+        }
+        val activeRoundDisplayName = TournamentUiHelper.getDisplayRoundName(activeRoundKeyInDb, getApplication())
         val isUkOrEuropeanOpen = event == TournamentEvent.UK_OPEN || event == TournamentEvent.EUROPEAN_OPEN
         val isUkOpenUngenerated = isUkOrEuropeanOpen && dbMatchesForRound.isEmpty() && currentRoundKey in listOf(
             TournamentRound.R2_128.name, TournamentRound.R3_96.name, TournamentRound.L64.name,
@@ -411,7 +409,6 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             rawMatchUiModels
         }
 
-        val isCurrentRoundCompleted = dbMatchesForRound.isNotEmpty() && dbMatchesForRound.all { it.isCompleted }
         val isSelectedRoundPlayable = dbMatchesForRound.isNotEmpty() && dbMatchesForRound.any { !it.isCompleted }
         val prizeMoneyItems = getPrizeMoneyItems(event)
 
@@ -1099,6 +1096,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
                                     isCompleted = true
                                 )
                                 tournamentMatchDao.updateMatch(updated)
+                                advanceTournamentRoundUseCase.propagateWinnerOnMatchCompleted(updated)
                             } else {
                                 simulateCpuMatchUseCase(match)
                             }
@@ -1132,18 +1130,26 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
      */
     fun advanceRound() {
         viewModelScope.launch {
+            val tournament = tournamentDao.getTournamentById(currentTournamentId) ?: return@launch
+            val event = try { TournamentEvent.valueOf(tournament.type) } catch (_: Exception) { TournamentEvent.PLAYERS_CHAMPIONSHIP }
+            val matches = tournamentMatchDao.getMatchesListForTournament(currentTournamentId)
+            val sequence = getRoundSequence(event, matches)
+            val availableRounds = sequence.map { it.name }
+            val currentRoundKey = availableRounds.getOrNull(selectedRoundIndex)
+            if (currentRoundKey != null) {
+                lastAcknowledgedRoundKey = currentRoundKey
+            }
             advanceTournamentRoundUseCase(currentTournamentId)
-            val tournament = tournamentDao.getTournamentById(currentTournamentId)
-            if (tournament != null) {
-                val event = try { TournamentEvent.valueOf(tournament.type) } catch (_: Exception) { TournamentEvent.PLAYERS_CHAMPIONSHIP }
-                val matches = tournamentMatchDao.getMatchesListForTournament(currentTournamentId)
-                val sequence = getRoundSequence(event, matches)
-                val availableRounds = sequence.map { it.name }
-                val nextActiveRound = sequence.firstOrNull { r ->
-                    matches.filter { it.round == r.name }.any { !it.isCompleted }
-                } ?: sequence.lastOrNull { it.name in matches.map { m -> m.round }.distinct() }
+            val reloadedTournament = tournamentDao.getTournamentById(currentTournamentId)
+            if (reloadedTournament != null) {
+                val reloadedMatches = tournamentMatchDao.getMatchesListForTournament(currentTournamentId)
+                val newSequence = getRoundSequence(event, reloadedMatches)
+                val newAvailableRounds = newSequence.map { it.name }
+                val nextActiveRound = newSequence.firstOrNull { r ->
+                    reloadedMatches.filter { it.round == r.name }.any { !it.isCompleted }
+                } ?: newSequence.lastOrNull { it.name in reloadedMatches.map { m -> m.round }.distinct() }
                 if (nextActiveRound != null) {
-                    val newIndex = availableRounds.indexOf(nextActiveRound.name)
+                    val newIndex = newAvailableRounds.indexOf(nextActiveRound.name)
                     if (newIndex != -1) {
                         hasUserSelectedRound = false
                         selectedRoundIndex = newIndex
@@ -1185,6 +1191,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             )
 
             tournamentMatchDao.updateMatch(updated)
+            advanceTournamentRoundUseCase.propagateWinnerOnMatchCompleted(updated)
         }
     }
 
@@ -1217,6 +1224,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         )
 
         tournamentMatchDao.updateMatch(updated)
+        advanceTournamentRoundUseCase.propagateWinnerOnMatchCompleted(updated)
         return null
     }
 

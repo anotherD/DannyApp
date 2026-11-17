@@ -19,12 +19,16 @@ import kotlin.random.Random
 class SimulateCpuMatchUseCase(
     private val tournamentMatchDao: TournamentMatchDao,
     private val tournamentDao: TournamentDao,
-    private val playerDao: PlayerDao
+    private val playerDao: PlayerDao,
+    private val advanceTournamentRoundUseCase: AdvanceTournamentRoundUseCase? = null,
+    private val context: Context? = null
 ) {
     constructor(context: Context) : this(
         AppDatabase.getDatabase(context.applicationContext).tournamentMatchDao(),
         AppDatabase.getDatabase(context.applicationContext).tournamentDao(),
-        AppDatabase.getDatabase(context.applicationContext).playerDao()
+        AppDatabase.getDatabase(context.applicationContext).playerDao(),
+        AdvanceTournamentRoundUseCase(context),
+        context
     )
 
     suspend operator fun invoke(matchId: Long): TournamentMatch? = withContext(Dispatchers.IO) {
@@ -84,6 +88,8 @@ class SimulateCpuMatchUseCase(
         )
 
         tournamentMatchDao.updateMatch(updatedMatch)
+        val adv = advanceTournamentRoundUseCase ?: context?.let { AdvanceTournamentRoundUseCase(it) }
+        adv?.propagateWinnerOnMatchCompleted(updatedMatch)
         return@withContext updatedMatch
     }
 

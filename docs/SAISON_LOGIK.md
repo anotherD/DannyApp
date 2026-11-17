@@ -97,7 +97,8 @@ Beim Saisonwechsel (`createSeason(careerId)`):
   - Dabei werden Platzhalter wie `PLACEHOLDER_PREVIOUS_WINNER_ID` (`-999L`), Open-Draw-IDs oder Vorrunden-Platzhalter verwendet.
   - `UK_OPEN` und `EUROPEAN_OPEN` behalten ihre offene Runden-für-Runden-Auslosung bei.
 * **Slot-Befüllung & Rundenfortschritt (`AdvanceTournamentRoundUseCase` & `TournamentDetailViewModel`):**
-  - Die aktive Runde wird in `AdvanceTournamentRoundUseCase` als die **erste** Runde in `roundSequence` ermittelt, in der noch unvollständige Matches vorliegen bzw. Platzhalter der Folgerunde befüllt werden müssen (`roundSequence.firstOrNull`), um u. a. bei Qualifier-Freilosen (`QUAL_PRELIM`) oder im Grand Slam die korrekte Runde fortzuschalten.
-  - Im `TournamentDetailViewModel` (`buildActiveState`) wird `canAdvanceRound` über die spielbaren Matches (mit echten Spielern) der aktiven Runde sowie das Vorhandensein unvollständiger Platzhalter oder das Fehlen echter Spieler in der nächsten Runde geprüft (`!hasNextRealPlayers` bzw. `hasUnpopulatedPlaceholderMatchesInRound`), da der persistente Turnierbaum alle Runden vorab generiert.
-  - Grand Slam of Darts und Qualifier-Turniere aktualisieren ihre bestehenden Match-Slots analog (Tag-1-Verlierer/Sieger für Tag 2/3, Gruppensieger für L16, etc.).
+  - **Sofortige Sieger-Eintragung (`propagateWinnerOnMatchCompleted`):** Nach Abschluss eines Matches (egal ob CPU-Match über `SimulateCpuMatchUseCase`, User-Match über `setUserMatchWinner` / `setManualUserMatchScore`, oder Kalender-Simulation) wird der Sieger sofort per `propagateWinnerOnMatchCompleted` in den nächsten Turnierbaum-Slot eingetragen (außer bei offener Auslosung wie `UK_OPEN` und `EUROPEAN_OPEN`).
+  - **Rundenwechsel (Manuell vs. Automatisch):** Eine Runde gilt erst dann als abgeschlossen und bereit zum Weiterschalten, wenn `AdvanceTournamentRoundUseCase` die Platzierungen verbucht hat. Über `lastAcknowledgedRoundKey` und `activeRoundKeyInDb` wird in `TournamentDetailViewModel` strikt unterschieden:
+    - Bei `autoAdvanceRound == false` wird nach Abschluss aller Matches einer Runde in dieser Runde der Button **„Nächste Runde“** (`canAdvanceRound = true`) angezeigt. Erst nach Klick auf den Button wird die nächste Runde betreten.
+    - Bei `autoAdvanceRound == true` schaltet das System nach Rundenabschluss automatisch auf die nächste Runde weiter.
 
