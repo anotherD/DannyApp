@@ -1,12 +1,9 @@
 package com.danny.dannyapp.ui
 
 import android.content.res.ColorStateList
-import android.graphics.Typeface
 import android.os.Bundle
-import android.view.GestureDetector
-import android.view.Gravity
-import android.view.MotionEvent
 import android.view.View
+import com.danny.dannyapp.domain.usecase.TournamentQualificationUseCase
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.HorizontalScrollView
@@ -104,7 +101,6 @@ class TournamentDetailActivity : BaseActivity() {
     private lateinit var reviewMatchesAdapter: TournamentMatchAdapter
     private lateinit var bracketViewReview: TournamentBracketView
     private lateinit var layoutSimulatingOverlay: View
-    private lateinit var gestureDetector: GestureDetector
 
     private var tournamentId: Long = -1L
     private var careerId: Long = -1L
@@ -113,49 +109,13 @@ class TournamentDetailActivity : BaseActivity() {
     private var selectedBoardFilterIndex: Int = -2
 
     private fun setupSwipeGestures() {
-        val density = resources.displayMetrics.density
-        val swipeThreshold = (60 * density).toInt()
-        val swipeVelocityThreshold = (100 * density).toInt()
-
-        gestureDetector = GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
-            override fun onFling(
-                e1: MotionEvent?,
-                e2: MotionEvent,
-                velocityX: Float,
-                velocityY: Float
-            ): Boolean {
-                if (e1 == null) return false
-                val diffX = e2.x - e1.x
-                val diffY = e2.y - e1.y
-                if (Math.abs(diffX) > Math.abs(diffY)) {
-                    if (Math.abs(diffX) > swipeThreshold && Math.abs(velocityX) > swipeVelocityThreshold) {
-                        if (diffX < 0) {
-                            onSwipeNextRound()
-                        } else {
-                            onSwipePreviousRound()
-                        }
-                        return true
-                    }
-                }
-                return false
-            }
-        })
-
-        val rvTouchListener = object : RecyclerView.SimpleOnItemTouchListener() {
-            override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
-                return gestureDetector.onTouchEvent(e)
-            }
-        }
-        rvMatches.addOnItemTouchListener(rvTouchListener)
-        rvReviewMatches.addOnItemTouchListener(rvTouchListener)
-
-        val genericTouchListener = View.OnTouchListener { _, event ->
-            gestureDetector.onTouchEvent(event)
-        }
-        layoutOpenDrawInfo.setOnTouchListener(genericTouchListener)
-        layoutEntrantsContainer.setOnTouchListener(genericTouchListener)
         val openDrawScrollView = (layoutOpenDrawInfo as? ViewGroup)?.children?.filterIsInstance<ScrollView>()?.firstOrNull()
-        openDrawScrollView?.setOnTouchListener(genericTouchListener)
+        TournamentDetailUiHelper.attachHorizontalSwipe(
+            views = listOfNotNull(layoutOpenDrawInfo, layoutEntrantsContainer, openDrawScrollView),
+            recyclerViews = listOf(rvMatches, rvReviewMatches),
+            onSwipeLeft = { onSwipeNextRound() },
+            onSwipeRight = { onSwipePreviousRound() }
+        )
     }
 
     private fun onSwipeNextRound() {
@@ -542,85 +502,7 @@ class TournamentDetailActivity : BaseActivity() {
                         layoutOpenDrawInfo.visibility = View.VISIBLE
                         tvDrawAfterRoundInfo.text = getString(R.string.draw_after_round_info, state.prevRoundDisplayName)
                         if (state.openEntrantsGroups.isNotEmpty()) {
-                            layoutEntrantsContainer.visibility = View.VISIBLE
-                            layoutEntrantsContainer.removeAllViews()
-                            state.openEntrantsGroups.forEachIndexed { groupIndex, group ->
-                                if (groupIndex > 0) {
-                                    val divider = com.google.android.material.divider.MaterialDivider(this).apply {
-                                        layoutParams = LinearLayout.LayoutParams(
-                                            LinearLayout.LayoutParams.MATCH_PARENT,
-                                            LinearLayout.LayoutParams.WRAP_CONTENT
-                                        ).apply {
-                                            topMargin = (8 * resources.displayMetrics.density).toInt()
-                                            bottomMargin = (8 * resources.displayMetrics.density).toInt()
-                                        }
-                                    }
-                                    layoutEntrantsContainer.addView(divider)
-                                }
-                                val tvGroupTitle = TextView(this).apply {
-                                    layoutParams = LinearLayout.LayoutParams(
-                                        LinearLayout.LayoutParams.MATCH_PARENT,
-                                        LinearLayout.LayoutParams.WRAP_CONTENT
-                                    ).apply {
-                                        bottomMargin = (4 * resources.displayMetrics.density).toInt()
-                                    }
-                                    text = group.title
-                                    textSize = 14f
-                                    setTypeface(null, Typeface.BOLD)
-                                    gravity = Gravity.CENTER_HORIZONTAL
-                                    val typedValue = android.util.TypedValue()
-                                    theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurface, typedValue, true)
-                                    if (typedValue.resourceId != 0) {
-                                        setTextColor(ContextCompat.getColor(this@TournamentDetailActivity, typedValue.resourceId))
-                                    }
-                                }
-                                layoutEntrantsContainer.addView(tvGroupTitle)
-
-                                group.players.chunked(2).forEach { rowPlayers ->
-                                    val rowLayout = LinearLayout(this).apply {
-                                        layoutParams = LinearLayout.LayoutParams(
-                                            LinearLayout.LayoutParams.MATCH_PARENT,
-                                            LinearLayout.LayoutParams.WRAP_CONTENT
-                                        ).apply {
-                                            topMargin = (2 * resources.displayMetrics.density).toInt()
-                                            bottomMargin = (2 * resources.displayMetrics.density).toInt()
-                                        }
-                                        orientation = LinearLayout.HORIZONTAL
-                                        weightSum = 2f
-                                    }
-
-                                    rowPlayers.forEach { player ->
-                                        val tvPlayer = TextView(this).apply {
-                                            layoutParams = LinearLayout.LayoutParams(
-                                                0,
-                                                LinearLayout.LayoutParams.WRAP_CONTENT,
-                                                1f
-                                            )
-                                            textSize = 13f
-                                            val typedValue = android.util.TypedValue()
-                                            theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurfaceVariant, typedValue, true)
-                                            if (typedValue.resourceId != 0) {
-                                                setTextColor(ContextCompat.getColor(this@TournamentDetailActivity, typedValue.resourceId))
-                                            }
-                                        }
-                                        UiHelper.bindSmartPlayerName(tvPlayer, player, isLeft = true)
-                                        rowLayout.addView(tvPlayer)
-                                    }
-
-                                    if (rowPlayers.size == 1) {
-                                        val emptyView = View(this).apply {
-                                            layoutParams = LinearLayout.LayoutParams(
-                                                0,
-                                                0,
-                                                1f
-                                            )
-                                        }
-                                        rowLayout.addView(emptyView)
-                                    }
-
-                                    layoutEntrantsContainer.addView(rowLayout)
-                                }
-                            }
+                            TournamentDetailUiHelper.renderOpenDrawEntrants(this, layoutEntrantsContainer, state.openEntrantsGroups)
                         } else {
                             layoutEntrantsContainer.visibility = View.GONE
                         }
@@ -791,28 +673,10 @@ class TournamentDetailActivity : BaseActivity() {
         }
 
         scrollView.visibility = View.VISIBLE
-        val k = when (event) {
-            TournamentEvent.QUALIFIER_ET -> 10
-            TournamentEvent.QUALIFIER_GRAND_SLAM -> 8
-            TournamentEvent.QUALIFIER_WM -> 4
-            else -> 4
-        }
+        val k = TournamentDetailUiHelper.getQualifierBoardCount(event)
 
         if (selectedBoardFilterIndex == -2) {
-            val userMatch = allRoundsMatches.flatten().find { it.isUserMatch }
-            if (userMatch != null) {
-                val roundKey = userMatch.match.round
-                val mIdx = userMatch.match.matchIndex
-                val boardIdx = when (roundKey) {
-                    com.danny.dannyapp.domain.enums.TournamentRound.QUAL_R1.name -> mIdx / 4
-                    com.danny.dannyapp.domain.enums.TournamentRound.QUAL_R2.name -> mIdx / 2
-                    com.danny.dannyapp.domain.enums.TournamentRound.QUAL_FINAL.name -> mIdx
-                    else -> -1
-                }
-                selectedBoardFilterIndex = if (boardIdx in 0 until k) boardIdx else -1
-            } else {
-                selectedBoardFilterIndex = -1
-            }
+            selectedBoardFilterIndex = TournamentDetailUiHelper.findDefaultBoardIndex(allRoundsMatches, k)
         }
 
         chipGroup.removeAllViews()
@@ -842,65 +706,13 @@ class TournamentDetailActivity : BaseActivity() {
             chipGroup.addView(chipBoard)
         }
 
-        val filtered = filterMatchesForBoard(allRoundsMatches, selectedBoardFilterIndex, k)
+        val filtered = TournamentDetailUiHelper.filterMatchesForBoard(
+            allRoundsMatches = allRoundsMatches,
+            boardIndex = selectedBoardFilterIndex,
+            boardCount = k,
+            qualificationUseCase = TournamentQualificationUseCase(this)
+        )
         onFilterChanged(filtered)
-    }
-
-    private fun filterMatchesForBoard(
-        allRoundsMatches: List<List<MatchUiModel>>,
-        boardIndex: Int,
-        k: Int
-    ): List<List<MatchUiModel>> {
-        if (boardIndex < 0 || boardIndex >= k) {
-            return allRoundsMatches
-        }
-
-        val qualR1Models = allRoundsMatches.firstOrNull { list ->
-            list.firstOrNull()?.match?.round == com.danny.dannyapp.domain.enums.TournamentRound.QUAL_R1.name
-        } ?: emptyList()
-
-        return allRoundsMatches.map { roundMatches ->
-            if (roundMatches.isEmpty()) return@map emptyList()
-            val roundKey = roundMatches.first().match.round
-            when (roundKey) {
-                com.danny.dannyapp.domain.enums.TournamentRound.QUAL_PRELIM.name -> {
-                    roundMatches.filter { matchModel ->
-                        val targetBoard = matchModel.targetBoard
-                            ?: resolvePrelimTargetBoard(qualR1Models, matchModel, k)
-                        targetBoard == boardIndex
-                    }
-                }
-                com.danny.dannyapp.domain.enums.TournamentRound.QUAL_R1.name -> {
-                    roundMatches.filter { it.match.matchIndex in (4 * boardIndex)..(4 * boardIndex + 3) }
-                }
-                com.danny.dannyapp.domain.enums.TournamentRound.QUAL_R2.name -> {
-                    roundMatches.filter { it.match.matchIndex in (2 * boardIndex)..(2 * boardIndex + 1) }
-                }
-                com.danny.dannyapp.domain.enums.TournamentRound.QUAL_FINAL.name -> {
-                    roundMatches.filter { it.match.matchIndex == boardIndex }
-                }
-                else -> roundMatches
-            }
-        }
-    }
-
-    /**
-     * Ermittelt das Ziel-Board eines Vorrunden-Spielers aus den QUAL_R1-Matches:
-     * Prüft, in welchem Board der Platzhalter (-1000L - matchIndex) oder der Gewinner steht.
-     * Fallback: matchIndex % k.
-     */
-    private fun resolvePrelimTargetBoard(
-        qualR1Models: List<MatchUiModel>,
-        prelimModel: MatchUiModel,
-        k: Int
-    ): Int {
-        val placeholderId = -1000L - prelimModel.match.matchIndex
-        val winnerId = prelimModel.match.winnerId
-        val r1Model = qualR1Models.firstOrNull { r1 ->
-            r1.match.player1Id == placeholderId || r1.match.player2Id == placeholderId ||
-                (winnerId != null && (r1.match.player1Id == winnerId || r1.match.player2Id == winnerId))
-        }
-        return r1Model?.let { it.match.matchIndex / 4 } ?: (prelimModel.match.matchIndex % k)
     }
 
     /**
