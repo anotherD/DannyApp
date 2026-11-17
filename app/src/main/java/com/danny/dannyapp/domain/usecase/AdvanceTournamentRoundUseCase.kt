@@ -56,16 +56,13 @@ class AdvanceTournamentRoundUseCase(
 
 
         // Find the active round according to prompt instruction:
-        // Die aktive Runde ist die erste Runde in roundSequence, in der Matches mit echten Teilnehmern existieren und noch nicht alle abgeschlossen sind.
-        val currentRoundEnum = roundSequence.firstOrNull { round ->
+        // Die aktive Runde ist die letzte Runde in roundSequence, in der Matches mit echten Teilnehmern existieren.
+        val currentRoundEnum = roundSequence.lastOrNull { round ->
             val matches = allMatches.filter { it.round == round.name }
-            matches.any { m ->
-                (m.player1Id > 0L || m.player1Id == USER_ID) &&
-                (m.player2Id > 0L || m.player2Id == USER_ID)
-            } && matches.any { !it.isCompleted }
-        } ?: roundSequence.firstOrNull { round ->
-            val matches = allMatches.filter { it.round == round.name }
-            matches.any { !it.isCompleted }
+            matches.isNotEmpty() && matches.any { match ->
+                (match.player1Id > 0L || match.player1Id == USER_ID) &&
+                    (match.player2Id > 0L || match.player2Id == USER_ID)
+            }
         } ?: return@withContext false
 
         val currentRoundMatches = allMatches.filter { it.round == currentRoundEnum.name }

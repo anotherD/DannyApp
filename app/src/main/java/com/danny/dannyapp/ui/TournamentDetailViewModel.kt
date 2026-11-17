@@ -416,8 +416,22 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         val prizeMoneyItems = getPrizeMoneyItems(event)
 
         val nextRoundKey = availableRounds.getOrNull(selectedRoundIndex + 1)
-        val isNextRoundGenerated = nextRoundKey != null && allMatches.any { it.round == nextRoundKey }
-        val canAdvanceRound = dbMatchesForRound.isNotEmpty() && isCurrentRoundCompleted && !isNextRoundGenerated
+        val nextRoundMatches = if (nextRoundKey != null) allMatches.filter { it.round == nextRoundKey } else emptyList()
+        val hasNextRoundRealPlayers = nextRoundMatches.any { match ->
+            (match.player1Id > 0L || match.player1Id == USER_ID) &&
+                (match.player2Id > 0L || match.player2Id == USER_ID)
+        }
+
+        val playableMatchesInRound = dbMatchesForRound.filter { match ->
+            (match.player1Id > 0L || match.player1Id == USER_ID) &&
+                (match.player2Id > 0L || match.player2Id == USER_ID)
+        }
+        val allPlayableMatchesInRoundCompleted = playableMatchesInRound.isNotEmpty() && playableMatchesInRound.all { it.isCompleted }
+        val hasUnpopulatedPlaceholderMatchesInRound = dbMatchesForRound.size > playableMatchesInRound.size
+
+        val canAdvanceRound = (currentRoundKey == activeRoundKeyInDb) &&
+            allPlayableMatchesInRoundCompleted &&
+            (hasUnpopulatedPlaceholderMatchesInRound || !hasNextRoundRealPlayers)
 
         // Trigger Auto-Simulate if needed
         if (autoSimulateCpu && isSelectedRoundPlayable && dbMatchesForRound.any { !it.isCompleted && it.player1Id != USER_ID && it.player2Id != USER_ID }) {
@@ -426,7 +440,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         }
 
         // Trigger Auto-Advance if all matches in current round are completed
-        if (autoAdvanceRound && isCurrentRoundCompleted) {
+        if (autoAdvanceRound && canAdvanceRound) {
             val advanced = advanceTournamentRoundUseCase(currentTournamentId)
             if (advanced) {
                 val reloadedTournament = tournamentDao.getTournamentById(currentTournamentId)
