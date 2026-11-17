@@ -412,23 +412,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         val isSelectedRoundPlayable = dbMatchesForRound.isNotEmpty() && dbMatchesForRound.any { !it.isCompleted }
         val prizeMoneyItems = getPrizeMoneyItems(event)
 
-        val nextRoundKey = availableRounds.getOrNull(selectedRoundIndex + 1)
-        val nextRoundMatches = if (nextRoundKey != null) allMatches.filter { it.round == nextRoundKey } else emptyList()
-        val isNextRoundFullyPopulated = nextRoundMatches.isNotEmpty() && nextRoundMatches.none { match ->
-            (match.player1Id < 0L && match.player1Id != USER_ID) ||
-                (match.player2Id < 0L && match.player2Id != USER_ID)
-        }
-
-        val playableMatchesInRound = dbMatchesForRound.filter { match ->
-            (match.player1Id > 0L || match.player1Id == USER_ID) &&
-                (match.player2Id > 0L || match.player2Id == USER_ID)
-        }
-        val allPlayableMatchesInRoundCompleted = playableMatchesInRound.isNotEmpty() && playableMatchesInRound.all { it.isCompleted }
-        val hasUnpopulatedPlaceholderMatchesInRound = dbMatchesForRound.size > playableMatchesInRound.size
-
-        val canAdvanceRound = (currentRoundKey == activeRoundKeyInDb) &&
-            allPlayableMatchesInRoundCompleted &&
-            (hasUnpopulatedPlaceholderMatchesInRound || !isNextRoundFullyPopulated)
+        val canAdvanceRound = (currentRoundKey == activeRoundKeyInDb) && isCurrentRoundCompleted
 
         val activeRoundMatches = allMatches.filter { it.round == activeRoundKeyInDb }
         val hasOpenCpuMatchesInActiveRound = activeRoundMatches.any { match ->
@@ -447,6 +431,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
 
         // Trigger Auto-Advance if all matches in current round are completed
         if (autoAdvanceRound && canAdvanceRound) {
+            lastAcknowledgedRoundKey = currentRoundKey
             val advanced = advanceTournamentRoundUseCase(currentTournamentId)
             if (advanced) {
                 val reloadedTournament = tournamentDao.getTournamentById(currentTournamentId)
@@ -455,8 +440,10 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
                     buildReviewState(reloadedTournament, event, newMatches, careerName, seasonNumber)
                     return
                 } else {
+                    val nextActiveRound = sequence.firstOrNull { r -> newMatches.filter { it.round == r.name }.any { !it.isCompleted } }
                     hasUserSelectedRound = false
-                    selectedRoundIndex = -1
+                    selectedRoundIndex = availableRounds.indexOf(nextActiveRound?.name).coerceAtLeast(0)
+                    selectedRoundIndexFlow.value = selectedRoundIndex
                     buildActiveState(reloadedTournament ?: tournament, event, newMatches, careerName, seasonNumber)
                     return
                 }

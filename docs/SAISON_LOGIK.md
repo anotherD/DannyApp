@@ -98,7 +98,8 @@ Beim Saisonwechsel (`createSeason(careerId)`):
   - `UK_OPEN` und `EUROPEAN_OPEN` behalten ihre offene Runden-für-Runden-Auslosung bei.
 * **Slot-Befüllung & Rundenfortschritt (`AdvanceTournamentRoundUseCase` & `TournamentDetailViewModel`):**
   - **Sofortige Sieger-Eintragung (`propagateWinnerOnMatchCompleted`):** Nach Abschluss eines Matches (egal ob CPU-Match über `SimulateCpuMatchUseCase`, User-Match über `setUserMatchWinner` / `setManualUserMatchScore`, oder Kalender-Simulation) wird der Sieger sofort per `propagateWinnerOnMatchCompleted` in den nächsten Turnierbaum-Slot eingetragen (außer bei offener Auslosung wie `UK_OPEN` und `EUROPEAN_OPEN`).
-  - **Rundenwechsel (Manuell vs. Automatisch):** Eine Runde gilt erst dann als abgeschlossen und bereit zum Weiterschalten, wenn `AdvanceTournamentRoundUseCase` die Platzierungen verbucht hat. Über `lastAcknowledgedRoundKey` und `activeRoundKeyInDb` wird in `TournamentDetailViewModel` strikt unterschieden:
+  - **Rundenwechsel (Manuell vs. Automatisch):** Eine Runde gilt erst dann als abgeschlossen und bereit zum Weiterschalten, wenn `isCurrentRoundCompleted == true`.
+    - `canAdvanceRound` ist vereinfacht auf `(currentRoundKey == activeRoundKeyInDb) && isCurrentRoundCompleted` reduziert, da `propagateWinnerOnMatchCompleted` Sieger sofort in die Folgerunde einträgt.
     - Bei `autoAdvanceRound == false` wird nach Abschluss aller Matches einer Runde in dieser Runde der Button **„Nächste Runde“** (`canAdvanceRound = true`) angezeigt. Erst nach Klick auf den Button wird die nächste Runde betreten.
-    - Bei `autoAdvanceRound == true` schaltet das System nach Rundenabschluss automatisch auf die nächste Runde weiter.
+    - Bei `autoAdvanceRound == true` schaltet das System nach Rundenabschluss automatisch auf die nächste Runde weiter und ermittelt die neue aktive Runde.
 
