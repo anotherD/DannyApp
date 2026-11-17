@@ -11,7 +11,6 @@ import com.danny.dannyapp.data.db.TournamentDao
 import com.danny.dannyapp.data.db.TournamentMatch
 import com.danny.dannyapp.data.db.TournamentMatchDao
 import com.danny.dannyapp.data.db.TournamentParticipantDao
-import com.danny.dannyapp.data.db.TournamentPlacement
 import com.danny.dannyapp.data.db.TournamentPlacementDao
 import com.danny.dannyapp.data.db.USER_ID
 import com.danny.dannyapp.domain.enums.OrderOfMeritType
@@ -25,8 +24,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 /**
- * UseCase to evaluate tournament progress, advance tournament rounds, and record prize money placements.
- * Acts as the single source of truth for round phases and active round determination.
+ * UseCase to evaluate tournament progress, advance tournament rounds, and record prize money placements
+ * based on the winner-based placement model (instant entry prize money + immediate winner promotions).
  */
 class AdvanceTournamentRoundUseCase(
     private val tournamentDao: TournamentDao,
@@ -68,7 +67,6 @@ class AdvanceTournamentRoundUseCase(
         val firstRoundInMatches = fullSequence.firstOrNull { round -> allMatches.any { it.round == round.name } } ?: fullSequence.first()
         val roundSequence = fullSequence.dropWhile { it != firstRoundInMatches }
 
-        // Abgeschlossenes Turnier: alle Runden COMPLETED, keine aktive Runde
         if (tournament.isCompleted) {
             return@withContext TournamentProgressState(
                 activeRound = null,
@@ -79,7 +77,6 @@ class AdvanceTournamentRoundUseCase(
             )
         }
 
-        // Aktive Runde: bevorzugt aus persistiertem Rundenschlüssel lesen; Fallback für Alt-Datensätze
         val activeRound: TournamentRound = tournament.currentRound
             ?.let { roundKey -> TournamentRound.entries.find { it.name == roundKey } }
             ?: roundSequence.firstOrNull { round ->
@@ -91,7 +88,6 @@ class AdvanceTournamentRoundUseCase(
             }
             ?: return@withContext null
 
-        // Rundenphasen: alle vor activeRound -> COMPLETED, activeRound selbst -> ACTIVE, danach -> PENDING
         val roundPhases = roundSequence.associateWith { round ->
             when {
                 round == activeRound -> TournamentRoundPhase.ACTIVE
@@ -118,9 +114,8 @@ class AdvanceTournamentRoundUseCase(
 
     /**
      * Schaltet das Turnier zur nächsten Runde weiter, sofern alle Matches der aktiven Runde abgeschlossen sind.
-     * Verbucht Preisgelder der abgeschlossenen Runde sofort; bei der Finalrunde wird das Turnier abgeschlossen
-     * und die aktive Runde am Turnier auf null gesetzt. Bei allen anderen Runden wird die Folgerunde am Turnier
-     * persistiert.
+     * Bei der Finalrunde wird das Turnier abgeschlossen, der Finalsieger garantiert hochgestuft
+     * und die aktive Runde am Turnier auf null gesetzt.
      *
      * @param tournamentId Die ID des weiterzuschaltenden Turniers.
      * @return `true` wenn der Rundenwechsel oder Turnierabschluss erfolgreich ausgeführt wurde, sonst `false`.
@@ -133,17 +128,21 @@ class AdvanceTournamentRoundUseCase(
         val tournament = tournamentDao.getTournamentById(tournamentId) ?: return@withContext false
         val event = try { TournamentEvent.valueOf(tournament.type) } catch (_: Exception) { return@withContext false }
         val allMatches = tournamentMatchDao.getMatchesListForTournament(tournamentId)
-        val existingPlacements = tournamentPlacementDao.getPlacementsListForTournament(tournamentId)
-
-        recordPlacementsForCompletedRound(
-            tournament = tournament,
-            round = activeRound,
-            allMatches = allMatches,
-            existingPlacements = existingPlacements
-        )
 
         if (state.isFinalRound) {
-            // Turnier abgeschlossen: aktive Runde löschen und Turnier als fertig markieren
+            if (event !in listOf(TournamentEvent.QUALIFIER_ET, TournamentEvent.QUALIFIER_GRAND_SLAM, TournamentEvent.QUALIFIER_WM)) {
+                val finalMatches = allMatches.filter { it.round == TournamentRound.F.name || it.round == TournamentRound.QUAL_FINAL.name }
+                val finalMatch = finalMatches.firstOrNull()
+                val winnerId = finalMatch?.winnerId
+                if (winnerId != null) {
+                    tournamentPlacementDao.upsertPlayerPlacement(
+                        tournamentId = tournamentId,
+                        playerId = winnerId,
+                        reachedRound = TournamentRound.WINNER.name,
+                        prizeMoney = event.getRankingPrizeMoney(TournamentRound.WINNER)
+                    )
+                }
+            }
             tournamentDao.updateTournament(tournament.copy(isCompleted = true, currentRound = null))
             return@withContext true
         }
@@ -155,7 +154,6 @@ class AdvanceTournamentRoundUseCase(
             allMatches = allMatches
         )
 
-        // Folgerunde am Turnier persistieren
         val roundSequence = event.getRoundSequence()
         val activeIndex = roundSequence.indexOf(activeRound)
         val nextRound = if (activeIndex >= 0) roundSequence.getOrNull(activeIndex + 1) else null
@@ -164,152 +162,6 @@ class AdvanceTournamentRoundUseCase(
         }
 
         return@withContext true
-    }
-
-    /**
-     * Writes [TournamentPlacement] records for a completed round immediately to the database.
-     * Handles European Tour £0 opening loss exceptions, Grand Slam group placements, and winner placements.
-     */
-    private suspend fun recordPlacementsForCompletedRound(
-        tournament: Tournament,
-        round: TournamentRound,
-        allMatches: List<TournamentMatch>,
-        existingPlacements: List<TournamentPlacement>
-    ) {
-        val event = try { TournamentEvent.valueOf(tournament.type) } catch (_: Exception) { return }
-        if (event in listOf(TournamentEvent.QUALIFIER_ET, TournamentEvent.QUALIFIER_GRAND_SLAM, TournamentEvent.QUALIFIER_WM)) {
-            return
-        }
-
-        val tournamentId = tournament.id
-        val existingPlacementPlayerIds = existingPlacements.map { it.playerId }.toSet()
-        val newPlacements = mutableListOf<TournamentPlacement>()
-        val roundMatches = allMatches.filter { it.round == round.name }
-        if (roundMatches.isEmpty() || !roundMatches.all { it.isCompleted }) return
-
-        if (event == TournamentEvent.GRAND_SLAM_OF_DARTS && round == TournamentRound.GROUP) {
-            if (roundMatches.size == 48) {
-                for (groupIdx in 0 until 16) {
-                    val groupLetter = ('A' + groupIdx).toString()
-                    val matchesForGroup = roundMatches.filter { it.groupName == groupLetter }
-                    val playerIdsInGroup = matchesForGroup.flatMap { listOf(it.player1Id, it.player2Id) }.distinct()
-
-                    class GroupPlayerStats(
-                        val playerId: Long,
-                        var wins: Int = 0,
-                        var legsWon: Int = 0,
-                        var legsLost: Int = 0
-                    ) {
-                        val legDiff: Int get() = legsWon - legsLost
-                    }
-
-                    val statsMap = playerIdsInGroup.associateWith { GroupPlayerStats(it) }
-                    for (match in matchesForGroup) {
-                        val player1Stats = statsMap[match.player1Id]
-                        val player2Stats = statsMap[match.player2Id]
-                        if (player1Stats != null && player2Stats != null) {
-                            player1Stats.legsWon += match.player1Score
-                            player1Stats.legsLost += match.player2Score
-                            player2Stats.legsWon += match.player2Score
-                            player2Stats.legsLost += match.player1Score
-                            if (match.winnerId == match.player1Id) player1Stats.wins++
-                            else if (match.winnerId == match.player2Id) player2Stats.wins++
-                        }
-                    }
-
-                    val sortedGroup = statsMap.values.sortedWith(
-                        compareByDescending<GroupPlayerStats> { it.wins }
-                            .thenByDescending { it.legDiff }
-                            .thenByDescending { it.legsWon }
-                    )
-
-                    if (sortedGroup.size >= 2 && sortedGroup[1].playerId !in existingPlacementPlayerIds && newPlacements.none { it.playerId == sortedGroup[1].playerId }) {
-                        newPlacements.add(
-                            TournamentPlacement(
-                                tournamentId = tournamentId,
-                                playerId = sortedGroup[1].playerId,
-                                reachedRound = TournamentRound.GROUP_2ND.name,
-                                prizeMoney = event.getRankingPrizeMoney(TournamentRound.GROUP_2ND)
-                            )
-                        )
-                    }
-                    if (sortedGroup.size >= 3 && sortedGroup[2].playerId !in existingPlacementPlayerIds && newPlacements.none { it.playerId == sortedGroup[2].playerId }) {
-                        newPlacements.add(
-                            TournamentPlacement(
-                                tournamentId = tournamentId,
-                                playerId = sortedGroup[2].playerId,
-                                reachedRound = TournamentRound.GROUP_3RD.name,
-                                prizeMoney = event.getRankingPrizeMoney(TournamentRound.GROUP_3RD)
-                            )
-                        )
-                    }
-                }
-            }
-        } else if (round == TournamentRound.F) {
-            val finalMatch = roundMatches.firstOrNull()
-            val winnerId = finalMatch?.winnerId
-            val loserId = if (finalMatch != null && winnerId != null) {
-                if (finalMatch.player1Id == winnerId) finalMatch.player2Id else finalMatch.player1Id
-            } else null
-
-            if (loserId != null && loserId !in existingPlacementPlayerIds && newPlacements.none { it.playerId == loserId }) {
-                newPlacements.add(
-                    TournamentPlacement(
-                        tournamentId = tournamentId,
-                        playerId = loserId,
-                        reachedRound = TournamentRound.F.name,
-                        prizeMoney = event.getRankingPrizeMoney(TournamentRound.F)
-                    )
-                )
-            }
-
-            if (winnerId != null && existingPlacements.none { it.playerId == winnerId && it.reachedRound == TournamentRound.WINNER.name } && newPlacements.none { it.playerId == winnerId && it.reachedRound == TournamentRound.WINNER.name }) {
-                newPlacements.add(
-                    TournamentPlacement(
-                        tournamentId = tournamentId,
-                        playerId = winnerId,
-                        reachedRound = TournamentRound.WINNER.name,
-                        prizeMoney = event.getRankingPrizeMoney(TournamentRound.WINNER)
-                    )
-                )
-            }
-        } else {
-            val preQualifiedEtSeeds = if (event == TournamentEvent.EUROPEAN_TOUR) {
-                getPreQualifiedEtSeeds(tournamentId, tournament.seasonId)
-            } else emptySet()
-
-            for (match in roundMatches) {
-                val winnerId = match.winnerId ?: continue
-                val loserId = if (match.player1Id == winnerId) match.player2Id else match.player1Id
-
-                if (loserId !in existingPlacementPlayerIds && newPlacements.none { it.playerId == loserId }) {
-                    val matchesPlayedByLoser = allMatches.count {
-                        (it.player1Id == loserId || it.player2Id == loserId) && it.isCompleted
-                    }
-                    val lostFirstMatch = (matchesPlayedByLoser == 1)
-                    val isPreQualifiedSeed = loserId in preQualifiedEtSeeds
-
-                    val prizeMoney = event.getRankingPrizeMoney(
-                        round = round,
-                        isPreQualifiedSeedRelevant = isPreQualifiedSeed,
-                        lostFirstMatch = lostFirstMatch
-                    )
-
-                    newPlacements.add(
-                        TournamentPlacement(
-                            tournamentId = tournamentId,
-                            playerId = loserId,
-                            reachedRound = round.name,
-                            prizeMoney = prizeMoney
-                        )
-                    )
-                }
-            }
-        }
-
-        if (newPlacements.isNotEmpty()) {
-            tournamentPlacementDao.insertPlacements(newPlacements)
-        }
     }
 
     /**
@@ -362,7 +214,23 @@ class AdvanceTournamentRoundUseCase(
                     )
 
                     if (sortedGroup.isNotEmpty()) {
-                        groupWinners.add(sortedGroup[0].playerId)
+                        val winnerId = sortedGroup[0].playerId
+                        groupWinners.add(winnerId)
+                        tournamentPlacementDao.upsertPlayerPlacement(
+                            tournamentId = tournament.id,
+                            playerId = winnerId,
+                            reachedRound = TournamentRound.L16.name,
+                            prizeMoney = event.getRankingPrizeMoney(TournamentRound.L16)
+                        )
+                    }
+                    if (sortedGroup.size >= 2) {
+                        val secondId = sortedGroup[1].playerId
+                        tournamentPlacementDao.upsertPlayerPlacement(
+                            tournamentId = tournament.id,
+                            playerId = secondId,
+                            reachedRound = TournamentRound.GROUP_2ND.name,
+                            prizeMoney = event.getRankingPrizeMoney(TournamentRound.GROUP_2ND)
+                        )
                     }
                 }
 
@@ -482,17 +350,43 @@ class AdvanceTournamentRoundUseCase(
     }
 
     /**
-     * Propagates the winner of a completed match immediately into the corresponding next round slot.
+     * Propagates the winner of a completed match immediately into the corresponding next round slot
+     * and upgrades their placement immediately to the reached round.
      */
     suspend fun propagateWinnerOnMatchCompleted(match: TournamentMatch) = withContext(Dispatchers.IO) {
         val tournament = tournamentDao.getTournamentById(match.tournamentId) ?: return@withContext
         val event = try { TournamentEvent.valueOf(tournament.type) } catch (_: Exception) { return@withContext }
-        if (event == TournamentEvent.UK_OPEN || event == TournamentEvent.EUROPEAN_OPEN) {
+        if (event in listOf(TournamentEvent.QUALIFIER_ET, TournamentEvent.QUALIFIER_GRAND_SLAM, TournamentEvent.QUALIFIER_WM)) {
             return@withContext
         }
         val winnerId = match.winnerId ?: return@withContext
-        val allMatches = tournamentMatchDao.getMatchesListForTournament(match.tournamentId)
         val roundSequence = event.getRoundSequence()
+        val currentRoundEnum = try { TournamentRound.valueOf(match.round) } catch (_: Exception) { null }
+
+        if (currentRoundEnum != null && currentRoundEnum != TournamentRound.GROUP) {
+            val currentIdx = roundSequence.indexOf(currentRoundEnum)
+            if (currentIdx >= 0) {
+                val reachedRound = if (currentRoundEnum == TournamentRound.F) {
+                    TournamentRound.WINNER
+                } else {
+                    roundSequence.getOrNull(currentIdx + 1)
+                }
+                if (reachedRound != null) {
+                    tournamentPlacementDao.upsertPlayerPlacement(
+                        tournamentId = match.tournamentId,
+                        playerId = winnerId,
+                        reachedRound = reachedRound.name,
+                        prizeMoney = event.getRankingPrizeMoney(reachedRound)
+                    )
+                }
+            }
+        }
+
+        if (event == TournamentEvent.UK_OPEN || event == TournamentEvent.EUROPEAN_OPEN) {
+            return@withContext
+        }
+
+        val allMatches = tournamentMatchDao.getMatchesListForTournament(match.tournamentId)
 
         if (event == TournamentEvent.GRAND_SLAM_OF_DARTS && match.round == TournamentRound.GROUP.name && match.matchIndex in 0..15) {
             val groupIdx = match.matchIndex
@@ -541,7 +435,6 @@ class AdvanceTournamentRoundUseCase(
             return@withContext
         }
 
-        val currentRoundEnum = try { TournamentRound.valueOf(match.round) } catch (_: Exception) { return@withContext }
         val currentIdx = roundSequence.indexOf(currentRoundEnum)
         if (currentIdx < 0) return@withContext
         val nextRoundEnum = roundSequence.getOrNull(currentIdx + 1) ?: return@withContext
@@ -556,29 +449,6 @@ class AdvanceTournamentRoundUseCase(
             }
             tournamentMatchDao.updateMatch(updatedNext)
         }
-    }
-
-    /**
-     * Determines pre-qualified seeds for the European Tour (Rule 4.5 check).
-     */
-    private suspend fun getPreQualifiedEtSeeds(tournamentId: Long, seasonId: Long): Set<Long> {
-        val participants = tournamentParticipantDao.getParticipantsForTournament(tournamentId)
-        val stored = participants.filter { it.qualificationType in listOf("OOM", "PT_OOM") }.map { it.playerId }
-        if (stored.isNotEmpty()) return stored.toSet()
-
-        val season = seasonDao.getSeasonById(seasonId) ?: return emptySet()
-        val careerId = season.careerId
-        val tourCardsWithPlayer = tourCardDao.getTourCardsListForSeason(season.id)
-        val tourCardPlayerIds = tourCardsWithPlayer.map { it.tourCard.playerId }.distinct()
-        val allPlayers = playerDao.getAllPlayersList()
-        val oomEntries = getOrderOfMeritUseCase(careerId, OrderOfMeritType.OOM)
-        val ptOomEntries = getOrderOfMeritUseCase(careerId, OrderOfMeritType.PT_OOM)
-
-        val sortedOomTc = getPlayerListSortedByOom(tourCardPlayerIds, oomEntries, allPlayers)
-        val top16Oom = sortedOomTc.take(16)
-        val remainingTcAfterOom = tourCardPlayerIds.filterNot { it in top16Oom }
-        val top16PtOom = getPlayerListSortedByOom(remainingTcAfterOom, ptOomEntries, allPlayers).take(16)
-        return (top16Oom + top16PtOom).toSet()
     }
 
     /**

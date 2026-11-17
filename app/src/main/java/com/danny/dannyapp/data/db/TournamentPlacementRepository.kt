@@ -16,6 +16,19 @@ class TournamentPlacementRepository(context: Context) {
         tournamentPlacementDao.getPlacementsListForTournament(tournamentId)
     }
 
+    suspend fun getPlacementForPlayerInTournament(tournamentId: Long, playerId: Long): TournamentPlacement? = withContext(Dispatchers.IO) {
+        tournamentPlacementDao.getPlacementForPlayerInTournament(tournamentId, playerId)
+    }
+
+    suspend fun upsertPlayerPlacement(
+        tournamentId: Long,
+        playerId: Long,
+        reachedRound: String,
+        prizeMoney: Double
+    ) = withContext(Dispatchers.IO) {
+        tournamentPlacementDao.upsertPlayerPlacement(tournamentId, playerId, reachedRound, prizeMoney)
+    }
+
     fun getPlacementsForPlayer(playerId: Long): Flow<List<TournamentPlacement>> =
         tournamentPlacementDao.getPlacementsForPlayer(playerId)
 

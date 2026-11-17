@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
@@ -13,6 +14,31 @@ interface TournamentPlacementDao {
 
     @Query("SELECT * FROM tournament_placements WHERE tournament_id = :tournamentId")
     fun getPlacementsForTournament(tournamentId: Long): Flow<List<TournamentPlacement>>
+
+    @Query("SELECT * FROM tournament_placements WHERE tournament_id = :tournamentId AND player_id = :playerId LIMIT 1")
+    suspend fun getPlacementForPlayerInTournament(tournamentId: Long, playerId: Long): TournamentPlacement?
+
+    @Transaction
+    suspend fun upsertPlayerPlacement(
+        tournamentId: Long,
+        playerId: Long,
+        reachedRound: String,
+        prizeMoney: Double
+    ) {
+        val existing = getPlacementForPlayerInTournament(tournamentId, playerId)
+        if (existing != null) {
+            updatePlacement(existing.copy(reachedRound = reachedRound, prizeMoney = prizeMoney))
+        } else {
+            insertPlacement(
+                TournamentPlacement(
+                    tournamentId = tournamentId,
+                    playerId = playerId,
+                    reachedRound = reachedRound,
+                    prizeMoney = prizeMoney
+                )
+            )
+        }
+    }
 
     @Query("SELECT * FROM tournament_placements WHERE tournament_id = :tournamentId")
     suspend fun getPlacementsListForTournament(tournamentId: Long): List<TournamentPlacement>

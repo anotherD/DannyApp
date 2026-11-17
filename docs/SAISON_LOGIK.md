@@ -44,9 +44,10 @@ Beim Saisonwechsel wird die bisherige Saison als abgeschlossen markiert (`isComp
   * Noch nicht feststehende Paarungen nutzen Platzhalter-IDs (`PLACEHOLDER_PREVIOUS_WINNER_ID = -999L`, Gruppen-Sieger-IDs oder Vorrunden-Platzhalter).
   * `UK_OPEN` und `EUROPEAN_OPEN` nutzen ab Runde 2 eine offene Runden-für-Runden-Auslosung.
   * **Persistente Startrunde:** Unmittelbar nach der Bracket-Erzeugung wird die erste tatsächlich angelegte Runde als aktive Startrunde direkt am Turnier gespeichert.
-* **Sofortige Sieger-Weiterleitung (`propagateWinnerOnMatchCompleted`):**
-  * Sobald ein Match abgeschlossen ist, wird der Sieger sofort in den entsprechenden Slot der Folgerunde eingetragen (ausgenommen Turniere mit offener Auslosung).
-  * Beim *Grand Slam of Darts* werden nach Tag 1 der Gruppenphase Verlierer und Sieger automatisch in die Partien von Tag 2 und Tag 3 eingetragen.
+  * **Gewinner-basiertes Preisgeld-Modell:** Alle qualifizierten Teilnehmer erhalten ihr garantiertes Einstiegspreisgeld (inkl. gestaffelt einsteigender gesetzter Spieler bei `UK_OPEN` und `EUROPEAN_OPEN`, aber unter Beachtung der £0-Auftaktniederlagen-Regel für vorqualifizierte European-Tour-Seeds) **sofort beim Turnierstart** gutgeschrieben.
+* **Sofortige Gewinner-Hochstufung (`propagateWinnerOnMatchCompleted`):**
+  * Sobald ein Match abgeschlossen ist, wird der Gewinner sofort in den entsprechenden Slot der Folgerunde eingetragen und im Preisgeld-Placement unmittelbar auf die erreichte Folgerunde hochgestuft (wodurch z. B. vorqualifizierte ET-Seeds nach ihrem Auftaktsieg automatisch von £0 auf das reguläre Rundenpreisgeld steigen).
+  * Beim *Grand Slam of Darts* werden nach Abschluss der Gruppenphase Gruppenzweite und Gruppensieger automatisch auf ihre entsprechenden Platzierungs-Preisgelder hochgestuft.
 * **Zentrale Zustandsmaschine & Rundenfortschritt (`AdvanceTournamentRoundUseCase`):**
   * Ermittelt über `evaluateTournamentState(...)` als *Single Source of Truth* den Rundenstatus: Die **aktive Runde wird vorrangig direkt vom Turnier selbst gelesen** (dort bei jedem Rundenwechsel fortgeschrieben); für ältere Datensätze ohne gespeicherte Runde greift ein Fallback auf die erste Runde mit offenen Matches.
   * Alle Runden vor der aktiven Runde gelten als abgeschlossen, alle danach als ausstehend – einheitlich für alle Turnierarten inkl. Qualifier, ohne gesonderte Sonderbehandlung.

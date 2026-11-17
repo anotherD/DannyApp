@@ -11,6 +11,8 @@ import com.danny.dannyapp.data.db.TournamentMatch
 import com.danny.dannyapp.data.db.TournamentMatchDao
 import com.danny.dannyapp.data.db.TournamentParticipant
 import com.danny.dannyapp.data.db.TournamentParticipantDao
+import com.danny.dannyapp.data.db.TournamentPlacement
+import com.danny.dannyapp.data.db.TournamentPlacementDao
 import com.danny.dannyapp.data.db.PLACEHOLDER_PREVIOUS_WINNER_ID
 import com.danny.dannyapp.data.db.USER_ID
 import com.danny.dannyapp.domain.enums.OrderOfMeritType
@@ -30,6 +32,7 @@ class GenerateBracketUseCase(
     private val playerDao: PlayerDao,
     private val tournamentMatchDao: TournamentMatchDao,
     private val tournamentParticipantDao: TournamentParticipantDao,
+    private val tournamentPlacementDao: TournamentPlacementDao,
     private val getOrderOfMeritUseCase: GetOrderOfMeritUseCase
 ) {
     constructor(context: Context) : this(
@@ -39,6 +42,7 @@ class GenerateBracketUseCase(
         AppDatabase.getDatabase(context.applicationContext).playerDao(),
         AppDatabase.getDatabase(context.applicationContext).tournamentMatchDao(),
         AppDatabase.getDatabase(context.applicationContext).tournamentParticipantDao(),
+        AppDatabase.getDatabase(context.applicationContext).tournamentPlacementDao(),
         GetOrderOfMeritUseCase(context)
     )
 
@@ -938,6 +942,84 @@ class GenerateBracketUseCase(
         }
 
         tournamentParticipantDao.insertParticipants(participants.distinctBy { it.playerId })
+
+        if (event !in listOf(TournamentEvent.QUALIFIER_ET, TournamentEvent.QUALIFIER_GRAND_SLAM, TournamentEvent.QUALIFIER_WM)) {
+            val initialPlacements = mutableListOf<TournamentPlacement>()
+            when (event) {
+                TournamentEvent.PLAYERS_CHAMPIONSHIP -> {
+                    participants.forEach { p ->
+                        initialPlacements.add(
+                            TournamentPlacement(
+                                tournamentId = tournamentId,
+                                playerId = p.playerId,
+                                reachedRound = TournamentRound.L128.name,
+                                prizeMoney = 0.0
+                            )
+                        )
+                    }
+                }
+                TournamentEvent.EUROPEAN_TOUR -> {
+                    top16Oom.forEach { playerId ->
+                        initialPlacements.add(TournamentPlacement(tournamentId = tournamentId, playerId = playerId, reachedRound = TournamentRound.L32.name, prizeMoney = 0.0))
+                    }
+                    top16PtOom.forEach { playerId ->
+                        initialPlacements.add(TournamentPlacement(tournamentId = tournamentId, playerId = playerId, reachedRound = TournamentRound.L48.name, prizeMoney = 0.0))
+                    }
+                    val assignedPlayerIds = (top16Oom + top16PtOom).toSet()
+                    participants.filter { it.playerId !in assignedPlayerIds }.forEach { p ->
+                        initialPlacements.add(TournamentPlacement(tournamentId = tournamentId, playerId = p.playerId, reachedRound = TournamentRound.L48.name, prizeMoney = event.getRankingPrizeMoney(TournamentRound.L48)))
+                    }
+                }
+                TournamentEvent.UK_OPEN, TournamentEvent.EUROPEAN_OPEN -> {
+                    participants.forEach { p ->
+                        val round = when (p.qualificationType) {
+                            "OOM_TOP_32" -> TournamentRound.L64
+                            "OOM_33_64" -> TournamentRound.R3_96
+                            "OOM_65_96" -> TournamentRound.R2_128
+                            else -> TournamentRound.R1_160
+                        }
+                        initialPlacements.add(
+                            TournamentPlacement(
+                                tournamentId = tournamentId,
+                                playerId = p.playerId,
+                                reachedRound = round.name,
+                                prizeMoney = event.getRankingPrizeMoney(round)
+                            )
+                        )
+                    }
+                }
+                TournamentEvent.GRAND_SLAM_OF_DARTS -> {
+                    participants.forEach { p ->
+                        initialPlacements.add(
+                            TournamentPlacement(
+                                tournamentId = tournamentId,
+                                playerId = p.playerId,
+                                reachedRound = TournamentRound.GROUP_3RD.name,
+                                prizeMoney = event.getRankingPrizeMoney(TournamentRound.GROUP_3RD)
+                            )
+                        )
+                    }
+                }
+                else -> {
+                    val startRound = event.getRoundSequence().firstOrNull() ?: TournamentRound.L32
+                    val startRoundPrize = event.getRankingPrizeMoney(startRound)
+                    participants.forEach { p ->
+                        initialPlacements.add(
+                            TournamentPlacement(
+                                tournamentId = tournamentId,
+                                playerId = p.playerId,
+                                reachedRound = startRound.name,
+                                prizeMoney = startRoundPrize
+                            )
+                        )
+                    }
+                }
+            }
+            if (initialPlacements.isNotEmpty()) {
+                tournamentPlacementDao.insertPlacements(initialPlacements)
+            }
+        }
+
         tournamentMatchDao.insertMatches(tournamentMatches)
 
         // Startrunde am Turnier persistieren: erste Runde der Sequenz, für die tatsächlich Matches angelegt wurden
