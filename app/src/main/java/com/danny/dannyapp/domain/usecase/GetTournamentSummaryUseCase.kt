@@ -82,11 +82,7 @@ class GetTournamentSummaryUseCase {
 
             if (phaseState == TournamentPhaseState.COMPLETED) {
                 val event = try { TournamentEvent.valueOf(tournament.type) } catch (_: Exception) { null }
-                if (event != null && event in listOf(
-                        TournamentEvent.QUALIFIER_ET,
-                        TournamentEvent.QUALIFIER_GRAND_SLAM,
-                        TournamentEvent.QUALIFIER_WM
-                    )) {
+                if (event != null && event.isQualifier) {
                     // Multiple qualifier winners – collect from QUAL_FINAL round.
                     qualifierWinnerIds = matches
                         .filter { it.round == TournamentRound.QUAL_FINAL.name && it.winnerId != null }

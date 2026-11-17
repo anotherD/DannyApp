@@ -34,16 +34,10 @@ object TournamentUiHelper {
 
     fun getTournamentTypeBadgeInfo(context: Context, typeString: String): TypeBadgeInfo {
         val event = try { TournamentEvent.valueOf(typeString) } catch (_: Exception) { null }
-        val isMajor = event in listOf(
-            TournamentEvent.UK_OPEN, TournamentEvent.EUROPEAN_OPEN, TournamentEvent.WORLD_MATCHPLAY,
-            TournamentEvent.WORLD_GRAND_PRIX, TournamentEvent.EUROPEAN_CHAMPIONSHIP,
-            TournamentEvent.GRAND_SLAM_OF_DARTS, TournamentEvent.PLAYERS_CHAMPIONSHIP_FINALS,
-            TournamentEvent.WORLD_CHAMPIONSHIP
-        )
-        val isMajorQualifier = event in listOf(
-            TournamentEvent.QUALIFIER_GRAND_SLAM, TournamentEvent.QUALIFIER_WM
-        )
+        val isMajor = event?.isMajor == true
+        val isQualifier = event?.isQualifier == true
         val isEtQualifier = event == TournamentEvent.QUALIFIER_ET
+        val isMajorQualifier = isQualifier && !isEtQualifier
         val isEuropeanTour = event == TournamentEvent.EUROPEAN_TOUR
 
         val text = when {
@@ -68,9 +62,8 @@ object TournamentUiHelper {
     data class StatusBadgeInfo(val text: String, val colorResId: Int)
 
     fun getStatusBadgeInfo(context: Context, model: TournamentUiModel): StatusBadgeInfo {
-        val isMultiWinnerQualifier = model.tournament.type in listOf(
-            "QUALIFIER_ET", "QUALIFIER_GRAND_SLAM", "QUALIFIER_WM"
-        )
+        val event = try { TournamentEvent.valueOf(model.tournament.type) } catch (_: Exception) { null }
+        val isMultiWinnerQualifier = event?.isQualifier == true
         val text = when (model.status) {
             TournamentStatus.COMPLETED -> {
                 if (!isMultiWinnerQualifier && model.winnerName != null) {
@@ -273,17 +266,11 @@ object TournamentUiHelper {
 
         if (headerCard != null) {
             val event = try { TournamentEvent.valueOf(tournament.type) } catch (_: Exception) { null }
-            val isMajor = event in listOf(
-                TournamentEvent.UK_OPEN, TournamentEvent.EUROPEAN_OPEN, TournamentEvent.WORLD_MATCHPLAY,
-                TournamentEvent.WORLD_GRAND_PRIX, TournamentEvent.EUROPEAN_CHAMPIONSHIP,
-                TournamentEvent.GRAND_SLAM_OF_DARTS, TournamentEvent.PLAYERS_CHAMPIONSHIP_FINALS,
-                TournamentEvent.WORLD_CHAMPIONSHIP
-            )
-            val isMajorQualifier = event in listOf(
-                TournamentEvent.QUALIFIER_GRAND_SLAM, TournamentEvent.QUALIFIER_WM
-            )
+            val isMajor = event?.isMajor == true
+            val isQualifier = event?.isQualifier == true
             val isEuropeanTour = event == TournamentEvent.EUROPEAN_TOUR
             val isEtQualifier = event == TournamentEvent.QUALIFIER_ET
+            val isMajorQualifier = isQualifier && !isEtQualifier
 
             val density = context.resources.displayMetrics.density
             when {

@@ -134,7 +134,7 @@ class AdvanceTournamentRoundUseCase(
         val allMatches = tournamentMatchDao.getMatchesListForTournament(tournamentId)
 
         if (state.isFinalRound) {
-            if (event !in listOf(TournamentEvent.QUALIFIER_ET, TournamentEvent.QUALIFIER_GRAND_SLAM, TournamentEvent.QUALIFIER_WM)) {
+            if (!event.isQualifier) {
                 val finalMatches = allMatches.filter { it.round == TournamentRound.F.name || it.round == TournamentRound.QUAL_FINAL.name }
                 val finalMatch = finalMatches.firstOrNull()
                 val winnerId = finalMatch?.winnerId
@@ -333,7 +333,7 @@ class AdvanceTournamentRoundUseCase(
     suspend fun propagateWinnerOnMatchCompleted(match: TournamentMatch) = withContext(Dispatchers.IO) {
         val tournament = tournamentDao.getTournamentById(match.tournamentId) ?: return@withContext
         val event = try { TournamentEvent.valueOf(tournament.type) } catch (_: Exception) { return@withContext }
-        if (event in listOf(TournamentEvent.QUALIFIER_ET, TournamentEvent.QUALIFIER_GRAND_SLAM, TournamentEvent.QUALIFIER_WM)) {
+        if (event.isQualifier) {
             return@withContext
         }
         val winnerId = match.winnerId ?: return@withContext

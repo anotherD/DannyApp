@@ -20,6 +20,18 @@ enum class TournamentEvent(val totalPrizeFund: Double) {
     QUALIFIER_GRAND_SLAM(0.0),
     QUALIFIER_WM(0.0);
 
+    /** Prüft, ob es sich um ein Qualifier-Turnier handelt. */
+    val isQualifier: Boolean
+        get() = this == QUALIFIER_ET || this == QUALIFIER_GRAND_SLAM || this == QUALIFIER_WM
+
+    /** Prüft, ob es sich um ein Major-Turnier handelt. */
+    val isMajor: Boolean
+        get() = this in listOf(
+            UK_OPEN, EUROPEAN_OPEN, WORLD_MATCHPLAY, WORLD_GRAND_PRIX,
+            EUROPEAN_CHAMPIONSHIP, GRAND_SLAM_OF_DARTS, PLAYERS_CHAMPIONSHIP_FINALS,
+            WORLD_CHAMPIONSHIP
+        )
+
     /**
      * Liefert die zentrale Rundenfolge für dieses Turnier (identisch zu
      * `TournamentPreviewHelper.getRoundSequence`), damit Use-Cases und Validator

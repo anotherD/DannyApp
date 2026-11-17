@@ -17,9 +17,17 @@ class TournamentCalendarAdapter(
 
     var simulatingTournamentId: Long? = null
         set(value) {
-            if (field != value) {
+            val oldId = field
+            if (oldId != value) {
                 field = value
-                notifyDataSetChanged()
+                if (oldId != null) {
+                    val oldIndex = currentList.indexOfFirst { it.tournament.id == oldId }
+                    if (oldIndex != -1) notifyItemChanged(oldIndex)
+                }
+                if (value != null) {
+                    val newIndex = currentList.indexOfFirst { it.tournament.id == value }
+                    if (newIndex != -1) notifyItemChanged(newIndex)
+                }
             }
         }
 

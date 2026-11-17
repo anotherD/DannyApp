@@ -944,7 +944,7 @@ class GenerateBracketUseCase(
         val uniqueParticipants = participants.distinctBy { it.playerId }
         tournamentParticipantDao.insertParticipants(uniqueParticipants)
 
-        if (event !in listOf(TournamentEvent.QUALIFIER_ET, TournamentEvent.QUALIFIER_GRAND_SLAM, TournamentEvent.QUALIFIER_WM)) {
+        if (!event.isQualifier) {
             val initialPlacements = mutableListOf<TournamentPlacement>()
             when (event) {
                 TournamentEvent.PLAYERS_CHAMPIONSHIP -> {

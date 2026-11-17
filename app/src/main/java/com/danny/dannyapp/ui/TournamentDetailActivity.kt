@@ -660,11 +660,7 @@ class TournamentDetailActivity : BaseActivity() {
         chipGroup: ChipGroup,
         onFilterChanged: (filteredRounds: List<List<MatchUiModel>>) -> Unit
     ) {
-        val isQualifier = event in listOf(
-            TournamentEvent.QUALIFIER_ET,
-            TournamentEvent.QUALIFIER_GRAND_SLAM,
-            TournamentEvent.QUALIFIER_WM
-        )
+        val isQualifier = event.isQualifier
 
         if (!isQualifier || !settingsManager.isBracketViewEnabled) {
             scrollView.visibility = View.GONE
