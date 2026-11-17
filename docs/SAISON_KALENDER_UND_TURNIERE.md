@@ -1,7 +1,7 @@
 # 🎯 Fachkonzept: Saisonkalender, Turniertypen & Ranglisten (Pro Tour & Majors)
 
 Dieses Dokument definiert die Architektur, die Datenstrukturen und die Fachlogiken für den Turnier-, Kalender- und Match-Simulationsmodus der **Danny Darts App**.
-Wichtig: Es sollen die Regeln/Name/Pläne für die PDC Pro-Tour für das jahr 2027 simuliert werden. Es ist darauf zu achten, dass keine veralteten Regeln genutzt werden.  
+Wichtig: Es sollen die Regeln/Name/Pläne für die PDC Pro-Tour für das Jahr 2027 simuliert werden. Es ist darauf zu achten, dass keine veralteten Regeln genutzt werden.  
 
 ---
 
@@ -16,7 +16,7 @@ Um Nullable-Fremdschlüssel-Probleme und komplexe Boolean-Flags zu vermeiden, er
 
 Die Tabellenstrukturen für den Turnierbetrieb wurden wie folgt implementiert:
 
-*   **`Tournament` (`tournaments`)**: Speichert Saisonturniere mit `id`, `season_id`, `name`, `type` (`PLAYERS_CHAMPIONSHIP`, `EUROPEAN_TOUR`, `UK_OPEN`, `EUROPEAN_OPEN`, `WORLD_MATCHPLAY`, `WORLD_GRAND_PRIX`, `EUROPEAN_CHAMPIONSHIP`, `GRAND_SLAM_OF_DARTS`, `PLAYERS_CHAMPIONSHIP_FINALS`, `WORLD_CHAMPIONSHIP`, `QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIFIER_WM`), `order` (1–74), `is_completed` und `host_country` (`host_country`, ISO-3-Code, z. B. `"ENG"`, `"DEU"`, `"AUT"`, `"NDL"`, `"BEL"`, `"HUN"`, `"CZE"`, `"SUI"`, `"FRA"`, `"POL"`), host_city (z. B. "Milton Keynes", "Dortmund"). Jedes Turnier im Kalender verfügt zwingend über einen gültigen ISO-3 `host_country`.
+*   **`Tournament` (`tournaments`)**: Speichert Saisonturniere mit `id`, `season_id`, `name`, `type` (`PLAYERS_CHAMPIONSHIP`, `EUROPEAN_TOUR`, `UK_OPEN`, `EUROPEAN_OPEN`, `WORLD_MATCHPLAY`, `WORLD_GRAND_PRIX`, `EUROPEAN_CHAMPIONSHIP`, `GRAND_SLAM_OF_DARTS`, `PLAYERS_CHAMPIONSHIP_FINALS`, `WORLD_CHAMPIONSHIP`, `QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIFIER_WM`), `order` (1–74), `is_completed`, `host_country` (ISO-3-Code) und `host_city`. Jedes Turnier im Kalender verfügt zwingend über einen gültigen ISO-3 `host_country`.
 *   **`TournamentMatch` (`tournament_matches`)**: Verwaltet alle Einzelpartien mit `id`, `tournament_id`, `round`, `match_index`, `player_1_id`, `player_2_id` (jeweils Spieler-ID oder `USER_ID = -1L`), Scores, `winner_id` und `is_completed`.
 *   **`TournamentPlacement` (`tournament_placements`)**: Erfasst die errungenen Platzierungen und Preisgelder pro Spieler zur Berechnung der Ranglisten (`id`, `tournament_id`, `player_id`, `reached_round`, `prize_money`).
 
@@ -30,7 +30,7 @@ Eine Saison umfasst insgesamt **74 Turniere**:
 * ET Tour Card Qualifier (`QUALIFIER_ET`): 15 pro Saison
 * MAJOR: Major-Turniere, 8 pro Saison (`UK Open`, `European Open`, `World Matchplay`, `World Grand Prix`, `European Championship`, `Grand Slam of Darts`, `Players Championship Finals`, `World Championship`)
 * Major Qualifiers: 2 pro Saison (`QUALIFIER_GRAND_SLAM` vor dem Grand Slam of Darts, `QUALIFIER_WM` vor der World Championship)
-* **Zentrale Kalender- & Turnier-Konfiguration (`app/src/main/assets/season_calendar_2027.json`):** Die chronologische Reihenfolge aller 74 Saisonturniere (`order` 1–74), deren exakte Austragungsstädte (`hostCity`) und Länder (`hostCountry`) sowie die Runden-Preisgelder und Match-Distanzen (`events`) sind zentral in `season_calendar_2027.json` gepflegt.
+* **Zentrale Kalender- & Turnier-Konfiguration (`app/src/main/assets/season_calendar_2027.json`):** Single Source of Truth für die chronologische Reihenfolge aller 74 Saisonturniere (`order` 1–74), deren exakte Austragungsstädte (`hostCity`), Länder (`hostCountry`) sowie Runden-Preisgelder und Match-Distanzen (`events`). Zusätzlich enthält jeder Kalendereintrag die Dokumentationsfelder `date` und `date_source` zur Nachvollziehbarkeit der Termine.
 
 Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
 
@@ -38,21 +38,7 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
 *   **Teilnehmer:** 128 Spieler.
 *   **Zusammensetzung & Qualifikation:**
     1. Alle 128 Tour-Card-Inhaber (inklusive User mit ID `-1L`).
-* **Gastgeberländer & Austragungsorte (2027):** Die 34 Players Championships folgen dem offiziellen PDC-Kalender 2027:
-  * PC 01 – 02: Milton Keynes (`"ENG"`)
-  * PC 03 – 06: Wigan (`"ENG"`)
-  * PC 07 – 08: Leicester (`"ENG"`)
-  * PC 09 – 10: Wigan (`"ENG"`)
-  * PC 11 – 12: Leicester (`"ENG"`)
-  * PC 13 – 16: Hildesheim (`"DEU"`)
-  * PC 17 – 18: Wigan (`"ENG"`)
-  * PC 19 – 20: Hildesheim (`"DEU"`)
-  * PC 21 – 22: Leicester (`"ENG"`)
-  * PC 23 – 24: Hildesheim (`"DEU"`)
-  * PC 25 – 28: Leicester (`"ENG"`)
-  * PC 29 – 30: Den Bosch (`"NLD"`)
-  * PC 31 – 32: Milton Keynes (`"ENG"`)
-  * PC 33 – 34: Maastricht (`"NLD"`)
+*   **Austragungsorte & Reihenfolge:** Siehe `app/src/main/assets/season_calendar_2027.json` (34 Events in England, Deutschland und den Niederlanden).
 *   **Auslosung:** Die Top 32 der *Pro Tour Order of Merit* sind nach dem offiziellen Standard-Setzbaum (`buildStandardSeedOrder(32)`) über alle 16 Boards (64 Erstrunden-Matches) verteilt (Seed `seedOrder32[i]` auf Match `2 * i`, dazwischen ungesetzte Partien auf Match `2 * i + 1`), sodass `(1)` und `(2)` frühestens im Finale aufeinandertreffen. Die restlichen 96 Spieler werden frei zugelost.
 *   **Preisgeldaufschlüsselung (Gesamt: £150.000 pro Event):**
 
@@ -74,23 +60,8 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
     *   *Reale PDC:* Sagen Tour-Card-Inhaber für ein PC-Event ab, rücken Spieler aus der *Challenge Tour Order of Merit* (und bei Bedarf *Development Tour*) nach, um das 128er-Feld aufzufüllen. Da diese Secondary Tours aktuell nicht simuliert werden, wird das Feld ggf. aus Nicht-Tourcard-Spielern (`tour_card_year == 0`) aufgefüllt oder mit Byes gearbeitet.
 
 ### 2.2 European Tour (ET) & ET Tour Card Holder Qualifier (`QUALIFIER_ET`)
-*   **ET Qualifier (`QUALIFIER_ET`):** Vor jedem der 15 European Tour Events findet ein Tour Card Holder Qualifier statt (`hostCountry` identisch zum Hauptturnier). Daran nehmen **alle** nicht-vorqualifizierten Tour-Card-Inhaber (inkl. `USER_ID = -1L`) teil. Das Turnier läuft im K.o.-Modus (Best of 11 Legs, mit Vorrunde/Freilosen bei auffüllender Zweierpotenz), bis exakt 10 Sieger (Qualifikanten) feststehen (£0 Preisgeld).
-*   **Die 15 European Tour Events (exakte offizielle Reihenfolge 2027 inklusive Frankreich und Slowakei):**
-    1. Baltic Sea Darts Open (`"DEU"`)
-    2. Poland Darts Open (`"POL"`)
-    3. International Darts Open (`"DEU"`)
-    4. Darts Grand Prix de France (`"FRA"`) – *Neues Event 2027*
-    5. German Darts Grand Prix (`"DEU"`)
-    6. European Darts Grand Prix (`"DEU"`)
-    7. European Darts Trophy (`"DEU"`)
-    8. Austrian Darts Open (`"AUT"`)
-    9. Czech Darts Open (`"CZE"`)
-    10. German Darts Open (`"DEU"`)
-    11. Slovak Darts Open (`"SVK"`) – *Neues Event 2027*
-    12. Belgian Darts Open (`"BEL"`)
-    13. Swiss Darts Trophy (`"SUI"`)
-    14. Hungarian Darts Trophy (`"HUN"`)
-    15. Dutch Darts Championship (`"NDL"`)
+*   **ET Qualifier (`QUALIFIER_ET`):** Vor jedem der 15 European Tour Events findet ein Tour Card Holder Qualifier statt (`hostCountry` und `hostCity` siehe `season_calendar_2027.json`). Daran nehmen **alle** nicht-vorqualifizierten Tour-Card-Inhaber (inkl. `USER_ID = -1L`) teil. Das Turnier läuft im K.o.-Modus (Best of 11 Legs, mit Vorrunde/Freilosen bei auffüllender Zweierpotenz), bis exakt 10 Sieger (Qualifikanten) feststehen (£0 Preisgeld).
+*   **Austragungsorte & Reihenfolge (ET):** Siehe `app/src/main/assets/season_calendar_2027.json` (15 Events inklusive der 2027 neu eingeführten Turniere in Frankreich und der Slowakei).
 *   **Teilnehmer (European Tour):** 48 Spieler.
 *   **Zusammensetzung & Qualifikation:**
     1. Top 16 der Order of Merit
@@ -142,10 +113,9 @@ Alle Tour Card Holder Qualifier (`QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIF
 
 ### 2.3 Die Major-Turniere
 
-**Major-Turniere folgen spezifischen Format- und Qualifikationsregeln:**
+*(Hinweis: Austragungsorte und Spieldaten aller Majors sind zentral in `app/src/main/assets/season_calendar_2027.json` gepflegt.)*
 
-#### 2.1 UK Open
-*   **Gastgeberland:** England (`"ENG"`)
+#### 2.3.1 UK Open
 *   **Teilnehmer:** 160.
 *   **Zusammensetzung & Qualifikation:**
     1. Alle 128 Tourcard-Inhaber der aktuellen Saison.
@@ -179,14 +149,12 @@ Alle Tour Card Holder Qualifier (`QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIF
 *   **Hinweis zur App-Vereinfachung vs. reale PDC-Regeln:**
     *   *Reale PDC:* Die 32 Nicht-Tourcard-Plätze setzen sich in der Realität zusammen aus den **Top 8 der Challenge Tour Order of Merit**, den **Top 8 der Development Tour Order of Merit** (jeweils des Vorjahres, sofern keine Tour Card gewonnen wurde) sowie **16 Amateur-Qualifikanten** (8x Rileys Amateur Qualifiers + 8x PDC in the Community Qualifiers). In der App wird dies aktuell vereinfacht über die Top 32 Nicht-Tourcard-Spieler nach `skill DESC` abgebildet.
 
-#### 2.2 European Open (Neues PDC-Major ab 2027)
-* **Gastgeberland & Austragungsort:** Salzburg, Österreich (`"AUT"`)
+#### 2.3.2 European Open (Neues PDC-Major ab 2027)
 *   Alles genau wie bei den UK Open (160 Teilnehmer, gestaffelter Rundeneinstieg und identische Preisgeldverteilung mit **£750.000** Gesamtpreisgeld).
 *   **Hinweis zur App-Vereinfachung vs. reale PDC-Regeln:**
-    *   *Reale PDC:* Bei der Premiere ab 2027 in Salzburg (160 Spieler) teilen sich die 32 Nicht-Tourcard-Plätze auf in **Top 4 Challenge Tour**, **Top 4 Development Tour**, **8 PDC Europe Next Gen / START Qualifier** sowie **16 internationale Qualifikanten**. In der App wird dies wie bei den UK Open über die Top 32 Nicht-Tourcard-Spieler nach `skill DESC` abgebildet.
+    *   *Reale PDC:* Bei der Premiere ab 2027 (160 Spieler) teilen sich die 32 Nicht-Tourcard-Plätze auf in **Top 4 Challenge Tour**, **Top 4 Development Tour**, **8 PDC Europe Next Gen / START Qualifier** sowie **16 internationale Qualifikanten**. In der App wird dies wie bei den UK Open über die Top 32 Nicht-Tourcard-Spieler nach `skill DESC` abgebildet.
 
-#### 2.3 World Matchplay
-*   **Gastgeberland:** England (`"ENG"`)
+#### 2.3.3 World Matchplay
 *   **Teilnehmer:** 32.
 *   **Zusammensetzung & Qualifikation:**
     1. Top 16 der Order of Merit
@@ -212,8 +180,7 @@ Alle Tour Card Holder Qualifier (`QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIF
 *   **Ausnahmen & Besonderheiten:** Alle 32 Teilnehmer erhalten bei regulärer Teilnahme mindestens £12.500 voll für die Order of Merit angerechnet.
 *   *(Keine App-Vereinfachung nötig: Teilnehmerfeld, freie Auslosung der 16 Pro-Tour-Qualifikanten gegen die Top 16 Seeds und Preisgelder entsprechen 1:1 dem offiziellen PDC-Regelwerk).*
 
-#### 2.4 World Grand Prix
-*   **Gastgeberland:** England (`"ENG"`)
+#### 2.3.4 World Grand Prix
 *   **Teilnehmer:** 32
 *   **Zusammensetzung & Qualifikation:**
     1. Top 16 der Order of Merit
@@ -240,8 +207,7 @@ Alle Tour Card Holder Qualifier (`QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIF
 *   **Ausnahmen & Besonderheiten:** Alle 32 Teilnehmer erhalten bei regulärer Teilnahme mindestens £7.500 voll für die Order of Merit angerechnet.
 *   *(Keine App-Vereinfachung nötig: Teilnehmerfeld und Preisgelder entsprechen 1:1 dem offiziellen PDC-Regelwerk).*
 
-#### 2.5 European Championship (MAJOR_LEG)
-*   **Gastgeberland:** Deutschland (`"DEU"`)
+#### 2.3.5 European Championship (MAJOR_LEG)
 *   **Teilnehmer:** 32.
 *   **Zusammensetzung & Qualifikation:**
     1. Top 32 der European Tour Order of Merit der laufenden Saison.
@@ -263,10 +229,9 @@ Alle Tour Card Holder Qualifier (`QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIF
 | **Letzte 32 (R1-Verlierer)** | `L32` | 16 | £7.500 |
 
 *   **Ausnahmen & Besonderheiten:** Alle 32 Teilnehmer erhalten bei regulärer Teilnahme mindestens £7.500 voll für die Order of Merit angerechnet.
-*   **Wichtiger Hinweis zu 2027er Reformen (Bestätigt durch PDC-Ankündigung vom 25.09.2026):** Die European Championship wird ab Herbst 2027 auf 48 Spieler und £1.000.000 Preisgeld in Dortmund erweitert. Detaillierte Preisgeld-Aufschlüsselung pro Runde und der exakte Qualifikationsschlüssel für das 48er-Feld sind von der PDC noch nicht veröffentlicht – daher wird in der App vorerst das bestehende 32er-Schema beibehalten.
+*   **Wichtiger Hinweis zu 2027er Reformen (Bestätigt durch PDC-Ankündigung vom 25.09.2026):** Die European Championship wird ab Herbst 2027 auf 48 Spieler und £1.000.000 Preisgeld erweitert. Detaillierte Preisgeld-Aufschlüsselung pro Runde und der exakte Qualifikationsschlüssel für das 48er-Feld sind von der PDC noch nicht veröffentlicht – daher wird in der App vorerst das bestehende 32er-Schema beibehalten.
 
-#### 2.6 Grand Slam of Darts (MAJOR_GROUP) & Qualifier (`QUALIFIER_GRAND_SLAM`)
-*   **Gastgeberland:** England (`"ENG"`)
+#### 2.3.6 Grand Slam of Darts (MAJOR_GROUP) & Qualifier (`QUALIFIER_GRAND_SLAM`)
 *   **Grand Slam Qualifier (`QUALIFIER_GRAND_SLAM`):** Daran nehmen alle noch nicht für den Grand Slam qualifizierten Tour-Card-Inhaber (inkl. `USER_ID = -1L`) teil. Gespielt wird um **8 Qualifikationsplätze** (£0 Preisgeld, Best of 11 Legs).
 *   **Teilnehmer (Hauptfeld):** 48 (Offizielles PDC-Format ab 2026)
 *   **Modus:**
@@ -324,8 +289,7 @@ Alle Tour Card Holder Qualifier (`QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIF
 *   **Hinweis zur App-Vereinfachung vs. reale PDC-Regeln:**
     *   *Reale PDC:* In der Realität erhalten bis zu 12 automatische Startplätze nicht nur Major-Finalisten, sondern auch Sieger/Finalisten von **World Series of Darts Finals**, **World Cup of Darts**, **World Youth Championship** (Sieger & Finalist), **Women's World Matchplay** (Siegerin), **Women's Series** (#1), **Challenge Tour** (#1), **Development Tour** (#1) sowie regionale Champions (CDC Continental Cup, Asian Championship). Außerdem sind die Top 16 der OOM nicht pauschal über ihre Weltrangliste gesetzt, sondern nur die 16 höchstplatzierten Qualifikanten werden als Gruppenköpfe gesetzt. Im Konzept werden diese Secondary-/Women's-/World-Series-Plätze aktuell durch das Nachrücken über die *Pro Tour Order of Merit* sowie die *8 Nicht-Tourcard-Qualifier* kompensiert.
 
-#### 2.7 Players Championship Finals (MAJOR_LEG)
-*   **Gastgeberland:** England (`"ENG"`)
+#### 2.3.7 Players Championship Finals (MAJOR_LEG)
 *   **Teilnehmer:** 64.
 *   **Zusammensetzung & Qualifikation:**
     1. Top 64 der Players Championship Order of Merit der laufenden Saison.
@@ -347,11 +311,10 @@ Alle Tour Card Holder Qualifier (`QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIF
 | **Letzte 64 (R1-Verlierer)** | `L64` | 32 | £4.000 |
 
 *   **Ausnahmen & Besonderheiten:** Alle 64 Teilnehmer erhalten bei regulärer Teilnahme mindestens £4.000 voll für die Order of Merit angerechnet.
-*   **Wichtiger Hinweis zu 2027er Reformen (Bestätigt durch PDC-Ankündigung vom 25.09.2026):** Die Players Championship Finals werden ab 2027 auf 128 Spieler im Mehrbrett-Modus in Minehead erweitert. Detaillierte Preisgeldverteilung und Setzlisten-Regeln für das 128er-Feld sind von der PDC noch nicht veröffentlicht – daher wird in der App vorerst das bestehende 64er-Schema beibehalten.
+*   **Wichtiger Hinweis zu 2027er Reformen (Bestätigt durch PDC-Ankündigung vom 25.09.2026):** Die Players Championship Finals werden ab 2027 auf 128 Spieler im Mehrbrett-Modus erweitert. Detaillierte Preisgeldverteilung und Setzlisten-Regeln für das 128er-Feld sind von der PDC noch nicht veröffentlicht – daher wird in der App vorerst das bestehende 64er-Schema beibehalten.
 
-#### 2.8 World Championship (MAJOR_SET) & Qualifier (`QUALIFIER_WM`)
-*   **Gastgeberland:** England (`"ENG"`)
-*   **WM Tour Card Holder Qualifier (`QUALIFIER_WM`):** Findet unmittelbar vor der World Championship statt (`hostCountry = "ENG"`). Daran nehmen **alle** noch nicht für die WM qualifizierten Tour-Card-Inhaber (inkl. `USER_ID = -1L`) teil. Es wird im K.o.-System (Best of 11 Legs, £0 Preisgeld) um **exakt 4 Startplätze** gespielt.
+#### 2.3.8 World Championship (MAJOR_SET) & Qualifier (`QUALIFIER_WM`)
+*   **WM Tour Card Holder Qualifier (`QUALIFIER_WM`):** Findet unmittelbar vor der World Championship statt (Ort & Datum siehe `season_calendar_2027.json`). Daran nehmen **alle** noch nicht für die WM qualifizierten Tour-Card-Inhaber (inkl. `USER_ID = -1L`) teil. Es wird im K.o.-System (Best of 11 Legs, £0 Preisgeld) um **exakt 4 Startplätze** gespielt.
 *   **Teilnehmer (Hauptfeld):** 128.
 *   **Zusammensetzung & Qualifikation:**
     1. Top 40 der Order of Merit (80 vorqualifizierte TC-Spieler zusammen mit Punkt 2)
@@ -450,7 +413,7 @@ Die folgenden zentralen Komponenten sind vollständig implementiert:
 *   **`TournamentRound`**: Enum aller Turnierrunden von Gruppenphase bis Finale/Sieger.
 *   **`MatchDistance`**: Data Class zur Definition von Best-of-Legs/Sets, Legs pro Set und Two-Clear-Legs-Regeln.
 *   **`BracketGenerator`**: Algorithmische Generierung von Setzlisten und Erstrunden-Paarungen für alle Turniertypen inkl. dynamischer Qualifikanten-Brackets mit Vorrunden/Freilosen.
-*   **`GenerateSeasonCalendarUseCase`**: Erzeugt die chronologische Liste aller 74 Saisonturniere mit echten Turniernemen und vollständigen ISO-3 `hostCountry`-Einträgen.
+*   **`GenerateSeasonCalendarUseCase`**: Erzeugt die chronologische Liste aller 74 Saisonturniere aus `season_calendar_2027.json`.
 *   **`GenerateBracketUseCase`**: Generiert die Paarungen für anstehende Turniere.
 *   **`SimulateCpuMatchUseCase`**: Simuliert CPU-Matches basierend auf Skill und Wahrscheinlichkeiten.
 *   **`AdvanceTournamentRoundUseCase`**: Steuert den Rundenfortschritt nach Abschluss aller Partien einer Runde und beendet Qualifier-Turniere (`QUALIFIER_ET` = 10, `QUALIFIER_GRAND_SLAM` = 8, `QUALIFIER_WM` = 4), sobald die Zielanzahl an Siegern feststeht.
@@ -464,4 +427,4 @@ Die folgenden zentralen Komponenten sind vollständig implementiert:
 *   **PDC-Ankündigung der Preisgelderhöhung ab 2026:** [PDC News: Biggest prize money increase in PDC history confirmed](https://www.pdc.tv/news/2025/03/31/biggest-prize-money-increase-pdc-history-confirmed)
 *   **PDC-Erweiterung European Open & European Tour 2027:** [PDC News: Major expansion announced for PDC European events in 2027](https://www.pdc.tv/news/2026/september/25/major-expansion-announced-for-pdc-european-events-in-2027)
 *   **Turnierspezifische Verifizierungen 2026/2027:** [Wikipedia – 2026 PDC Players Championship series](https://en.wikipedia.org/wiki/2026_PDC_Players_Championship_series), [Wikipedia – 2026 World Matchplay](https://en.wikipedia.org/wiki/2026_World_Matchplay), [Wikipedia – 2026 UK Open](https://en.wikipedia.org/wiki/2026_UK_Open), [Sky Sports – Grand Slam of Darts 2026](https://www.skysports.com/darts/news/13610214/grand-slam-of-darts-2026-schedule-new-format-players-prize-money-past-winners-as-luke-littler-looks-to-retain-title), [Wikipedia – 2027 PDC World Darts Championship](https://en.wikipedia.org/wiki/2027_PDC_World_Darts_Championship).
-* **Offizieller PDC-Saisonkalender 2027 (Termine, Reihenfolge & Austragungsstädte):** [PDC News: European Open & historic French event headline 2027 PDC calendar](https://www.pdc.tv/news/2026/september/25/european-open-historic-french-event-headline-2027-pdc-calendar/), [PDC Pro Tour 2027 (Wikipedia)](https://de.wikipedia.org/wiki/PDC_Pro_Tour_2027), [Qualifikationsturniere für die European Darts Tour 2027 (Wikipedia)](https://de.wikipedia.org/wiki/Qualifikationsturniere_f%C3%BCr_die_European_Darts_Tour_2027), [European Darts Tour 2027 (Wikipedia)](https://de.wikipedia.org/wiki/European_Darts_Tour_2027).
+*   **Offizieller PDC-Saisonkalender 2027 (Termine, Reihenfolge & Austragungsstädte):** [PDC News: European Open & historic French event headline 2027 PDC calendar](https://www.pdc.tv/news/2026/september/25/european-open-historic-french-event-headline-2027-pdc-calendar/), [PDC Pro Tour 2027 (Wikipedia)](https://de.wikipedia.org/wiki/PDC_Pro_Tour_2027), [Qualifikationsturniere für die European Darts Tour 2027 (Wikipedia)](https://de.wikipedia.org/wiki/Qualifikationsturniere_f%C3%BCr_die_European_Darts_Tour_2027), [European Darts Tour 2027 (Wikipedia)](https://de.wikipedia.org/wiki/European_Darts_Tour_2027), [Darts-Oche PDC Calendar](https://darts-oche.com/pdc-calendar.html), [Darts1 Termine](https://www.darts1.de/termine/termine.php).

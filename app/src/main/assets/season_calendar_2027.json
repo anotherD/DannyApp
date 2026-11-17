@@ -628,518 +628,666 @@
       "name": "Baltic Sea Darts Open Qualifier",
       "type": "QUALIFIER_ET",
       "hostCountry": "ENG",
-      "hostCity": "Milton Keynes"
+      "hostCity": "Milton Keynes",
+      "date": "27.01.2027",
+      "date_source": "https://de.wikipedia.org/wiki/Qualifikationsturniere_f%C3%BCr_die_European_Darts_Tour_2027"
     },
     {
       "order": 2,
       "name": "Players Championship 1",
       "type": "PLAYERS_CHAMPIONSHIP",
       "hostCountry": "ENG",
-      "hostCity": "Milton Keynes"
+      "hostCity": "Milton Keynes",
+      "date": "08.02.2027",
+      "date_source": "https://de.wikipedia.org/wiki/PDC_Pro_Tour_2027"
     },
     {
       "order": 3,
       "name": "Players Championship 2",
       "type": "PLAYERS_CHAMPIONSHIP",
       "hostCountry": "ENG",
-      "hostCity": "Milton Keynes"
+      "hostCity": "Milton Keynes",
+      "date": "09.02.2027",
+      "date_source": "https://de.wikipedia.org/wiki/PDC_Pro_Tour_2027"
     },
     {
       "order": 4,
       "name": "Poland Darts Open Qualifier",
       "type": "QUALIFIER_ET",
       "hostCountry": "ENG",
-      "hostCity": "Milton Keynes"
+      "hostCity": "Milton Keynes",
+      "date": "10.02.2027",
+      "date_source": "https://de.wikipedia.org/wiki/Qualifikationsturniere_f%C3%BCr_die_European_Darts_Tour_2027"
     },
     {
       "order": 5,
       "name": "International Darts Open Qualifier",
       "type": "QUALIFIER_ET",
       "hostCountry": "ENG",
-      "hostCity": "Milton Keynes"
+      "hostCity": "Milton Keynes",
+      "date": "10.02.2027",
+      "date_source": "https://de.wikipedia.org/wiki/Qualifikationsturniere_f%C3%BCr_die_European_Darts_Tour_2027"
     },
     {
       "order": 6,
       "name": "Baltic Sea Darts Open",
       "type": "EUROPEAN_TOUR",
       "hostCountry": "DEU",
-      "hostCity": "Kiel"
+      "hostCity": "Kiel",
+      "date": "12.–14.02.2027",
+      "date_source": "https://de.wikipedia.org/wiki/European_Darts_Tour_2027"
     },
     {
       "order": 7,
       "name": "Players Championship 3",
       "type": "PLAYERS_CHAMPIONSHIP",
       "hostCountry": "ENG",
-      "hostCity": "Wigan"
+      "hostCity": "Wigan",
+      "date": "16.02.2027",
+      "date_source": "https://de.wikipedia.org/wiki/PDC_Pro_Tour_2027"
     },
     {
       "order": 8,
       "name": "Players Championship 4",
       "type": "PLAYERS_CHAMPIONSHIP",
       "hostCountry": "ENG",
-      "hostCity": "Wigan"
+      "hostCity": "Wigan",
+      "date": "17.02.2027",
+      "date_source": "https://de.wikipedia.org/wiki/PDC_Pro_Tour_2027"
     },
     {
       "order": 9,
       "name": "Poland Darts Open",
       "type": "EUROPEAN_TOUR",
       "hostCountry": "POL",
-      "hostCity": "Krakau"
+      "hostCity": "Krakau",
+      "date": "19.–21.02.2027",
+      "date_source": "https://de.wikipedia.org/wiki/European_Darts_Tour_2027"
     },
     {
       "order": 10,
       "name": "Players Championship 5",
       "type": "PLAYERS_CHAMPIONSHIP",
       "hostCountry": "ENG",
-      "hostCity": "Wigan"
+      "hostCity": "Wigan",
+      "date": "23.02.2027",
+      "date_source": "https://de.wikipedia.org/wiki/PDC_Pro_Tour_2027"
     },
     {
       "order": 11,
       "name": "Players Championship 6",
       "type": "PLAYERS_CHAMPIONSHIP",
       "hostCountry": "ENG",
-      "hostCity": "Wigan"
+      "hostCity": "Wigan",
+      "date": "24.02.2027",
+      "date_source": "https://de.wikipedia.org/wiki/PDC_Pro_Tour_2027"
     },
     {
       "order": 12,
       "name": "International Darts Open",
       "type": "EUROPEAN_TOUR",
       "hostCountry": "DEU",
-      "hostCity": "Riesa"
+      "hostCity": "Riesa",
+      "date": "26.–28.02.2027",
+      "date_source": "https://de.wikipedia.org/wiki/European_Darts_Tour_2027"
     },
     {
       "order": 13,
       "name": "UK Open",
       "type": "UK_OPEN",
       "hostCountry": "ENG",
-      "hostCity": "Minehead"
+      "hostCity": "Minehead",
+      "date": "05.–07.03.2027",
+      "date_source": "https://www.pdc.tv/news/2026/september/25/european-open-historic-french-event-headline-2027-pdc-calendar/"
     },
     {
       "order": 14,
       "name": "Darts Grand Prix de France Qualifier",
       "type": "QUALIFIER_ET",
       "hostCountry": "ENG",
-      "hostCity": "Leicester"
+      "hostCity": "Leicester",
+      "date": "14.03.2027",
+      "date_source": "https://de.wikipedia.org/wiki/Qualifikationsturniere_f%C3%BCr_die_European_Darts_Tour_2027"
     },
     {
       "order": 15,
       "name": "Players Championship 7",
       "type": "PLAYERS_CHAMPIONSHIP",
       "hostCountry": "ENG",
-      "hostCity": "Leicester"
+      "hostCity": "Leicester",
+      "date": "15.03.2027",
+      "date_source": "https://de.wikipedia.org/wiki/PDC_Pro_Tour_2027"
     },
     {
       "order": 16,
       "name": "Players Championship 8",
       "type": "PLAYERS_CHAMPIONSHIP",
       "hostCountry": "ENG",
-      "hostCity": "Leicester"
+      "hostCity": "Leicester",
+      "date": "16.03.2027",
+      "date_source": "https://de.wikipedia.org/wiki/PDC_Pro_Tour_2027"
     },
     {
       "order": 17,
       "name": "German Darts Grand Prix Qualifier",
       "type": "QUALIFIER_ET",
       "hostCountry": "ENG",
-      "hostCity": "Leicester"
+      "hostCity": "Leicester",
+      "date": "14.03.2027",
+      "date_source": "https://de.wikipedia.org/wiki/Qualifikationsturniere_f%C3%BCr_die_European_Darts_Tour_2027"
     },
     {
       "order": 18,
       "name": "European Darts Grand Prix Qualifier",
       "type": "QUALIFIER_ET",
       "hostCountry": "ENG",
-      "hostCity": "Leicester"
+      "hostCity": "Leicester",
+      "date": "17.03.2027",
+      "date_source": "https://de.wikipedia.org/wiki/Qualifikationsturniere_f%C3%BCr_die_European_Darts_Tour_2027"
     },
     {
       "order": 19,
       "name": "European Darts Trophy Qualifier",
       "type": "QUALIFIER_ET",
       "hostCountry": "ENG",
-      "hostCity": "Leicester"
+      "hostCity": "Leicester",
+      "date": "17.03.2027",
+      "date_source": "https://de.wikipedia.org/wiki/Qualifikationsturniere_f%C3%BCr_die_European_Darts_Tour_2027"
     },
     {
       "order": 20,
       "name": "Darts Grand Prix de France",
       "type": "EUROPEAN_TOUR",
       "hostCountry": "FRA",
-      "hostCity": "Liévin"
+      "hostCity": "Liévin",
+      "date": "19.–21.03.2027",
+      "date_source": "https://de.wikipedia.org/wiki/European_Darts_Tour_2027"
     },
     {
       "order": 21,
       "name": "German Darts Grand Prix",
       "type": "EUROPEAN_TOUR",
       "hostCountry": "DEU",
-      "hostCity": "München"
+      "hostCity": "München",
+      "date": "27.–29.03.2027",
+      "date_source": "https://de.wikipedia.org/wiki/European_Darts_Tour_2027"
     },
     {
       "order": 22,
       "name": "European Darts Grand Prix",
       "type": "EUROPEAN_TOUR",
       "hostCountry": "DEU",
-      "hostCity": "Sindelfingen"
+      "hostCity": "Sindelfingen",
+      "date": "02.–04.04.2027",
+      "date_source": "https://de.wikipedia.org/wiki/European_Darts_Tour_2027"
     },
     {
       "order": 23,
       "name": "Players Championship 9",
       "type": "PLAYERS_CHAMPIONSHIP",
       "hostCountry": "ENG",
-      "hostCity": "Wigan"
+      "hostCity": "Wigan",
+      "date": "12.04.2027",
+      "date_source": "https://de.wikipedia.org/wiki/PDC_Pro_Tour_2027"
     },
     {
       "order": 24,
       "name": "Players Championship 10",
       "type": "PLAYERS_CHAMPIONSHIP",
       "hostCountry": "ENG",
-      "hostCity": "Wigan"
+      "hostCity": "Wigan",
+      "date": "13.04.2027",
+      "date_source": "https://de.wikipedia.org/wiki/PDC_Pro_Tour_2027"
     },
     {
       "order": 25,
       "name": "Austrian Darts Open Qualifier",
       "type": "QUALIFIER_ET",
       "hostCountry": "ENG",
-      "hostCity": "Leicester"
+      "hostCity": "Leicester",
+      "date": "14.04.2027",
+      "date_source": "https://de.wikipedia.org/wiki/Qualifikationsturniere_f%C3%BCr_die_European_Darts_Tour_2027"
     },
     {
       "order": 26,
       "name": "Czech Darts Open Qualifier",
       "type": "QUALIFIER_ET",
       "hostCountry": "ENG",
-      "hostCity": "Leicester"
+      "hostCity": "Leicester",
+      "date": "14.04.2027",
+      "date_source": "https://de.wikipedia.org/wiki/Qualifikationsturniere_f%C3%BCr_die_European_Darts_Tour_2027"
     },
     {
       "order": 27,
       "name": "European Darts Trophy",
       "type": "EUROPEAN_TOUR",
       "hostCountry": "DEU",
-      "hostCity": "Göttingen"
+      "hostCity": "Göttingen",
+      "date": "16.–18.04.2027",
+      "date_source": "https://de.wikipedia.org/wiki/European_Darts_Tour_2027"
     },
     {
       "order": 28,
       "name": "Players Championship 11",
       "type": "PLAYERS_CHAMPIONSHIP",
       "hostCountry": "ENG",
-      "hostCity": "Leicester"
+      "hostCity": "Leicester",
+      "date": "20.04.2027",
+      "date_source": "https://de.wikipedia.org/wiki/PDC_Pro_Tour_2027"
     },
     {
       "order": 29,
       "name": "Players Championship 12",
       "type": "PLAYERS_CHAMPIONSHIP",
       "hostCountry": "ENG",
-      "hostCity": "Leicester"
+      "hostCity": "Leicester",
+      "date": "21.04.2027",
+      "date_source": "https://de.wikipedia.org/wiki/PDC_Pro_Tour_2027"
     },
     {
       "order": 30,
       "name": "Austrian Darts Open",
       "type": "EUROPEAN_TOUR",
       "hostCountry": "AUT",
-      "hostCity": "Graz"
+      "hostCity": "Graz",
+      "date": "07.–09.05.2027",
+      "date_source": "https://de.wikipedia.org/wiki/European_Darts_Tour_2027"
     },
     {
       "order": 31,
       "name": "Players Championship 13",
       "type": "PLAYERS_CHAMPIONSHIP",
       "hostCountry": "DEU",
-      "hostCity": "Hildesheim"
+      "hostCity": "Hildesheim",
+      "date": "13.05.2027",
+      "date_source": "https://de.wikipedia.org/wiki/PDC_Pro_Tour_2027"
     },
     {
       "order": 32,
       "name": "Players Championship 14",
       "type": "PLAYERS_CHAMPIONSHIP",
       "hostCountry": "DEU",
-      "hostCity": "Hildesheim"
+      "hostCity": "Hildesheim",
+      "date": "14.05.2027",
+      "date_source": "https://de.wikipedia.org/wiki/PDC_Pro_Tour_2027"
     },
     {
       "order": 33,
       "name": "Players Championship 15",
       "type": "PLAYERS_CHAMPIONSHIP",
       "hostCountry": "DEU",
-      "hostCity": "Hildesheim"
+      "hostCity": "Hildesheim",
+      "date": "17.05.2027",
+      "date_source": "https://de.wikipedia.org/wiki/PDC_Pro_Tour_2027"
     },
     {
       "order": 34,
       "name": "Players Championship 16",
       "type": "PLAYERS_CHAMPIONSHIP",
       "hostCountry": "DEU",
-      "hostCity": "Hildesheim"
+      "hostCity": "Hildesheim",
+      "date": "18.05.2027",
+      "date_source": "https://de.wikipedia.org/wiki/PDC_Pro_Tour_2027"
     },
     {
       "order": 35,
       "name": "Czech Darts Open",
       "type": "EUROPEAN_TOUR",
       "hostCountry": "CZE",
-      "hostCity": "Prag"
+      "hostCity": "Prag",
+      "date": "21.–23.05.2027",
+      "date_source": "https://de.wikipedia.org/wiki/European_Darts_Tour_2027"
     },
     {
       "order": 36,
       "name": "Players Championship 17",
       "type": "PLAYERS_CHAMPIONSHIP",
       "hostCountry": "ENG",
-      "hostCity": "Wigan"
+      "hostCity": "Wigan",
+      "date": "31.05.2027",
+      "date_source": "https://de.wikipedia.org/wiki/PDC_Pro_Tour_2027"
     },
     {
       "order": 37,
       "name": "Players Championship 18",
       "type": "PLAYERS_CHAMPIONSHIP",
       "hostCountry": "ENG",
-      "hostCity": "Wigan"
+      "hostCity": "Wigan",
+      "date": "01.06.2027",
+      "date_source": "https://de.wikipedia.org/wiki/PDC_Pro_Tour_2027"
     },
     {
       "order": 38,
       "name": "German Darts Open Qualifier",
       "type": "QUALIFIER_ET",
       "hostCountry": "ENG",
-      "hostCity": "Wigan"
+      "hostCity": "Wigan",
+      "date": "02.06.2027",
+      "date_source": "https://de.wikipedia.org/wiki/Qualifikationsturniere_f%C3%BCr_die_European_Darts_Tour_2027"
     },
     {
       "order": 39,
       "name": "Slovak Darts Open Qualifier",
       "type": "QUALIFIER_ET",
       "hostCountry": "ENG",
-      "hostCity": "Wigan"
+      "hostCity": "Wigan",
+      "date": "02.06.2027",
+      "date_source": "https://de.wikipedia.org/wiki/Qualifikationsturniere_f%C3%BCr_die_European_Darts_Tour_2027"
     },
     {
       "order": 40,
       "name": "Players Championship 19",
       "type": "PLAYERS_CHAMPIONSHIP",
       "hostCountry": "DEU",
-      "hostCity": "Hildesheim"
+      "hostCity": "Hildesheim",
+      "date": "15.06.2027",
+      "date_source": "https://de.wikipedia.org/wiki/PDC_Pro_Tour_2027"
     },
     {
       "order": 41,
       "name": "Players Championship 20",
       "type": "PLAYERS_CHAMPIONSHIP",
       "hostCountry": "DEU",
-      "hostCity": "Hildesheim"
+      "hostCity": "Hildesheim",
+      "date": "16.06.2027",
+      "date_source": "https://de.wikipedia.org/wiki/PDC_Pro_Tour_2027"
     },
     {
       "order": 42,
       "name": "European Open",
       "type": "EUROPEAN_OPEN",
       "hostCountry": "AUT",
-      "hostCity": "Salzburg"
+      "hostCity": "Salzburg",
+      "date": "18.–20.06.2027",
+      "date_source": "https://www.pdc.tv/news/2026/september/25/european-open-historic-french-event-headline-2027-pdc-calendar/"
     },
     {
       "order": 43,
       "name": "Players Championship 21",
       "type": "PLAYERS_CHAMPIONSHIP",
       "hostCountry": "ENG",
-      "hostCity": "Leicester"
+      "hostCity": "Leicester",
+      "date": "05.07.2027",
+      "date_source": "https://de.wikipedia.org/wiki/PDC_Pro_Tour_2027"
     },
     {
       "order": 44,
       "name": "Players Championship 22",
       "type": "PLAYERS_CHAMPIONSHIP",
       "hostCountry": "ENG",
-      "hostCity": "Leicester"
+      "hostCity": "Leicester",
+      "date": "06.07.2027",
+      "date_source": "https://de.wikipedia.org/wiki/PDC_Pro_Tour_2027"
     },
     {
       "order": 45,
       "name": "Belgian Darts Open Qualifier",
       "type": "QUALIFIER_ET",
       "hostCountry": "ENG",
-      "hostCity": "Leicester"
+      "hostCity": "Leicester",
+      "date": "07.07.2027",
+      "date_source": "https://de.wikipedia.org/wiki/Qualifikationsturniere_f%C3%BCr_die_European_Darts_Tour_2027"
     },
     {
       "order": 46,
       "name": "Swiss Darts Trophy Qualifier",
       "type": "QUALIFIER_ET",
       "hostCountry": "ENG",
-      "hostCity": "Leicester"
+      "hostCity": "Leicester",
+      "date": "07.07.2027",
+      "date_source": "https://de.wikipedia.org/wiki/Qualifikationsturniere_f%C3%BCr_die_European_Darts_Tour_2027"
     },
     {
       "order": 47,
       "name": "German Darts Open",
       "type": "EUROPEAN_TOUR",
       "hostCountry": "DEU",
-      "hostCity": "Leverkusen"
+      "hostCity": "Leverkusen",
+      "date": "09.–11.07.2027",
+      "date_source": "https://de.wikipedia.org/wiki/European_Darts_Tour_2027"
     },
     {
       "order": 48,
       "name": "World Matchplay",
       "type": "WORLD_MATCHPLAY",
       "hostCountry": "ENG",
-      "hostCity": "Blackpool"
+      "hostCity": "Blackpool",
+      "date": "17.–25.07.2027",
+      "date_source": "https://www.pdc.tv/news/2026/september/25/european-open-historic-french-event-headline-2027-pdc-calendar/"
     },
     {
       "order": 49,
       "name": "Players Championship 23",
       "type": "PLAYERS_CHAMPIONSHIP",
       "hostCountry": "DEU",
-      "hostCity": "Hildesheim"
+      "hostCity": "Hildesheim",
+      "date": "27.07.2027",
+      "date_source": "https://de.wikipedia.org/wiki/PDC_Pro_Tour_2027"
     },
     {
       "order": 50,
       "name": "Players Championship 24",
       "type": "PLAYERS_CHAMPIONSHIP",
       "hostCountry": "DEU",
-      "hostCity": "Hildesheim"
+      "hostCity": "Hildesheim",
+      "date": "28.07.2027",
+      "date_source": "https://de.wikipedia.org/wiki/PDC_Pro_Tour_2027"
     },
     {
       "order": 51,
       "name": "Players Championship 25",
       "type": "PLAYERS_CHAMPIONSHIP",
       "hostCountry": "ENG",
-      "hostCity": "Leicester"
+      "hostCity": "Leicester",
+      "date": "24.08.2027",
+      "date_source": "https://de.wikipedia.org/wiki/PDC_Pro_Tour_2027"
     },
     {
       "order": 52,
       "name": "Players Championship 26",
       "type": "PLAYERS_CHAMPIONSHIP",
       "hostCountry": "ENG",
-      "hostCity": "Leicester"
+      "hostCity": "Leicester",
+      "date": "25.08.2027",
+      "date_source": "https://de.wikipedia.org/wiki/PDC_Pro_Tour_2027"
     },
     {
       "order": 53,
       "name": "Slovak Darts Open",
       "type": "EUROPEAN_TOUR",
       "hostCountry": "SVK",
-      "hostCity": "Bratislava"
+      "hostCity": "Bratislava",
+      "date": "27.–29.08.2027",
+      "date_source": "https://de.wikipedia.org/wiki/European_Darts_Tour_2027"
     },
     {
       "order": 54,
       "name": "Belgian Darts Open",
       "type": "EUROPEAN_TOUR",
       "hostCountry": "BEL",
-      "hostCity": "Gent"
+      "hostCity": "Gent",
+      "date": "03.–05.09.2027",
+      "date_source": "https://de.wikipedia.org/wiki/European_Darts_Tour_2027"
     },
     {
       "order": 55,
       "name": "Players Championship 27",
       "type": "PLAYERS_CHAMPIONSHIP",
       "hostCountry": "ENG",
-      "hostCity": "Leicester"
+      "hostCity": "Leicester",
+      "date": "07.09.2027",
+      "date_source": "https://de.wikipedia.org/wiki/PDC_Pro_Tour_2027"
     },
     {
       "order": 56,
       "name": "Players Championship 28",
       "type": "PLAYERS_CHAMPIONSHIP",
       "hostCountry": "ENG",
-      "hostCity": "Leicester"
+      "hostCity": "Leicester",
+      "date": "08.09.2027",
+      "date_source": "https://de.wikipedia.org/wiki/PDC_Pro_Tour_2027"
     },
     {
       "order": 57,
       "name": "Swiss Darts Trophy",
       "type": "EUROPEAN_TOUR",
       "hostCountry": "CHE",
-      "hostCity": "Basel"
+      "hostCity": "Basel",
+      "date": "10.–12.09.2027",
+      "date_source": "https://de.wikipedia.org/wiki/European_Darts_Tour_2027"
     },
     {
       "order": 58,
       "name": "Players Championship 29",
       "type": "PLAYERS_CHAMPIONSHIP",
       "hostCountry": "NLD",
-      "hostCity": "Den Bosch"
+      "hostCity": "Den Bosch",
+      "date": "21.09.2027",
+      "date_source": "https://de.wikipedia.org/wiki/PDC_Pro_Tour_2027"
     },
     {
       "order": 59,
       "name": "Players Championship 30",
       "type": "PLAYERS_CHAMPIONSHIP",
       "hostCountry": "NLD",
-      "hostCity": "Den Bosch"
+      "hostCity": "Den Bosch",
+      "date": "22.09.2027",
+      "date_source": "https://de.wikipedia.org/wiki/PDC_Pro_Tour_2027"
     },
     {
       "order": 60,
       "name": "Hungarian Darts Trophy Qualifier",
       "type": "QUALIFIER_ET",
       "hostCountry": "NLD",
-      "hostCity": "Den Bosch"
+      "hostCity": "Den Bosch",
+      "date": "23.09.2027",
+      "date_source": "https://de.wikipedia.org/wiki/Qualifikationsturniere_f%C3%BCr_die_European_Darts_Tour_2027"
     },
     {
       "order": 61,
       "name": "Dutch Darts Championship Qualifier",
       "type": "QUALIFIER_ET",
       "hostCountry": "NLD",
-      "hostCity": "Den Bosch"
+      "hostCity": "Den Bosch",
+      "date": "23.09.2027",
+      "date_source": "https://de.wikipedia.org/wiki/Qualifikationsturniere_f%C3%BCr_die_European_Darts_Tour_2027"
     },
     {
       "order": 62,
       "name": "World Grand Prix",
       "type": "WORLD_GRAND_PRIX",
       "hostCountry": "ENG",
-      "hostCity": "Leicester"
+      "hostCity": "Leicester",
+      "date": "27.09.–03.10.2027",
+      "date_source": "https://www.pdc.tv/news/2026/september/25/european-open-historic-french-event-headline-2027-pdc-calendar/"
     },
     {
       "order": 63,
       "name": "Players Championship 31",
       "type": "PLAYERS_CHAMPIONSHIP",
       "hostCountry": "ENG",
-      "hostCity": "Milton Keynes"
+      "hostCity": "Milton Keynes",
+      "date": "05.10.2027",
+      "date_source": "https://de.wikipedia.org/wiki/PDC_Pro_Tour_2027"
     },
     {
       "order": 64,
       "name": "Players Championship 32",
       "type": "PLAYERS_CHAMPIONSHIP",
       "hostCountry": "ENG",
-      "hostCity": "Milton Keynes"
+      "hostCity": "Milton Keynes",
+      "date": "06.10.2027",
+      "date_source": "https://de.wikipedia.org/wiki/PDC_Pro_Tour_2027"
     },
     {
       "order": 65,
       "name": "Hungarian Darts Trophy",
       "type": "EUROPEAN_TOUR",
       "hostCountry": "HUN",
-      "hostCity": "Budapest"
+      "hostCity": "Budapest",
+      "date": "08.–10.10.2027",
+      "date_source": "https://de.wikipedia.org/wiki/European_Darts_Tour_2027"
     },
     {
       "order": 66,
       "name": "Dutch Darts Championship",
       "type": "EUROPEAN_TOUR",
       "hostCountry": "NLD",
-      "hostCity": "Maastricht"
+      "hostCity": "Maastricht",
+      "date": "15.–17.10.2027",
+      "date_source": "https://de.wikipedia.org/wiki/European_Darts_Tour_2027"
     },
     {
       "order": 67,
       "name": "Players Championship 33",
       "type": "PLAYERS_CHAMPIONSHIP",
       "hostCountry": "NLD",
-      "hostCity": "Maastricht"
+      "hostCity": "Maastricht",
+      "date": "19.10.2027",
+      "date_source": "https://de.wikipedia.org/wiki/PDC_Pro_Tour_2027"
     },
     {
       "order": 68,
       "name": "Players Championship 34",
       "type": "PLAYERS_CHAMPIONSHIP",
       "hostCountry": "NLD",
-      "hostCity": "Maastricht"
+      "hostCity": "Maastricht",
+      "date": "20.10.2027",
+      "date_source": "https://de.wikipedia.org/wiki/PDC_Pro_Tour_2027"
     },
     {
       "order": 69,
       "name": "Grand Slam Qualifier",
       "type": "QUALIFIER_GRAND_SLAM",
       "hostCountry": "NLD",
-      "hostCity": "Maastricht"
+      "hostCity": "Maastricht",
+      "date": "21.10.2027",
+      "date_source": "https://darts-oche.com/pdc-calendar.html"
     },
     {
       "order": 70,
       "name": "European Championship",
       "type": "EUROPEAN_CHAMPIONSHIP",
       "hostCountry": "DEU",
-      "hostCity": "Dortmund"
+      "hostCity": "Dortmund",
+      "date": "26.–31.10.2027",
+      "date_source": "https://www.pdc.tv/news/2026/september/25/european-open-historic-french-event-headline-2027-pdc-calendar/"
     },
     {
       "order": 71,
       "name": "Grand Slam of Darts",
       "type": "GRAND_SLAM_OF_DARTS",
       "hostCountry": "ENG",
-      "hostCity": "Wolverhampton"
+      "hostCity": "Wolverhampton",
+      "date": "06.–14.11.2027",
+      "date_source": "https://www.pdc.tv/news/2026/september/25/european-open-historic-french-event-headline-2027-pdc-calendar/"
     },
     {
       "order": 72,
       "name": "Players Championship Finals",
       "type": "PLAYERS_CHAMPIONSHIP_FINALS",
       "hostCountry": "ENG",
-      "hostCity": "Minehead"
+      "hostCity": "Minehead",
+      "date": "26.–28.11.2027",
+      "date_source": "https://www.pdc.tv/news/2026/september/25/european-open-historic-french-event-headline-2027-pdc-calendar/"
     },
     {
       "order": 73,
       "name": "World Championship Qualifier",
       "type": "QUALIFIER_WM",
       "hostCountry": "ENG",
-      "hostCity": "Leicester"
+      "hostCity": "Leicester",
+      "date": "29.11.2027",
+      "date_source": "https://darts-oche.com/pdc-calendar.html"
     },
     {
       "order": 74,
       "name": "World Championship",
       "type": "WORLD_CHAMPIONSHIP",
       "hostCountry": "ENG",
-      "hostCity": "London"
+      "hostCity": "London",
+      "date": "10.–30.12.2027",
+      "date_source": "https://www.darts1.de/termine/termine.php"
     }
   ]
 }
