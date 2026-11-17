@@ -417,9 +417,9 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
 
         val nextRoundKey = availableRounds.getOrNull(selectedRoundIndex + 1)
         val nextRoundMatches = if (nextRoundKey != null) allMatches.filter { it.round == nextRoundKey } else emptyList()
-        val hasNextRoundRealPlayers = nextRoundMatches.any { match ->
-            (match.player1Id > 0L || match.player1Id == USER_ID) &&
-                (match.player2Id > 0L || match.player2Id == USER_ID)
+        val isNextRoundFullyPopulated = nextRoundMatches.isNotEmpty() && nextRoundMatches.none { match ->
+            (match.player1Id < 0L && match.player1Id != USER_ID) ||
+                (match.player2Id < 0L && match.player2Id != USER_ID)
         }
 
         val playableMatchesInRound = dbMatchesForRound.filter { match ->
@@ -431,10 +431,19 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
 
         val canAdvanceRound = (currentRoundKey == activeRoundKeyInDb) &&
             allPlayableMatchesInRoundCompleted &&
-            (hasUnpopulatedPlaceholderMatchesInRound || !hasNextRoundRealPlayers)
+            (hasUnpopulatedPlaceholderMatchesInRound || !isNextRoundFullyPopulated)
+
+        val activeRoundMatches = allMatches.filter { it.round == activeRoundKeyInDb }
+        val hasOpenCpuMatchesInActiveRound = activeRoundMatches.any { match ->
+            !match.isCompleted &&
+                match.player1Id != USER_ID &&
+                match.player2Id != USER_ID &&
+                match.player1Id > 0L &&
+                match.player2Id > 0L
+        }
 
         // Trigger Auto-Simulate if needed
-        if (autoSimulateCpu && isSelectedRoundPlayable && dbMatchesForRound.any { !it.isCompleted && it.player1Id != USER_ID && it.player2Id != USER_ID }) {
+        if (autoSimulateCpu && hasOpenCpuMatchesInActiveRound) {
             simulateCpuMatchUseCase.simulateAllCpuMatches(currentTournamentId)
             return
         }
@@ -523,11 +532,6 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
                 val groups = getUkOpenEntrantGroups(currentTournamentId, careerId, roundKey, allMatches, event)
                 openDrawInfoMap[r] = prevName to groups
             }
-        }
-
-        val activeRoundMatches = allMatches.filter { it.round == activeRoundKeyInDb }
-        val hasOpenCpuMatchesInActiveRound = activeRoundMatches.any {
-            !it.isCompleted && it.player1Id != USER_ID && it.player2Id != USER_ID
         }
 
         _uiState.value = TournamentDetailState.Active(

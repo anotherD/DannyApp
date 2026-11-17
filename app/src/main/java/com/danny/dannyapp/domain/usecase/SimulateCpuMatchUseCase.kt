@@ -95,10 +95,14 @@ class SimulateCpuMatchUseCase(
 
     suspend fun simulateAllCpuMatches(tournamentId: Long): List<TournamentMatch> = withContext(Dispatchers.IO) {
         val matches = tournamentMatchDao.getMatchesListForTournament(tournamentId)
+        val tournament = tournamentDao.getTournamentById(tournamentId) ?: return@withContext matches
+        val roundSequence = TournamentEvent.valueOf(tournament.type).getRoundSequence()
+        val activeRoundName = roundSequence.firstOrNull { round -> matches.filter { it.round == round.name }.any { !it.isCompleted } }?.name
+
         val updatedList = mutableListOf<TournamentMatch>()
 
         for (match in matches) {
-            if (!match.isCompleted && match.player1Id != USER_ID && match.player2Id != USER_ID && hasRealPlayers(match)) {
+            if (match.round == activeRoundName && !match.isCompleted && match.player1Id != USER_ID && match.player2Id != USER_ID && hasRealPlayers(match)) {
                 val simulated = invoke(match)
                 updatedList.add(simulated)
             } else {
