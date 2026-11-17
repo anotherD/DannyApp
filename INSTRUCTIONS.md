@@ -31,4 +31,5 @@
 - **Lesbarkeit & KDoc:** Methoden bekommen einen kurzen KDoc-Kommentar (`/** ... */`), tiefe Verschachtelungen werden durch Guard Clauses und kleine Hilfsmethoden vermieden.
 - **Schlanke Dateien & UI-Komponenten:** Activities/Fragments bleiben kompakt (~200–300 Zeilen); Dialoge, Adapter und komplexe Custom-Views werden in eigene Dateien ausgelagert.
 - **Flaggen & Spielernamen (Zentrale Helper-Pflicht):** Für das Rendern von Landesflaggen, Spielernamen und dynamischen Namenskürzungen müssen zwingend die zentralen Methoden in `UiHelper` (`formatFlagAndText`, `bindSmartPlayerName`) genutzt werden. `Country.getFlagEmoji(...)` darf niemals direkt in UI-Strings oder TextViews verwendet werden, da sonst Nordirland (`NIR`) als schwarze Flagge dargestellt wird.
+- **Keine Fachlogik im ViewModel & Altlasten bereinigen:** Geschäfts- und Turnierregeln gehören ausschließlich in den Domain-Layer (`domain/`), niemals als parallele Prüfungen in ViewModels; veraltete Codepfade sind bei Umbauten immer mit zu entfernen.
 

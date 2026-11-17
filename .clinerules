@@ -2,6 +2,7 @@
 
 ## 📌 Absolute Dokumentationspflicht
 Bei JEDER Änderung an Datenmodellen, Datenbank-Schemas (Room DB), Fachlogiken (Saisons, Turniere, Ranglisten, Scolia-Integration) oder Systemabläufen **MUSS** die Dokumentation im `docs/`-Ordner oder in der [Readme.md](Readme.md) aktualisiert werden.
+- **Fokus auf Fachlogik:** Dokumentiere ausschließlich Fachregeln, PDC-Ausnahmen und grobe Architektur-Pfade – niemals Tabellenspalten, DB-Versionsnummern, XML-IDs oder UI-Details (`dp`/Farben).
 
 Vor dem Abschluss JEDER Aufgabe sind folgende Schritte einzuhalten:
 1. **DB- & Code-Änderungen:** Wurden DB-Entitäten oder Versionen geändert? -> `docs/ARCHITEKTUR.md` nachführen.

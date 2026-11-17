@@ -1,152 +1,75 @@
 # 📱 Fachkonzept: Turnier-UI, Simulation & Ranglisten-Ansicht
 
-Dieses Dokument definiert die Benutzeroberfläche und den Interaktions-Flow für den Saisonkalender, den Turnierverlauf (inkl. Test-Modi für User-Matches), die Orders of Merit sowie die Spieler-Konfiguration in der **Danny Darts App**.
+Dieses Dokument beschreibt die Benutzeroberfläche und den Interaktions-Flow für den Saisonkalender, den Turnierverlauf, die Ranglisten sowie die Spieler-Konfiguration in der **Danny Darts App**.
 
 ---
 
 ## 🧭 1. Navigation & Einstieg aus der Karriere-Ansicht
 
-* **Top-Bar & Breadcrumbs:** Jede Unterseite zeigt als Titel exakt den Namen des gewählten Bereichs (z. B. `Saisonkalender`, `Turnieransicht`, `Ranglisten`). Bei Karrieren und Turnieren wird als Subtitel der vollständige Breadcrumb-Pfad im Format `Karrieren > <Karrierename> (Saison X)` (`breadcrumb_career_season_format`) angezeigt.
-* **Karrieren-Kacheln & Übersicht (`CareerAdapter`, `CareerOverviewFragment`):** Jede Karriere-Kachel ist als kompaktes `ConstraintLayout` im 2x2-Raster aufgebaut (`item_career.xml`):
-  - Links oben: `tvCareerName` (fett, 18sp)
-  - Rechts oben: `tvCareerSeason` (`Saison X`, 14sp)
-  - Links unten (unter `tvCareerName`): `tvCareerPlayer` (`<Flagge> <Spielername>`) und darunter `tvCareerProfile` (`Profil: <Name>`)
-  - Rechts unten: `tvCareerLevel` (`Level X`, 14sp)
-  - Zudem zeigen die Kacheln und die Übersicht (über `tvCareerOverviewLabel`, `tvCareerOverviewName`, `tvCareerOverviewPlayer`, `tvCareerOverviewMeta` und `tvCareerOverviewProfile`) konsistent Level, Profilnamen, aktuelle Saison sowie Spielernamen inklusive Landesflagge (über `UiHelper.formatFlagAndText`) an.
-* **Tab-Navigation in der Karriere-Ansicht:** Statt einzelner dicker Buttons nutzt die `CareerDetailActivity` eine übersichtliche **Tab-Navigation** für die drei Kernbereiche:
-  1. **Saisonkalender:** Chronologische Übersicht aller 74 Turniere der aktiven Saison.
-  2. **Turnieransicht:** Rundenübersicht, Gruppenphase (beim Grand Slam of Darts) und Match-Steuerung des aktiven oder ausgewählten Turniers.
-  3. **Ranglisten:** Kompakte Pill-Navigation (`ChipGroup`) für die 4 dynamischen Ranglisten (`OOM`, `PT OOM`, `PC OOM`, `ET OOM`).
+* **Top-Bar & Breadcrumbs:** Jede Unterseite zeigt als Titel den gewählten Bereich (z. B. `Saisonkalender`, `Turnieransicht`, `Ranglisten`) und als Subtitel den Pfad `Karrieren > <Karrierename> (Saison X)`.
+* **Karrieren-Kacheln & Übersicht:** Zeigen Karrierename, aktuelle Saison, Level, Profilname sowie Spielername inklusive Landesflagge.
+* **Tab-Navigation in der Karriere-Ansicht:**
+    1. **Übersicht:** Kompakte Karriere-Infos sowie Direktzugriff auf das aktuelle oder nächste Turnier.
+    2. **Saisonkalender:** Chronologische Übersicht aller 74 Turniere der aktiven Saison.
+    3. **Ranglisten:** Auswahl der 4 dynamischen Ranglisten (`OOM`, `PT OOM`, `PC OOM`, `ET OOM`).
 
 ---
 
 ## 📅 2. Saisonkalender
 
-* **Anzeige:** Liste aller Turniere der aktuellen Saison sortiert nach `order` (1 bis 74).
-  * **Turniertypen & Bezeichnungen:** Alle Turniertypen und Labels kommen lokalisiert aus `strings.xml` (keine technischen Enum-Keys wie `PLAYERS_CHAMPIONSHIP` in der UI).
-  * **Runden-Namen:** Alle Rundenbezeichnungen werden zentral über `TournamentUiHelper.getDisplayRoundName(roundKey, context)` dynamisch anhand von `strings.xml` lokalisiert.
-  * **Austragungsort:** Anzeige als `<Flagge> <Stadtname>` (ohne das Präfix „Austragungsland:“).
-  * **Kennzeichnung:** Major-Turniere und Qualifier-Turniere (`QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIFIER_WM`) sind optisch durch Badges hervorgehoben.
-  * **Hervorhebung aktive / nächste Kachel:** Das active (`TournamentStatus.ACTIVE`) oder nächste geplante (`isNextPlanned`) Turnier wird optisch hervorgehoben mit `cardBackgroundColor` `@color/surface_karte_aktiv`, 2dp Rahmen (`strokeWidth`) und `strokeColor` `@color/status_active` bzw. `@color/status_planned`. Alle anderen Kacheln nutzen `@color/anthrazit_flaeche`, 1dp Rahmen und `@color/grau_rahmen_dunkel`.
-  * **Initiales Scrollen:** Beim Laden scrollt der Kalender über `rvTournaments.post` mit einem Offset von `rvTournaments.height / 3` zum aktiven/nächsten Turnier, damit dieses nicht unter der Tab-Leiste verdeckt wird.
-* **Strikte Turnier-Sperre (Sequenzieller Ablauf):**
-  * Es darf immer **nur ein Turnier gleichzeitig aktiv** sein.
-  * Ein neues Turnier kann erst gestartet werden, wenn das vorherige Turnier vollständig abgeschlossen ist (`isCompleted == true`).
-* **Status-Kennzeichnung & Multi-Sieger-Qualifier:**
-  * `Abgeschlossen` (`isCompleted == true`):
-    * **Einzelsieger-Turniere:** Zeigt den Turniersieger (inkl. Landesflagge) im Status-Badge und die erreichte Runde des Users an.
-    * **Multi-Sieger-Qualifier (`QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIFIER_WM`):** Zeigt im Status-Badge nur `Abgeschlossen` an (ohne Einzel-Pokal). Auf den **Kalender-Kacheln** (`item_tournament.xml`) werden die Qualifier-Gewinner nicht angezeigt, um die Kacheln im Saisonkalender kompakt zu halten. Im **Turnier-Rückblick** (`TournamentDetailActivity`) wird die 2-spaltige Gewinnerliste angezeigt, wobei jede Zeile über `UiHelper.formatFlagAndText(...)` mit `<Flagge> <Spielername>` formatiert wird.
-  * `Aktiv` (aktuell laufendes Turnier): Hervorgehoben mit Status-Hintergrund und Button **„Turnier öffnen“**.
-  * `Geplant` (`isCompleted == false`, noch keine Matches generiert): Hervorgehoben mit Status-Hintergrund. Nur das jeweils nächste anstehende Turnier (sofern kein anderes Turnier aktiv ist) bietet den Button **„Turnier starten“** (ruft `GenerateBracketUseCase` auf und öffnet die Turnieransicht).
-* **Debug-Funktion (`debugMode == true`):** Ist der Debug-Modus in der Konfiguration aktiviert, erscheint beim aktiven bzw. nächsten Turnier der Button **„Komplettes Turnier simulieren“** (simuliert alle Runden dieses einen Turniers durch). Ist `debugMode == false`, wird der Button ausgeblendet.
+* **Anzeige:** Chronologische Liste aller 74 Saisonturniere mit Turniernummer, Name, lokalisiertem Turniertyp-Badge, Status-Badge und Austragungsort (Landesflagge + Stadtname).
+* **Fokus & Hervorhebung:** Das aktive oder nächste geplante Turnier ist optisch hervorgehoben. Beim Öffnen scrollt die Liste automatisch zu diesem Turnier.
+* **Strikte Turnier-Sperre (Sequenzieller Ablauf):** Es darf immer nur ein Turnier gleichzeitig aktiv sein. Ein neues Turnier kann erst gestartet werden, wenn das vorherige abgeschlossen ist.
+* **Status-Zustände:**
+    * **Abgeschlossen:** Zeigt bei Einzelsieger-Turnieren den Turniersieger an. Bei Multi-Sieger-Qualifiern (`QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIFIER_WM`) steht im Kalender nur *„Abgeschlossen“* ohne Einzel-Pokal und ohne Gewinnerliste (diese wird erst im Turnier-Rückblick gezeigt).
+    * **Aktiv:** Zeigt die aktuell laufende Turnierrunde an.
+    * **Geplant:** Das nächste anstehende Turnier bietet den Button **„Turnier starten“**.
+* **Debug-Funktion:** Bei aktiviertem Debug-Modus steht am aktiven bzw. nächsten Turnier der Button **„Turnier simulieren“** zur Verfügung.
 
 ---
 
 ## 🎯 3. Turnieransicht & Match-Steuerung
 
-### 3.0 Die 3 Zustände der Turnieransicht
-Jedes Turnier im Saisonkalender ist anklickbar und öffnet die Turnieransicht in einem von drei Modi:
-1. **Vorschau-Modus (`isCompleted == false` und noch keine Matches generiert):**
-  - Zeigt dieselbe einheitliche Turnier-Kopfzeile wie der aktive Modus (Turniername, Status-Badge „Geplant“, Turniertyp-Badge, `<Flagge> <Stadtname>` sowie das **Info-Icon** zum Öffnen des Preisgeld- & Distanz-Dialogs inkl. Gesamtpreisgeld und Sieger-Preisgeld `WINNER`).
-  - Falls es das nächste anstehende Turnier im Kalender ist und kein anderes Turnier aktiv läuft, wird unten der Button **„Turnier jetzt starten & auslosen“** angezeigt (`GenerateBracketUseCase`).
-2. **Aktiver Turnier-Modus (`isCompleted == false` und Matches vorhanden):**
-  - **Oberer Karten-Akzent (`TournamentUiHelper.bindTournamentHeader`):** Die obere Steuerungs- und Info-Karte (`cardPreviewHeader`, `cardActiveControls`, `cardReviewSummary`) wird je nach Turniertyp farblich hervorgehoben:
-    - `MAJOR`: 2dp Rahmen (`strokeWidth`), `strokeColor` `@color/badge_major` (Gold) und Hintergrund `@color/surface_major_tint`.
-    - `QUALIFIER_GRAND_SLAM` / `QUALIFIER_WM`: 2dp Rahmen, `strokeColor` `@color/badge_major_qualifier` (Dunkelgold) und Hintergrund `@color/surface_major_tint`.
-    - `EUROPEAN_TOUR`: 2dp Rahmen, `strokeColor` `@color/badge_european_tour` (Rubinrot) und Hintergrund `@color/surface_et_tint`.
-    - `QUALIFIER_ET`: 2dp Rahmen, `strokeColor` `@color/badge_et_qualifier` (Dunkelrot) und Hintergrund `@color/surface_et_tint`.
-    - `PLAYERS_CHAMPIONSHIP`: 1dp Rahmen, `strokeColor` `@color/grau_rahmen_dunkel` und Hintergrund `@color/anthrazit_flaeche`.
-  - **Runden-Auswahl & Status-Farbkodierung:** Horizontale **Runden-Pills / Material Chips** (Single-Selection) statt eines Dropdowns (plus Gruppen-Auswahl `A–P` beim Grand Slam of Darts). Die Chips werden im aktiven Turnier-Modus nach Rundenstatus gefärbt:
-    - Abgeschlossene Runden: `@color/status_completed`, Text `@color/grau_text_gedaempft`.
-    - Aktuelle Spielrunde: `@color/status_active`, Text `@color/white`.
-    - Ausstehende Runden: `@color/anthrazit_container_niedrig`, Text `@color/grau_text_gedaempft`.
-    - Die aktuell gewählte Runde (`isChecked == true`) wird deutlich mit `chipStrokeWidth = 2dp` und `chipStrokeColor = @color/white` hervorgehoben.
-  - **Wischgeste für Rundenwechsel:** Zusätzlich zu den Runden-Chips können Runden über einen horizontalen Swipe (`GestureDetector` auf `rvMatches`, `layoutOpenDrawInfo` und `rvReviewMatches`) gewechselt werden (Swipe nach links = nächste Runde, Swipe nach rechts = vorherige Runde). Die Runden-Pills scrollen dabei automatisch mit.
-  - **Vorab-Turnierbaum & Freie Auslosung:**
-    - Bei Turnieren mit festem Turnierbaum sind alle Runden-Pills bereits vorab anwählbar und zeigen Platzhalter-Paarungen bzw. sofort feststehende Spieler an (z. B. ET L32 zeigt die Top 16 OOM-Seeds als echte `player1Id`, und abgeschlossene Vorgängermatches tragen ihre Sieger sofort in Vorschau-Paarungen ein).
-    - Bei Qualifiern (`QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIFIER_WM`) werden in `QUAL_R1` während der Vorrunde bereits feststehende Freilos-Spieler (`Seed 1..K` und Byes) auf ihren echten Board-Plätzen angezeigt.
-    - Bei `UK_OPEN` und `EUROPEAN_OPEN` gibt es keine feste Setzliste (`getSeededPlayerMap` liefert `emptyMap()`). In noch nicht ausgelosten Folgerunden (`R2_128` bis `F`) wird statt leerer Matchkarten ein Info-Container (`layoutOpenDrawInfo`) mit `tvDrawAfterRoundInfo` (`@string/draw_after_round_info` mit Name der vorherigen Runde, z. B. *„Auslosung nach Abschluss von Runde 2“*) samt zentrierten Gruppen-Überschriften und **2-spaltigen** Spielerlisten (inkl. Flagge, Name und Seed) angezeigt.
-  - **Seed-Nummern & Zentrale dynamische Namens-Kürzung (`UiHelper.bindSmartPlayerName`):** Ist ein Spieler gesetzt, wird seine Seed-Nummer im Match-Adapter links `(1) Name` bzw. rechts `Name (2)` angezeigt. Über `bindSmartPlayerName` wird per `doOnPreDraw`, `paint.measureText` und `TextUtils.ellipsize` eine 3-Stufen-Prüfung durchgeführt:
-    1. Passt der volle Name (inkl. Seed und Flagge)? -> Voll anzeigen.
-    2. Passt er nicht? -> Erstes Wort durch Anfangsbuchstabe + Punkt **ohne Leerzeichen** ersetzen (`Michael van Gerwen` -> `M.van Gerwen`, `Cameron Menzies` -> `C.Menzies`).
-    3. Passt auch `M.van Gerwen` nicht? -> Nur den abgekürzten Namens-Teil per `TextUtils.ellipsize` kürzen (`M.van Ger...`), damit Seed-Nummern niemals abgeschnitten werden.
-    - Diese Logik wird zentral in `TournamentMatchAdapter` sowie in den 2-Spalten-Listen in `TournamentDetailActivity` (`layoutEntrantsContainer` und `layoutReviewQualifierWinnersList`) genutzt.
-  - **Match-Karten (`item_tournament_match.xml`, `TournamentMatchAdapter.kt`, `UiHelper.bindSmartPlayerName`):** Zeigen Spielernamen und Landesflaggen ohne redundante Flaggen-TextViews an. Die Flaggen werden von `UiHelper.bindSmartPlayerName` direkt gesteuert (für Spieler 1 links, für Spieler 2 rechts hinter dem Text über `isLeft = false`).
-  - **Simulations-Sperre & Lade-Overlay (`layoutSimulatingOverlay`, `isSimulatingBatch`):** Während der Ausführung von „Komplettes Turnier simulieren“ (`simulateCompleteTournament()`) oder „CPU simulieren“ (`simulateCpuMatches()`) wird ein halbtransparentes Overlay (`layoutSimulatingOverlay`) mit Lade-Indikator und dem Text `@string/simulating_tournament` angezeigt. Gleichzeitig werden Zwischen-Updates in `loadTournament` über `filter { !isSimulatingBatch.value }` pausiert und der Zurück-Button wird per `OnBackPressedCallback` blockiert.
-  - **Zentrale Steuerung:** Die Schalter **„Automatische Simulation“** und **„Automatisch zur nächsten Runde“** liegen zentral in der **Konfiguration (`ConfigActivity`)** und werden über `SettingsManager` gesteuert. Die manuellen Simulations-Buttons in der Turnieransicht sind nur bei `debugMode == true` sichtbar.
-3. **Rückblick-Modus (`isCompleted == true`):**
-  - Nutzt dieselbe Runden-Pills-Ansicht wie der aktive Modus (read-only ohne Simulations-Buttons).
-  - **Einzelsieger-Turniere:** Zeigt oben die Zusammenfassung **Sieger** in zwei nebeneinanderliegenden TextViews (`tvReviewWinnerLabel` mit `Sieger:` und `tvReviewWinner` mit dem Sieger gebunden über `UiHelper.bindSmartPlayerName(tvReviewWinner, state.winner)`), sowie Deine erreichte Runde (`reachedRound`) und das gewonnene Preisgeld (`prizeMoney` aus `tournament_placements`).
-  - **Multi-Sieger-Qualifier:** Zeigt die formatierte Gewinner-Liste als **2-spaltige** vertikale Liste unter `@string/qualifier_winners_header` (`Qualifier-Gewinner:`) an.
+### 3.1 Die 3 Zustände der Turnieransicht
 
-### 3.1 Die Optionen für User-Matches (`USER_ID = -1L`)
-Ist ein offenes Match mit Beteiligung des Users an der Reihe, erhält der User beim Klick auf sein Match folgende Auswahlmöglichkeiten (alle Dialog-Titel, Optionen, Buttons wie `Speichern`, `Abbrechen`, `OK` sowie Validierungsmeldungen stammen strikt aus `strings.xml`):
-1. **„Sieger festlegen (Sieg/Niederlage)“** *(nur sichtbar bei `debugMode == true`)*: Setzt direkt einen gültigen Sieg- oder Niederlagen-Spielstand passend zur `MatchDistance` (`user_match_option_set_winner`, `user_match_choice_win`, `user_match_choice_loss`).
-2. **„Ergebnis manuell eingeben“**: Öffnet einen Dialog zur direkten Eingabe der gewonnenen Legs/Sets (z. B. `6 : 4`). Validiert gegen `TournamentEvent.getMatchDistance(round)` (inkl. `twoClearLegsRule`, `score_validation_negative`, `score_validation_draw`, `score_validation_two_clear_legs`, `score_validation_best_of_legs`, `score_validation_best_of_sets`), speichert das Ergebnis und triggert den Rundenfortschritt.
-3. **„Live spielen (GameEngine)`**: Übergibt Match-ID und `MatchDistance` (`bestOf`, `legsPerSet`, `twoClearLegsRule`, `SETS_DOUBLE_IN_OUT`) an die bestehende Match-/Scolia-Engine (`user_match_live_placeholder`).
+1. **Vorschau-Modus (Geplantes Turnier):**
+    * Zeigt Turnierkopfzeile, Gesamtpreisgeld sowie ein Info-Icon für die Runden-Preisgelder und Match-Distanzen.
+    * Ist es das nächste anstehende Turnier im Kalender, kann es über **„Turnier jetzt starten & auslosen“** gestartet werden.
+2. **Aktiver Turnier-Modus (Laufendes Turnier):**
+    * **Farbliche Akzentuierung:** Die obere Steuerungskarte ist je nach Turniertyp (Major, Major-Qualifier, European Tour, ET-Qualifier, Players Championship) farblich abgesetzt.
+    * **Runden-Navigation:** Horizontale Runden-Chips (farblich kodiert nach *Abgeschlossen*, *Aktiv* und *Ausstehend*) sowie horizontale Wischgesten (Swipe links/rechts) zum Wechseln zwischen den Runden. Beim Grand Slam of Darts gibt es zusätzlich eine Gruppen-Auswahl (`A–P`).
+    * **Vorab-Turnierbaum vs. Freie Auslosung:**
+        * Turniere mit festem Turnierbaum zeigen alle Runden vorab an und tragen feststehende Sieger sowie gesetzte Einsteiger (z. B. Top 16 OOM in Runde 2 der European Tour oder Freilos-Spieler in Runde 1 der Qualifier) direkt ein.
+        * Bei Turnieren mit offener Runden-Auslosung (`UK Open` und `European Open`) zeigen noch nicht ausgeloste Folgerunden einen Hinweis auf den Auslosungszeitpunkt samt Liste der bereits qualifizierten Einsteiger.
+    * **Match-Karten & Drei-Stufen-Namenskürzung:** Zeigen Setzlisten-Nummer, Landesflagge, Spielername und Spielstand. Passt ein Name nicht vollständig, wird zuerst der Vorname abgekürzt (`M.van Gerwen`) und bei weiterem Platzmangel nur der Namensteil gekürzt (`M.van Ger...`), damit Setzlisten-Nummern und Flaggen niemals abgeschnitten werden.
+    * **Simulations-Sperre:** Während einer Batch-Simulation blockiert ein Lade-Overlay die Eingabe und die Zurück-Navigation.
+    * **Steuerung:** Die Optionen *„Automatische Simulation“* und *„Automatisch zur nächsten Runde“* werden zentral in den Einstellungen verwaltet. Manuelle Simulations-Buttons sind nur im Debug-Modus sichtbar.
+3. **Rückblick-Modus (Abgeschlossenes Turnier):**
+    * Read-only-Ansicht aller Runden.
+    * Zeigt oben den Turniersieger (bzw. bei Multi-Sieger-Qualifiern die zweispaltige Liste aller Qualifikanten), die vom User erreichte Runde sowie das gewonnene Preisgeld.
 
-### 3.2 Platzhalter-Konstanten, Enums, Helpers & Lokalisierung (`Country`, `SkillLevel`, `MatchScoreValidator`, `TournamentPreviewHelper`)
-* **`Country` (`domain/model/Country.kt`)**: Reines Domain-Modell mit `Country.DEFAULT_CODE = "XYZ"` & `Country.DEFAULT_USER_CODE = "DEU"`. Die Prüfung auf Sonderflaggen erfolgt UI-entkoppelt via `Country.hasCustomFlag(code)` und wird in `UiHelper` zu `R.drawable.ic_flag_nir` aufgelöst.
-* **`SkillLevel` (`domain/enums/SkillLevel.kt`):** Zentrales Domain-Enum für Spielstärken (Level 1–10, Default: `LEVEL_5` / `SkillLevel.DEFAULT.value`) ohne Android-UI-Farbreferenzen; Farbzuordnungen erfolgen entkoppelt über `UiHelper.toColorResId()`.
-* **`MatchScoreValidator` (`domain/usecase/MatchScoreValidator.kt`):** Ausgelagertes Use-Case-Objekt zur Kapselung von Matchscore-Validierung (`validateMatchScore`) und realistischer Score-Generierung (`generateScoresForWinner`) mit vollständigen KDoc-Kommentaren.
-* **`TournamentPreviewHelper` (`ui/TournamentPreviewHelper.kt`):** Entflochtene Helferklasse zur Kapselung der Turnierbaum-Vorschau-, Setzlisten- und Rundensequenz-Logik (`getRoundSequence`, `getSeededPlayerMap`, `generatePreviewMatchesForRound`, `generatePreviewMatchesWithPropagation`, `getUkOpenEntrantGroups`, `getNonPrequalifiedTcHoldersForQualifier`) mit konsequent flachen Guard Clauses, KDoc-Kommentaren und sprechenden Variablennamen.
-* **`USER_ID = -1L`**: Repräsentiert den menschlichen Spieler (User) der Karriere in Spielern- und Match-Entitäten (UI-Fallback `Du` / `player_name_you`).
-* **`PLACEHOLDER_OPEN_DRAW_ID = -998L`**: Platzhalter-ID für offene Slots in noch nicht ausgelosten / offenen Runden (z. B. bei offenen Auslosungen wie UK Open oder European Open).
-* **`PLACEHOLDER_PREVIOUS_WINNER_ID = -999L`**: Platzhalter-ID für Sieger aus vorherigen Runden / Matches bzw. gesetzte Teilnehmer (inkl. `tournament_placeholder_top16_seed` für *Top 16 Seed #%d*, `tournament_placeholder_winner_match` for *Sieger Match #%d* und European-Tour-L32-Überkreuz-Logik).
-* **Strikte `strings.xml`-Auslagerung:** Sämtliche UI-Texte, Dialog-Titel, Buttons, Status-Meldungen, Score-Validierungsfehler sowie Platzhalter (`Top 16 Seed #%d`, `Sieger Match #%d`, `Nicht qualifiziert`, `Turnier nicht gefunden.`, `Du`, `Unbekannt`, `Gruppe %1$s • #%2$d`, `Keine Turniere vorhanden.`, `Keine Ranglistendaten verfügbar.`) sind ohne hartcodierte deutsche Strings zentral in `strings.xml` ausgelagert.
+### 3.2 Optionen für User-Matches
+Beim Klick auf ein eigenes offenes Match stehen folgende Optionen bereit:
+1. **Sieger festlegen (Sieg/Niederlage)** *(nur im Debug-Modus)*: Setzt direkt ein gültiges Ergebnis passend zur Match-Distanz.
+2. **Ergebnis manuell eingeben:** Dialog zur Eingabe von Legs/Sets mit Validierung gegen die Turnierregeln (inkl. *Two-Clear-Legs Rule* und *Double-In / Double-Out*).
+3. **Live spielen (GameEngine):** Startet das Match in der Live-/Scolia-Engine.
 
 ### 3.3 Turnierbaum-Ansicht (Bracket View) & Schwebe-Buttons
-* **Schwebe-Buttons unten rechts (`TournamentDetailActivity`):**
-  - Sichtbar im aktiven Modus (`TournamentDetailState.Active`) und Rückblick-Modus (`TournamentDetailState.Review`). Ausgeblendet im Vorschau-Modus sowie während der Batch-Simulation (`layoutSimulatingOverlay`).
-  - **Exakt kreisrunde FABs:** Ausgestattet mit `app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full"`.
-  - **„Mein Match fokussieren“ (`fabFocusUserMatch`):**
-    - Content-Description: `@string/cd_focus_user_match` („Mein Match fokussieren“).
-    - Icon: `ic_my_location.xml` (Fadenkreuz-Icon).
-    - Prüft, ob die aktuelle Runde ein Match mit `isUserMatch == true` (Beteiligung des Users mit `USER_ID = -1L`) enthält.
-    - Falls ja: Aktiviert (`isEnabled = true`, `alpha = 1.0f`) und scrollt beim Klick im Listenmodus (`rvMatches` / `rvReviewMatches`) oder im Turnierbaum-Modus (`bracketViewActive` / `bracketViewReview`) zentriert auf das User-Match.
-    - Falls nein: Deaktiviert und ausgegraut (`isEnabled = false`, `alpha = 0.38f`).
-  - **„Ansicht wechseln“ (`fabToggleBracketView`):**
-    - Content-Description: `@string/cd_show_bracket_view` („Turnierbaum anzeigen“) bzw. `@string/cd_show_list_view` („Rundenliste anzeigen“).
-    - Icons: `ic_bracket_tree.xml` (Turnierbaum-Icon) vs. `ic_view_list.xml` (Listen-Icon).
-    - Schaltet `SettingsManager.isBracketViewEnabled` um (Default: `false`), aktualisiert sofort die Ansicht (`renderState`) und wechselt das Icon zwischen Turnierbaum und Liste.
-* **Match-Index-Badge (`bg_match_index_badge.xml`, `item_tournament_match.xml`, `TournamentMatchAdapter.kt`):**
-  - Als `<layer-list>` gestaltet mit abgerundeten oberen Ecken (`topLeftRadius="8dp"`, `topRightRadius="8dp"`, `bottomLeftRadius="0dp"`, `bottomRightRadius="0dp"`), Füllfarbe `@color/anthrazit_flaeche` und Rahmen `@color/grau_rahmen` (`1dp`), wobei die untere Rahmenlinie per `android:bottom="-2dp"` ausgeblendet wird.
-  - Positioniert direkt oberhalb von `cardMatch` (`app:layout_constraintBottom_toTopOf="@id/cardMatch"`, `android:layout_marginBottom="-1dp"`), sodass der Badge wie eine nahtlose Ausbeulung der Match-Karte wirkt.
-  - Textfarbe `@color/grau_text_gedaempft` (ohne Fettdruck). Bei User-Matches (`item.isUserMatch`) wird der Rahmen per `LayerDrawable` und `DrawableCompat.setTint` dynamisch auf `@color/rot_hell` angepasst.
-* **Turnierbaum-Ansicht (`TournamentBracketView`, `bracketViewActive` / `bracketViewReview`):**
-  - Zusammenhängende Custom-ViewGroup zur Darstellung des Turnierbaums mit horizontalem Wischen, Snapping und automatischer Fokussierung der aktiven Runde.
-  - Synchrones vertikales Scrollen aller Rundenspalten, dynamische Y-Spreizung der Zubringer-Matches sowie rechtwinklige Verbindungslinien mit Farbhervorhebung bei User-Siegen.
-  - **Schmale 2-Zeilen-Kachel (`item_bracket_match.xml`):** Kompakte `MaterialCardView` (~68dp hoch) mit zwei Zeilen (Spieler 1 oben, Spieler 2 unten via `UiHelper.bindSmartPlayerName` und Score rechtsbündig, getrennt durch 1dp Trennstrich `@color/grau_rahmen_dunkel`). Gewinner fett (`@color/grau_text_hell`), Verlierer gedämpft (`@color/grau_text_gedaempft`), User-Match (`isUserMatch`) mit 2dp Rahmen `@color/rot_hell` und Hintergrund `@color/rot_container_dunkel`.
-  - **Architektur-Entkopplung (`TournamentDialogs`):** Dialoge (`showPrizeMoneyDialog`, `showUserMatchOptionsDialog`, `showSetWinnerDialog`, `showManualScoreInputDialog`, `showLiveGameEnginePlaceholder`) sind in das Objekt `TournamentDialogs` ausgelagert.
-* **Sonderformate im Baum:**
-  - **Grand Slam of Darts & Qualifier:** Dynamische 3er-Gruppen-Karten im Grand Slam inkl. automatischer 2:1-Baumverbindung sowie automatische Board-Filterung (`Board 1..K` / `Alle`) bei Qualifier-Turnieren.
-  - **UK Open & European Open:** Umschaltung auf die Auslosungsinformation bei noch nicht gelosten Runden mit horizontaler Wischgeste zurück in ausgeloste Baum-Runden.
-
+* **Schwebe-Buttons unten:** Im aktiven Modus und im Rückblick ermöglichen zwei runde Buttons das Zentrieren auf das eigene Match in der aktuellen Runde (deaktiviert/ausgegraut, falls der User in dieser Runde nicht spielt) sowie das Umschalten zwischen **Rundenliste** und **Turnierbaum**.
+* **Turnierbaum:** Zeigt alle Runden nebeneinander mit synchronem vertikalem Scrollen, Verbindungslinien (mit Hervorhebung eigener Siege) und kompakten 2-Zeilen-Matchkacheln.
+* **Sonderformate:** Im Grand Slam of Darts werden in der Gruppenphase kompakte Gruppentabellen angezeigt; bei Qualifiern lassen sich einzelne Boards (`Board 1..K` oder `Alle`) filtern.
 
 ---
 
 ## 🏆 4. Ranglisten-Ansicht
 
-* **Pill-Navigation (`ChipGroup`):** Kompakte horizontale `ChipGroup` (Single-Selection) mit deaktiviertem Haken (`app:checkedIconVisible="false"` bei allen 4 Chips `chipOomMain`, `chipOomProTour`, `chipOomPlayersChamp`, `chipOomEuropeanTour`) zur Auswahl zwischen den 4 Ranglisten (`Order of Merit (OOM)`, `Pro Tour (PT OOM)`, `Players Champ. (PC OOM)`, `European Tour (ET OOM)`). Dadurch entfällt die verschachtelte Wisch-Logik und das Wischen nach links/rechts wechselt jederzeit zuverlässig zwischen *Übersicht / Saisonkalender / Ranglisten*.
-* **Datenquelle:** Ruft `GetOrderOfMeritUseCase(careerId, type)` auf (zeigt beim User seinen hinterlegten `playerName` und seine Landesflagge).
-* **Darstellung & Ausrichtung:** Tabelle mit Platzierung (`rank`), **Landesflagge** (statt Text-Kürzel), Spielername (`name`), Preisgeld (`prizeMoney` in `£`) und optischer Hervorhebung der eigenen Zeile (`isUser == true`).
-  - **Formatierung der Ränge & Namen (`item_order_of_merit.xml`, `fragment_order_of_merit_container.xml`):**
-    - `tvRank` sowie `tvStickyRankTop` und `tvStickyRankBottom` sind zentriert ausgerichtet (`android:gravity="center"`), haben eine feste Breite von `44dp` und `android:maxLines="1"`.
-    - `tvPlayerName`, `tvStickyPlayerNameTop` und `tvStickyPlayerNameBottom` nutzen `android:layout_marginStart="4dp"` (für einen reduzierten Abstand zur Platzierungsnummer), wodurch alle Spielernamen und Landesflaggen exakt in einer Flucht stehen.
-* **Dynamische Sticky-User-Karten & Schwebe-Effekt (`OrderOfMeritFragment.kt`):**
-  * Ist die Zeile des Users außerhalb des sichtbaren Bereichs platziert, wird dynamisch eine Sticky-User-Karte eingeblendet (`cardStickyUserTop` unter der Tab-Leiste bzw. `cardStickyUserBottom` am unteren Bildschirmrand).
-  * **Design & Angleichung:** Die Sticky-Karten sind breiter als die normalen Listenkacheln (`android:layout_marginHorizontal="6dp"`), besitzen einen Radius von `app:cardCornerRadius="10dp"`, eine Tiefe von `app:cardElevation="16dp"`, `android:translationZ="16dp"`, tiefschwarze Schlagschatten (`android:outlineSpotShadowColor="#000000"`, `android:outlineAmbientShadowColor="#000000"`), einen 2dp Rahmen (`app:strokeWidth="2dp"`, `app:strokeColor="@color/rot_haupt"`) und behalten `@color/rot_container_dunkel` bei.
-  * **Schatten-Gradient-Views (`shadowStickyTop` / `shadowStickyBottom`):** Direkt hinter den Sticky-Karten platzierten Gradient-Views (`#E6000000` zu `#00000000`) werden in `OrderOfMeritFragment.kt` synchron ein- und ausgeblendet, um einen deutlich sichtbaren Schwebe-Effekt über den darunter durchscrollenden Listenkacheln zu erzeugen.
-  * **Typografie & Flaggen:** Alle 3 TextViews (`Rank`, `PlayerName`, `PrizeMoney`) nutzen `16sp` Schriftgröße; `Rank` und `PlayerName` in `@color/rot_sehr_hell`, `PrizeMoney` in `?attr/colorTertiary`. Für den Spielernamen wird zwingend `UiHelper.formatFlagAndText(...)` genutzt.
-  * Ein Klick auf eine der Sticky-Karten scrollt die `RecyclerView` automatisch zur User-Position.
+* **Auswahl:** 4 Filter-Chips für *Order of Merit (OOM)*, *Pro Tour (PT OOM)*, *Players Championship (PC OOM)* und *European Tour (ET OOM)*.
+* **Darstellung:** Liste mit Rang, Landesflagge, Spielername und Preisgeld. Die Zeile des Users ist farblich hervorgehoben.
+* **Sticky-User-Karte:** Scrollt der User aus dem sichtbaren Bereich heraus, erscheint oben bzw. unten eine schwebende Karte mit seiner aktuellen Platzierung. Ein Klick darauf scrollt direkt zur eigenen Position.
 
 ---
 
-## ⚙️ 5. Spieler-Konfiguration (`ConfigPlayersActivity`)
+## ⚙️ 5. Einstellungen & Spieler-Verwaltung
 
-* **Sortierung & Anzeige:** Übersicht aller hinterlegten Dart-Spieler mit Sortierung nach Spielstärke oder Name.
-* **Wischgeste (Swipe Gesture):** Ergänzt durch einen `GestureDetector` auf der `RecyclerView`:
-  - **Swipe nach links:** Schaltet die Sortierung auf **„Nach Name“** um (`btnSortName`).
-  - **Swipe nach rechts:** Schaltet die Sortierung auf **„Nach Spielstärke“** um (`btnSortSkill`).
-* **Match-Index-Badges & Seed-Ausrichtung:** Einhellige Positionierung und Styling von Match-Index-Badges in Listen- und Turnierbaumansichten sowie konsistente Anordnung von Setzlisten-Nummern und Landesflaggen über `UiHelper.bindSmartPlayerName`.
-* **Moderne Match-Kachel-Einstellung:** Ergänzung eines globalen Schalters im `SettingsManager` zur umschaltbaren Darstellung moderner vs. klassischer Match-Kacheln in Turnierlisten und Turnierbäumen.
+* **Einstellungen:** Zentrale Schalter für Gameplay (*Automatische Simulation*, *Automatisch zur nächsten Runde*), Design (*Modernes Match-Kachel-Design*) und Entwickler (*Debug-Modus*).
+* **Spieler-Übersicht:** Liste aller hinterlegten Profis mit Landesflagge, Tour-Card-Symbolen und farbkodierter Spielstärke (`L1–L10`). Umschaltbare Sortierung nach Spielstärke oder Name (per Button oder horizontaler Wischgeste).

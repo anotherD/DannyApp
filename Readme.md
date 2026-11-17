@@ -7,7 +7,7 @@ Die **Danny Darts App** ist eine umfassende Android-App zur Simulation einer eig
 
 ## 🏗️ Kernmodule & Architektur
 
-- 🏛️ **Gesamtarchitektur & Room-Datenbank:** MVVM-Pattern, Coroutines/Flow, Room DB v12 (siehe [ARCHITEKTUR.md](docs/ARCHITEKTUR.md)).
+- 🏛️ **Gesamtarchitektur & Room-Datenbank:** MVVM-Pattern, Coroutines/Flow, Room DB (siehe [ARCHITEKTUR.md](docs/ARCHITEKTUR.md)).
 - 🎯 **Saison- & Tour-Card-Logik:** 128er-Regel, User-Platzierung, Auffüll- & Kürzungslogik, Order of Merit (siehe [SAISON_LOGIK.md](docs/SAISON_LOGIK.md)).
 - 🔌 **Scolia-Integration:** Nutzung des Scolia-Kamerasystems als reiner Hardware-Sensor über WebView & WebSocket Proxy (siehe [Scolia Architektur & Kernkonzept](docs/SCOLIA_ARCHITEKTUR_UND_KERNKONZEPT.md)).
 
@@ -33,7 +33,7 @@ Ausführliche Fachkonzepte, Forschungsberichte und Architekturbeschreibungen bef
 ### ✅ Bereits umgesetzt
 - [x] **Scolia Hardware-Sensor:** WebView mit WebSocket-Proxy, Tracking-Blocker, JSON-Parser & Event-Logger (`scolia_events.log`).
 - [x] **Stammdaten & Profile:** User-Profile anlegen/bearbeiten/löschen, CSV-Spielerimport (`players.csv`), Spieler-Übersicht.
-- [x] **Karriere & Saison-Basis:** Karrieren anlegen, 128er-Tour-Card-Vergabe für Saison 1 (`USER_ID = -1L`), Room DB v14.
+- [x] **Karriere & Saison-Basis:** Karrieren anlegen, 128er-Tour-Card-Vergabe für Saison 1 (`USER_ID = -1L`), Room DB.
 - [x] **Turnier-Engine & Kalender (2027):** Alle 74 Saisonturniere (34 PC, 15 ET, 8 Majors + 17 TCH-Qualifier), Auslosung, Runden-Progression, Preisgeld-Ausnahmen & 4 dynamische Orders of Merit.
 - [x] **Turnier- & Ranglisten-UI:** Saisonkalender, Ranglisten-Tabs (`ViewPager2`), Turnieransicht (Vorschau, Aktiv, Rückblick) inkl. Test-Modi.
 

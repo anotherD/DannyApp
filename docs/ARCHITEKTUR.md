@@ -1,129 +1,66 @@
 # 🏛️ System-Architektur & Datenmodell
 
-Dieses Dokument bietet einen Gesamtüberblick über die Architektur, die Datenbank-Struktur und die Datenflüsse der **Danny Darts App**.
+Dieses Dokument bietet einen Gesamtüberblick über die Schichtenarchitektur, zentrale Architektur-Entscheidungen und die Daten-Pipelines der **Danny Darts App**.
 
 ---
 
 ## 📐 1. Gesamtarchitektur (MVVM + Repository Pattern)
 
-Die App folgt den empfohlenen Android-Architekturprinzipien mit **Model-View-ViewModel (MVVM)** und **Kotlin Coroutines / Flow**:
+Die App folgt dem **Model-View-ViewModel (MVVM)** Muster mit **Kotlin Coroutines / Flow** und strikter Schichten-Trennung:
 
 ```
-[ UI Layer: Activities / ViewModels ]
-                 │
-                 ▼
-[ Repository Layer: CareerRepository, UserProfileRepository, SeasonRepository ]
-                 │
-                 ▼
-[ Local Data Layer: Room DB (AppDatabase v17 mit MIGRATION_16_17 für host_city) ]
-   ├── UserProfileDao
-   ├── CareerDao
-   ├── SeasonDao
-   ├── TourCardDao
-   └── PlayerDao
+[ UI Layer: ui/ (Activities, Fragments, ViewModels, Adapter) ]
+                              │
+                              ▼
+[ Domain Layer: domain/ (UseCases, Models, Enums, Config) ]
+                              │
+                              ▼
+[ Data Layer: data/ (Repositories, Room DB in data/db/) ]
 ```
+
+* **Schichtenregel:** `ui` greift ausschließlich auf `domain` (und lesende Repositories) zu; `domain` enthält keinerlei Android-UI-Imports (`R.drawable`, `R.color`).
+* **Reaktive UI:** Änderungen in der Room-Datenbank werden über `Flow` beobachtet, sodass sich Kalender, Turnieransicht und Ranglisten automatisch aktualisieren.
 
 ---
 
-## 🗄️ 2. Room Datenbank Schema & Paketstruktur (`AppDatabase` v17)
+## 🗄️ 2. Zentrale Datenquellen & Konventionen
 
-- **Domain Config (`com.danny.dannyapp.domain.config`):** `TournamentConfigLoader` (lädt und validiert `assets/season_calendar_2027.json` per Fail-Fast-Prüfung als Single Source of Truth für Saisonkalender, Städte, Runden-Preisgelder und Match-Distanzen).
-- **Domain Enums (`com.danny.dannyapp.domain.enums`):** `TournamentEvent`, `TournamentRound`, `OrderOfMeritType`, `MatchFormatType`, `SkillLevel` (reines Enum ohne UI-Farbreferenzen; Farbzuordnung erfolgt entkoppelt in `UiHelper.toColorResId()`).
-- **Domain Use Cases (`com.danny.dannyapp.domain.usecase`):** `AdvanceTournamentRoundUseCase`, `BracketGenerator`, `GenerateBracketUseCase`, `GenerateSeasonCalendarUseCase`, `GetOrderOfMeritUseCase`, `MatchScoreValidator` (Kapselung von `validateMatchScore` und `generateScoresForWinner`), `SimulateCpuMatchUseCase`, `TournamentProgressionUseCase`.
-- **UI Helper & Orchestrierung (`com.danny.dannyapp.ui`):** `TournamentPreviewHelper` (entflochtene Vorschau-, Setzlisten- und Rundensequenz-Logik für `TournamentDetailViewModel`), `UiHelper`, `TournamentUiHelper`.
-- **UI Enums (`com.danny.dannyapp.ui.enums`):** `TournamentStatus`, `RoundStatus`.
-- **Zentrale Konstanten (`Country`):** `Country.DEFAULT_CODE = "XYZ"` (Fallback für unbekannte Länder), `Country.DEFAULT_USER_CODE = "DEU"` (Default für User-Profile).
-- **Skill-Stufen (`SkillLevel`):** Werte von `LEVEL_1` bis `LEVEL_10` (Default: `LEVEL_5` / `SkillLevel.DEFAULT.value`) mit entkoppelten Farbzuordnungen (`UiHelper.toColorResId()` -> `colors.xml`).
-
-```mermaid
-erDiagram
-    USER_PROFILES ||--o{ CAREERS : "besitzt (1:N)"
-    CAREERS ||--o{ SEASONS : "beinhaltet (1:N)"
-    SEASONS ||--o{ TOUR_CARDS : "enthaelt (exakt 128)"
-    PLAYERS ||--o{ TOUR_CARDS : "CPU Spieler (-1L fuer User)"
-
-    USER_PROFILES {
-        long id PK
-        string name UK
-        string description
-        long createdAt
-    }
-
-    CAREERS {
-        long id PK
-        string name
-        int level
-        int season
-        long profileId FK
-        long createdAt
-    }
-
-    SEASONS {
-        long id PK
-        long careerId FK
-        int seasonNumber
-        boolean isCompleted
-        long createdAt
-    }
-
-    TOUR_CARDS {
-        long id PK
-        long seasonId FK
-        long playerId "-1L (USER_ID) fuer User"
-        int tourCardYear "1 oder 2"
-    }
-
-    PLAYERS {
-        long id PK
-        string name UK
-        int skill "1-10"
-        string countryCode
-        double prizeMoney
-        int tourCardYear "0-2"
-        long updatedAt
-    }
-```
-
-### 2.1 Tabellen-Beschreibung
-
-1. **`user_profiles`**: Speichert menschliche Nutzerprofile (z. B. "Danny").
-2. **`careers`**: Speichert Karrieren. Verweist per Fremdschlüssel `profile_id` auf `user_profiles.id` (`CASCADE`).
-3. **`seasons`**: Speichert Saisons einer Karriere. Verweist per `career_id` auf `careers.id` (`CASCADE`).
-4. **`tour_cards`**: Speichert die exakt 128 Tourcard-Inhaber pro Saison.
-   - `player_id = USER_ID (-1L)` -> Der menschliche User der Karriere.
-   - `player_id != USER_ID` -> CPU-Spieler aus `players`.
-   - Property `isUser`: `playerId == USER_ID`.
-5. **`players`**: Stammdatenbank aller Dart-Profis (importiert aus `players.csv`).
-6. **`tournament_participants`**: Speichert beim Turnierstart (`GenerateBracketUseCase`) alle qualifizierten Teilnehmer pro Turnier inkl. eingefrorener Setzlistenposition (`seed_number`) und Qualifikationsweg (`qualification_type`).
+* **Lokale Datenbank (`data/db/AppDatabase.kt`):** Alle Room-Entitäten, DAOs, Repositories und Migrationen liegen zentral im Paket `data/db/`.
+* **Saison-Konfiguration (`assets/season_calendar_2027.json` & `TournamentConfigLoader`):** Single Source of Truth für alle 74 Saisonturniere, Austragungsorte, Runden-Preisgelder und Match-Distanzen (inkl. Fail-Fast-Validierung beim Laden).
+* **Eingefrorene Turnier-Setzlisten (`tournament_participants`):** Beim Turnierstart (`GenerateBracketUseCase`) werden alle qualifizierten Teilnehmer und ihre Setzlistenposition einmalig gespeichert, damit sich der Turnierbaum während eines laufenden Turniers nicht mehr verschiebt.
+* **Globale Konventionen:**
+    * `USER_ID = -1L`: Feste ID für den menschlichen Spieler in Tour Cards, Matches und Preisgeld-Platzierungen.
+    * `SkillLevel`: Spielstärken von `1` bis `10` (Default: `5`).
+    * `Country`: ISO-3-Ländercodes (inkl. Home Nations `ENG`, `SCO`, `WAL`, `NIR`; Fallback `XYZ`, User-Default `DEU`).
 
 ---
 
 ## 🔄 3. CSV-Spielerimport & Synchronisation
 
-- Stammdaten der CPU-Spieler liegen in `app/src/main/assets/players.csv`.
-- Beim ersten Start oder bei Erhöhung von `CURRENT_CSV_VERSION` in `AppDatabase.kt` führt `syncPlayersFromCsv` folgende Schritte aus:
-  1. `csvInsertNewPlayers`: Fügt neue Spieler hinzu (sofern der Name nicht existiert).
-  2. `csvUpdatePlayerStats`: Aktualisiert Skill, Land, Preisgeld und Stammdaten bestehender Spieler ohne deren Datenbank-ID zu verändern.
+* Stammdaten der CPU-Spieler liegen in `app/src/main/assets/players.csv`.
+* Beim ersten Start oder bei Erhöhung von `CURRENT_CSV_VERSION` in `AppDatabase.kt` führt `syncPlayersFromCsv` neue Spieler hinzu und aktualisiert bestehende Stammdaten, ohne deren Datenbank-ID zu verändern.
 
-### 3.1 Anleitung: So führst du ein Update der Spielerdaten durch
-Wenn du die Datei `players.csv` in den Assets bearbeitest (z. B. neue Spieler hinzufügst, Spielstärken anpasst oder Preisgelder aktualisierst):
+### 3.1 Anleitung: Update der Spielerdaten durchführen
+Wenn du `players.csv` in den Assets bearbeitest:
 
-1. Öffne `AppDatabase.kt` (`app/src/main/java/com/danny/dannyapp/data/db/AppDatabase.kt`).
+1. Öffne `app/src/main/java/com/danny/dannyapp/data/db/AppDatabase.kt`.
 2. Erhöhe die Konstante `CURRENT_CSV_VERSION` um `1`:
    ```kotlin
    companion object {
        private const val PREFS_NAME = "app_db_prefs"
        private const val KEY_CSV_DATA_VERSION = "csv_data_version"
-       private const val CURRENT_CSV_VERSION = 2 // 👈 Hier um 1 erhöhen (z. B. 1 -> 2)
+       private const val CURRENT_CSV_VERSION = 2 // 👈 Hier um 1 erhöhen
    }
    ```
-3. Beim nächsten App-Start erkennt die App automatisch, dass eine neuere Version der Spielerdaten vorliegt (`lastSyncedVersion < CURRENT_CSV_VERSION`), führt den Daten-Import einmalig aus und speichert die neue Versionsnummer ab.
+3. Beim nächsten App-Start erkennt die App automatisch die neuere CSV-Version und synchronisiert die Daten einmalig.
 
 ---
 
 ## 📚 4. Weiterführende Dokumentation
 
-- [🎯 Fachkonzept & Saison-Logik](file:///C:/Users/Danny/AndroidStudioProjects/DannyViewsApp/docs/SAISON_LOGIK.md)
-- [🎯 Scolia Architektur & Kernkonzept](file:///C:/Users/Danny/AndroidStudioProjects/DannyViewsApp/docs/SCOLIA_ARCHITEKTUR_UND_KERNKONZEPT.md)
-- [🔬 Scolia Integration & Research](file:///C:/Users/Danny/AndroidStudioProjects/DannyViewsApp/docs/SCOLIA_INTEGRATION_RESEARCH.md)
-- [📊 Scolia Match 501 Guest Analysis](file:///C:/Users/Danny/AndroidStudioProjects/DannyViewsApp/docs/scolia_match_501_guest_analysis.md)
+* [🎯 Fachkonzept & Saison-Logik](SAISON_LOGIK.md)
+* [📅 Saisonkalender, Turniere & Preisgeld](SAISON_KALENDER_UND_TURNIERE.md)
+* [📱 Turnier-UI, Simulation & Ranglisten-Ansicht](TURNIER_UI_UND_FLOW.md)
+* [🎯 Scolia Architektur & Kernkonzept](SCOLIA_ARCHITEKTUR_UND_KERNKONZEPT.md)
+* [🔬 Scolia Integration & Research](SCOLIA_INTEGRATION_RESEARCH.md)
+* [📊 Scolia Match 501 Guest Analysis](scolia_match_501_guest_analysis.md)
