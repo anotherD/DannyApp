@@ -1,7 +1,7 @@
 # Analyse des Referenz-Matches: 501 gegen lokalen Gast
 
 ## 📋 Kontext
-* **Referenz-Logdatei:** [scolia_match_501_guest.log](file:///C:/Users/Danny/AndroidStudioProjects/DannyViewsApp/scolia_match_501_guest.log)
+* **Referenz-Logdatei:** `scolia_match_501_guest.log` (im Projekt-Root)
 * **Spielmodus:** X01 (501 Double Out)
 * **Teilnehmer:** `Stellarvore` (Mensch) vs. `DannyGast` (Gast)
 * **Erfasste WebSocket-Events:** 276 Events
@@ -110,6 +110,6 @@ Wird gesendet, wenn der entscheidende Doppel-Dart zum Leg-Gewinn getroffen wurde
 
 Anhand dieser Analyse wurden folgende Klassen in der Android-App angepasst und verifiziert:
 
-1. [ScoliaModels.kt](file:///C:/Users/Danny/AndroidStudioProjects/DannyViewsApp/app/src/main/java/com/danny/dannyapp/ScoliaModels.kt): Enthält Datenklassen für `DartThrow` und das neue `ScoliaEvent.GameEnded`.
-2. [ScoliaEventParser.kt](file:///C:/Users/Danny/AndroidStudioProjects/DannyViewsApp/app/src/main/java/com/danny/dannyapp/ScoliaEventParser.kt): Parst alle oben aufgelisteten Event-Typen lückenlos in typsichere Kotlin-Objekte.
-3. [MainActivity.kt](file:///C:/Users/Danny/AndroidStudioProjects/DannyViewsApp/app/src/main/java/com/danny/dannyapp/MainActivity.kt): Protokolliert alle Events ungefiltert in der Logdatei und zeigt strukturierte Treffer-Logs in Logcat.
+1. `data/ScoliaModels.kt`: Enthält Datenklassen für `DartThrow` und `ScoliaEvent.GameEnded`.
+2. `data/ScoliaEventParser.kt`: Parst alle oben aufgelisteten Event-Typen lückenlos in typsichere Kotlin-Objekte.
+3. `ui/MainViewModel.kt`: Empfängt alle Events über den `SharedFlow` aus `ScoliaRepository` und gibt strukturierte Treffer-Logs in Logcat aus.

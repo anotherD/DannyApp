@@ -10,14 +10,14 @@ Dieses Dokument beschreibt die Benutzeroberfläche und den Interaktions-Flow fü
 * **Karrieren-Kacheln & Übersicht:** Zeigen Karrierename, aktuelle Saison, Level, Profilname sowie Spielername inklusive Landesflagge.
 * **Tab-Navigation in der Karriere-Ansicht:**
     1. **Übersicht:** Kompakte Karriere-Infos sowie Direktzugriff auf das aktuelle oder nächste Turnier.
-    2. **Saisonkalender:** Chronologische Übersicht aller 74 Turniere der aktiven Saison.
+    2. **Saisonkalender:** Chronologische Übersicht aller Turniere der aktiven Saison.
     3. **Ranglisten:** Auswahl der 4 dynamischen Ranglisten (`OOM`, `PT OOM`, `PC OOM`, `ET OOM`).
 
 ---
 
 ## 📅 2. Saisonkalender
 
-* **Anzeige:** Chronologische Liste aller 74 Saisonturniere mit Turniernummer, Name, lokalisiertem Turniertyp-Badge, Status-Badge und Austragungsort (Landesflagge + Stadtname).
+* **Anzeige:** Chronologische Liste aller Saisonturniere mit Turniernummer, Name, lokalisiertem Turniertyp-Badge, Status-Badge und Austragungsort (Landesflagge + Stadtname).
 * **Fokus & Hervorhebung:** Das aktive oder nächste geplante Turnier ist optisch hervorgehoben. Beim Öffnen scrollt die Liste automatisch zu diesem Turnier.
 * **Strikte Turnier-Sperre (Sequenzieller Ablauf):** Es darf immer nur ein Turnier gleichzeitig aktiv sein. Ein neues Turnier kann erst gestartet werden, wenn das vorherige abgeschlossen ist.
 * **Status-Zustände:**

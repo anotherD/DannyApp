@@ -5,32 +5,32 @@ Wichtig: Es sollen die Regeln/Name/Pläne für die PDC Pro-Tour für das jahr 20
 
 ---
 
-## 🏛️ 1. Architektur-Erweiterung & Datenmodell (Room v13)
+## 🏛️ 1. Architektur-Erweiterung & Datenmodell
 
 ### 1.1 Die User-ID Konvention (Globale Konstante)
 Um Nullable-Fremdschlüssel-Probleme und komplexe Boolean-Flags zu vermeiden, erhält der menschliche User im gesamten System eine feste, eindeutige ID:
 * **`USER_ID = -1L`**
   Diese ID wird in `tour_cards`, `tournament_matches` und `tournament_placements` verwendet. Bei der Spieler-Stammdatenbank (`players`) wird beim CSV-Import sichergestellt, dass kein CPU-Spieler die ID `-1` oder `0` erhalten kann (Auto-Increment startet bei 1).
 
-### 1.2 Implementierte Entitäten (Room v13)
+### 1.2 Implementierte Entitäten
 
 Die Tabellenstrukturen für den Turnierbetrieb wurden wie folgt implementiert:
 
-*   **`Tournament` (`tournaments`)**: Speichert Saisonturniere mit `id`, `season_id`, `name`, `type` (`PLAYERS_CHAMPIONSHIP`, `EUROPEAN_TOUR`, `UK_OPEN`, `EUROPEAN_OPEN`, `WORLD_MATCHPLAY`, `WORLD_GRAND_PRIX`, `EUROPEAN_CHAMPIONSHIP`, `GRAND_SLAM_OF_DARTS`, `PLAYERS_CHAMPIONSHIP_FINALS`, `WORLD_CHAMPIONSHIP`, `QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIFIER_WM`), `order` (1–74), `is_completed` und `host_country` (ISO-3-Code, z. B. `"ENG"`, `"DEU"`, `"AUT"`, `"NLD"`, `"BEL"`, `"HUN"`, `"CZE"`, `"CHE"`, `"FRA"`, `"POL"`, `"SVK"`) sowie `host_city` (z. B. "Milton Keynes", "Dortmund"). Jedes Turnier im Kalender verfügt zwingend über einen gültigen ISO-3 `host_country`.
-*   **`TournamentMatch` (`tournament_matches`)**: Verwaltet alle Einzelpartien mit `id`, `tournament_id`, `round`, `match_index`, `player_1_id`, `player_2_id` (jeweils Spieler-ID oder `USER_ID = -1L`), Scores, `winner_id` und `is_completed`.
-*   **`TournamentPlacement` (`tournament_placements`)**: Erfasst die errungenen Platzierungen und Preisgelder pro Spieler zur Berechnung der Ranglisten (`id`, `tournament_id`, `player_id`, `reached_round`, `prize_money`).
+*   **`Tournament` (`tournaments`)**: Speichert Saisonturniere mit `host_country` (ISO-3-Code, z. B. `"ENG"`, `"DEU"`, `"AUT"`, `"NLD"`, `"BEL"`, `"HUN"`, `"CZE"`, `"CHE"`, `"FRA"`, `"POL"`, `"SVK"`) sowie `host_city` (z. B. "Milton Keynes", "Dortmund"). Jedes Turnier im Kalender verfügt zwingend über einen gültigen ISO-3 `host_country`.
+*   **`TournamentMatch` (`tournament_matches`)**: Verwaltet alle Einzelpartien.
+*   **`TournamentPlacement` (`tournament_placements`)**: Erfasst die errungenen Platzierungen und Preisgelder pro Spieler zur Berechnung der Ranglisten.
 
 ---
 
 ## 📅 2. Turniertypen, Qualifikation & Kalenderstruktur
 
-Eine Saison umfasst insgesamt **74 Turniere**:
-* PC: Players Championship, 34 pro Saison
-* ET: European Tour, 15 pro Saison
-* ET Tour Card Qualifier (`QUALIFIER_ET`): 15 pro Saison
+Eine Saison umfasst folgende Turnierkategorien (konfiguriert in season_calendar_2027.json):
+* PC: Players Championship
+* ET: European Tour
+* ET Tour Card Qualifier (`QUALIFIER_ET`)
 * MAJOR: Major-Turniere, 8 pro Saison (`UK Open`, `European Open`, `World Matchplay`, `World Grand Prix`, `European Championship`, `Grand Slam of Darts`, `Players Championship Finals`, `World Championship`)
 * Major Qualifiers: 2 pro Saison (`QUALIFIER_GRAND_SLAM` vor dem Grand Slam of Darts, `QUALIFIER_WM` vor der World Championship)
-* **Zentrale Kalender- & Turnier-Konfiguration (`app/src/main/assets/season_calendar_2027.json`):** Die exakte chronologische Reihenfolge aller 74 Saisonturniere (`order` 1–74), deren Austragungsstädte (`hostCity`) und Gastgeberländer (`hostCountry`), alle Runden-Preisgelder und Match-Distanzen (`events`) sowie die Dokumentationsfelder `date` und `date_source` zur Nachvollziehbarkeit sind zentral in `season_calendar_2027.json` gepflegt (Single Source of Truth).
+* **Zentrale Kalender- & Turnier-Konfiguration (`app/src/main/assets/season_calendar_2027.json`):** Die exakte chronologische Reihenfolge aller Saisonturniere (`order`), deren Austragungsstädte (`hostCity`) und Gastgeberländer (`hostCountry`), alle Runden-Preisgelder und Match-Distanzen (`events`) sowie die Dokumentationsfelder `date` und `date_source` zur Nachvollziehbarkeit sind zentral in `season_calendar_2027.json` gepflegt (Single Source of Truth).
 
 Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
 
@@ -38,7 +38,7 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
 *   **Teilnehmer:** 128 Spieler.
 *   **Zusammensetzung & Qualifikation:**
     1. Alle 128 Tour-Card-Inhaber (inklusive User mit ID `-1L`).
-*   **Gastgeberländer & Austragungsorte (2027):** Die 34 Players Championships und ihre Austragungsorte (England, Deutschland und Niederlande) folgen dem offiziellen PDC-Kalender 2027 und sind vollständig in `season_calendar_2027.json` hinterlegt.
+*   **Gastgeberländer & Austragungsorte (2027):** Die Players Championships und ihre Austragungsorte (England, Deutschland und Niederlande) folgen dem offiziellen PDC-Kalender 2027 und sind vollständig in `season_calendar_2027.json` hinterlegt.
 *   **Auslosung:** Die Top 32 der *Pro Tour Order of Merit* sind nach dem offiziellen Standard-Setzbaum (`buildStandardSeedOrder(32)`) über alle 16 Boards (64 Erstrunden-Matches) verteilt (Seed `seedOrder32[i]` auf Match `2 * i`, dazwischen ungesetzte Partien auf Match `2 * i + 1`), sodass `(1)` und `(2)` frühestens im Finale aufeinandertreffen. Die restlichen 96 Spieler werden frei zugelost.
 *   **Preisgeldaufschlüsselung (Gesamt: £150.000 pro Event):**
 
@@ -59,8 +59,8 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
     *   *Reale PDC:* Sagen Tour-Card-Inhaber für ein PC-Event ab, rücken Spieler aus der *Challenge Tour Order of Merit* (und bei Bedarf *Development Tour*) nach, um das 128er-Feld aufzufüllen. Da diese Secondary Tours aktuell nicht simuliert werden, wird das Feld ggf. aus Nicht-Tourcard-Spielern (`tour_card_year == 0`) aufgefüllt oder mit Byes gearbeitet.
 
 ### 2.2 European Tour (ET) & ET Tour Card Holder Qualifier (`QUALIFIER_ET`)
-*   **ET Qualifier (`QUALIFIER_ET`):** Vor jedem der 15 European Tour Events findet ein Tour Card Holder Qualifier statt. Daran nehmen **alle** nicht-vorqualifizierten Tour-Card-Inhaber (inkl. `USER_ID = -1L`) teil. Das Turnier läuft im K.o.-Modus (Best of 11 Legs, mit Vorrunde/Freilosen bei auffüllender Zweierpotenz), bis exakt 10 Sieger (Qualifikanten) feststehen (£0 Preisgeld).
-*   **Die 15 European Tour Events (2027):** Die exakte Reihenfolge und alle Austragungsorte inklusive der zwei neuen 2027er Events in Frankreich (*Darts Grand Prix de France*) und der Slowakei (*Slovak Darts Open*) sind in `season_calendar_2027.json` gepflegt.
+*   **ET Qualifier (`QUALIFIER_ET`):** Vor jedem der European Tour Event findet ein Tour Card Holder Qualifier statt. Daran nehmen **alle** nicht-vorqualifizierten Tour-Card-Inhaber (inkl. `USER_ID = -1L`) teil. Das Turnier läuft im K.o.-Modus (Best of 11 Legs, mit Vorrunde/Freilosen bei auffüllender Zweierpotenz), bis exakt 10 Sieger (Qualifikanten) feststehen (£0 Preisgeld).
+*   **Die European Tour Events (2027):** Die exakte Reihenfolge und alle Austragungsorte inklusive der zwei neuen 2027er Events in Frankreich (*Darts Grand Prix de France*) und der Slowakei (*Slovak Darts Open*) sind in `season_calendar_2027.json` gepflegt.
 *   **Teilnehmer (European Tour):** 48 Spieler.
 *   **Zusammensetzung & Qualifikation:**
     1. Top 16 der Order of Merit
@@ -379,7 +379,7 @@ Ergänzend zu den jeweiligen Turnierregeln in Abschnitt 2 gelten für die Simula
     *   Rückt ein Ersatzspieler für einen ausgefallenen Spieler direkt in eine spätere Runde nach (z. B. Runde 2 bei ET oder Runde 3 bei UK Open) und verliert dort sofort sein erstes Match, erhält er nur das Preisgeld der allerersten Turnierrunde (bei UK Open also **£0**, bei ET **£2.000**). Gewinnt er sein Auftaktmatch, greift ab der nächsten Runde das reguläre Preisgeld.
 
 ### 3.3 Spielformate & Sonderregeln (Zentrale Definition)
-Alle konkreten Runden-Distanzen (Best-of-Legs/Sets) aller 74 Turniere sind zentral in `app/src/main/assets/season_calendar_2027.json` (`events.<EVENT>.distances`) definiert. Für die Spiel-Engine gelten folgende zentrale Formatregeln:
+Alle konkreten Runden-Distanzen (Best-of-Legs/Sets) aller Turniere sind zentral in `app/src/main/assets/season_calendar_2027.json` (`events.<EVENT>.distances`) definiert. Für die Spiel-Engine gelten folgende zentrale Formatregeln:
 
 *   **Set-Format:** Standardmäßig besteht ein Set aus *Best of 5 Legs* (First to 3 Legs). Ausnahmen: *World Grand Prix* (Best of 3 Legs pro Set) sowie das optionale Non-Ranking-Event *World Masters* (Best of 3 Legs pro Set).
 *   **Two-Clear-Legs Rule:**
@@ -398,7 +398,7 @@ Um das MVVM-Muster sauber einzuhalten, ist die komplexe Geschäfts- und Berechnu
 *   **`TournamentRound`**: Enum aller Turnierrunden von Gruppenphase bis Finale/Sieger.
 *   **`MatchDistance`**: Data Class zur Definition von Best-of-Legs/Sets, Legs pro Set und Two-Clear-Legs-Regeln.
 *   **`BracketGenerator`**: Algorithmische Generierung von Setzlisten und Erstrunden-Paarungen für alle Turniertypen inkl. dynamischer Qualifikanten-Brackets mit Vorrunden/Freilosen.
-*   **`GenerateSeasonCalendarUseCase`**: Erzeugt die chronologische Liste aller 74 Saisonturniere aus `season_calendar_2027.json`.
+*   **`GenerateSeasonCalendarUseCase`**: Erzeugt die chronologische Liste aller Saisonturniere aus `season_calendar_2027.json`.
 *   **`GenerateBracketUseCase`**: Generiert die Paarungen für anstehende Turniere und speichert eingefrorene Teilnehmer/Setzlisten (`tournament_participants`).
 *   **`SimulateCpuMatchUseCase`**: Simuliert CPU-Matches basierend auf Skill und Wahrscheinlichkeiten.
 *   **`AdvanceTournamentRoundUseCase`**: Steuert den Rundenfortschritt nach Abschluss aller Partien einer Runde und beendet Qualifier-Turniere (`QUALIFIER_ET` = 10, `QUALIFIER_GRAND_SLAM` = 8, `QUALIFIER_WM` = 4), sobald die Zielanzahl an Siegern feststeht.

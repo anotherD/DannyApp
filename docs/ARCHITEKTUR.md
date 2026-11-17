@@ -26,7 +26,7 @@ Die App folgt dem **Model-View-ViewModel (MVVM)** Muster mit **Kotlin Coroutines
 ## 🗄️ 2. Zentrale Datenquellen & Konventionen
 
 * **Lokale Datenbank (`data/db/AppDatabase.kt`):** Alle Room-Entitäten, DAOs, Repositories und Migrationen liegen zentral im Paket `data/db/`.
-* **Saison-Konfiguration (`assets/season_calendar_2027.json` & `TournamentConfigLoader`):** Single Source of Truth für alle 74 Saisonturniere, Austragungsorte, Runden-Preisgelder und Match-Distanzen (inkl. Fail-Fast-Validierung beim Laden).
+* **Saison-Konfiguration (`assets/season_calendar_2027.json` & `TournamentConfigLoader`):** Single Source of Truth für alle Saisonturniere, Austragungsorte, Runden-Preisgelder und Match-Distanzen (inkl. Fail-Fast-Validierung beim Laden).
 * **Eingefrorene Turnier-Setzlisten (`tournament_participants`):** Beim Turnierstart (`GenerateBracketUseCase`) werden alle qualifizierten Teilnehmer und ihre Setzlistenposition einmalig gespeichert, damit sich der Turnierbaum während eines laufenden Turniers nicht mehr verschiebt.
 * **Globale Konventionen:**
     * `USER_ID = -1L`: Feste ID für den menschlichen Spieler in Tour Cards, Matches und Preisgeld-Platzierungen.
@@ -49,7 +49,7 @@ Wenn du `players.csv` in den Assets bearbeitest:
    companion object {
        private const val PREFS_NAME = "app_db_prefs"
        private const val KEY_CSV_DATA_VERSION = "csv_data_version"
-       private const val CURRENT_CSV_VERSION = 2 // 👈 Hier um 1 erhöhen
+       private const val CURRENT_CSV_VERSION = 2 // 👈 Hier jeweils um 1 erhöhen
    }
    ```
 3. Beim nächsten App-Start erkennt die App automatisch die neuere CSV-Version und synchronisiert die Daten einmalig.

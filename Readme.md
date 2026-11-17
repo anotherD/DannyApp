@@ -34,8 +34,8 @@ Ausführliche Fachkonzepte, Forschungsberichte und Architekturbeschreibungen bef
 - [x] **Scolia Hardware-Sensor:** WebView mit WebSocket-Proxy, Tracking-Blocker, JSON-Parser & Event-Logger (`scolia_events.log`).
 - [x] **Stammdaten & Profile:** User-Profile anlegen/bearbeiten/löschen, CSV-Spielerimport (`players.csv`), Spieler-Übersicht.
 - [x] **Karriere & Saison-Basis:** Karrieren anlegen, 128er-Tour-Card-Vergabe für Saison 1 (`USER_ID = -1L`), Room DB.
-- [x] **Turnier-Engine & Kalender (2027):** Zentrale JSON-Konfiguration (`season_calendar_2027.json`) für alle 74 Saisonturniere (34 PC, 15 ET, 8 Majors + 17 TCH-Qualifier), Auslosung, Runden-Progression, Preisgeld-Ausnahmen & 4 dynamische Orders of Merit.
-- [x] **Turnier- & Ranglisten-UI:** Saisonkalender, Ranglisten-Tabs (`ViewPager2`), Turnieransicht (Vorschau, Aktiv, Rückblick) inkl. Test-Modi.
+- [x] **Turnier-Engine & Kalender (2027):** Zentrale JSON-Konfiguration (`season_calendar_2027.json`) für alle Saisonturniere (PC, ET, Majors & TCH-Qualifier), Auslosung, Runden-Progression, Preisgeld-Ausnahmen & 4 dynamische Orders of Merit.
+- [x] **Turnier- & Ranglisten-UI:** Saisonkalender, Ranglisten-Ansicht mit 4 dynamischen Ranglisten, Turnieransicht (Vorschau, Aktiv, Rückblick) inkl. Test-Modi.
 
 ### 🚧 Nächste Schritte (Kern-Funktionen)
 - [ ] **Code-Refactoring & Turnierbaum-Stabilisierung:**
