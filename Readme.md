@@ -34,10 +34,12 @@ Ausführliche Fachkonzepte, Forschungsberichte und Architekturbeschreibungen bef
 - [x] **Scolia Hardware-Sensor:** WebView mit WebSocket-Proxy, Tracking-Blocker, JSON-Parser & Event-Logger (`scolia_events.log`).
 - [x] **Stammdaten & Profile:** User-Profile anlegen/bearbeiten/löschen, CSV-Spielerimport (`players.csv`), Spieler-Übersicht.
 - [x] **Karriere & Saison-Basis:** Karrieren anlegen, 128er-Tour-Card-Vergabe für Saison 1 (`USER_ID = -1L`), Room DB.
-- [x] **Turnier-Engine & Kalender (2027):** Alle 74 Saisonturniere (34 PC, 15 ET, 8 Majors + 17 TCH-Qualifier), Auslosung, Runden-Progression, Preisgeld-Ausnahmen & 4 dynamische Orders of Merit.
+- [x] **Turnier-Engine & Kalender (2027):** Zentrale JSON-Konfiguration (`season_calendar_2027.json`) für alle 74 Saisonturniere (34 PC, 15 ET, 8 Majors + 17 TCH-Qualifier), Auslosung, Runden-Progression, Preisgeld-Ausnahmen & 4 dynamische Orders of Merit.
 - [x] **Turnier- & Ranglisten-UI:** Saisonkalender, Ranglisten-Tabs (`ViewPager2`), Turnieransicht (Vorschau, Aktiv, Rückblick) inkl. Test-Modi.
 
 ### 🚧 Nächste Schritte (Kern-Funktionen)
+- [ ] **Code-Refactoring & Turnierbaum-Stabilisierung:**
+    - [ ] Turnier-UI und Turnierbaum-Ansicht (`TournamentBracketView`) nach Code-Bereinigung vollständig stabilisieren und Darstellungs-/Ausrichtungs-Bugs beheben.
 - [ ] **Live-Match & Scolia-Anbindung:**
     - [ ] User-Match Live-Ansicht (Scoreboard, Restpunkte, Legs/Sets gemäß `MatchDistance` & Double-In/Out).
     - [ ] Spielsteuerung & Match-Engine (Wurf-Verarbeitung, Bot-Wurf-Timing, Caller/SoundPool-Engine).
@@ -47,7 +49,6 @@ Ausführliche Fachkonzepte, Forschungsberichte und Architekturbeschreibungen bef
     - [ ] Rudimentäre Q-School-Simulation (zufällige Auffüllung neuer Tour-Card-Inhaber).
 - [ ] **Karriere-Einstellungen & Turnier-Details:**
     - [ ] Modifizierbare Match-Distanzen vor Karrierestart (z. B. 50 % / 75 % / 100 % Distanz für kürzere Spielzeiten).
-    - [ ] UK Open & European Open: Runden 1–3 vorab auslosen, ab Runde 4 verdeckte/schrittweise „Live-Auslosung“ pro Runde.
     - [ ] Turnier-Beschreibungen in der Vorschau um Qualifikations-Boni ergänzen (z. B. *„Sieger qualifiziert sich für Grand Slam of Darts“*).
 - [ ] **UI-Polish & Branding:**
     - [ ] Eigenes App-Icon (Launcher-Icon & Startseiten-Logo finalisieren).
@@ -86,4 +87,4 @@ Ausführliche Fachkonzepte, Forschungsberichte und Architekturbeschreibungen bef
 ## 📊 CSV-Spielerdatenbank & Updates (`players.csv`)
 
 Die App importiert beim ersten Start die Spielerdaten aus `app/src/main/assets/players.csv` in die lokale Room-Datenbank.
-- 💡 **Anleitung für Updates:** Wie du `players.csv` aktualisierst und die `CURRENT_CSV_VERSION` in `AppDatabase.kt` anpasst, findest du direkt in der [System-Architektur & Datenmodell Dokumentation (Abschnitt 3.1)](docs/ARCHITEKTUR.md#31-anleitung-so-führst-du-ein-update-der-spielerdaten-durch).
+- 💡 **Anleitung für Updates:** Wie du `players.csv` aktualisiert und die `CURRENT_CSV_VERSION` in `AppDatabase.kt` anpasst, findest du direkt in der [System-Architektur & Datenmodell Dokumentation (Abschnitt 3.1)](docs/ARCHITEKTUR.md#31-anleitung-so-führst-du-ein-update-der-spielerdaten-durch).

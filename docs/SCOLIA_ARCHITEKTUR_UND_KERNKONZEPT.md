@@ -38,10 +38,10 @@ Nutzung des Scolia-Kamerasystems als reiner, lokaler **Hardware-Sensor zur Wurfe
 
 ## 🛠️ Technische Umsetzung
 
-### 1. WebSocket Proxy Hook (`MainActivity.kt`)
-Um die Datenpakete des Scolia-WebSockets abzufangen, ohne die Funktionalität des WebSockets zu stören, wird ein JavaScript `Proxy` injiziert:
+### 1. WebSocket Proxy Hook (`ScoliaWebViewManager.kt`)
+Um die Datenpakete des Scolia-WebSockets abzufangen, ohne die Funktionalität des WebSockets zu stören, wird ein JavaScript `Proxy` injiziert (`webview/ScoliaWebViewManager.kt`):
 - Erhält die statischen `WebSocket`-Eigenschaften (`WebSocket.OPEN` etc.) aufrecht.
-- Leitet eintreffende JSON-Datenpakete (`API::GAME::GAME_STATE_CHANGED`, Wurf-Koordinaten, Sektoren) über das `@JavascriptInterface` an Kotlin weiter.
+- Leitet eintreffende JSON-Datenpakete (`API::GAME::GAME_STATE_CHANGED`, Wurf-Koordinaten, Sektoren) über das `@JavascriptInterface` (`ScoliaRepository`) an Kotlin weiter.
 
 ### 2. WebView & AdBlocker Konfiguration
 - **JavaScript & DOM Storage:** Aktiviert für Session-Verwaltung.
@@ -75,5 +75,5 @@ So öffnest du die Event-Logdatei direkt in Android Studio:
 
 ## 📚 Weiterführende Dokumentation
 
-- [🔬 Scolia Integration & Research](file:///C:/Users/Danny/AndroidStudioProjects/DannyViewsApp/docs/SCOLIA_INTEGRATION_RESEARCH.md)
-- [📊 Scolia Match 501 Guest Analysis](file:///C:/Users/Danny/AndroidStudioProjects/DannyViewsApp/docs/scolia_match_501_guest_analysis.md)
+- [🔬 Scolia Integration & Research](SCOLIA_INTEGRATION_RESEARCH.md)
+- [📊 Scolia Match 501 Guest Analysis](scolia_match_501_guest_analysis.md)
