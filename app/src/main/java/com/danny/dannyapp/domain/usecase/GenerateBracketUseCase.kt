@@ -33,7 +33,8 @@ class GenerateBracketUseCase(
     private val tournamentMatchDao: TournamentMatchDao,
     private val tournamentParticipantDao: TournamentParticipantDao,
     private val tournamentPlacementDao: TournamentPlacementDao,
-    private val getOrderOfMeritUseCase: GetOrderOfMeritUseCase
+    private val getOrderOfMeritUseCase: GetOrderOfMeritUseCase,
+    private val tournamentQualificationUseCase: TournamentQualificationUseCase
 ) {
     constructor(context: Context) : this(
         AppDatabase.getDatabase(context.applicationContext).tournamentDao(),
@@ -43,7 +44,8 @@ class GenerateBracketUseCase(
         AppDatabase.getDatabase(context.applicationContext).tournamentMatchDao(),
         AppDatabase.getDatabase(context.applicationContext).tournamentParticipantDao(),
         AppDatabase.getDatabase(context.applicationContext).tournamentPlacementDao(),
-        GetOrderOfMeritUseCase(context)
+        GetOrderOfMeritUseCase(context),
+        TournamentQualificationUseCase(context)
     )
 
     suspend operator fun invoke(tournamentId: Long): List<TournamentMatch> = withContext(Dispatchers.IO) {
@@ -74,20 +76,18 @@ class GenerateBracketUseCase(
         val pcOomEntries = getOrderOfMeritUseCase(careerId, OrderOfMeritType.PC_OOM)
         val etOomEntries = getOrderOfMeritUseCase(careerId, OrderOfMeritType.ET_OOM)
 
-        // Helper sorting function for player IDs using Order of Merit rank / prize money / skill / name
+        // Delegate player sorting and fill-to-target logic to TournamentQualificationUseCase
         fun getPlayerListSortedByOom(playerIds: List<Long>, oomList: List<OrderOfMeritEntry>): List<Long> {
-            val playerMap = oomList.associateBy { it.playerId }
-            val dbPlayerMap = allPlayers.associateBy { it.id }
-            return playerIds.sortedWith(
-                compareBy<Long> { playerMap[it]?.rank ?: Int.MAX_VALUE }
-                    .thenByDescending { playerMap[it]?.prizeMoney ?: 0.0 }
-                    .thenByDescending {
-                        if (it == USER_ID) SkillLevel.DEFAULT.value else dbPlayerMap[it]?.skill ?: SkillLevel.DEFAULT.value
-                    }
-                    .thenBy {
-                        if (it == USER_ID) "User" else dbPlayerMap[it]?.name ?: ""
-                    }
-            )
+            return tournamentQualificationUseCase.sortPlayerIdsByOom(playerIds, oomList, allPlayers)
+        }
+
+        fun fillToTargetCount(
+            initialList: List<Long>,
+            targetCount: Int,
+            fallbackCandidates: List<Long>,
+            oomList: List<OrderOfMeritEntry>
+        ): List<Long> {
+            return tournamentQualificationUseCase.fillToTargetCount(initialList, targetCount, fallbackCandidates, oomList)
         }
 
         fun formatPlayer(id: Long): String {
@@ -1033,31 +1033,5 @@ class GenerateBracketUseCase(
         }
 
         tournamentMatchDao.getMatchesListForTournament(tournamentId)
-    }
-
-    private fun fillToTargetCount(
-        initialList: List<Long>,
-        targetCount: Int,
-        fallbackCandidates: List<Long>,
-        oomList: List<OrderOfMeritEntry>
-    ): List<Long> {
-        if (initialList.size >= targetCount) {
-            return initialList.take(targetCount)
-        }
-        val result = initialList.toMutableList()
-        val oomMap = oomList.associateBy { it.playerId }
-        val remainingCandidates = fallbackCandidates
-            .filterNot { it in result }
-            .sortedWith(
-                compareBy<Long> { oomMap[it]?.rank ?: Int.MAX_VALUE }
-                    .thenByDescending { oomMap[it]?.prizeMoney ?: 0.0 }
-                    .thenByDescending { oomMap[it]?.skill ?: SkillLevel.DEFAULT.value }
-            )
-
-        for (candidate in remainingCandidates) {
-            if (result.size >= targetCount) break
-            result.add(candidate)
-        }
-        return result
     }
 }

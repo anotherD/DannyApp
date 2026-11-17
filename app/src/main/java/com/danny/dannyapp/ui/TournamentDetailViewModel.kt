@@ -29,6 +29,7 @@ import com.danny.dannyapp.domain.model.GroupStandingEntry
 import com.danny.dannyapp.domain.usecase.MatchScoreValidator
 import com.danny.dannyapp.domain.usecase.SimulateCpuMatchUseCase
 import com.danny.dannyapp.domain.usecase.TournamentProgressionUseCase
+import com.danny.dannyapp.domain.usecase.TournamentQualificationUseCase
 import com.danny.dannyapp.ui.enums.RoundStatus
 import com.danny.dannyapp.ui.model.EntrantGroupInfo
 import com.danny.dannyapp.ui.model.GrandSlamGroupItem
@@ -136,7 +137,8 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
     private val simulateCpuMatchUseCase = SimulateCpuMatchUseCase(application)
     private val advanceTournamentRoundUseCase = AdvanceTournamentRoundUseCase(application)
     private val tournamentProgressionUseCase = TournamentProgressionUseCase(application)
-    private val previewHelper = TournamentPreviewHelper(application)
+    private val tournamentQualificationUseCase = TournamentQualificationUseCase(application)
+    private val previewHelper = TournamentPreviewHelper(application, tournamentQualificationUseCase)
 
     /** Domain use-case: single source of truth for Grand-Slam group standings. */
     private val calculateGroupStandingsUseCase = CalculateGroupStandingsUseCase()
@@ -854,12 +856,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         winnerId: Long?,
         k: Int
     ): Int {
-        val placeholderId = -1000L - prelimMatchIndex
-        val r1Match = qualR1Matches.firstOrNull { r1 ->
-            r1.player1Id == placeholderId || r1.player2Id == placeholderId ||
-                (winnerId != null && (r1.player1Id == winnerId || r1.player2Id == winnerId))
-        }
-        return r1Match?.let { it.matchIndex / 4 } ?: (prelimMatchIndex % k)
+        return tournamentQualificationUseCase.resolvePrelimTargetBoard(qualR1Matches, prelimMatchIndex, winnerId, k)
     }
 
     /**

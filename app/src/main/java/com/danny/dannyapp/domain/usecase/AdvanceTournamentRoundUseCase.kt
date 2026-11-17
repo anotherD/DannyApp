@@ -35,7 +35,8 @@ class AdvanceTournamentRoundUseCase(
     private val tourCardDao: TourCardDao,
     private val playerDao: PlayerDao,
     private val tournamentParticipantDao: TournamentParticipantDao,
-    private val getOrderOfMeritUseCase: GetOrderOfMeritUseCase
+    private val getOrderOfMeritUseCase: GetOrderOfMeritUseCase,
+    private val tournamentQualificationUseCase: TournamentQualificationUseCase
 ) {
     /** Single source of truth for group-stage standings – shared with the advance logic. */
     private val calculateGroupStandingsUseCase: CalculateGroupStandingsUseCase = CalculateGroupStandingsUseCase()
@@ -47,7 +48,8 @@ class AdvanceTournamentRoundUseCase(
         AppDatabase.getDatabase(context.applicationContext).tourCardDao(),
         AppDatabase.getDatabase(context.applicationContext).playerDao(),
         AppDatabase.getDatabase(context.applicationContext).tournamentParticipantDao(),
-        GetOrderOfMeritUseCase(context)
+        GetOrderOfMeritUseCase(context),
+        TournamentQualificationUseCase(context)
     )
 
     /**
@@ -241,7 +243,7 @@ class AdvanceTournamentRoundUseCase(
             val stored33To64 = participants.filter { it.qualificationType == "OOM_33_64" }.sortedBy { it.seedNumber ?: Int.MAX_VALUE }.map { it.playerId }
             val storedTop32 = participants.filter { it.qualificationType == "OOM_TOP_32" }.sortedBy { it.seedNumber ?: Int.MAX_VALUE }.map { it.playerId }
 
-            val sortedTcOom = getPlayerListSortedByOom(tourCardPlayerIds, oomEntries, allPlayers)
+            val sortedTcOom = tournamentQualificationUseCase.sortPlayerIdsByOom(tourCardPlayerIds, oomEntries, allPlayers)
             val fullOom = sortedTcOom
             val oom65To96 = if (stored65To96.isNotEmpty()) stored65To96 else fullOom.drop(64).take(32)
             val oom33To64 = if (stored33To64.isNotEmpty()) stored33To64 else fullOom.drop(32).take(32)
@@ -444,27 +446,5 @@ class AdvanceTournamentRoundUseCase(
                 player2Id = winners[2 * index + 1]
             )
         }
-    }
-
-    /**
-     * Sorts player IDs by Order of Merit, then skill, then name.
-     */
-    private fun getPlayerListSortedByOom(
-        playerIds: List<Long>,
-        oomList: List<OrderOfMeritEntry>,
-        allPlayers: List<Player>
-    ): List<Long> {
-        val playerMap = oomList.associateBy { it.playerId }
-        val dbPlayerMap = allPlayers.associateBy { it.id }
-        return playerIds.sortedWith(
-            compareBy<Long> { playerMap[it]?.rank ?: Int.MAX_VALUE }
-                .thenByDescending { playerMap[it]?.prizeMoney ?: 0.0 }
-                .thenByDescending {
-                    if (it == USER_ID) SkillLevel.DEFAULT.value else dbPlayerMap[it]?.skill ?: SkillLevel.DEFAULT.value
-                }
-                .thenBy {
-                    if (it == USER_ID) "User" else dbPlayerMap[it]?.name ?: ""
-                }
-        )
     }
 }
