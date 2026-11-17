@@ -37,6 +37,10 @@ class SimulateCpuMatchUseCase(
             return@withContext match
         }
 
+        if (!hasRealPlayers(match)) {
+            return@withContext match
+        }
+
         // Do not simulate if either player is the human user
         if (match.player1Id == USER_ID || match.player2Id == USER_ID) {
             return@withContext match
@@ -83,12 +87,18 @@ class SimulateCpuMatchUseCase(
         return@withContext updatedMatch
     }
 
+    private fun hasRealPlayers(match: TournamentMatch): Boolean {
+        val p1Real = match.player1Id > 0L || match.player1Id == USER_ID
+        val p2Real = match.player2Id > 0L || match.player2Id == USER_ID
+        return p1Real && p2Real
+    }
+
     suspend fun simulateAllCpuMatches(tournamentId: Long): List<TournamentMatch> = withContext(Dispatchers.IO) {
         val matches = tournamentMatchDao.getMatchesListForTournament(tournamentId)
         val updatedList = mutableListOf<TournamentMatch>()
 
         for (match in matches) {
-            if (!match.isCompleted && match.player1Id != USER_ID && match.player2Id != USER_ID) {
+            if (!match.isCompleted && match.player1Id != USER_ID && match.player2Id != USER_ID && hasRealPlayers(match)) {
                 val simulated = invoke(match)
                 updatedList.add(simulated)
             } else {

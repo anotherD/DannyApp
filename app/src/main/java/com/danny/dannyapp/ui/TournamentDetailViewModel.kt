@@ -298,9 +298,16 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
 
         val activeRoundKeyInDb = sequence.firstOrNull { round ->
             val matches = allMatches.filter { it.round == round.name }
-            matches.isNotEmpty() && matches.any { !it.isCompleted }
+            matches.any { m ->
+                (m.player1Id > 0L || m.player1Id == USER_ID) &&
+                (m.player2Id > 0L || m.player2Id == USER_ID) &&
+                !m.isCompleted
+            }
         }?.name ?: sequence.lastOrNull { round ->
-            allMatches.any { it.round == round.name }
+            allMatches.filter { it.round == round.name }.any { m ->
+                (m.player1Id > 0L || m.player1Id == USER_ID) &&
+                (m.player2Id > 0L || m.player2Id == USER_ID)
+            }
         }?.name ?: availableRounds.firstOrNull() ?: ""
 
         val activeRoundDisplayName = TournamentUiHelper.getDisplayRoundName(activeRoundKeyInDb, getApplication())
@@ -833,7 +840,9 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         return when {
             playerId == PLACEHOLDER_OPEN_DRAW_ID -> app.getString(R.string.match_tbd_open_draw)
             playerId == PLACEHOLDER_PREVIOUS_WINNER_ID -> {
-                if (event == TournamentEvent.EUROPEAN_TOUR && roundKey == TournamentRound.L32.name) {
+                if (event == TournamentEvent.GRAND_SLAM_OF_DARTS && roundKey == TournamentRound.GROUP.name) {
+                    app.getString(R.string.match_tbd_open_draw)
+                } else if (event == TournamentEvent.EUROPEAN_TOUR && roundKey == TournamentRound.L32.name) {
                     if (isPlayer1) {
                         val seedOrder = com.danny.dannyapp.domain.usecase.BracketGenerator.BRACKET_SEED_ORDER_16
                         val seedRank = (seedOrder.getOrNull(matchIndex) ?: matchIndex) + 1
@@ -855,6 +864,9 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
                 val groupIdx = (-9000L - playerId).toInt()
                 val groupLetter = ('A' + groupIdx).toString()
                 app.getString(R.string.grand_slam_group_winner_format, groupLetter)
+            }
+            playerId < 0L && playerId != USER_ID -> {
+                app.getString(R.string.match_tbd_open_draw)
             }
             else -> null
         }
@@ -907,14 +919,14 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
                 player?.name ?: "CPU #${match.player1Id}"
             }
         }
-        val p1Seed = if (match.player1Id != PLACEHOLDER_OPEN_DRAW_ID && match.player1Id != PLACEHOLDER_PREVIOUS_WINNER_ID) {
+        val p1Seed = if (match.player1Id > 0L || match.player1Id == USER_ID) {
             seededPlayerMap[match.player1Id]
         } else {
             null
         }
-        val p1CountryCode = when (match.player1Id) {
-            USER_ID -> userCountryCode
-            PLACEHOLDER_OPEN_DRAW_ID, PLACEHOLDER_PREVIOUS_WINNER_ID -> null
+        val p1CountryCode = when {
+            match.player1Id == USER_ID -> userCountryCode
+            match.player1Id < 0L -> null
             else -> allPlayersMap[match.player1Id]?.countryCode ?: Country.DEFAULT_CODE
         }
         val p1Skill = if (isP1User) userLevel else allPlayersMap[match.player1Id]?.skill ?: SkillLevel.DEFAULT.value
@@ -935,14 +947,14 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
                 player?.name ?: "CPU #${match.player2Id}"
             }
         }
-        val p2Seed = if (match.player2Id != PLACEHOLDER_OPEN_DRAW_ID && match.player2Id != PLACEHOLDER_PREVIOUS_WINNER_ID) {
+        val p2Seed = if (match.player2Id > 0L || match.player2Id == USER_ID) {
             seededPlayerMap[match.player2Id]
         } else {
             null
         }
-        val p2CountryCode = when (match.player2Id) {
-            USER_ID -> userCountryCode
-            PLACEHOLDER_OPEN_DRAW_ID, PLACEHOLDER_PREVIOUS_WINNER_ID -> null
+        val p2CountryCode = when {
+            match.player2Id == USER_ID -> userCountryCode
+            match.player2Id < 0L -> null
             else -> allPlayersMap[match.player2Id]?.countryCode ?: Country.DEFAULT_CODE
         }
         val p2Skill = if (isP2User) userLevel else allPlayersMap[match.player2Id]?.skill ?: SkillLevel.DEFAULT.value
@@ -1033,7 +1045,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
                     val currentMatches = tournamentMatchDao.getMatchesListForTournament(currentTournamentId)
                     if (currentMatches.isEmpty()) break
 
-                    val uncompleted = currentMatches.filter { !it.isCompleted }
+                    val uncompleted = currentMatches.filter { !it.isCompleted && (it.player1Id > 0L || it.player1Id == USER_ID) && (it.player2Id > 0L || it.player2Id == USER_ID) }
                     if (uncompleted.isNotEmpty()) {
                         val careerWithProfile = careerRepository.getCareerById(currentCareerId)
                         val userLevel = careerWithProfile?.career?.level?.coerceIn(1, 10) ?: SkillLevel.DEFAULT.value

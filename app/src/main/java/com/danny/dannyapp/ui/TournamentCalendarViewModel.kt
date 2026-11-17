@@ -220,7 +220,7 @@ class TournamentCalendarViewModel(application: Application) : AndroidViewModel(a
                             val currentMatches = tournamentMatchDao.getMatchesListForTournament(tournamentId)
                             if (currentMatches.isEmpty()) break
 
-                            val uncompleted = currentMatches.filter { !it.isCompleted }
+                            val uncompleted = currentMatches.filter { !it.isCompleted && (it.player1Id > 0L || it.player1Id == USER_ID) && (it.player2Id > 0L || it.player2Id == USER_ID) }
                             if (uncompleted.isNotEmpty()) {
                                 for (match in uncompleted) {
                                     val event = com.danny.dannyapp.domain.enums.TournamentEvent.valueOf(tournament.type)
