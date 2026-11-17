@@ -87,3 +87,17 @@ Beim Saisonwechsel (`createSeason(careerId)`):
   LIMIT 32
   ```
 * **Preisgelder:** Werden pro Turnier in der Tabelle `tournament_placements` (bzw. `event_placements`) erfasst und verweisen ebenfalls direkt auf die `players.id` bzw. `USER_ID = -1L`.
+
+---
+
+## 🌳 5. Persistente Turnierbaum-Speicherung & Fortschrittslogik
+
+* **Vollständige Baum-Generierung (`GenerateBracketUseCase`):**
+  - Für alle Turniere mit festem Turnierbaum (alle außer `UK_OPEN` und `EUROPEAN_OPEN`) werden beim ersten Aufruf von `GenerateBracketUseCase` bereits **alle Runden des Turniers** (von Runde 1 bis Finale bzw. Gruppenphase bis Finale) in `tournament_matches` angelegt und persistiert.
+  - Dabei werden Platzhalter wie `PLACEHOLDER_PREVIOUS_WINNER_ID` (`-999L`), Open-Draw-IDs oder Vorrunden-Platzhalter verwendet.
+  - `UK_OPEN` und `EUROPEAN_OPEN` behalten ihre offene Runden-für-Runden-Auslosung bei.
+* **Slot-Befüllung & Rundenfortschritt (`AdvanceTournamentRoundUseCase`):**
+  - Die aktive Runde wird als die erste Runde in `roundSequence` ermittelt, in der Matches mit echten Teilnehmern existieren und noch nicht alle abgeschlossen sind.
+  - Statt neue Match-Zeilen anzulegen, werden die bereits existierenden DB-Slots der nächsten Runde aus `tournamentMatchDao` geladen und deren `player1Id` / `player2Id` per `updateMatch` / `insertMatches` mit den Siegern / Verlierern der Vorrunde befüllt.
+  - Grand Slam of Darts und Qualifier-Turniere aktualisieren ihre bestehenden Match-Slots analog (Tag-1-Verlierer/Sieger für Tag 2/3, Gruppensieger für L16, etc.).
+
