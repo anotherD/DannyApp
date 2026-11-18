@@ -192,4 +192,6 @@
     <string name="settings_modern_match_card">Modernes Match-Kachel-Design</string>
     <string name="player_skill_short_format">L%d</string>
     <string name="tournament_order_name_format">#%1$d %2$s</string>
+    <string name="career_season_level_format">%1$s • %2$s</string>
+    <string name="group_table_rank_format">%d.</string>
 </resources>

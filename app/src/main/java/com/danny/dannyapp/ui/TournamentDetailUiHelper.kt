@@ -29,6 +29,7 @@ import com.danny.dannyapp.ui.model.PlayerUiInfo
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.divider.MaterialDivider
+import kotlin.math.abs
 import kotlin.math.min
 
 /**
@@ -220,8 +221,8 @@ object TournamentDetailUiHelper {
                 if (e1 == null) return false
                 val diffX = e2.x - e1.x
                 val diffY = e2.y - e1.y
-                if (Math.abs(diffX) > Math.abs(diffY)) {
-                    if (Math.abs(diffX) > swipeThreshold && Math.abs(velocityX) > swipeVelocityThreshold) {
+                if (abs(diffX) > abs(diffY)) {
+                    if (abs(diffX) > swipeThreshold && abs(velocityX) > swipeVelocityThreshold) {
                         if (diffX < 0) {
                             onSwipeLeft()
                         } else {

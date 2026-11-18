@@ -246,7 +246,7 @@ object TournamentBracketCardBuilder {
             }
 
             val tvRank = TextView(context).apply {
-                text = "${i + 1}."
+                text = context.getString(R.string.group_table_rank_format, i + 1)
                 textSize = 10f
                 typeface = if (i == 0) Typeface.DEFAULT_BOLD else Typeface.DEFAULT
                 setTextColor(

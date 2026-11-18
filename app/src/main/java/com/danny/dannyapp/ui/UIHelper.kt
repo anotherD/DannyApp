@@ -282,36 +282,40 @@ object UiHelper {
             player1Score.text = match.player1Score.toString()
             player2Score.text = match.player2Score.toString()
 
-            if (item.winnerId == match.player1Id) {
-                player1Name.setTypeface(null, Typeface.BOLD)
-                player1Score.setTypeface(null, Typeface.BOLD)
-                player1Name.setTextColor(colorTextHell)
-                player1Score.setTextColor(colorTextHell)
+            when (item.winnerId) {
+                match.player1Id -> {
+                    player1Name.setTypeface(null, Typeface.BOLD)
+                    player1Score.setTypeface(null, Typeface.BOLD)
+                    player1Name.setTextColor(colorTextHell)
+                    player1Score.setTextColor(colorTextHell)
 
-                player2Name.setTypeface(null, Typeface.NORMAL)
-                player2Score.setTypeface(null, Typeface.NORMAL)
-                player2Name.setTextColor(if (useModern) colorTextGedaempft else colorTextHell)
-                player2Score.setTextColor(if (useModern) colorTextGedaempft else colorTextHell)
-            } else if (item.winnerId == match.player2Id) {
-                player2Name.setTypeface(null, Typeface.BOLD)
-                player2Score.setTypeface(null, Typeface.BOLD)
-                player2Name.setTextColor(colorTextHell)
-                player2Score.setTextColor(colorTextHell)
+                    player2Name.setTypeface(null, Typeface.NORMAL)
+                    player2Score.setTypeface(null, Typeface.NORMAL)
+                    player2Name.setTextColor(if (useModern) colorTextGedaempft else colorTextHell)
+                    player2Score.setTextColor(if (useModern) colorTextGedaempft else colorTextHell)
+                }
+                match.player2Id -> {
+                    player2Name.setTypeface(null, Typeface.BOLD)
+                    player2Score.setTypeface(null, Typeface.BOLD)
+                    player2Name.setTextColor(colorTextHell)
+                    player2Score.setTextColor(colorTextHell)
 
-                player1Name.setTypeface(null, Typeface.NORMAL)
-                player1Score.setTypeface(null, Typeface.NORMAL)
-                player1Name.setTextColor(if (useModern) colorTextGedaempft else colorTextHell)
-                player1Score.setTextColor(if (useModern) colorTextGedaempft else colorTextHell)
-            } else {
-                player1Name.setTypeface(null, Typeface.NORMAL)
-                player1Score.setTypeface(null, Typeface.NORMAL)
-                player1Name.setTextColor(colorTextHell)
-                player1Score.setTextColor(colorTextHell)
+                    player1Name.setTypeface(null, Typeface.NORMAL)
+                    player1Score.setTypeface(null, Typeface.NORMAL)
+                    player1Name.setTextColor(if (useModern) colorTextGedaempft else colorTextHell)
+                    player1Score.setTextColor(if (useModern) colorTextGedaempft else colorTextHell)
+                }
+                else -> {
+                    player1Name.setTypeface(null, Typeface.NORMAL)
+                    player1Score.setTypeface(null, Typeface.NORMAL)
+                    player1Name.setTextColor(colorTextHell)
+                    player1Score.setTextColor(colorTextHell)
 
-                player2Name.setTypeface(null, Typeface.NORMAL)
-                player2Score.setTypeface(null, Typeface.NORMAL)
-                player2Name.setTextColor(colorTextHell)
-                player2Score.setTextColor(colorTextHell)
+                    player2Name.setTypeface(null, Typeface.NORMAL)
+                    player2Score.setTypeface(null, Typeface.NORMAL)
+                    player2Name.setTextColor(colorTextHell)
+                    player2Score.setTextColor(colorTextHell)
+                }
             }
         } else {
             player1Score.text = "-"

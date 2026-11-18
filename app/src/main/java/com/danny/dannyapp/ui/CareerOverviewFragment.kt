@@ -63,7 +63,7 @@ class CareerOverviewFragment : Fragment(R.layout.fragment_career_overview) {
                             careerName = career.name
 
                             tvCareerOverviewName.text = career.name
-                            tvCareerOverviewMeta.text = "${getString(R.string.season_format, career.season)} • ${getString(R.string.career_level_format, career.level)}"
+                            tvCareerOverviewMeta.text = getString(R.string.career_season_level_format, getString(R.string.season_format, career.season), getString(R.string.career_level_format, career.level))
 
                             if (!careerWithProfile.playerName.isNullOrBlank()) {
                                 tvCareerOverviewPlayer.visibility = View.VISIBLE
