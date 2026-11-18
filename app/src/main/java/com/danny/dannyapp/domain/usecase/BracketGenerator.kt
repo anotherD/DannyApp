@@ -73,10 +73,10 @@ object BracketGenerator {
      * Erzeugt die Standard-Setzbaum-Reihenfolge (Faltungsalgorithmus) für n Seeds,
      * sodass Seed 1 und Seed 2 frühestens im Finale aufeinandertreffen.
      */
-    fun buildStandardSeedOrder(n: Int): List<Int> {
+    fun buildStandardSeedOrder(seedCount: Int): List<Int> {
         var order = listOf(0)
         var currentSize = 1
-        while (currentSize < n) {
+        while (currentSize < seedCount) {
             val nextSize = currentSize * 2
             order = order.flatMap { seed ->
                 listOf(seed, nextSize - 1 - seed)
@@ -159,15 +159,15 @@ object BracketGenerator {
         round: TournamentRound,
         seededIds: List<Long>
     ): List<MatchPairing> {
-        val n = seededIds.size
-        val seedOrder = buildStandardSeedOrder(n / 2)
-        return (0 until n / 2).map { matchIdx ->
+        val participantCount = seededIds.size
+        val seedOrder = buildStandardSeedOrder(participantCount / 2)
+        return (0 until participantCount / 2).map { matchIdx ->
             val seedIndex = seedOrder[matchIdx]
             MatchPairing(
                 round = round,
                 matchIndex = matchIdx,
                 player1Id = seededIds.getOrElse(seedIndex) { 0L },
-                player2Id = seededIds.getOrElse(n - 1 - seedIndex) { 0L }
+                player2Id = seededIds.getOrElse(participantCount - 1 - seedIndex) { 0L }
             )
         }
     }
@@ -238,14 +238,14 @@ object BracketGenerator {
             )
 
             // Match 2 * i + 1 (Unseeded vs Unseeded)
-            val p1 = if (unseeded.isNotEmpty()) unseeded.removeAt(0) else 0L
-            val p2 = if (unseeded.isNotEmpty()) unseeded.removeAt(0) else 0L
+            val player1Id = if (unseeded.isNotEmpty()) unseeded.removeAt(0) else 0L
+            val player2Id = if (unseeded.isNotEmpty()) unseeded.removeAt(0) else 0L
             pairings.add(
                 MatchPairing(
                     round = round,
                     matchIndex = 2 * i + 1,
-                    player1Id = p1,
-                    player2Id = p2
+                    player1Id = player1Id,
+                    player2Id = player2Id
                 )
             )
         }
@@ -305,15 +305,15 @@ object BracketGenerator {
         val unseededByes = byePlayers.drop(2 * boardCount)
         val freePool = (unseededByes + prelimWinners).shuffled()
 
-        for (b in 0 until boardCount) {
-            val seedTop = byePlayers.getOrNull(b) ?: 0L
-            val seedBottom = byePlayers.getOrNull(2 * boardCount - 1 - b) ?: 0L
-            val slots = LongArray(6) { slotIndex -> freePool.getOrElse(b * 6 + slotIndex) { 0L } }
+        for (boardIndex in 0 until boardCount) {
+            val seedTop = byePlayers.getOrNull(boardIndex) ?: 0L
+            val seedBottom = byePlayers.getOrNull(2 * boardCount - 1 - boardIndex) ?: 0L
+            val slots = LongArray(6) { slotIndex -> freePool.getOrElse(boardIndex * 6 + slotIndex) { 0L } }
 
-            pairings.add(MatchPairing(round = TournamentRound.QUAL_R1, matchIndex = 4 * b + 0, player1Id = seedTop, player2Id = slots[0]))
-            pairings.add(MatchPairing(round = TournamentRound.QUAL_R1, matchIndex = 4 * b + 1, player1Id = slots[1], player2Id = slots[2]))
-            pairings.add(MatchPairing(round = TournamentRound.QUAL_R1, matchIndex = 4 * b + 2, player1Id = slots[3], player2Id = slots[4]))
-            pairings.add(MatchPairing(round = TournamentRound.QUAL_R1, matchIndex = 4 * b + 3, player1Id = seedBottom, player2Id = slots[5]))
+            pairings.add(MatchPairing(round = TournamentRound.QUAL_R1, matchIndex = 4 * boardIndex + 0, player1Id = seedTop, player2Id = slots[0]))
+            pairings.add(MatchPairing(round = TournamentRound.QUAL_R1, matchIndex = 4 * boardIndex + 1, player1Id = slots[1], player2Id = slots[2]))
+            pairings.add(MatchPairing(round = TournamentRound.QUAL_R1, matchIndex = 4 * boardIndex + 2, player1Id = slots[3], player2Id = slots[4]))
+            pairings.add(MatchPairing(round = TournamentRound.QUAL_R1, matchIndex = 4 * boardIndex + 3, player1Id = seedBottom, player2Id = slots[5]))
         }
         return pairings
     }
@@ -337,12 +337,12 @@ object BracketGenerator {
         if (participantCount > 8 * boardCount) {
             val prelimMatchCount = participantCount - 8 * boardCount
             val prelimPlayers = oomSortedIds.takeLast(2 * prelimMatchCount)
-            return (0 until prelimMatchCount).map { i ->
+            return (0 until prelimMatchCount).map { matchIndex ->
                 MatchPairing(
                     round = TournamentRound.QUAL_PRELIM,
-                    matchIndex = i,
-                    player1Id = prelimPlayers[i],
-                    player2Id = prelimPlayers[2 * prelimMatchCount - 1 - i]
+                    matchIndex = matchIndex,
+                    player1Id = prelimPlayers[matchIndex],
+                    player2Id = prelimPlayers[2 * prelimMatchCount - 1 - matchIndex]
                 )
             }
         } else {

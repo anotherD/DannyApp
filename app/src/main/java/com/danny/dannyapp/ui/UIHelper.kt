@@ -55,11 +55,11 @@ object UIHelper {
             bottom: Int,
             paint: Paint
         ) {
-            val b = drawable
+            val boundDrawable = drawable
             canvas.withSave {
-                val transY = y + (paint.fontMetricsInt.ascent + paint.fontMetricsInt.descent - b.bounds.bottom) / 2
+                val transY = y + (paint.fontMetricsInt.ascent + paint.fontMetricsInt.descent - boundDrawable.bounds.bottom) / 2
                 translate(x, transY.toFloat())
-                b.draw(this)
+                boundDrawable.draw(this)
             }
         }
     }

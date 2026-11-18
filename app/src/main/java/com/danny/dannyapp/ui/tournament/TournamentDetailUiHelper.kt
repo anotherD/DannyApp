@@ -237,8 +237,8 @@ object TournamentDetailUiHelper {
         })
 
         val rvTouchListener = object : RecyclerView.SimpleOnItemTouchListener() {
-            override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
-                return gestureDetector.onTouchEvent(e)
+            override fun onInterceptTouchEvent(rv: RecyclerView, event: MotionEvent): Boolean {
+                return gestureDetector.onTouchEvent(event)
             }
         }
         recyclerViews.forEach { rv ->
@@ -257,22 +257,22 @@ object TournamentDetailUiHelper {
     }
 
     /**
-     * Resolves the target match index in round [r] + 1 for match [m] in round [r].
+     * Resolves the target match index in round [roundIndex] + 1 for match [matchIndex] in round [roundIndex].
      *
      * @param roundsMatches Full list of round match UI models.
-     * @param r Current round index.
-     * @param m Current match index within round [r].
-     * @return Target match index in round [r] + 1.
+     * @param roundIndex Current round index.
+     * @param matchIndex Current match index within round [roundIndex].
+     * @return Target match index in round [roundIndex] + 1.
      */
-    fun resolveBracketTargetMatchIndex(roundsMatches: List<List<MatchUiModel>>, r: Int, m: Int): Int {
-        val roundMatchesR = roundsMatches.getOrNull(r) ?: return m
-        val roundMatchesNext = roundsMatches.getOrNull(r + 1) ?: return m
+    fun resolveBracketTargetMatchIndex(roundsMatches: List<List<MatchUiModel>>, roundIndex: Int, matchIndex: Int): Int {
+        val roundMatchesR = roundsMatches.getOrNull(roundIndex) ?: return matchIndex
+        val roundMatchesNext = roundsMatches.getOrNull(roundIndex + 1) ?: return matchIndex
         val sizeCurr = roundMatchesR.size
         val sizeNext = roundMatchesNext.size
-        val matchItem = roundMatchesR.getOrNull(m)
+        val matchItem = roundMatchesR.getOrNull(matchIndex)
 
         return when {
-            sizeCurr == sizeNext * 2 -> m / 2
+            sizeCurr == sizeNext * 2 -> matchIndex / 2
             sizeCurr == sizeNext -> {
                 if (matchItem?.isCompleted == true && (matchItem.winnerId ?: 0L) > 0L) {
                     val idx = roundMatchesNext.indexOfFirst { it.player1.id == matchItem.winnerId || it.player2.id == matchItem.winnerId }
@@ -282,10 +282,10 @@ object TournamentDetailUiHelper {
                 }
                 val isL48Round = matchItem?.match?.round == TournamentRound.L48.name || roundMatchesR.firstOrNull()?.match?.round == TournamentRound.L48.name
                 if (isL48Round) {
-                    val targetIdx = AdvanceTournamentRoundUseCase.resolveNextRoundSlot(TournamentEvent.EUROPEAN_TOUR, TournamentRound.L48, m).first
-                    if (targetIdx >= 0) targetIdx else m
+                    val targetIdx = AdvanceTournamentRoundUseCase.resolveNextRoundSlot(TournamentEvent.EUROPEAN_TOUR, TournamentRound.L48, matchIndex).first
+                    if (targetIdx >= 0) targetIdx else matchIndex
                 } else {
-                    m
+                    matchIndex
                 }
             }
             sizeCurr < sizeNext -> {
@@ -304,10 +304,10 @@ object TournamentDetailUiHelper {
                 if (sizeNext == 4) {
                     min(3, sizeNext - 1)
                 } else {
-                    (sizeNext - sizeCurr + m).coerceIn(0, sizeNext - 1)
+                    (sizeNext - sizeCurr + matchIndex).coerceIn(0, sizeNext - 1)
                 }
             }
-            else -> m / 2
+            else -> matchIndex / 2
         }
     }
 

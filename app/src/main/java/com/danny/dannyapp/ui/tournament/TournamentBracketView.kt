@@ -254,12 +254,12 @@ class TournamentBracketView @JvmOverloads constructor(
      * Aktualisiert die Kachel-Farbschemata ohne Neuaufbau.
      */
     fun refreshStyles() {
-        for (r in matchViews.indices) {
-            val views = matchViews[r]
-            val models = roundsMatches.getOrNull(r) ?: continue
-            for (m in views.indices) {
-                val item = models.getOrNull(m) ?: continue
-                bindMatchView(views[m], item)
+        for (roundIndex in matchViews.indices) {
+            val views = matchViews[roundIndex]
+            val models = roundsMatches.getOrNull(roundIndex) ?: continue
+            for (matchIndex in views.indices) {
+                val item = models.getOrNull(matchIndex) ?: continue
+                bindMatchView(views[matchIndex], item)
             }
         }
         updateHeaderStyles()
@@ -268,8 +268,8 @@ class TournamentBracketView @JvmOverloads constructor(
 
     private fun rebuildViews() {
         for (list in matchViews) {
-            for (v in list) {
-                removeView(v)
+            for (childView in list) {
+                removeView(childView)
             }
         }
         matchViews = emptyList()
@@ -310,20 +310,20 @@ class TournamentBracketView @JvmOverloads constructor(
     }
 
     private fun rebuildHeaderViews() {
-        for (v in headerViews) {
-            removeView(v)
+        for (headerView in headerViews) {
+            removeView(headerView)
         }
         val newHeaderViews = mutableListOf<View>()
-        for ((r, displayName) in headerDisplayNames.withIndex()) {
-            val status = headerStatuses.getOrNull(r) ?: RoundStatus.PENDING
-            val headerView = createHeaderView(r, displayName, status)
+        for ((roundIndex, displayName) in headerDisplayNames.withIndex()) {
+            val status = headerStatuses.getOrNull(roundIndex) ?: RoundStatus.PENDING
+            val headerView = createHeaderView(roundIndex, displayName, status)
             addView(headerView)
             newHeaderViews.add(headerView)
         }
         headerViews = newHeaderViews
     }
 
-    private fun createHeaderView(r: Int, displayName: String, status: RoundStatus): View {
+    private fun createHeaderView(roundIndex: Int, displayName: String, status: RoundStatus): View {
         val textView = TextView(context).apply {
             text = displayName
             textSize = 12f
@@ -336,16 +336,16 @@ class TournamentBracketView @JvmOverloads constructor(
             setPadding(pxPaddingH, pxPaddingV, pxPaddingH, pxPaddingV)
 
             setOnClickListener {
-                selectRound(r, animate = true)
-                onRoundSelected?.invoke(r)
+                selectRound(roundIndex, animate = true)
+                onRoundSelected?.invoke(roundIndex)
             }
         }
-        styleHeaderView(textView, r, status)
+        styleHeaderView(textView, roundIndex, status)
         return textView
     }
 
-    private fun styleHeaderView(textView: TextView, r: Int, status: RoundStatus) {
-        val isSelected = (r == selectedRoundIndex)
+    private fun styleHeaderView(textView: TextView, roundIndex: Int, status: RoundStatus) {
+        val isSelected = (roundIndex == selectedRoundIndex)
         val bgRes = when (status) {
             RoundStatus.COMPLETED -> R.color.status_completed
             RoundStatus.ACTIVE -> R.color.status_active
@@ -371,10 +371,10 @@ class TournamentBracketView @JvmOverloads constructor(
     }
 
     private fun updateHeaderStyles() {
-        for ((r, view) in headerViews.withIndex()) {
+        for ((roundIndex, view) in headerViews.withIndex()) {
             val textView = view as? TextView ?: continue
-            val status = headerStatuses.getOrNull(r) ?: RoundStatus.PENDING
-            styleHeaderView(textView, r, status)
+            val status = headerStatuses.getOrNull(roundIndex) ?: RoundStatus.PENDING
+            styleHeaderView(textView, roundIndex, status)
         }
     }
 
@@ -482,9 +482,9 @@ class TournamentBracketView @JvmOverloads constructor(
             }
 
             return if (prevViewCount == currentViewCount * 2) {
-                val y1 = computeIntegerFocusY(roundIndex - 1, 2 * matchIndex, focusInt)
-                val y2 = computeIntegerFocusY(roundIndex - 1, 2 * matchIndex + 1, focusInt)
-                (y1 + y2) / 2f
+                val topChildY = computeIntegerFocusY(roundIndex - 1, 2 * matchIndex, focusInt)
+                val bottomChildY = computeIntegerFocusY(roundIndex - 1, 2 * matchIndex + 1, focusInt)
+                (topChildY + bottomChildY) / 2f
             } else if (prevViewCount == currentViewCount) {
                 paddingTopPx + matchIndex * baseSlotHeight + tileHeight / 2f
             } else {
@@ -555,9 +555,9 @@ class TournamentBracketView @JvmOverloads constructor(
         val headerChildWidthSpec = MeasureSpec.makeMeasureSpec(columnWidth, MeasureSpec.AT_MOST)
         val headerChildHeightSpec = MeasureSpec.makeMeasureSpec(headerChildHeightPx, MeasureSpec.EXACTLY)
 
-        for ((r, list) in matchViews.withIndex()) {
-            val roundMatches = roundsMatches.getOrNull(r)
-            val isOpenDraw = roundMatches.isNullOrEmpty() && (openDrawInfoMap.containsKey(r) || openEntrantsGroups.isNotEmpty() || isOpenDrawInfoVisible)
+        for ((roundIndex, list) in matchViews.withIndex()) {
+            val roundMatches = roundsMatches.getOrNull(roundIndex)
+            val isOpenDraw = roundMatches.isNullOrEmpty() && (openDrawInfoMap.containsKey(roundIndex) || openEntrantsGroups.isNotEmpty() || isOpenDrawInfoVisible)
             for (child in list) {
                 if (isOpenDraw) {
                     child.measure(childWidthSpec, infoCardHeightSpec)
@@ -584,9 +584,9 @@ class TournamentBracketView @JvmOverloads constructor(
         val tileHeight = 68f * density
         val headerAreaHeight = 40f * density
 
-        for (r in headerViews.indices) {
-            val headerView = headerViews[r]
-            val columnCenterX = centerX + (r - focusedRoundFloat) * columnStepX
+        for (roundIndex in headerViews.indices) {
+            val headerView = headerViews[roundIndex]
+            val columnCenterX = centerX + (roundIndex - focusedRoundFloat) * columnStepX
             val measuredW = headerView.measuredWidth
             val measuredH = headerView.measuredHeight
             val hLeft = (columnCenterX - measuredW / 2f).toInt()
@@ -599,30 +599,30 @@ class TournamentBracketView @JvmOverloads constructor(
         val maxScroll = maxScrollYForCurrentFocus()
         scrollYOffset = scrollYOffset.coerceIn(0f, maxScroll)
 
-        for (r in matchViews.indices) {
-            val columnCenterX = centerX + (r - focusedRoundFloat) * columnStepX
+        for (roundIndex in matchViews.indices) {
+            val columnCenterX = centerX + (roundIndex - focusedRoundFloat) * columnStepX
             val childLeft = (columnCenterX - columnWidth / 2f).toInt()
             val childRight = childLeft + columnWidth
 
-            val roundMatches = roundsMatches.getOrNull(r)
-            val isOpenDraw = roundMatches.isNullOrEmpty() && (openDrawInfoMap.containsKey(r) || openEntrantsGroups.isNotEmpty() || isOpenDrawInfoVisible)
+            val roundMatches = roundsMatches.getOrNull(roundIndex)
+            val isOpenDraw = roundMatches.isNullOrEmpty() && (openDrawInfoMap.containsKey(roundIndex) || openEntrantsGroups.isNotEmpty() || isOpenDrawInfoVisible)
 
-            val diff = focusedRoundFloat - r
+            val diff = focusedRoundFloat - roundIndex
             val scale = if (diff <= 0f) {
                 1.0f
             } else {
                 (1.0f - 0.54f * diff).coerceIn(0.46f, 1.0f)
             }
 
-            val views = matchViews[r]
-            for (m in views.indices) {
-                val childView = views[m]
+            val views = matchViews[roundIndex]
+            for (matchIndex in views.indices) {
+                val childView = views[matchIndex]
                 if (isOpenDraw) {
                     val childTop = (paddingTop + headerAreaHeight + 8f * density).toInt()
                     val childBottom = childTop + childView.measuredHeight
                     childView.layout(childLeft, childTop, childRight, childBottom)
                 } else {
-                    val childCenterY = computeMatchCenterY(r, m, focusedRoundFloat) - scrollYOffset
+                    val childCenterY = computeMatchCenterY(roundIndex, matchIndex, focusedRoundFloat) - scrollYOffset
                     val childTop = (childCenterY - tileHeight / 2f).toInt()
                     val childBottom = childTop + tileHeight.toInt()
 
@@ -788,23 +788,23 @@ class TournamentBracketView @JvmOverloads constructor(
         return true
     }
 
-    override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
-        when (ev.actionMasked) {
+    override fun onInterceptTouchEvent(event: MotionEvent): Boolean {
+        when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
-                downX = ev.x
-                downY = ev.y
-                lastTouchX = ev.x
-                lastTouchY = ev.y
+                downX = event.x
+                downY = event.y
+                lastTouchX = event.x
+                lastTouchY = event.y
                 isBeingDragged = false
                 dragDirection = 0
                 overScroller.forceFinished(true)
                 focusedAnimator?.cancel()
                 initOrResetVelocityTracker()
-                velocityTracker?.addMovement(ev)
+                velocityTracker?.addMovement(event)
             }
             MotionEvent.ACTION_MOVE -> {
-                val dx = abs(ev.x - downX)
-                val dy = abs(ev.y - downY)
+                val dx = abs(event.x - downX)
+                val dy = abs(event.y - downY)
                 if (dx > touchSlop || dy > touchSlop) {
                     isBeingDragged = true
                     dragDirection = if (dx > dy) 1 else 2
@@ -813,32 +813,32 @@ class TournamentBracketView @JvmOverloads constructor(
                 }
             }
         }
-        return super.onInterceptTouchEvent(ev)
+        return super.onInterceptTouchEvent(event)
     }
 
-    override fun onTouchEvent(ev: MotionEvent): Boolean {
+    override fun onTouchEvent(event: MotionEvent): Boolean {
         initOrResetVelocityTracker()
-        velocityTracker?.addMovement(ev)
+        velocityTracker?.addMovement(event)
 
-        when (ev.actionMasked) {
+        when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
-                downX = ev.x
-                downY = ev.y
-                lastTouchX = ev.x
-                lastTouchY = ev.y
+                downX = event.x
+                downY = event.y
+                lastTouchX = event.x
+                lastTouchY = event.y
                 isBeingDragged = false
                 dragDirection = 0
                 return true
             }
             MotionEvent.ACTION_MOVE -> {
-                val dx = ev.x - lastTouchX
-                val dy = ev.y - lastTouchY
-                lastTouchX = ev.x
-                lastTouchY = ev.y
+                val dx = event.x - lastTouchX
+                val dy = event.y - lastTouchY
+                lastTouchX = event.x
+                lastTouchY = event.y
 
                 if (!isBeingDragged) {
-                    val totalDx = abs(ev.x - downX)
-                    val totalDy = abs(ev.y - downY)
+                    val totalDx = abs(event.x - downX)
+                    val totalDy = abs(event.y - downY)
                     if (totalDx > touchSlop || totalDy > touchSlop) {
                         isBeingDragged = true
                         dragDirection = if (totalDx > totalDy) 1 else 2
@@ -873,11 +873,11 @@ class TournamentBracketView @JvmOverloads constructor(
                     if (dragDirection == 1) {
                         val numRounds = roundsMatches.size
                         if (numRounds > 0) {
-                            val f = focusedRoundFloat
+                            val currentFocus = focusedRoundFloat
                             val targetRound = when {
-                                vx < -minFlingVelocity -> ceil(f).toInt().coerceAtMost(numRounds - 1)
-                                vx > minFlingVelocity -> floor(f).toInt().coerceAtLeast(0)
-                                else -> f.roundToInt().coerceIn(0, numRounds - 1)
+                                vx < -minFlingVelocity -> ceil(currentFocus).toInt().coerceAtMost(numRounds - 1)
+                                vx > minFlingVelocity -> floor(currentFocus).toInt().coerceAtLeast(0)
+                                else -> currentFocus.roundToInt().coerceIn(0, numRounds - 1)
                             }
                             val previousRoundIndex = selectedRoundIndex
                             selectRound(targetRound, animate = true)
@@ -912,7 +912,7 @@ class TournamentBracketView @JvmOverloads constructor(
                 return true
             }
         }
-        return super.onTouchEvent(ev)
+        return super.onTouchEvent(event)
     }
 
     override fun computeScroll() {

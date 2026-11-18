@@ -345,12 +345,12 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         } else emptyMap()
 
         val openDrawInfoMap = mutableMapOf<Int, Pair<String, List<EntrantGroupInfo>>>()
-        for ((r, roundKey) in availableRounds.withIndex()) {
+        for ((roundIndex, roundKey) in availableRounds.withIndex()) {
             val matchesInRound = allMatches.filter { it.round == roundKey }
             if (isOpenDrawRoundPending(event, roundKey, matchesInRound)) {
-                val prevName = availableRoundDisplayNames.getOrNull(r - 1) ?: ""
+                val prevName = availableRoundDisplayNames.getOrNull(roundIndex - 1) ?: ""
                 val groups = getUkOpenEntrantGroups(currentTournamentId, careerId, roundKey, allMatches, event)
-                openDrawInfoMap[r] = prevName to groups
+                openDrawInfoMap[roundIndex] = prevName to groups
             }
         }
 
