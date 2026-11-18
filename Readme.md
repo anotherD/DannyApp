@@ -47,12 +47,30 @@ Ausführliche Fachkonzepte, Forschungsberichte und Architekturbeschreibungen bef
 - [ ] **Saison-Abschluss & Folgesaisons (Basis):**
     - [ ] Berechnung der Tour Cards für Saison N+1 anhand der 2-Jahres-Order-of-Merit (Top 64 behalten Card, 2. Jahr verfällt).
     - [ ] Rudimentäre Q-School-Simulation (zufällige Auffüllung neuer Tour-Card-Inhaber).
-- [ ] **Karriere-Einstellungen & Turnier-Details:**
+- [ ] **Karriere-Verwaltung & Übersicht ausbauen:**
+    - [ ] Auf der Karrieren-Liste (`CareersActivity`) zusätzlich anzeigen, bei welchem Turnier und welcher Runde die Karriere aktuell steht.
+    - [ ] Karriere-Name nachträglich bearbeitbar machen.
+    - [ ] Karriere-Level hochsetzen ermöglichen (z. B. gezielt nach Saisonende, damit die Karriere bei steigendem eigenem Können spannend bleibt).
+    - [ ] Karriere-Übersicht (`CareerOverviewFragment`) um zentrale Infos ergänzen:
+        - [ ] Direktanzeige „Nächstes Match“ zum schnellen Losspielen (über Einstellungen ein-/ausschaltbar, um das Turnier-Feeling bei Bedarf zu erhalten).
+        - [ ] Aktuelle Saison sowie eigene Positionen in den Ranglisten (`OOM`, `PT OOM`, `PC OOM`, `ET OOM`).
+        - [ ] Turnier-Qualifikationsübersicht mit Ampelstatus (Grün = fix qualifiziert, Gelb = aktuell drin/unsicher, Rot = nicht qualifiziert) – mit Caching/Performance-Fokus.
+        - [ ] Eigener 3-Dart-Average (sobald Spielstatistiken erfasst werden).
+- [ ] **Turnier-Details, Infos & Rückblick:**
     - [ ] Modifizierbare Match-Distanzen vor Karrierestart (z. B. 50 % / 75 % / 100 % Distanz für kürzere Spielzeiten).
     - [ ] Turnier-Beschreibungen in der Vorschau um Qualifikations-Boni ergänzen (z. B. *„Sieger qualifiziert sich für Grand Slam of Darts“*).
-- [ ] **UI-Polish & Branding:**
-    - [ ] Eigenes App-Icon (Launcher-Icon & Startseiten-Logo finalisieren).
-    - [ ] Toasts durch einheitliche UI-Hinweise (z. B. Material `Snackbar` oder eigene Status-Banner) ersetzen (portierbar & moderner).
+    - [ ] Turnier-Info-Dialog erweitern:
+        - [ ] Teilnehmerliste mit Qualifikationsweg und Setzposition pro Spieler anzeigen (live aktualisiert für bereits fix qualifizierte Spieler + temporärer Stand).
+        - [ ] Bei den Runden-Preisgeldern die Ranglisten-Ausnahmen anzeigen (z. B. £0 bei Auftaktniederlage gesetzter Spieler auf der European Tour).
+    - [ ] Im Turnier-Rückblick (abgeschlossene Turniere) optional alle eigenen Spiele dieses Turniers gesammelt anzeigen.
+- [ ] **UI-Polish, Navigation & Branding:**
+    - [ ] Finaler App-Name, eigenes Launcher-Icon und überarbeitete, moderne Startseite (`MainActivity`).
+    - [ ] Match-Nummer-Badge als echte integrierte Ausbeulung der Match-Kachel gestalten (statt darübergelagertem Badge).
+    - [ ] Eindeutige Match-Nummerierung einführen (entweder mit Runden-Präfix wie `#L64-1` oder fortlaufend durch das gesamte Turnier).
+    - [ ] Horizontales Ausfaden (`fadingEdge`) an den Bildschirmrändern links/rechts für horizontal scrollbare Elemente (Turnierbaum-Kacheln, Runden-Pills, Ranglisten-Pills).
+    - [ ] Einheitliches Chip-Auswahl-Verhalten angleichen: Runden-Chips (aktuell Rahmen = Auswahl, Hintergrund = Status) und Ranglisten-Chips (Hintergrund = Auswahl) auf einen konsistenten Android-Standard bringen.
+    - [ ] Material 3 Expressive Motion: Taktilen Spring-/Jump-Effekt (`SpringAnimation` zentral in `UiHelper`) gezielt für primäre Buttons, FABs und Filter-Chips einbauen (nicht für scrollbare Listen-Kacheln).
+    - [ ] Toasts durch einheitliche UI-Hinweise (z. B. Material `Snackbar` oder eigene Status-Banner) ersetzen.
 - [ ] **Spieler-Detailansicht:** Klick auf einen Spielernamen (in Turnieren, Ranglisten oder Spielerliste) öffnet die Detailseite mit Karriere-Stats und Erfolgen.
 - [ ] **Match-Detailansicht:** Klick auf ein abgeschlossenes oder laufendes Match öffnet die Match-Statistiken (Leg-/Set-Verlauf, Averages, Check-outs).
 
@@ -60,8 +78,11 @@ Ausführliche Fachkonzepte, Forschungsberichte und Architekturbeschreibungen bef
 
 ## 🚀 Geplante Ausbaustufen (Roadmap)
 
-### 1. Realismus & Karrieretiefe
+### 1. Realismus, Simulation & Karrieretiefe
 - [ ] **Initiale Order of Merit (Karrierestart):** Checkbox beim Anlegen einer Karriere (Standard: aktiv), um mit realen `players.csv`-Preisgeldern zu starten und Vorjahrespreisgelder (`yeartodate2025`) über die Saison hinweg anteilig (mit Major-Gewichtung) abzuschmelzen.
+- [ ] **Erweiterte Simulations-Anzeige (Konfigurierbar):**
+    - [ ] Im Simulations-Overlay anzeigen, welche Runde gerade simuliert wird (in den Einstellungen ein-/ausschaltbar).
+    - [ ] Optionale(Settings) Live-Simulation der CPU-Matches: Match wird markiert, Ergebnis poppt auf, konfigurierbare Wartezeit (z. B. 1–3 Sekunden oder deaktivierbar), weiter zum nächsten Match.
 - [ ] **Turnier-Absagen & Antritts-Logik:**
     - [ ] Option für den User, einzelne Turniere abzusagen (inkl. Nachrücker-Regelung).
     - [ ] Dynamische CPU-Absagen (Top-Stars lassen öfter Players Championships aus; Spieler spielen häufiger, wenn ihre Major-Qualifikation oder Tour Card wackelt).
@@ -75,12 +96,12 @@ Ausführliche Fachkonzepte, Forschungsberichte und Architekturbeschreibungen bef
 ### 2. Spielerdatenbank & CSV-Pipeline (`scripts/`)
 - [ ] **Python-Generator-Script ins Repo aufnehmen (`scripts/`):**
     - [ ] Gewichtete Skill-Berechnung aus den Preisgeldern der letzten Jahre statt reiner Gesamtsumme.
-    - [ ] Manuelle Skill-Overrides im Script oder bessere Logik der Skillberechnung (z. B. für Top-Spieler mit wenig Turnierteilnahmen wie Gary Anderson: wenn man nur nach preisgeld den skill berechnet, bekommt er einen zu schwachen skill Wert).
+    - [ ] Manuelle Skill-Overrides im Script oder bessere Logik der Skillberechnung (z. B. für Top-Spieler mit wenig Turnierteilnahmen wie Gary Anderson).
 - [ ] **Spieler-Verwaltung in der App & Import-Logik:**
     - [ ] Spieler in der App bearbeitbar machen & eigene Custom-Spieler anlegen (`is_custom` / `manual_skill_override` schützen vor CSV-Überschreibung).
     - [ ] Spieler-Profil erweitern (Geburtsdatum, Spielerbild/Avatar).
     - [ ] Soft-Delete (`is_active = false`) beim CSV-Import für ausgeschiedene Spieler (Tour Card in Stammdaten entziehen, laufende Karrieren sauber auslaufen lassen).
-    - [ ] Erweiterte regionale Qualifier-Pools für die WM (Women's Series, Asian Tour, African Qualifier, Challenge/Development Tour).
+    - [ ] Erweiterte regionale Qualifier-Pools für die WM und weitere Turniere (Women's Series, Asian Tour, African Qualifier, Challenge/Development Tour).
 
 ---
 
