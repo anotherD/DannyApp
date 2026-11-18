@@ -26,8 +26,7 @@ import com.danny.dannyapp.domain.usecase.CalculateGroupStandingsUseCase
 import com.danny.dannyapp.domain.usecase.GenerateBracketUseCase
 import com.danny.dannyapp.domain.usecase.GetTournamentSummaryUseCase
 import com.danny.dannyapp.domain.model.GroupStandingEntry
-import com.danny.dannyapp.domain.usecase.MatchScoreValidator
-import com.danny.dannyapp.domain.usecase.SimulateCpuMatchUseCase
+import com.danny.dannyapp.domain.usecase.CompleteMatchUseCase
 import com.danny.dannyapp.domain.usecase.TournamentProgressionUseCase
 import com.danny.dannyapp.domain.usecase.TournamentQualificationUseCase
 import com.danny.dannyapp.ui.enums.RoundStatus
@@ -134,7 +133,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
     private val careerRepository = CareerRepository(application)
 
     private val generateBracketUseCase = GenerateBracketUseCase(application)
-    private val simulateCpuMatchUseCase = SimulateCpuMatchUseCase(application)
+    private val completeMatchUseCase = CompleteMatchUseCase(application)
     private val advanceTournamentRoundUseCase = AdvanceTournamentRoundUseCase(application)
     private val tournamentProgressionUseCase = TournamentProgressionUseCase(application)
     private val tournamentQualificationUseCase = TournamentQualificationUseCase(application)
@@ -352,7 +351,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
 
         // Trigger Auto-Simulate if needed
         if (autoSimulateCpu && hasOpenCpuMatchesInActiveRound) {
-            simulateCpuMatchUseCase.simulateAllCpuMatches(currentTournamentId)
+            completeMatchUseCase.simulateAllOpenCpuMatches(currentTournamentId)
             return
         }
 
@@ -363,11 +362,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             return
         }
 
-        val isUkOrEuropeanOpen = event == TournamentEvent.UK_OPEN || event == TournamentEvent.EUROPEAN_OPEN
-        val isUkOpenUngenerated = isUkOrEuropeanOpen && dbMatchesForRound.isEmpty() && currentRoundKey in listOf(
-            TournamentRound.R2_128.name, TournamentRound.R3_96.name, TournamentRound.L64.name,
-            TournamentRound.L32.name, TournamentRound.L16.name, TournamentRound.QF.name, TournamentRound.SF.name, TournamentRound.F.name
-        )
+        val isUkOpenUngenerated = isOpenDrawRoundPending(event, currentRoundKey, dbMatchesForRound)
 
         val season = seasonDao.getSeasonById(tournament.seasonId)
         val careerId = season?.careerId ?: currentCareerId
@@ -416,12 +411,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         val allPlayersMap = playerDao.getAllPlayersList().associateBy { it.id }
         val seededPlayerMap = getSeededPlayerMap(event, tournament.seasonId, tournament.id)
 
-        val k = when (event) {
-            TournamentEvent.QUALIFIER_ET -> 10
-            TournamentEvent.QUALIFIER_GRAND_SLAM -> 8
-            TournamentEvent.QUALIFIER_WM -> 4
-            else -> 4
-        }
+        val qualifierBoardCount = if (event.qualifierBoardCount > 0) event.qualifierBoardCount else 4
 
         // QUAL_R1-Matches (DB oder Preview) zur Board-Zuordnung der Vorrundensieger
         val qualR1Matches = allMatches.filter { it.round == TournamentRound.QUAL_R1.name }
@@ -441,7 +431,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
 
         val matchUiModels = if (currentRoundKey == TournamentRound.QUAL_PRELIM.name) {
             rawMatchUiModels.map { model ->
-                val board = tournamentQualificationUseCase.resolvePrelimTargetBoard(qualR1Matches, model.match.matchIndex, model.match.winnerId, k)
+                val board = tournamentQualificationUseCase.resolvePrelimTargetBoard(qualR1Matches, model.match.matchIndex, model.match.winnerId, qualifierBoardCount)
                 model.copy(targetBoard = board)
             }.sortedWith(
                 compareBy<MatchUiModel> { it.targetBoard ?: 0 }
@@ -465,11 +455,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
 
         val allRoundsMatches = availableRounds.map { roundKey ->
             val dbMatchesForRound = allMatches.filter { it.round == roundKey }
-            val isUkOrEuropeanOpen = event == TournamentEvent.UK_OPEN || event == TournamentEvent.EUROPEAN_OPEN
-            val isUkOpenUngenerated = isUkOrEuropeanOpen && dbMatchesForRound.isEmpty() && roundKey in listOf(
-                TournamentRound.R2_128.name, TournamentRound.R3_96.name, TournamentRound.L64.name,
-                TournamentRound.L32.name, TournamentRound.L16.name, TournamentRound.QF.name, TournamentRound.SF.name, TournamentRound.F.name
-            )
+            val isUkOpenUngenerated = isOpenDrawRoundPending(event, roundKey, dbMatchesForRound)
 
             val roundMatches = if (dbMatchesForRound.isNotEmpty()) {
                 dbMatchesForRound
@@ -485,7 +471,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
 
             if (roundKey == TournamentRound.QUAL_PRELIM.name) {
                 roundModels.map { model ->
-                    val board = tournamentQualificationUseCase.resolvePrelimTargetBoard(qualR1Matches, model.match.matchIndex, model.match.winnerId, k)
+                    val board = tournamentQualificationUseCase.resolvePrelimTargetBoard(qualR1Matches, model.match.matchIndex, model.match.winnerId, qualifierBoardCount)
                     model.copy(targetBoard = board)
                 }
             } else {
@@ -500,11 +486,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         val openDrawInfoMap = mutableMapOf<Int, Pair<String, List<EntrantGroupInfo>>>()
         for ((r, roundKey) in availableRounds.withIndex()) {
             val dbMatchesForRound = allMatches.filter { it.round == roundKey }
-            val isUkOrEuropeanOpen = event == TournamentEvent.UK_OPEN || event == TournamentEvent.EUROPEAN_OPEN
-            val isUkOpenUngenerated = isUkOrEuropeanOpen && dbMatchesForRound.isEmpty() && roundKey in listOf(
-                TournamentRound.R2_128.name, TournamentRound.R3_96.name, TournamentRound.L64.name,
-                TournamentRound.L32.name, TournamentRound.L16.name, TournamentRound.QF.name, TournamentRound.SF.name, TournamentRound.F.name
-            )
+            val isUkOpenUngenerated = isOpenDrawRoundPending(event, roundKey, dbMatchesForRound)
             if (isUkOpenUngenerated) {
                 val prevName = availableRoundDisplayNames.getOrNull(r - 1) ?: ""
                 val groups = getUkOpenEntrantGroups(currentTournamentId, careerId, roundKey, allMatches, event)
@@ -653,12 +635,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
 
         val seededPlayerMap = getSeededPlayerMap(event, tournament.seasonId, tournament.id)
 
-        val k = when (event) {
-            TournamentEvent.QUALIFIER_ET -> 10
-            TournamentEvent.QUALIFIER_GRAND_SLAM -> 8
-            TournamentEvent.QUALIFIER_WM -> 4
-            else -> 4
-        }
+        val qualifierBoardCount = if (event.qualifierBoardCount > 0) event.qualifierBoardCount else 4
 
         // QUAL_R1-Matches (DB oder Preview) zur Board-Zuordnung der Vorrundensieger
         val qualR1Matches = allMatches.filter { it.round == TournamentRound.QUAL_R1.name }
@@ -672,7 +649,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
 
         val matchUiModels = if (currentRoundKey == TournamentRound.QUAL_PRELIM.name) {
             rawMatchUiModels.map { model ->
-                val board = tournamentQualificationUseCase.resolvePrelimTargetBoard(qualR1Matches, model.match.matchIndex, model.match.winnerId, k)
+                val board = tournamentQualificationUseCase.resolvePrelimTargetBoard(qualR1Matches, model.match.matchIndex, model.match.winnerId, qualifierBoardCount)
                 model.copy(targetBoard = board)
             }.sortedWith(
                 compareBy<MatchUiModel> { it.targetBoard ?: 0 }
@@ -700,7 +677,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
 
             if (roundKey == TournamentRound.QUAL_PRELIM.name) {
                 roundModels.map { model ->
-                    val board = tournamentQualificationUseCase.resolvePrelimTargetBoard(qualR1Matches, model.match.matchIndex, model.match.winnerId, k)
+                    val board = tournamentQualificationUseCase.resolvePrelimTargetBoard(qualR1Matches, model.match.matchIndex, model.match.winnerId, qualifierBoardCount)
                     model.copy(targetBoard = board)
                 }
             } else {
@@ -951,13 +928,13 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
     }
 
     /**
-     * Simulates all remaining CPU matches in the current tournament.
+     * Simulates all remaining CPU matches in the current active round.
      */
     fun simulateCpuMatches() {
         viewModelScope.launch {
             _isSimulatingBatch.value = true
             try {
-                simulateCpuMatchUseCase.simulateAllCpuMatches(currentTournamentId)
+                completeMatchUseCase.simulateAllOpenCpuMatches(currentTournamentId)
             } finally {
                 _isSimulatingBatch.value = false
             }
@@ -996,33 +973,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
      */
     fun setUserMatchWinner(matchId: Long, userWins: Boolean) {
         viewModelScope.launch {
-            val match = tournamentMatchDao.getMatchById(matchId) ?: return@launch
-            if (match.isCompleted) return@launch
-
-            val tournament = tournamentDao.getTournamentById(match.tournamentId) ?: return@launch
-            val event = TournamentEvent.valueOf(tournament.type)
-            val round = TournamentRound.valueOf(match.round)
-            val distance = event.getMatchDistance(round)
-
-            val isP1User = (match.player1Id == USER_ID)
-            val isP1Winner = if (isP1User) userWins else !userWins
-
-            val (player1Score, player2Score, winnerId) = generateScoresForWinner(
-                isPlayer1Winner = isP1Winner,
-                player1Id = match.player1Id,
-                player2Id = match.player2Id,
-                dist = distance
-            )
-
-            val updated = match.copy(
-                player1Score = player1Score,
-                player2Score = player2Score,
-                winnerId = winnerId,
-                isCompleted = true
-            )
-
-            tournamentMatchDao.updateMatch(updated)
-            advanceTournamentRoundUseCase.propagateWinnerOnMatchCompleted(updated)
+            completeMatchUseCase.completeWithPresetWinner(matchId, userWins)
         }
     }
 
@@ -1030,62 +981,23 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
      * Manually sets a user match score. Returns an error message if invalid, or `null` if saved successfully.
      */
     suspend fun setManualUserMatchScore(matchId: Long, p1Score: Int, p2Score: Int): String? {
-        val match = tournamentMatchDao.getMatchById(matchId)
-            ?: return getApplication<Application>().getString(R.string.match_not_found)
-        if (match.isCompleted) {
-            return getApplication<Application>().getString(R.string.match_already_completed)
-        }
-
-        val tournament = tournamentDao.getTournamentById(match.tournamentId)
-            ?: return getApplication<Application>().getString(R.string.tournament_not_found)
-        val event = TournamentEvent.valueOf(tournament.type)
-        val round = TournamentRound.valueOf(match.round)
-        val distance = event.getMatchDistance(round)
-
-        val validationError = validateMatchScore(p1Score, p2Score, distance)
-        if (validationError != null) return validationError
-
-        val winnerId = if (p1Score > p2Score) match.player1Id else match.player2Id
-
-        val updated = match.copy(
-            player1Score = p1Score,
-            player2Score = p2Score,
-            winnerId = winnerId,
-            isCompleted = true
-        )
-
-        tournamentMatchDao.updateMatch(updated)
-        advanceTournamentRoundUseCase.propagateWinnerOnMatchCompleted(updated)
-        return null
+        return completeMatchUseCase.completeManualMatch(matchId, p1Score, p2Score)
     }
 
     /**
-     * Validates a match score for a given [matchDistance].
+     * Checks if an open draw round (UK Open or European Open) is pending generation.
      */
-    fun validateMatchScore(player1Score: Int, player2Score: Int, matchDistance: MatchDistance): String? {
-        return MatchScoreValidator.validateMatchScore(
-            context = getApplication(),
-            player1Score = player1Score,
-            player2Score = player2Score,
-            matchDistance = matchDistance
+    private fun isOpenDrawRoundPending(
+        event: TournamentEvent,
+        roundKey: String,
+        matchesForRound: List<TournamentMatch>
+    ): Boolean {
+        val isUkOrEuropeanOpen = event == TournamentEvent.UK_OPEN || event == TournamentEvent.EUROPEAN_OPEN
+        val openDrawRounds = listOf(
+            TournamentRound.R2_128.name, TournamentRound.R3_96.name, TournamentRound.L64.name,
+            TournamentRound.L32.name, TournamentRound.L16.name, TournamentRound.QF.name, TournamentRound.SF.name, TournamentRound.F.name
         )
-    }
-
-    /**
-     * Generates valid scores for a match given the winner determination and [dist].
-     */
-    private fun generateScoresForWinner(
-        isPlayer1Winner: Boolean,
-        player1Id: Long,
-        player2Id: Long,
-        dist: MatchDistance
-    ): Triple<Int, Int, Long> {
-        return MatchScoreValidator.generateScoresForWinner(
-            isPlayer1Winner = isPlayer1Winner,
-            player1Id = player1Id,
-            player2Id = player2Id,
-            matchDistance = dist
-        )
+        return isUkOrEuropeanOpen && matchesForRound.isEmpty() && roundKey in openDrawRounds
     }
 
     /**

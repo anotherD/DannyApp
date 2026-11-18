@@ -2,42 +2,35 @@ package com.danny.dannyapp.domain.usecase
 
 import android.content.Context
 import com.danny.dannyapp.data.db.AppDatabase
-import com.danny.dannyapp.data.db.PlayerDao
 import com.danny.dannyapp.data.db.TournamentDao
 import com.danny.dannyapp.data.db.TournamentMatchDao
 import com.danny.dannyapp.data.db.USER_ID
-import com.danny.dannyapp.domain.enums.SkillLevel
-import com.danny.dannyapp.domain.enums.TournamentEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlin.random.Random
 
 /**
  * UseCase orchestrating the overall progression of tournaments, including CPU simulation,
  * user match simulation, and continuous round advancement.
  */
 class TournamentProgressionUseCase(
-    private val simulateCpuMatchUseCase: SimulateCpuMatchUseCase,
+    private val completeMatchUseCase: CompleteMatchUseCase,
     private val advanceTournamentRoundUseCase: AdvanceTournamentRoundUseCase,
     private val generateBracketUseCase: GenerateBracketUseCase? = null,
     private val tournamentDao: TournamentDao? = null,
     private val tournamentMatchDao: TournamentMatchDao? = null,
-    private val playerDao: PlayerDao? = null,
     private val context: Context? = null
 ) {
     constructor(context: Context) : this(
-        simulateCpuMatchUseCase = SimulateCpuMatchUseCase(context),
+        completeMatchUseCase = CompleteMatchUseCase(context),
         advanceTournamentRoundUseCase = AdvanceTournamentRoundUseCase(context),
         generateBracketUseCase = GenerateBracketUseCase(context),
         tournamentDao = AppDatabase.getDatabase(context.applicationContext).tournamentDao(),
         tournamentMatchDao = AppDatabase.getDatabase(context.applicationContext).tournamentMatchDao(),
-        playerDao = AppDatabase.getDatabase(context.applicationContext).playerDao(),
         context = context
     )
 
     private val safeTournamentDao get() = tournamentDao ?: context?.let { AppDatabase.getDatabase(it.applicationContext).tournamentDao() }
     private val safeTournamentMatchDao get() = tournamentMatchDao ?: context?.let { AppDatabase.getDatabase(it.applicationContext).tournamentMatchDao() }
-    private val safePlayerDao get() = playerDao ?: context?.let { AppDatabase.getDatabase(it.applicationContext).playerDao() }
     private val safeGenerateBracketUseCase get() = generateBracketUseCase ?: context?.let { GenerateBracketUseCase(it) }
 
     /**
@@ -45,7 +38,7 @@ class TournamentProgressionUseCase(
      * Returns true if the round was advanced or completed, false otherwise.
      */
     suspend fun simulateAndAdvance(tournamentId: Long): Boolean = withContext(Dispatchers.IO) {
-        simulateCpuMatchUseCase.simulateAllCpuMatches(tournamentId)
+        completeMatchUseCase.simulateAllOpenCpuMatches(tournamentId)
         advanceTournamentRoundUseCase(tournamentId)
     }
 
@@ -56,7 +49,7 @@ class TournamentProgressionUseCase(
     suspend fun simulateUntilUserMatchOrCompleted(tournamentId: Long): Boolean = withContext(Dispatchers.IO) {
         var advancedAny = false
         while (true) {
-            simulateCpuMatchUseCase.simulateAllCpuMatches(tournamentId)
+            completeMatchUseCase.simulateAllOpenCpuMatches(tournamentId)
             val advanced = advanceTournamentRoundUseCase(tournamentId)
             if (!advanced) break
             advancedAny = true
@@ -77,7 +70,6 @@ class TournamentProgressionUseCase(
     suspend fun simulateCompleteTournament(tournamentId: Long, userSkill: Int): Boolean = withContext(Dispatchers.IO) {
         val currentTournamentDao = safeTournamentDao ?: return@withContext false
         val currentTournamentMatchDao = safeTournamentMatchDao ?: return@withContext false
-        val currentPlayerDao = safePlayerDao ?: return@withContext false
 
         var tournament = currentTournamentDao.getTournamentById(tournamentId) ?: return@withContext false
         if (tournament.isCompleted) return@withContext true
@@ -86,8 +78,6 @@ class TournamentProgressionUseCase(
         if (existingMatches.isEmpty()) {
             safeGenerateBracketUseCase?.invoke(tournamentId)
         }
-
-        val event = try { TournamentEvent.valueOf(tournament.type) } catch (_: Exception) { return@withContext false }
 
         var loopCount = 0
         val maxLoopCount = 200
@@ -100,7 +90,7 @@ class TournamentProgressionUseCase(
             val state = advanceTournamentRoundUseCase.evaluateTournamentState(tournamentId) ?: return@withContext false
             val activeRound = state.activeRound ?: return@withContext tournament.isCompleted
 
-            simulateCpuMatchUseCase.simulateAllCpuMatches(tournamentId)
+            completeMatchUseCase.simulateAllOpenCpuMatches(tournamentId)
 
             val currentMatches = currentTournamentMatchDao.getMatchesListForTournament(tournamentId)
             val openUserMatches = currentMatches.filter {
@@ -114,32 +104,7 @@ class TournamentProgressionUseCase(
                     continue
                 }
 
-                val opponent = currentPlayerDao.getPlayerById(opponentId)
-                val opponentSkill = (opponent?.skill ?: SkillLevel.DEFAULT.value).coerceIn(1, 10)
-                val effectiveUserSkill = userSkill.coerceIn(1, 10)
-
-                val player1Skill = if (isPlayer1User) effectiveUserSkill else opponentSkill
-                val player2Skill = if (isPlayer1User) opponentSkill else effectiveUserSkill
-
-                val player1WinProbability = player1Skill.toDouble() / (player1Skill + player2Skill)
-                val isPlayer1Winner = Random.nextDouble() < player1WinProbability
-
-                val matchDistance = event.getMatchDistance(activeRound)
-                val (player1Score, player2Score, winnerId) = MatchScoreValidator.generateScoresForWinner(
-                    isPlayer1Winner = isPlayer1Winner,
-                    player1Id = match.player1Id,
-                    player2Id = match.player2Id,
-                    matchDistance = matchDistance
-                )
-
-                val updatedMatch = match.copy(
-                    player1Score = player1Score,
-                    player2Score = player2Score,
-                    winnerId = winnerId,
-                    isCompleted = true
-                )
-                currentTournamentMatchDao.updateMatch(updatedMatch)
-                advanceTournamentRoundUseCase.propagateWinnerOnMatchCompleted(updatedMatch)
+                completeMatchUseCase.simulateMatch(match, userSkillOverride = userSkill)
             }
 
             val updatedState = advanceTournamentRoundUseCase.evaluateTournamentState(tournamentId)
