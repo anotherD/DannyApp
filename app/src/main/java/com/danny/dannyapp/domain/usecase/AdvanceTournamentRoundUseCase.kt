@@ -240,9 +240,9 @@ class AdvanceTournamentRoundUseCase(
             val storedTop32 = participants.filter { it.qualificationType == "OOM_TOP_32" }.sortedBy { it.seedNumber ?: Int.MAX_VALUE }.map { it.playerId }
 
             val sortedTcOom = tournamentQualificationUseCase.sortPlayerIdsByOom(tourCardPlayerIds, oomEntries, allPlayers)
-            val oom65To96 = if (stored65To96.isNotEmpty()) stored65To96 else sortedTcOom.drop(64).take(32)
-            val oom33To64 = if (stored33To64.isNotEmpty()) stored33To64 else sortedTcOom.drop(32).take(32)
-            val top32Oom = if (storedTop32.isNotEmpty()) storedTop32 else sortedTcOom.take(32)
+            val oom65To96 = stored65To96.ifEmpty { sortedTcOom.drop(64).take(32) }
+            val oom33To64 = stored33To64.ifEmpty { sortedTcOom.drop(32).take(32) }
+            val top32Oom = storedTop32.ifEmpty { sortedTcOom.take(32) }
 
             val nextMatches = when (currentRound) {
                 TournamentRound.R1_160 -> {
