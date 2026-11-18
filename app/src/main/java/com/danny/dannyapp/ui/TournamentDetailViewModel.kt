@@ -154,9 +154,6 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
 
     private var currentTournamentId: Long = -1L
     private var currentCareerId: Long = -1L
-
-    private var selectedRoundIndex: Int = 0
-    private var selectedGroupIndex: Int = 0
     private var hasUserSelectedRound: Boolean = false
 
     private val selectedRoundIndexFlow = MutableStateFlow(0)
@@ -325,17 +322,15 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         if (!hasUserSelectedRound && progressState?.activeRound != null) {
             val activeIndex = sequence.indexOf(progressState.activeRound)
             if (activeIndex != -1) {
-                selectedRoundIndex = activeIndex
                 selectedRoundIndexFlow.value = activeIndex
             }
         }
 
-        if (selectedRoundIndex !in availableRounds.indices) {
-            selectedRoundIndex = 0
+        if (selectedRoundIndexFlow.value !in availableRounds.indices) {
             selectedRoundIndexFlow.value = 0
         }
 
-        val currentRoundKey = availableRounds.getOrNull(selectedRoundIndex) ?: ""
+        val currentRoundKey = availableRounds.getOrNull(selectedRoundIndexFlow.value) ?: ""
         val dbMatchesForRound = allMatches.filter { it.round == currentRoundKey }
         val isCurrentRoundCompleted = dbMatchesForRound.isNotEmpty() && dbMatchesForRound.all { it.isCompleted }
 
@@ -399,13 +394,12 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             emptyList()
         }
 
-        if (isGrandSlamGroup && selectedGroupIndex !in availableGroups.indices) {
-            selectedGroupIndex = 0
+        if (isGrandSlamGroup && selectedGroupIndexFlow.value !in availableGroups.indices) {
             selectedGroupIndexFlow.value = 0
         }
 
         val filteredMatches = if (isGrandSlamGroup && availableGroups.isNotEmpty()) {
-            val selectedGroupLetter = availableGroups[selectedGroupIndex]
+            val selectedGroupLetter = availableGroups[selectedGroupIndexFlow.value]
             currentRoundMatches.filter { it.groupName == selectedGroupLetter }
         } else {
             currentRoundMatches
@@ -447,7 +441,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
 
         val matchUiModels = if (currentRoundKey == TournamentRound.QUAL_PRELIM.name) {
             rawMatchUiModels.map { model ->
-                val board = resolvePrelimTargetBoard(qualR1Matches, model.match.matchIndex, model.match.winnerId, k)
+                val board = tournamentQualificationUseCase.resolvePrelimTargetBoard(qualR1Matches, model.match.matchIndex, model.match.winnerId, k)
                 model.copy(targetBoard = board)
             }.sortedWith(
                 compareBy<MatchUiModel> { it.targetBoard ?: 0 }
@@ -460,8 +454,8 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         val isSelectedRoundPlayable = dbMatchesForRound.isNotEmpty() && dbMatchesForRound.any { !it.isCompleted }
         val prizeMoneyItems = getPrizeMoneyItems(event)
 
-        val prevRoundDisplayName = if (selectedRoundIndex > 0) {
-            availableRoundDisplayNames.getOrNull(selectedRoundIndex - 1) ?: ""
+        val prevRoundDisplayName = if (selectedRoundIndexFlow.value > 0) {
+            availableRoundDisplayNames.getOrNull(selectedRoundIndexFlow.value - 1) ?: ""
         } else {
             ""
         }
@@ -491,7 +485,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
 
             if (roundKey == TournamentRound.QUAL_PRELIM.name) {
                 roundModels.map { model ->
-                    val board = resolvePrelimTargetBoard(qualR1Matches, model.match.matchIndex, model.match.winnerId, k)
+                    val board = tournamentQualificationUseCase.resolvePrelimTargetBoard(qualR1Matches, model.match.matchIndex, model.match.winnerId, k)
                     model.copy(targetBoard = board)
                 }
             } else {
@@ -526,9 +520,9 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             activeRoundDisplayName = activeRoundDisplayName,
             availableRounds = availableRounds,
             availableRoundDisplayNames = availableRoundDisplayNames,
-            selectedRoundIndex = selectedRoundIndex,
+            selectedRoundIndex = selectedRoundIndexFlow.value,
             availableGroups = availableGroups,
-            selectedGroupIndex = selectedGroupIndex,
+            selectedGroupIndex = selectedGroupIndexFlow.value,
             matches = matchUiModels,
             allRoundsMatches = allRoundsMatches,
             prizeMoneyItems = prizeMoneyItems,
@@ -606,12 +600,11 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         val sequence = getRoundSequence(event, allMatches)
         val availableRounds = sequence.map { it.name }
 
-        if (!hasUserSelectedRound || selectedRoundIndex !in availableRounds.indices) {
-            selectedRoundIndex = availableRounds.lastIndex.coerceAtLeast(0)
-            selectedRoundIndexFlow.value = selectedRoundIndex
+        if (!hasUserSelectedRound || selectedRoundIndexFlow.value !in availableRounds.indices) {
+            selectedRoundIndexFlow.value = availableRounds.lastIndex.coerceAtLeast(0)
         }
 
-        val currentRoundKey = availableRounds.getOrNull(selectedRoundIndex) ?: ""
+        val currentRoundKey = availableRounds.getOrNull(selectedRoundIndexFlow.value) ?: ""
         val availableRoundDisplayNames = availableRounds.map { TournamentUiHelper.getDisplayRoundName(it, getApplication()) }
 
         val dbMatchesForRound = allMatches.filter { it.round == currentRoundKey }
@@ -624,13 +617,12 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         val isGrandSlamGroup = (event == TournamentEvent.GRAND_SLAM_OF_DARTS && currentRoundKey == TournamentRound.GROUP.name)
         val availableGroups = if (isGrandSlamGroup) ('A'..'P').map { it.toString() } else emptyList()
 
-        if (isGrandSlamGroup && selectedGroupIndex !in availableGroups.indices) {
-            selectedGroupIndex = 0
+        if (isGrandSlamGroup && selectedGroupIndexFlow.value !in availableGroups.indices) {
             selectedGroupIndexFlow.value = 0
         }
 
         val filteredMatches = if (isGrandSlamGroup && availableGroups.isNotEmpty()) {
-            currentRoundMatches.filter { it.groupName == availableGroups[selectedGroupIndex] }
+            currentRoundMatches.filter { it.groupName == availableGroups[selectedGroupIndexFlow.value] }
         } else {
             currentRoundMatches
         }
@@ -680,7 +672,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
 
         val matchUiModels = if (currentRoundKey == TournamentRound.QUAL_PRELIM.name) {
             rawMatchUiModels.map { model ->
-                val board = resolvePrelimTargetBoard(qualR1Matches, model.match.matchIndex, model.match.winnerId, k)
+                val board = tournamentQualificationUseCase.resolvePrelimTargetBoard(qualR1Matches, model.match.matchIndex, model.match.winnerId, k)
                 model.copy(targetBoard = board)
             }.sortedWith(
                 compareBy<MatchUiModel> { it.targetBoard ?: 0 }
@@ -708,7 +700,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
 
             if (roundKey == TournamentRound.QUAL_PRELIM.name) {
                 roundModels.map { model ->
-                    val board = resolvePrelimTargetBoard(qualR1Matches, model.match.matchIndex, model.match.winnerId, k)
+                    val board = tournamentQualificationUseCase.resolvePrelimTargetBoard(qualR1Matches, model.match.matchIndex, model.match.winnerId, k)
                     model.copy(targetBoard = board)
                 }
             } else {
@@ -730,9 +722,9 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             userEarnedPrizeMoneyText = userEarnedPrizeMoneyText,
             availableRounds = availableRounds,
             availableRoundDisplayNames = availableRoundDisplayNames,
-            selectedRoundIndex = selectedRoundIndex,
+            selectedRoundIndex = selectedRoundIndexFlow.value,
             availableGroups = availableGroups,
-            selectedGroupIndex = selectedGroupIndex,
+            selectedGroupIndex = selectedGroupIndexFlow.value,
             matches = matchUiModels,
             allRoundsMatches = allRoundsMatches,
             prizeMoneyItems = prizeMoneyItems,
@@ -845,21 +837,6 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
     }
 
     /**
-     * Ermittelt das Ziel-Board eines Vorrunden-Spielers aus den QUAL_R1-Matches:
-     * Prüft, in welchem Board (matchIndex / 4) der Platzhalter (-1000L - prelimMatchIndex)
-     * oder der bereits ermittelte Gewinner (winnerId) des Vorrunden-Matches steht.
-     * Fallback: prelimMatchIndex % k.
-     */
-    private fun resolvePrelimTargetBoard(
-        qualR1Matches: List<TournamentMatch>,
-        prelimMatchIndex: Int,
-        winnerId: Long?,
-        k: Int
-    ): Int {
-        return tournamentQualificationUseCase.resolvePrelimTargetBoard(qualR1Matches, prelimMatchIndex, winnerId, k)
-    }
-
-    /**
      * Creates a [MatchUiModel] from a [TournamentMatch] entity.
      */
     private fun createMatchUiModel(
@@ -963,7 +940,6 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
      */
     fun selectRound(index: Int) {
         hasUserSelectedRound = true
-        selectedRoundIndex = index
         selectedRoundIndexFlow.value = index
     }
 
@@ -971,7 +947,6 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
      * Selects a group by index.
      */
     fun selectGroup(index: Int) {
-        selectedGroupIndex = index
         selectedGroupIndexFlow.value = index
     }
 

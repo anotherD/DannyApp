@@ -10,7 +10,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
-import com.danny.dannyapp.data.db.PlayerRepository
+import com.danny.dannyapp.domain.usecase.GetPlayersUseCase
 import com.danny.dannyapp.ui.BaseActivity
 import com.google.android.material.button.MaterialButtonToggleGroup
 import kotlinx.coroutines.Job
@@ -18,7 +18,7 @@ import kotlinx.coroutines.launch
 
 class ConfigPlayersActivity : BaseActivity() {
 
-    private lateinit var playerRepository: PlayerRepository
+    private lateinit var getPlayersUseCase: GetPlayersUseCase
     private lateinit var playerAdapter: ConfigPlayerAdapter
     private lateinit var rvPlayers: RecyclerView
     private lateinit var tvEmptyPlayers: TextView
@@ -36,7 +36,7 @@ class ConfigPlayersActivity : BaseActivity() {
             rootViewId = R.id.playersMain,
         )
 
-        playerRepository = PlayerRepository(this)
+        getPlayersUseCase = GetPlayersUseCase(this)
 
         rvPlayers = findViewById(R.id.rvPlayers)
         tvEmptyPlayers = findViewById(R.id.tvEmptyPlayers)
@@ -97,9 +97,9 @@ class ConfigPlayersActivity : BaseActivity() {
         observePlayersJob = lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 val playerFlow = if (sortBySkill) {
-                    playerRepository.playersSortedBySkill
+                    getPlayersUseCase.observePlayersSortedBySkill()
                 } else {
-                    playerRepository.playersSortedByName
+                    getPlayersUseCase.observePlayersSortedByName()
                 }
                 playerFlow.collect { players ->
                     playerAdapter.submitList(players)
