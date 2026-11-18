@@ -26,7 +26,7 @@ enum class TournamentEvent(val totalPrizeFund: Double) {
 
     /**
      * Liefert die Anzahl der Qualifier-Boards für dieses Event
-     * (QUALIFIER_ET -> 10, QUALIFIER_GRAND_SLAM -> 8, QUALIFIER_WM -> 4, sonst 0).
+     * (QUALIFIER_ET → 10, QUALIFIER_GRAND_SLAM -> 8, QUALIFIER_WM -> 4, sonst 0).
      */
     val qualifierBoardCount: Int
         get() = when (this) {
@@ -100,7 +100,7 @@ enum class TournamentEvent(val totalPrizeFund: Double) {
     /**
      * Liefert die offizielle Match-Distanz (Best-of-Legs oder Best-of-Sets) für die jeweilige Runde.
      * Werte werden zentral aus der JSON-Konfiguration gelesen; bei fehlender Konfiguration
-     * greift das eingebauten Fallback-Werte.
+     * greift des eingebauten Fallbackwertes.
      */
     fun getMatchDistance(round: TournamentRound): MatchDistance {
         val configured = TournamentConfigLoader.safeConfig()

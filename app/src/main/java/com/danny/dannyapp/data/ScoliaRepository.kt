@@ -31,7 +31,7 @@ class ScoliaRepository private constructor(context: Context) {
             // 1. Ungefiltert in Datei loggen
             scoliaLogger.log(jsonData)
 
-            // 2. Parst und emittiert das Event asynchron auf dem Dispatchers.Default Background-Thread
+            // 2. Parst und emittiert das Event asynchron auf dem Dispatchers. Default Background-Thread
             repositoryScope.launch {
                 val event = scoliaEventParser.parse(jsonData)
                 _scoliaEvents.emit(event)

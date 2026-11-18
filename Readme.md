@@ -24,7 +24,7 @@ Ausführliche Fachkonzepte, Forschungsberichte und Architekturbeschreibungen bef
 - 🎯 **[Saisons & Tour Cards](docs/SAISON_LOGIK.md)**: Turnierlogik und Saisonsystem.
 - 📅 **[Saisonkalender, Turniere & Preisgeld](docs/SAISON_KALENDER_UND_TURNIERE.md)**: Detailliertes Fachkonzept der Pro Tour und Major-Turniere, K.o.- & Gruppen-Systeme, Setzlisten-Logik, Use-Case-Architektur und PDC-Preisgeldsonderregeln.
 - 📱 **[Turnier-UI, Simulation & Ranglisten-Ansicht](docs/TURNIER_UI_UND_FLOW.md)**: Benutzeroberfläche, Interaktions-Flow, Test-Modi und Order of Merit Ansicht.
-- 🔍 **[PDC-Regel- & Kalender-Update-Checkliste](docs/PDC_REGEL_UPDATE_CHECKLISTE.md)**: Offene 2027er Reformen und Prompt-Vorlage für zukünftige PDC-Regelprüfungen.
+- 🔍 **[PDC-Regel- & Kalender-Update-Checkliste](docs/PDC_REGEL_UPDATE_CHECKLISTE.md)**: Offene 2027er-Reformen und Prompt-Vorlage für zukünftige PDC-Regelprüfungen.
 
 ---
 
@@ -54,7 +54,7 @@ Ausführliche Fachkonzepte, Forschungsberichte und Architekturbeschreibungen bef
     - [ ] Eigenes App-Icon (Launcher-Icon & Startseiten-Logo finalisieren).
     - [ ] Toasts durch einheitliche UI-Hinweise (z. B. Material `Snackbar` oder eigene Status-Banner) ersetzen (portierbar & moderner).
 - [ ] **Spieler-Detailansicht:** Klick auf einen Spielernamen (in Turnieren, Ranglisten oder Spielerliste) öffnet die Detailseite mit Karriere-Stats und Erfolgen.
-- [ ] **Match-Detailansicht:** Klick auf ein abgeschlossenes oder laufendes Match öffnet die Match-Statistiken (Leg-/Set-Verlauf, Averages, Checkouts).
+- [ ] **Match-Detailansicht:** Klick auf ein abgeschlossenes oder laufendes Match öffnet die Match-Statistiken (Leg-/Set-Verlauf, Averages, Check-outs).
 
 ---
 

@@ -44,7 +44,7 @@ class ScoliaWebViewManager(
         // 5. JavaScript Interface Brücke
         webView.addJavascriptInterface(repository.javaScriptInterface, "AndroidApp")
 
-        // 6. WebViewClient mit AdBlocker für PostHog Tracking & Frühzeitiger Hook-Injektion
+        // 6. WebViewClient mit AdBlocker für PostHog Tracking & frühzeitiger Hook-Injektion
         webView.webViewClient = object : WebViewClient() {
             override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
                 super.onPageStarted(view, url, favicon)

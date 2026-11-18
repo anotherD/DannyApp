@@ -10,7 +10,7 @@ object BracketGenerator {
      * Erzeugt die Initial-Paarungen für ein Turnier basierend auf der sortierten Teilnehmerliste.
      *
      * @param event Der Turniertyp
-     * @param oomSortedIds Alle qualifizierten Spieler, sortiert nach aktueller Order of Merit (Index 0 = Platz 1)
+     * @param oomSortedIds Alle qualifizierten Spieler sortiert nach aktueller Order of Merit (Index 0 = Platz 1)
      * @param proTourSortedIds Qualifizierte Spieler sortiert nach Pro Tour OOM (relevant für ET, WM, Matchplay)
      * @param qualifierIds Ungesetzte Qualifikanten (Qualifier-Sieger / Nicht-Tourcard-Spieler)
      */
@@ -70,7 +70,7 @@ object BracketGenerator {
     }
 
     /**
-     * Erzeugt die Standard-Setzbaum-Reihenfolge (Faltungs-Algorithmus) für n Seeds,
+     * Erzeugt die Standard-Setzbaum-Reihenfolge (Faltungsalgorithmus) für n Seeds,
      * sodass Seed 1 und Seed 2 frühestens im Finale aufeinandertreffen.
      */
     fun buildStandardSeedOrder(n: Int): List<Int> {
@@ -87,7 +87,7 @@ object BracketGenerator {
     }
 
     /**
-     * Offizielle Setzbaum-Reihenfolge für 16 Seeds nach Faltungs-Algorithmus.
+     * Offizielle Setzbaumreihenfolge für 16 Seeds nach Faltungsalgorithmus.
      */
     val BRACKET_SEED_ORDER_16 = buildStandardSeedOrder(16)
 
@@ -113,7 +113,7 @@ object BracketGenerator {
     }
 
     /**
-     * European Tour Runde 1 (L48 -> 16 Matches):
+     * European Tour Runde 1 (L48 → 16 Matches):
      * Top 16 Pro Tour Seeds gegen 16 zugeloste Qualifier.
      * Hinweis: Match-Index 15 (Pro Tour Seed #16) trifft in R2 auf OOM #1 usw.
      */
@@ -175,7 +175,7 @@ object BracketGenerator {
     /**
      * Grand Slam of Darts (16 Gruppen A-P zu je 3 Spielern):
      * Tag 1: Topf 1 (Head) vs Topf 3 (Qualifier)
-     * Verteilt die 16 Gruppenköpfe über BRACKET_SEED_ORDER_16.
+     * verteilt die 16 Gruppenköpfe über BRACKET_SEED_ORDER_16.
      */
     private fun generateGrandSlamGroups(
         top16OomHeads: List<Long>,
@@ -289,7 +289,7 @@ object BracketGenerator {
     /**
      * Erzeugt die Erstrunden-Paarungen für Qualifier-Turniere über die Board-Setzliste.
      * Freilose (byePlayers) und Vorrundensieger (prelimWinners) werden getrennt übergeben.
-     * Die Top 2 * K Seeds behalten ihre festen Positionen; alle übrigen Freilos-Spieler und
+     * Die Top 2 · K Seeds behalten ihre festen Positionen; alle übrigen Freilos-Spieler und
      * Vorrundensieger werden vor der Verteilung auf die 6 freien Slots je Board frei zugelost.
      *
      * @param boardCount Anzahl der Boards (K)
@@ -323,7 +323,7 @@ object BracketGenerator {
      * basierend auf dem offiziellen K-Board-System.
      *
      * K = 10 (ET), K = 8 (Grand Slam), K = 4 (WM).
-     * Hauptfeld = 8 * K Plätze (80 bei ET, 64 bei Grand Slam, 32 bei WM).
+     * Hauptfeld = 8 · K Plätze (80 bei ET, 64 bei Grand Slam, 32 bei WM).
      */
     fun generateQualifierInitialMatches(
         event: TournamentEvent,

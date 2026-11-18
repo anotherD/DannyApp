@@ -41,6 +41,7 @@ data class Country(
             return getFlagEmojiFromIso2(iso2)
         }
 
+        @Suppress("SameReturnValue")
         fun getWorldEmoji(): String {
             return "🌐"
         }

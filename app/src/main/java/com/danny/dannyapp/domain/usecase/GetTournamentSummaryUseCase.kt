@@ -18,7 +18,7 @@ enum class TournamentPhaseState {
 }
 
 /**
- * Summarises the important status information for a tournament.
+ * Summarizes the important status information for a tournament.
  *
  * All fields are domain‑layer only; no Android UI resources are referenced.
  */

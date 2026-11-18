@@ -5,7 +5,7 @@
 - Wenn du **eigenmächtig Änderungen** vornehmen möchtest, ohne Anweisung dafür und du es aber für sinnvoll oder notwendig hälst, dann wirst du mich vorher darüber Informieren, mir erklären, warum du das machen möchtest und **nur mit meiner expliziten Erlaubnis diese Änderung vornehmen!**
 
 # Projekt-Anweisungen
-- Referenz-Codebase auf der Festplatte: C:\Users\Danny\Desktop\MDT\MDT-Gradle-export-AndroidApp .Schlage bei Fragen zu Spiellogiken, Scolia-Integration oder UI-Verhalten immer in dieser Referenz-Codebase nach. Dieses Referenz-Projekt heißt "MDT" oder "My Dart Training".
+- Referenz-Codebase auf der Festplatte: C:\Users\Danny\Desktop\MDT\MDT-Gradle-export-AndroidApp. Schlage bei Fragen zu Spiellogiken, Scolia-Integration oder UI-Verhalten immer in dieser Referenz-Codebase nach. Dieses Referenz-Projekt heißt "MDT" oder "My Dart Training".
 - Erstelle Unit-Tests nur, wenn explizit danach gefragt wird
 - **Strings-Pflicht:** Alle sichtbaren UI-Texte, Labels, Turniertypen und Status-Bezeichnungen müssen zwingend in `app/src/main/res/values/strings.xml` gepflegt werden (keine hartcodierten deutschen Texte im Kotlin-Code).
 
@@ -31,6 +31,6 @@
 - **Lesbarkeit & KDoc:** Methoden bekommen einen kurzen KDoc-Kommentar (`/** ... */`), tiefe Verschachtelungen werden durch Guard Clauses und kleine Hilfsmethoden vermieden.
 - **Schlanke Dateien & UI-Komponenten:** Activities und Fragments bleiben als Richtwert kompakt (~200–400 Zeilen) und enthalten keine Fachlogik. Dialoge, Adapter und komplexe Custom-Views werden in eigene Dateien ausgelagert – reine View-Binding- und Listener-Logik bleibt jedoch zusammen, statt künstlich zerstückelt zu werden.
 - **Flaggen & Spielernamen (Zentrale Helper-Pflicht):** Für das Rendern von Landesflaggen, Spielernamen und dynamischen Namenskürzungen müssen zwingend die zentralen Methoden in `UiHelper` (`formatFlagAndText`, `bindSmartPlayerName`) genutzt werden. `Country.getFlagEmoji(...)` darf niemals direkt in UI-Strings oder TextViews verwendet werden, da sonst Nordirland (`NIR`) als schwarze Flagge dargestellt wird.
-- **Keine Fachlogik im ViewModel & Altlasten bereinigen:** Geschäfts- und Turnierregeln gehören ausschließlich in den Domain-Layer (`domain/`), niemals als parallele Prüfungen in ViewModels; veraltete Codepfade sind bei Umbauten immer mit zu entfernen.
+- **Keine Fachlogik im ViewModel & Altlasten bereinigen:** Geschäfts- und Turnierregeln gehören ausschließlich in den Domain-Layer (`domain/`), niemals als parallele Prüfungen in ViewModels; veraltete Codepfade sind bei Umbauten immer mitzuentfernen.
 - **UI-Paketstruktur:** Neue eigenständige Feature-Bereiche (z. B. Live-Match/Scolia, Statistiken) werden in eigenen Unterpaketen unter `ui/` (z. B. `ui/match/`, `ui/stats/`) angelegt, statt bestehende flache Pakete weiter aufzublähen.
 

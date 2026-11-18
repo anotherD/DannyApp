@@ -28,7 +28,7 @@
     <color name="surface_major_tint">#FF262012</color>
     <color name="surface_et_tint">#FF261414</color>
 
-    <!-- Text- & Rahmengrau (reines Neutralgrau) -->
+    <!-- Text- & Rahmen grau (reines Neutral-Grau) -->
     <color name="grau_rahmen_dunkel">#FF383838</color>
     <color name="grau_rahmen">#FF616161</color>
     <color name="grau_text_gedaempft">#FFBDBDBD</color>

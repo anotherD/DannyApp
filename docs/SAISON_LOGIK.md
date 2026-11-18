@@ -32,7 +32,7 @@ Beim Saisonwechsel wird die bisherige Saison als abgeschlossen markiert (`isComp
 ## 🏆 4. Turnierteilnahmen & Entkopplung der Match-Zuweisung
 
 * **Entkopplung in `tournament_matches`:** In `player_1_id` und `player_2_id` werden direkt die Stamm-IDs aus `players` (bzw. `USER_ID = -1L`) gespeichert. Turnierteilnehmer müssen nicht zwingend in `tour_cards` existieren (z. B. Nicht-Tourcard-Qualifier bei Majors oder European Tour).
-* **Teilnehmerpools & Qualifikation:** Die exakten Teilnehmerzahlen und Qualifikationswege aller Turniertypen (128er PC, 48er ET, 160er UK/European Open usw.) sind in [SAISON_KALENDER_UND_TURNIERE.md](SAISON_KALENDER_UND_TURNIERE.md) definiert.
+* **Teilnehmerpools & Qualifikation:** Die exakten Teilnehmerzahlen und Qualifikationswege aller Turniertypen (128er-PC, 48er ET, 160er UK/European Open usw.) sind in [SAISON_KALENDER_UND_TURNIERE.md](SAISON_KALENDER_UND_TURNIERE.md) definiert.
 * **Preisgelder:** Werden pro Turnier in `tournament_placements` erfasst und verweisen direkt auf `players.id` bzw. `USER_ID = -1L`.
 
 ---

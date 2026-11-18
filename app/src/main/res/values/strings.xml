@@ -158,7 +158,7 @@
     <string name="match_already_completed">Match ist bereits beendet.</string>
     <string name="score_validation_negative">Scores dürfen nicht negativ sein.</string>
     <string name="score_validation_draw">Es darf kein Unentschieden geben.</string>
-    <string name="score_validation_two_clear_legs">Ungültiges Leg-Ergebnis: Sieger benötigt %1$d Legs (mit 2 Legs Vorsprung) oder Tie-Break (%2$d:%3$d).</string>
+    <string name="score_validation_two_clear_legs">Ungültiges Leg-Ergebnis: Sieger benötigt %1$d Legs (mit 2 Legs Vorsprung) oder Tiebreak (%2$d:%3$d).</string>
     <string name="score_validation_best_of_legs">Ungültiges Leg-Ergebnis für Best-of-%1$d: Sieger muss genau %2$d Legs haben.</string>
     <string name="score_validation_best_of_sets">Ungültiges Set-Ergebnis für Best-of-%1$d Sets: Sieger muss genau %2$d Sets erreichen.</string>
 

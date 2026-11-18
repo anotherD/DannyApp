@@ -155,7 +155,7 @@ class GetOrderOfMeritUseCase(
 
     /**
      * Beobachtet reaktiv Saisons und Platzierungen für eine Karriere
-     * und emittiert bei jeder Änderung die berechneten Order of Merit Einträge.
+     * und emittiert bei jeder Änderung die berechnete Order of Merit Einträge.
      */
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     fun observeOrderOfMerit(careerId: Long, type: OrderOfMeritType): Flow<List<OrderOfMeritEntry>> {

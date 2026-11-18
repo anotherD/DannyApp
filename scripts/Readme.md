@@ -1,6 +1,6 @@
 
 # Requirements
-In Powershell
+In PowerShell
 pip install requests beautifulsoup4
 pip install pycountry
 

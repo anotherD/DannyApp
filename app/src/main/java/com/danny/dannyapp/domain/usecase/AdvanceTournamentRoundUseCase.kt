@@ -55,7 +55,7 @@ class AdvanceTournamentRoundUseCase(
      * mit offenen oder noch nicht verbuchten Matches herangezogen.
      *
      * @param tournamentId Die ID des zu bewertenden Turniers.
-     * @return [TournamentProgressState] mit Rundenstatus und Fortschrittsinfos, oder null wenn kein Turnier/Matches gefunden.
+     * @return [TournamentProgressState] mit Rundenstatus und Fortschrittsinfos, oder null, wenn kein Turnier/Matches gefunden.
      */
     suspend fun evaluateTournamentState(tournamentId: Long): TournamentProgressState? = withContext(Dispatchers.IO) {
         val tournament = tournamentDao.getTournamentById(tournamentId) ?: return@withContext null
@@ -117,7 +117,7 @@ class AdvanceTournamentRoundUseCase(
      * Bei der Finalrunde wird das Turnier abgeschlossen, der Finalsieger garantiert hochgestuft
      * und die aktive Runde am Turnier auf null gesetzt.
      *
-     * @param tournamentId Die ID des weiterzuschaltenden Turniers.
+     * @param tournamentId Die ID des weiter zuschaltenden Turniers.
      * @return `true` wenn der Rundenwechsel oder Turnierabschluss erfolgreich ausgeführt wurde, sonst `false`.
      */
     suspend operator fun invoke(tournamentId: Long): Boolean = withContext(Dispatchers.IO) {
