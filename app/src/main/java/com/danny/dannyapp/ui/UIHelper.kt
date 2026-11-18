@@ -1,6 +1,5 @@
 package com.danny.dannyapp.ui
 
-import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Typeface
@@ -43,8 +42,7 @@ fun SkillLevel.toColorResId(): Int {
 object UiHelper {
 
     class VerticalCenteredImageSpan(
-        drawable: Drawable,
-        private val verticalOffsetPx: Int = 3
+        drawable: Drawable
     ) : ImageSpan(drawable, ALIGN_BASELINE) {
         override fun draw(
             canvas: Canvas,
@@ -64,10 +62,6 @@ object UiHelper {
                 b.draw(this)
             }
         }
-    }
-
-    fun getWorldEmoji(): String {
-        return Country.getWorldEmoji()
     }
 
     // baut Flagge und Text zusammen und setzt den text in die TextView, flagge immer links

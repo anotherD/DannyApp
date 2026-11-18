@@ -33,29 +33,7 @@ class TournamentProgressionUseCase(
     private val safeTournamentMatchDao get() = tournamentMatchDao ?: context?.let { AppDatabase.getDatabase(it.applicationContext).tournamentMatchDao() }
     private val safeGenerateBracketUseCase get() = generateBracketUseCase ?: context?.let { GenerateBracketUseCase(it) }
 
-    /**
-     * Simulates all remaining CPU matches in the current round and then advances the tournament round.
-     * Returns true if the round was advanced or completed, false otherwise.
-     */
-    suspend fun simulateAndAdvance(tournamentId: Long): Boolean = withContext(Dispatchers.IO) {
-        completeMatchUseCase.simulateAllOpenCpuMatches(tournamentId)
-        advanceTournamentRoundUseCase(tournamentId)
-    }
 
-    /**
-     * Simulates CPU matches and advances rounds continuously until a human user match is reached
-     * or the tournament is completed.
-     */
-    suspend fun simulateUntilUserMatchOrCompleted(tournamentId: Long): Boolean = withContext(Dispatchers.IO) {
-        var advancedAny = false
-        while (true) {
-            completeMatchUseCase.simulateAllOpenCpuMatches(tournamentId)
-            val advanced = advanceTournamentRoundUseCase(tournamentId)
-            if (!advanced) break
-            advancedAny = true
-        }
-        return@withContext advancedAny
-    }
 
     /**
      * Simulates an entire tournament from start to finish.

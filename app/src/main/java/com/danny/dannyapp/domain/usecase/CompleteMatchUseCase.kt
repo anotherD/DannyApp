@@ -203,13 +203,7 @@ class CompleteMatchUseCase(
         return@withContext updatedMatch
     }
 
-    /**
-     * Overloaded helper method to simulate a match by ID.
-     */
-    suspend fun simulateMatch(matchId: Long, userSkillOverride: Int? = null): TournamentMatch? = withContext(Dispatchers.IO) {
-        val match = tournamentMatchDao.getMatchById(matchId) ?: return@withContext null
-        return@withContext simulateMatch(match, userSkillOverride)
-    }
+
 
     /**
      * Simulates all open CPU matches in the current active round for the given tournament.

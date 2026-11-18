@@ -43,7 +43,6 @@ object BracketGenerator {
             )
             TournamentEvent.GRAND_SLAM_OF_DARTS -> generateGrandSlamGroups(
                 top16OomHeads = oomSortedIds.take(16),
-                pot2MajorQualifiers = proTourSortedIds.take(16),
                 pot3Qualifiers = qualifierIds.take(16)
             )
             TournamentEvent.WORLD_GRAND_PRIX -> generateWorldGrandPrixRound1(
@@ -180,7 +179,6 @@ object BracketGenerator {
      */
     private fun generateGrandSlamGroups(
         top16OomHeads: List<Long>,
-        pot2MajorQualifiers: List<Long>,
         pot3Qualifiers: List<Long>
     ): List<MatchPairing> {
         val shuffledPot3 = pot3Qualifiers.shuffled()
@@ -352,13 +350,5 @@ object BracketGenerator {
         }
     }
 
-    fun getQualifierRoundForMatchCount(matchCount: Int, event: TournamentEvent = TournamentEvent.QUALIFIER_WM): TournamentRound {
-        val K = if (event.qualifierBoardCount > 0) event.qualifierBoardCount else 4
-        return when {
-            matchCount > 4 * K -> TournamentRound.QUAL_PRELIM
-            matchCount > 2 * K -> TournamentRound.QUAL_R1
-            matchCount > K -> TournamentRound.QUAL_R2
-            else -> TournamentRound.QUAL_FINAL
-        }
-    }
+
 }

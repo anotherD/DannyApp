@@ -2,7 +2,6 @@ package com.danny.dannyapp.domain.usecase
 
 import android.content.Context
 import com.danny.dannyapp.data.db.AppDatabase
-import com.danny.dannyapp.data.db.Player
 import com.danny.dannyapp.data.db.PlayerDao
 import com.danny.dannyapp.data.db.SeasonDao
 import com.danny.dannyapp.data.db.TourCardDao
@@ -12,12 +11,9 @@ import com.danny.dannyapp.data.db.TournamentMatch
 import com.danny.dannyapp.data.db.TournamentMatchDao
 import com.danny.dannyapp.data.db.TournamentParticipantDao
 import com.danny.dannyapp.data.db.TournamentPlacementDao
-import com.danny.dannyapp.data.db.USER_ID
 import com.danny.dannyapp.domain.enums.OrderOfMeritType
-import com.danny.dannyapp.domain.enums.SkillLevel
 import com.danny.dannyapp.domain.enums.TournamentEvent
 import com.danny.dannyapp.domain.enums.TournamentRound
-import com.danny.dannyapp.domain.model.OrderOfMeritEntry
 import com.danny.dannyapp.domain.model.TournamentProgressState
 import com.danny.dannyapp.domain.model.TournamentRoundPhase
 import kotlinx.coroutines.Dispatchers
@@ -244,10 +240,9 @@ class AdvanceTournamentRoundUseCase(
             val storedTop32 = participants.filter { it.qualificationType == "OOM_TOP_32" }.sortedBy { it.seedNumber ?: Int.MAX_VALUE }.map { it.playerId }
 
             val sortedTcOom = tournamentQualificationUseCase.sortPlayerIdsByOom(tourCardPlayerIds, oomEntries, allPlayers)
-            val fullOom = sortedTcOom
-            val oom65To96 = if (stored65To96.isNotEmpty()) stored65To96 else fullOom.drop(64).take(32)
-            val oom33To64 = if (stored33To64.isNotEmpty()) stored33To64 else fullOom.drop(32).take(32)
-            val top32Oom = if (storedTop32.isNotEmpty()) storedTop32 else fullOom.take(32)
+            val oom65To96 = if (stored65To96.isNotEmpty()) stored65To96 else sortedTcOom.drop(64).take(32)
+            val oom33To64 = if (stored33To64.isNotEmpty()) stored33To64 else sortedTcOom.drop(32).take(32)
+            val top32Oom = if (storedTop32.isNotEmpty()) storedTop32 else sortedTcOom.take(32)
 
             val nextMatches = when (currentRound) {
                 TournamentRound.R1_160 -> {

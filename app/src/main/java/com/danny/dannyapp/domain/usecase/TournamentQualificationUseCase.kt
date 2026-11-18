@@ -518,18 +518,7 @@ class TournamentQualificationUseCase(
         return@withContext groups
     }
 
-    /**
-     * Returns non-prequalified Tour Card holders for a qualifier event, sorted by Order of Merit.
-     */
-    fun getNonPrequalifiedTcHoldersForQualifier(
-        event: TournamentEvent,
-        tourCardPlayerIds: List<Long>,
-        oomList: List<OrderOfMeritEntry>,
-        ptOomList: List<OrderOfMeritEntry>,
-        allPlayers: List<Player>
-    ): List<Long> {
-        return resolveQualifierFieldSplit(event, tourCardPlayerIds, oomList, ptOomList, allPlayers).nonPrequalifiedIds
-    }
+
 
     /**
      * Generates placeholder preview matches for a specific round of a tournament.
