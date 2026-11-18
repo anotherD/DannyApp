@@ -1,4 +1,4 @@
-package com.danny.dannyapp.ui
+package com.danny.dannyapp.ui.oom
 
 import android.view.LayoutInflater
 import android.view.View
@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
 import com.danny.dannyapp.domain.model.OrderOfMeritEntry
+import com.danny.dannyapp.ui.UiHelper
 import com.google.android.material.card.MaterialCardView
 
 class OrderOfMeritAdapter : ListAdapter<OrderOfMeritEntry, OrderOfMeritAdapter.OomViewHolder>(OomDiffCallback) {
@@ -43,7 +44,6 @@ class OrderOfMeritAdapter : ListAdapter<OrderOfMeritEntry, OrderOfMeritAdapter.O
             holder.tvPlayerName.setTextColor(context.getColor(R.color.grau_text_hell))
         }
     }
-
 
     private object OomDiffCallback : DiffUtil.ItemCallback<OrderOfMeritEntry>() {
         override fun areItemsTheSame(oldItem: OrderOfMeritEntry, newItem: OrderOfMeritEntry): Boolean {

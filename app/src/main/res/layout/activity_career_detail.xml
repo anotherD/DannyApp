@@ -5,7 +5,7 @@
     android:id="@+id/careerDetailMain"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.CareerDetailActivity">
+    tools:context=".ui.career.CareerDetailActivity">
 
     <include
         android:id="@+id/toolbar"

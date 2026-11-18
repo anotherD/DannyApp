@@ -1,4 +1,4 @@
-package com.danny.dannyapp.ui
+package com.danny.dannyapp.ui.career
 
 import android.content.Intent
 import android.os.Bundle
@@ -17,6 +17,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
 import com.danny.dannyapp.data.db.Career
 import com.danny.dannyapp.data.db.UserProfile
+import com.danny.dannyapp.ui.BaseActivity
+import com.danny.dannyapp.ui.profile.ProfilesActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.launch

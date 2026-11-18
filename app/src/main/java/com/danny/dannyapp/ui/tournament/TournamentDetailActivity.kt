@@ -1,8 +1,7 @@
-package com.danny.dannyapp.ui
+package com.danny.dannyapp.ui.tournament
 
 import android.os.Bundle
 import android.view.View
-import com.danny.dannyapp.domain.usecase.TournamentQualificationUseCase
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.HorizontalScrollView
@@ -21,6 +20,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
 import com.danny.dannyapp.domain.enums.TournamentEvent
+import com.danny.dannyapp.domain.usecase.TournamentQualificationUseCase
+import com.danny.dannyapp.ui.BaseActivity
+import com.danny.dannyapp.ui.UiHelper
+import com.danny.dannyapp.ui.enums.RoundStatus
 import com.danny.dannyapp.ui.model.MatchUiModel
 import com.danny.dannyapp.ui.model.PrizeMoneyItem
 import com.google.android.material.card.MaterialCardView
@@ -534,7 +537,7 @@ class TournamentDetailActivity : BaseActivity() {
                     scrollReviewRoundPills.visibility = View.GONE
                     rvReviewMatches.visibility = View.GONE
                     bracketViewReview.visibility = View.VISIBLE
-                    val reviewRoundStatuses = List(state.availableRoundDisplayNames.size) { com.danny.dannyapp.ui.enums.RoundStatus.COMPLETED }
+                    val reviewRoundStatuses = List(state.availableRoundDisplayNames.size) { RoundStatus.COMPLETED }
                     setupQualifierBoardFilterChips(state.event, state.allRoundsMatches, scrollReviewBoardPills, chipGroupReviewBoards) { filteredRounds ->
                         bracketViewReview.setRoundHeaders(state.availableRoundDisplayNames, reviewRoundStatuses)
                         bracketViewReview.setRounds(filteredRounds, state.selectedRoundIndex, state.grandSlamGroupStandings)
@@ -649,11 +652,6 @@ class TournamentDetailActivity : BaseActivity() {
         onFilterChanged(filtered)
     }
 
-    /**
-     * Scrollt die Match-Liste oder den Turnierbaum zentriert auf das User-Match in der aktuellen Runde.
-     * Im Turnierbaum-Modus wird der Match-Index direkt im gefilterten [TournamentBracketView] gesucht,
-     * damit auch bei aktivem Qualifier-Board-Filter die korrekte Kachel getroffen wird.
-     */
     private fun onFocusUserMatchClicked() {
         val state = viewModel.uiState.value
         if (settingsManager.isBracketViewEnabled) {
@@ -685,9 +683,6 @@ class TournamentDetailActivity : BaseActivity() {
         }
     }
 
-    /**
-     * Schaltet zwischen Rundenliste und Turnierbaum-Ansicht um.
-     */
     private fun onToggleBracketViewClicked() {
         selectedBoardFilterIndex = -2
         settingsManager.isBracketViewEnabled = !settingsManager.isBracketViewEnabled
@@ -695,9 +690,6 @@ class TournamentDetailActivity : BaseActivity() {
         renderState(viewModel.uiState.value)
     }
 
-    /**
-     * Aktualisiert das Icon und die Content-Description des Ansichts-Wechsel-Buttons basierend auf [com.danny.dannyapp.data.SettingsManager.isBracketViewEnabled].
-     */
     private fun updateBracketFabIcon() {
         if (settingsManager.isBracketViewEnabled) {
             fabToggleBracketView.setImageResource(R.drawable.ic_view_list)
@@ -708,9 +700,6 @@ class TournamentDetailActivity : BaseActivity() {
         }
     }
 
-    /**
-     * Aktualisiert die Sichtbarkeit und den Zustand der Schwebe-Buttons (FABs).
-     */
     private fun updateFabState(state: TournamentDetailState) {
         when (state) {
             is TournamentDetailState.Active -> {
@@ -728,9 +717,6 @@ class TournamentDetailActivity : BaseActivity() {
         updateBracketFabIcon()
     }
 
-    /**
-     * Aktiviert oder deaktiviert den Button [fabFocusUserMatch] abhängig davon, ob ein User-Match in der Liste vorhanden ist.
-     */
     private fun updateUserMatchFocusFab(matches: List<MatchUiModel>) {
         val hasUserMatch = matches.any { it.isUserMatch }
         fabFocusUserMatch.isEnabled = hasUserMatch

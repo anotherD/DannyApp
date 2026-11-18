@@ -1,4 +1,4 @@
-package com.danny.dannyapp.ui
+package com.danny.dannyapp.ui.career
 
 import android.view.LayoutInflater
 import android.view.View
@@ -8,8 +8,9 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
-import com.danny.dannyapp.domain.model.Country
 import com.danny.dannyapp.data.db.CareerWithProfile
+import com.danny.dannyapp.domain.model.Country
+import com.danny.dannyapp.ui.UiHelper
 
 class CareerAdapter(
     private val onItemClick: (CareerWithProfile) -> Unit,

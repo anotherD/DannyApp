@@ -30,15 +30,15 @@
             android:exported="false" />
 
         <activity
-            android:name=".ui.CareersActivity"
+            android:name=".ui.career.CareersActivity"
             android:exported="false" />
 
         <activity
-            android:name=".ui.ProfilesActivity"
+            android:name=".ui.profile.ProfilesActivity"
             android:exported="false" />
 
         <activity
-            android:name=".ui.CareerDetailActivity"
+            android:name=".ui.career.CareerDetailActivity"
             android:exported="false" />
 
         <activity
@@ -49,10 +49,8 @@
             android:name=".ui.settings.SettingsPlayersActivity"
             android:exported="false" />
 
-
-
         <activity
-            android:name=".ui.TournamentDetailActivity"
+            android:name=".ui.tournament.TournamentDetailActivity"
             android:exported="false" />
 
     </application>

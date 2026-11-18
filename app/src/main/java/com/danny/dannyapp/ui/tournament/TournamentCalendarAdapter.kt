@@ -1,4 +1,4 @@
-package com.danny.dannyapp.ui
+package com.danny.dannyapp.ui.tournament
 
 import android.view.LayoutInflater
 import android.view.View

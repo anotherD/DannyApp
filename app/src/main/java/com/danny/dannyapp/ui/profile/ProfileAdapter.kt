@@ -1,4 +1,4 @@
-package com.danny.dannyapp.ui
+package com.danny.dannyapp.ui.profile
 
 import android.view.LayoutInflater
 import android.view.View
@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
 import com.danny.dannyapp.data.db.UserProfile
+import com.danny.dannyapp.ui.UiHelper
 
 class ProfileAdapter(
     private val onItemClick: (UserProfile) -> Unit,

@@ -5,7 +5,7 @@
     android:id="@+id/tournamentDetailMain"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.TournamentDetailActivity">
+    tools:context=".ui.tournament.TournamentDetailActivity">
 
     <include
         android:id="@+id/toolbar"
@@ -420,7 +420,7 @@
 
         <!-- Active Bracket ViewPager2 -->
         <!-- Active Bracket Custom View -->
-        <com.danny.dannyapp.ui.TournamentBracketView
+        <com.danny.dannyapp.ui.tournament.TournamentBracketView
             android:id="@+id/bracketViewActive"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -731,7 +731,7 @@
 
         <!-- Review Bracket ViewPager2 -->
         <!-- Review Bracket Custom View -->
-        <com.danny.dannyapp.ui.TournamentBracketView
+        <com.danny.dannyapp.ui.tournament.TournamentBracketView
             android:id="@+id/bracketViewReview"
             android:layout_width="0dp"
             android:layout_height="0dp"

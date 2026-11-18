@@ -2,9 +2,6 @@ package com.danny.dannyapp.domain.usecase
 
 import android.content.Context
 import com.danny.dannyapp.data.db.AppDatabase
-import com.danny.dannyapp.data.db.PlayerDao
-import com.danny.dannyapp.data.db.SeasonDao
-
 import com.danny.dannyapp.data.db.Tournament
 import com.danny.dannyapp.data.db.TournamentDao
 import com.danny.dannyapp.data.db.TournamentMatch
@@ -27,8 +24,6 @@ class AdvanceTournamentRoundUseCase(
     private val tournamentDao: TournamentDao,
     private val tournamentMatchDao: TournamentMatchDao,
     private val tournamentPlacementDao: TournamentPlacementDao,
-    private val seasonDao: SeasonDao,
-    private val playerDao: PlayerDao,
     private val tournamentParticipantDao: TournamentParticipantDao,
     private val tournamentQualificationUseCase: TournamentQualificationUseCase
 ) {
@@ -38,8 +33,6 @@ class AdvanceTournamentRoundUseCase(
         AppDatabase.getDatabase(context.applicationContext).tournamentDao(),
         AppDatabase.getDatabase(context.applicationContext).tournamentMatchDao(),
         AppDatabase.getDatabase(context.applicationContext).tournamentPlacementDao(),
-        AppDatabase.getDatabase(context.applicationContext).seasonDao(),
-        AppDatabase.getDatabase(context.applicationContext).playerDao(),
         AppDatabase.getDatabase(context.applicationContext).tournamentParticipantDao(),
         TournamentQualificationUseCase(context)
     )
@@ -403,17 +396,6 @@ class AdvanceTournamentRoundUseCase(
                 if (changed) {
                     tournamentMatchDao.updateMatch(updated)
                 }
-            }
-            return@withContext
-        }
-
-        if (event == TournamentEvent.EUROPEAN_TOUR && match.round == TournamentRound.L48.name) {
-            val l32Matches = allMatches.filter { it.round == TournamentRound.L32.name }
-            val (targetIdx, isPlayer1Slot) = resolveNextRoundSlot(event, TournamentRound.L48, match.matchIndex)
-            val l32Match = l32Matches.find { it.matchIndex == targetIdx }
-            if (l32Match != null) {
-                val updated = if (isPlayer1Slot) l32Match.copy(player1Id = winnerId) else l32Match.copy(player2Id = winnerId)
-                tournamentMatchDao.updateMatch(updated)
             }
             return@withContext
         }

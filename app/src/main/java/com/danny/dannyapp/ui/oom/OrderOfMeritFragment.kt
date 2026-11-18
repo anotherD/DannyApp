@@ -1,4 +1,4 @@
-package com.danny.dannyapp.ui
+package com.danny.dannyapp.ui.oom
 
 import android.os.Bundle
 import android.view.View
@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
 import com.danny.dannyapp.domain.enums.OrderOfMeritType
+import com.danny.dannyapp.ui.UiHelper
 import com.google.android.material.card.MaterialCardView
 import kotlinx.coroutines.launch
 

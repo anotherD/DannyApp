@@ -1,8 +1,9 @@
-package com.danny.dannyapp.ui
+package com.danny.dannyapp.ui.tournament
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.danny.dannyapp.R
 import com.danny.dannyapp.data.db.AppDatabase
 import com.danny.dannyapp.data.db.CareerRepository
 import com.danny.dannyapp.data.db.Season
@@ -10,6 +11,9 @@ import com.danny.dannyapp.data.db.Tournament
 import com.danny.dannyapp.data.db.TournamentMatch
 import com.danny.dannyapp.data.db.TournamentPlacement
 import com.danny.dannyapp.data.db.USER_ID
+import com.danny.dannyapp.domain.enums.SkillLevel
+import com.danny.dannyapp.domain.enums.TournamentRound
+import com.danny.dannyapp.domain.model.Country
 import com.danny.dannyapp.domain.usecase.AdvanceTournamentRoundUseCase
 import com.danny.dannyapp.domain.usecase.GenerateBracketUseCase
 import com.danny.dannyapp.domain.usecase.GenerateSeasonCalendarUseCase
@@ -17,16 +21,12 @@ import com.danny.dannyapp.domain.usecase.GetTournamentSummaryUseCase
 import com.danny.dannyapp.domain.usecase.TournamentPhaseState
 import com.danny.dannyapp.domain.usecase.TournamentProgressionUseCase
 import com.danny.dannyapp.domain.usecase.TournamentSummary
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import com.danny.dannyapp.domain.model.Country
-import com.danny.dannyapp.domain.enums.SkillLevel
-import com.danny.dannyapp.domain.enums.TournamentRound
-import com.danny.dannyapp.R
 import com.danny.dannyapp.ui.enums.TournamentStatus
 import com.danny.dannyapp.ui.model.PlayerUiInfo
 import com.danny.dannyapp.ui.model.TournamentUiModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
@@ -52,8 +52,6 @@ class TournamentCalendarViewModel(application: Application) : AndroidViewModel(a
     private val generateBracketUseCase = GenerateBracketUseCase(application)
     private val advanceTournamentRoundUseCase = AdvanceTournamentRoundUseCase(application)
     private val tournamentProgressionUseCase = TournamentProgressionUseCase(application)
-
-    /** Domain use-case: single source of truth for season-level tournament summaries. */
     private val getTournamentSummaryUseCase = GetTournamentSummaryUseCase()
 
     private val _simulatingTournamentId = MutableStateFlow<Long?>(null)
@@ -75,7 +73,6 @@ class TournamentCalendarViewModel(application: Application) : AndroidViewModel(a
                     seasonDao.getCurrentSeasonForCareer(careerId) ?: throw IllegalStateException("Could not create season")
                 }
 
-                // Ensure calendar is generated
                 generateSeasonCalendarUseCase(season.id)
 
                 val allPlayers = playerDao.getAllPlayersList().associateBy { it.id }
@@ -99,14 +96,6 @@ class TournamentCalendarViewModel(application: Application) : AndroidViewModel(a
         }
     }
 
-    /**
-     * Builds the [TournamentUiModel] list for the season calendar by delegating all
-     * status/winner/phase logic to [GetTournamentSummaryUseCase] (single source of truth).
-     *
-     * Active rounds are fetched once per active tournament via [AdvanceTournamentRoundUseCase]
-     * and passed into the domain use-case; the ViewModel only maps the resulting
-     * [TournamentSummary] objects onto UI models.
-     */
     private suspend fun buildTournamentUiModels(
         tournaments: List<Tournament>,
         matchesList: List<TournamentMatch>,
@@ -117,7 +106,6 @@ class TournamentCalendarViewModel(application: Application) : AndroidViewModel(a
         val matchesByTournament = matchesList.groupBy { it.tournamentId }
         val placementsByTournament = placementsList.groupBy { it.tournamentId }
 
-        // Determine the active round for every tournament that is not completed and has matches.
         val activeRoundsByTournament: Map<Long, TournamentRound?> = tournaments
             .filter { !it.isCompleted && (matchesByTournament[it.id]?.isNotEmpty() == true) }
             .associate { tournament ->
@@ -138,12 +126,10 @@ class TournamentCalendarViewModel(application: Application) : AndroidViewModel(a
                 TournamentPhaseState.PLANNED -> TournamentStatus.PLANNED
             }
 
-            // Resolve winner name from winnerId supplied by the domain use-case.
             val winnerName: String? = summary.winnerId?.let { winnerId ->
                 if (winnerId == USER_ID) getApplication<Application>().getString(R.string.player_name_you) else allPlayers[winnerId]?.name ?: getApplication<Application>().getString(R.string.player_name_unknown)
             }
 
-            // Resolve qualifier winners to PlayerUiInfo (player names, flags, skill levels).
             val qualifierWinners: List<PlayerUiInfo>? = if (summary.qualifierWinnerIds.isNotEmpty()) {
                 summary.qualifierWinnerIds.map { winnerId ->
                     if (winnerId == USER_ID) {
@@ -160,7 +146,6 @@ class TournamentCalendarViewModel(application: Application) : AndroidViewModel(a
                 }
             } else null
 
-            // Translate the domain round name to a human-readable display string.
             val activeRoundName: String? = summary.activeRound?.let { activeRound ->
                 TournamentUiHelper.getDisplayRoundName(activeRound.name, getApplication())
             }

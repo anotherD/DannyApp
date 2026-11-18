@@ -1,4 +1,4 @@
-package com.danny.dannyapp.ui
+package com.danny.dannyapp.ui.career
 
 import android.content.Intent
 import android.os.Bundle
@@ -12,8 +12,13 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.danny.dannyapp.R
+import com.danny.dannyapp.ui.UiHelper
 import com.danny.dannyapp.ui.enums.TournamentStatus
 import com.danny.dannyapp.ui.model.TournamentUiModel
+import com.danny.dannyapp.ui.tournament.TournamentCalendarState
+import com.danny.dannyapp.ui.tournament.TournamentCalendarViewModel
+import com.danny.dannyapp.ui.tournament.TournamentDetailActivity
+import com.danny.dannyapp.ui.tournament.TournamentUiHelper
 import kotlinx.coroutines.launch
 
 class CareerOverviewFragment : Fragment(R.layout.fragment_career_overview) {

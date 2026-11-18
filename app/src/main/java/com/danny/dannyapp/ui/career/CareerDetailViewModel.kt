@@ -1,4 +1,4 @@
-package com.danny.dannyapp.ui
+package com.danny.dannyapp.ui.career
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel

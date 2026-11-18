@@ -9,7 +9,7 @@ Dieses Dokument bietet einen Gesamtüberblick über die Schichtenarchitektur, ze
 Die App folgt dem **Model-View-ViewModel (MVVM)** Muster mit **Kotlin Coroutines / Flow** und strikter Schichten-Trennung:
 
 ```
-[ UI Layer: ui/ (Activities, Fragments, ViewModels, Adapter) ]
+[ UI Layer: ui/ (Activities, Fragments, ViewModels, Adapter in feature sub-packages: career/, profile/, oom/, tournament/, settings/, model/, enums/) ]
                               │
                               ▼
 [ Domain Layer: domain/ (UseCases, Models, Enums, Config) ]
@@ -64,9 +64,11 @@ Wenn du `players.csv` in den Assets bearbeitest:
 * **`TournamentQualificationUseCase`**: Zentrale Logik für Qualifikationspools, Setzlisten, OOM-Sortierung, Qualifier-Board-Zuordnung und Vorschau-Paarungen.
 * **`GetPlayersUseCase`**: Reaktiver Zugriff auf sortierte Spielerlisten für die Spielerkonfiguration (`ConfigPlayersActivity`).
 
-### 4.2 UI-Helper & Builder (`ui/`)
-* **`TournamentDetailUiHelper`**: UI-Hilfsklasse für die Aufbereitung und Darstellung von Turnierdetails.
-* **`TournamentBracketCardBuilder`**: Builder-Klasse zur Erstellung von Turnierbaum-Karten (Brackets).
+### 4.2 UI-Paketstruktur & Helper (`ui/`)
+* **`ui/career/`**: Karrieren-Übersicht, Detailansicht und Pager.
+* **`ui/profile/`**: Profilverwaltung und -auswahl.
+* **`ui/oom/`**: Order of Merit Container, Fragmente und Adapter.
+* **`ui/tournament/`**: Turnierkalender, Turnierdetails, ViewModel, Mapper, Bracket-View und UI-Helper (`TournamentDetailUiHelper`, `TournamentBracketCardBuilder`).
 
 ---
 

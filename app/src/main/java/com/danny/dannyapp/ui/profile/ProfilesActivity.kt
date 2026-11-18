@@ -1,4 +1,4 @@
-package com.danny.dannyapp.ui
+package com.danny.dannyapp.ui.profile
 
 import android.os.Bundle
 import android.widget.ArrayAdapter
@@ -14,8 +14,9 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
-import com.danny.dannyapp.domain.model.Country
 import com.danny.dannyapp.data.db.UserProfile
+import com.danny.dannyapp.domain.model.Country
+import com.danny.dannyapp.ui.BaseActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.launch
@@ -107,7 +108,6 @@ class ProfilesActivity : BaseActivity() {
         val countryAdapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, countryDisplayList)
         actvCountry.setAdapter(countryAdapter)
 
-        // Default to Country.DEFAULT_USER_CODE if present
         var selectedCountryCode = Country.DEFAULT_USER_CODE
         val defaultCountryIndex = countries.indexOfFirst { it.code.equals(Country.DEFAULT_USER_CODE, ignoreCase = true) }
         if (defaultCountryIndex >= 0) {

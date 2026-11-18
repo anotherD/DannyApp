@@ -1,13 +1,13 @@
-package com.danny.dannyapp.ui
+package com.danny.dannyapp.ui.profile
 
 import android.app.Application
 import android.database.sqlite.SQLiteConstraintException
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.danny.dannyapp.domain.model.Country
 import com.danny.dannyapp.data.db.CareerRepository
 import com.danny.dannyapp.data.db.UserProfile
 import com.danny.dannyapp.data.db.UserProfileRepository
+import com.danny.dannyapp.domain.model.Country
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn

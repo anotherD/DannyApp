@@ -1,4 +1,4 @@
-package com.danny.dannyapp.ui
+package com.danny.dannyapp.ui.oom
 
 import android.os.Bundle
 import android.view.View

@@ -10,7 +10,6 @@ import com.danny.dannyapp.data.db.Tournament
 import com.danny.dannyapp.data.db.TournamentDao
 import com.danny.dannyapp.data.db.TournamentPlacementDao
 import com.danny.dannyapp.data.db.USER_ID
-import com.danny.dannyapp.R
 import com.danny.dannyapp.domain.enums.OrderOfMeritType
 import com.danny.dannyapp.domain.enums.SkillLevel
 import com.danny.dannyapp.domain.model.OrderOfMeritEntry
@@ -26,16 +25,14 @@ class GetOrderOfMeritUseCase(
     private val seasonDao: SeasonDao,
     private val tournamentDao: TournamentDao,
     private val placementDao: TournamentPlacementDao,
-    private val playerDao: PlayerDao,
-    private val context: Context? = null
+    private val playerDao: PlayerDao
 ) {
     constructor(context: Context) : this(
         AppDatabase.getDatabase(context.applicationContext).careerDao(),
         AppDatabase.getDatabase(context.applicationContext).seasonDao(),
         AppDatabase.getDatabase(context.applicationContext).tournamentDao(),
         AppDatabase.getDatabase(context.applicationContext).tournamentPlacementDao(),
-        AppDatabase.getDatabase(context.applicationContext).playerDao(),
-        context.applicationContext
+        AppDatabase.getDatabase(context.applicationContext).playerDao()
     )
 
     suspend operator fun invoke(careerId: Long, type: OrderOfMeritType): List<OrderOfMeritEntry> = withContext(Dispatchers.IO) {
@@ -55,7 +52,7 @@ class GetOrderOfMeritUseCase(
         val playerMap = allPlayers.associateBy { it.id }
 
         val careerWithProfile = careerDao.getCareerById(careerId)
-        val userName = careerWithProfile?.playerName?.ifBlank { null } ?: careerWithProfile?.profileName ?: careerWithProfile?.career?.name ?: context?.getString(R.string.player_name_you) ?: "Du"
+        val userName = careerWithProfile?.playerName?.ifBlank { null } ?: careerWithProfile?.profileName ?: careerWithProfile?.career?.name ?: "Du"
         val userCountryCode = careerWithProfile?.countryCode ?: Country.DEFAULT_USER_CODE
         val userSkill = careerWithProfile?.career?.level ?: SkillLevel.DEFAULT.value
 
@@ -128,7 +125,7 @@ class GetOrderOfMeritUseCase(
                 skill = userSkill
             } else {
                 val player = playerMap[playerId]
-                name = player?.name ?: context?.getString(R.string.player_name_unknown) ?: "Unbekannt"
+                name = player?.name ?: "Unbekannt"
                 countryCode = player?.countryCode ?: Country.DEFAULT_CODE
                 skill = player?.skill ?: SkillLevel.DEFAULT.value
             }

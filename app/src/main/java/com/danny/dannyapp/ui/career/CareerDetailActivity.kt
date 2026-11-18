@@ -1,4 +1,4 @@
-package com.danny.dannyapp.ui
+package com.danny.dannyapp.ui.career
 
 import android.os.Bundle
 import androidx.activity.viewModels
@@ -7,6 +7,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewpager2.widget.ViewPager2
 import com.danny.dannyapp.R
+import com.danny.dannyapp.ui.BaseActivity
+import com.danny.dannyapp.ui.oom.OrderOfMeritViewModel
+import com.danny.dannyapp.ui.tournament.TournamentCalendarViewModel
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.launch

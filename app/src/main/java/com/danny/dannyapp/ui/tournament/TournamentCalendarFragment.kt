@@ -1,4 +1,4 @@
-package com.danny.dannyapp.ui
+package com.danny.dannyapp.ui.tournament
 
 import android.content.Intent
 import android.os.Bundle

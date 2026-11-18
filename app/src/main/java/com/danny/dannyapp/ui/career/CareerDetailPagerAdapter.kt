@@ -1,7 +1,9 @@
-package com.danny.dannyapp.ui
+package com.danny.dannyapp.ui.career
 
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import com.danny.dannyapp.ui.oom.OrderOfMeritContainerFragment
+import com.danny.dannyapp.ui.tournament.TournamentCalendarFragment
 
 class CareerDetailPagerAdapter(
     fragmentActivity: androidx.fragment.app.FragmentActivity,
