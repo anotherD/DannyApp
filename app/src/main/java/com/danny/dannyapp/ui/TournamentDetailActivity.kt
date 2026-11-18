@@ -650,37 +650,38 @@ class TournamentDetailActivity : BaseActivity() {
     }
 
     /**
-     * Scrollt die Match-Liste oder den Turnierbaum zentriert auf das Match des Users in der aktuellen Runde.
+     * Scrollt die Match-Liste oder den Turnierbaum zentriert auf das User-Match in der aktuellen Runde.
+     * Im Turnierbaum-Modus wird der Match-Index direkt im gefilterten [TournamentBracketView] gesucht,
+     * damit auch bei aktivem Qualifier-Board-Filter die korrekte Kachel getroffen wird.
      */
     private fun onFocusUserMatchClicked() {
         val state = viewModel.uiState.value
-        val matches = when (state) {
-            is TournamentDetailState.Active -> state.matches
-            is TournamentDetailState.Review -> state.matches
-            else -> emptyList()
-        }
-        val userMatchIndex = matches.indexOfFirst { it.isUserMatch }
-        if (userMatchIndex != -1) {
-            if (settingsManager.isBracketViewEnabled) {
-                val bracketView = when (state) {
-                    is TournamentDetailState.Active -> bracketViewActive
-                    is TournamentDetailState.Review -> bracketViewReview
-                    else -> return
-                }
-                val roundIndex = when (state) {
-                    is TournamentDetailState.Active -> state.selectedRoundIndex
-                    is TournamentDetailState.Review -> state.selectedRoundIndex
-                    else -> 0
-                }
-                bracketView.scrollToUserMatch(roundIndex, userMatchIndex)
-            } else {
-                val targetRecyclerView = when (state) {
-                    is TournamentDetailState.Active -> rvMatches
-                    is TournamentDetailState.Review -> rvReviewMatches
-                    else -> return
-                }
-                TournamentDetailUiHelper.scrollToMatchCentered(targetRecyclerView, userMatchIndex)
+        if (settingsManager.isBracketViewEnabled) {
+            val bracketView = when (state) {
+                is TournamentDetailState.Active -> bracketViewActive
+                is TournamentDetailState.Review -> bracketViewReview
+                else -> return
             }
+            val roundIndex = when (state) {
+                is TournamentDetailState.Active -> state.selectedRoundIndex
+                is TournamentDetailState.Review -> state.selectedRoundIndex
+                else -> 0
+            }
+            bracketView.scrollToUserMatch(roundIndex)
+        } else {
+            val filteredMatches = when (state) {
+                is TournamentDetailState.Active -> state.matches
+                is TournamentDetailState.Review -> state.matches
+                else -> emptyList()
+            }
+            val userMatchIndex = filteredMatches.indexOfFirst { matchUiModel -> matchUiModel.isUserMatch }
+            if (userMatchIndex == -1) return
+            val targetRecyclerView = when (state) {
+                is TournamentDetailState.Active -> rvMatches
+                is TournamentDetailState.Review -> rvReviewMatches
+                else -> return
+            }
+            TournamentDetailUiHelper.scrollToMatchCentered(targetRecyclerView, userMatchIndex)
         }
     }
 
