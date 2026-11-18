@@ -32,6 +32,8 @@ Eine Saison umfasst folgende Turnierkategorien (konfiguriert in season_calendar_
 * Major Qualifiers: 2 pro Saison (`QUALIFIER_GRAND_SLAM` vor dem Grand Slam of Darts, `QUALIFIER_WM` vor der World Championship)
 * **Zentrale Kalender- & Turnier-Konfiguration (`app/src/main/assets/season_calendar_2027.json`):** Die exakte chronologische Reihenfolge aller Saisonturniere (`order`), deren Austragungsstädte (`hostCity`) und Gastgeberländer (`hostCountry`), alle Runden-Preisgelder und Match-Distanzen (`events`) sowie die Dokumentationsfelder `date` und `date_source` zur Nachvollziehbarkeit sind zentral in `season_calendar_2027.json` gepflegt (Single Source of Truth).
 
+Für die Turnier-Vorschau, Setzlisten-, Qualifikations- und Gruppenberechnung greifen das System sowie UI-Komponenten auf die zentralen `TournamentEvent`-Properties (`isQualifier`, `isMajor`, `qualifierBoardCount`) sowie auf dedizierte Use-Cases wie `TournamentQualificationUseCase`, `CalculateGroupStandingsUseCase` und `GetTournamentSummaryUseCase` zurück.
+
 Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
 
 ### 2.1 Players Championship (PC)
@@ -276,6 +278,7 @@ Alle Tour Card Holder Qualifier (`QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIF
         * Sieger Gruppe C gegen Sieger Gruppe D
         * Sieger Gruppe E gegen Sieger Gruppe F
         * ... das System läuft exakt so weiter paarweise durch bis: Sieger Gruppe O gegen Sieger Gruppe P.
+    *(Hinweis zur Berechnung: Die exakte Tabellen- und Gruppenberechnung für den Grand Slam erfolgt über das `CalculateGroupStandingsUseCase` als Single Source of Truth).*
 *   **Preisgeldaufschlüsselung (Gesamt: £1.000.000):**
 
 | Platzierung / Runde | Enum-Key | Anzahl Spieler | Preisgeld pro Spieler |
@@ -394,7 +397,10 @@ Alle konkreten Runden-Distanzen (Best-of-Legs/Sets) aller Turniere sind zentral 
 Um das MVVM-Muster sauber einzuhalten, ist die komplexe Geschäfts- und Berechnungslogik in dedizierte Use-Cases und Domain-Klassen ausgelagert:
 
 *   **`TournamentConfigLoader` & `season_calendar_2027.json`**: Zentraler Loader inkl. Fail-Fast-Validierung für Kalender, Preisgelder und Match-Distanzen.
-*   **`TournamentEvent`**: Enum aller Turniertypen inkl. Gesamtpreisgeld und Regel-Mapping für Match-Distanzen und Preisgeld-Auszahlungen pro Runde (inkl. `QUALIFIER_WM`).
+*   **`TournamentEvent`**: Enum aller Turniertypen inkl. Gesamtpreisgeld und Regel-Mapping für Match-Distanzen, Preisgeld-Auszahlungen pro Runde (inkl. `QUALIFIER_WM`) sowie zentralen Properties (`isQualifier`, `isMajor`, `qualifierBoardCount`).
+*   **`TournamentQualificationUseCase`**: Zentrale Logik für Qualifikationspools, Setzlisten, OOM-Sortierung, Qualifier-Board-Zuordnung und Vorschau-Paarungen.
+*   **`CalculateGroupStandingsUseCase`**: Single Source of Truth für Grand-Slam-Gruppentabellen und Tabellenberechnung.
+*   **`GetTournamentSummaryUseCase`**: Einheitliche Zustandsermittlung (`COMPLETED`/`ACTIVE`/`PLANNED`), Sieger- & User-Platzierungs-Zusammenfassung für den Saisonkalender und die Detailansicht.
 *   **`TournamentRound`**: Enum aller Turnierrunden von Gruppenphase bis Finale/Sieger.
 *   **`MatchDistance`**: Data Class zur Definition von Best-of-Legs/Sets, Legs pro Set und Two-Clear-Legs-Regeln.
 *   **`BracketGenerator`**: Algorithmische Generierung von Setzlisten und Erstrunden-Paarungen für alle Turniertypen inkl. dynamischer Qualifikanten-Brackets mit Vorrunden/Freilosen.

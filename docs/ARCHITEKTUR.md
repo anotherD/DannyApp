@@ -56,7 +56,22 @@ Wenn du `players.csv` in den Assets bearbeitest:
 
 ---
 
-## 📚 4. Weiterführende Dokumentation
+## 📚 4. Domain UseCases & UI-Helper
+
+### 4.1 Domain UseCases (`domain/usecase/`)
+* **`CalculateGroupStandingsUseCase`**: Single Source of Truth für Grand-Slam-Gruppentabellen und Tabellenberechnung.
+* **`GetTournamentSummaryUseCase`**: Einheitliche Zustandsermittlung (`COMPLETED`/`ACTIVE`/`PLANNED`), Sieger- & User-Platzierungs-Zusammenfassung für den Saisonkalender und die Detailansicht.
+* **`TournamentQualificationUseCase`**: Zentrale Logik für Qualifikationspools, Setzlisten, OOM-Sortierung, Qualifier-Board-Zuordnung und Vorschau-Paarungen.
+* **`GetPlayersUseCase`**: Reaktiver Zugriff auf sortierte Spielerlisten für die Spielerkonfiguration (`ConfigPlayersActivity`).
+
+### 4.2 UI-Helper & Builder (`ui/`)
+* **`TournamentDetailUiHelper`**: UI-Hilfsklasse für die Aufbereitung und Darstellung von Turnierdetails.
+* **`TournamentBracketCardBuilder`**: Builder-Klasse zur Erstellung von Turnierbaum-Karten (Brackets).
+* **`TournamentPreviewHelper`**: Arbeitet als reiner UI-Delegate ohne direkte DAO-Zugriffe und greift sauber auf die Domain-Layer-Abstraktionen zu.
+
+---
+
+## 📚 5. Weiterführende Dokumentation
 
 * [🎯 Fachkonzept & Saison-Logik](SAISON_LOGIK.md)
 * [📅 Saisonkalender, Turniere & Preisgeld](SAISON_KALENDER_UND_TURNIERE.md)
