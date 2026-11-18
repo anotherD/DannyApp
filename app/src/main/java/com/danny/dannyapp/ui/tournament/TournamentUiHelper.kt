@@ -7,10 +7,10 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.danny.dannyapp.R
 import com.danny.dannyapp.data.SettingsManager
+import com.danny.dannyapp.domain.model.Country
 import com.danny.dannyapp.data.db.Tournament
 import com.danny.dannyapp.domain.enums.TournamentEvent
 import com.danny.dannyapp.domain.enums.TournamentRound
-import com.danny.dannyapp.domain.model.Country
 import com.danny.dannyapp.ui.UiHelper
 import com.danny.dannyapp.ui.enums.TournamentStatus
 import com.danny.dannyapp.ui.model.PlayerUiInfo
@@ -49,7 +49,7 @@ object TournamentUiHelper {
             else -> context.getString(R.string.tournament_type_players_championship)
         }
 
-        val colorResId = when {
+        val colorRes = when {
             isMajor -> R.color.badge_major
             isMajorQualifier -> R.color.badge_major_qualifier
             isEtQualifier -> R.color.badge_et_qualifier
@@ -57,65 +57,104 @@ object TournamentUiHelper {
             else -> R.color.badge_players_championship
         }
 
-        return TypeBadgeInfo(text, colorResId)
+        return TypeBadgeInfo(text, colorRes)
     }
 
-    fun bindTournamentHeader(
-        context: Context,
-        tvTitle: TextView,
-        tvStatusBadge: TextView,
-        tvTypeBadge: TextView,
-        tvHost: TextView,
-        tournament: Tournament,
-        statusText: String,
-        statusColorResId: Int,
-        cardView: MaterialCardView? = null
-    ) {
-        tvTitle.text = tournament.name
-        tvStatusBadge.text = statusText
-        tvStatusBadge.setBackgroundColor(ContextCompat.getColor(context, statusColorResId))
+    data class StatusBadgeInfo(val text: String, val colorResId: Int)
 
-        val typeBadgeInfo = getTournamentTypeBadgeInfo(context, tournament.type)
-        tvTypeBadge.text = typeBadgeInfo.text
-        tvTypeBadge.setBackgroundColor(ContextCompat.getColor(context, typeBadgeInfo.colorResId))
+    fun getStatusBadgeInfo(context: Context, model: TournamentUiModel): StatusBadgeInfo {
+        val event = try { TournamentEvent.valueOf(model.tournament.type) } catch (_: Exception) { null }
+        val isMultiWinnerQualifier = event?.isQualifier == true
+        val text = when (model.status) {
+            TournamentStatus.COMPLETED -> {
+                if (!isMultiWinnerQualifier && model.winnerName != null) {
+                    context.getString(R.string.tournament_status_winner_format, model.winnerName)
+                } else {
+                    context.getString(R.string.tournament_status_completed)
+                }
+            }
+            TournamentStatus.ACTIVE -> {
+                if (!model.activeRoundName.isNullOrBlank()) {
+                    model.activeRoundName
+                } else {
+                    context.getString(R.string.tournament_status_active)
+                }
+            }
+            TournamentStatus.PLANNED -> context.getString(R.string.tournament_status_planned)
+        }
 
-        val hostText = getTournamentCity(tournament.hostCountry, tournament.hostCity)
-        val hostCountryCode = tournament.hostCountry ?: Country.DEFAULT_CODE
-        UiHelper.formatFlagAndText(tvHost, hostCountryCode, hostText)
+        val colorRes = when (model.status) {
+            TournamentStatus.COMPLETED -> R.color.status_completed
+            TournamentStatus.ACTIVE -> R.color.status_active
+            TournamentStatus.PLANNED -> R.color.status_planned
+        }
 
-        cardView?.strokeColor = ContextCompat.getColor(context, statusColorResId)
+        return StatusBadgeInfo(text, colorRes)
     }
 
     fun bindQualifierWinnersList(
         context: Context,
-        headerView: TextView,
-        container: android.widget.LinearLayout,
+        headerTextView: TextView,
+        containerLayout: android.widget.LinearLayout,
         winners: List<PlayerUiInfo>?,
-        textSizeSp: Float = 14f
+        textSizeSp: Float = 13f,
+        textColorResId: Int? = null
     ) {
-        container.removeAllViews()
+        containerLayout.removeAllViews()
         if (winners.isNullOrEmpty()) {
-            headerView.visibility = View.GONE
-            container.visibility = View.GONE
-            return
-        }
+            headerTextView.visibility = View.GONE
+            containerLayout.visibility = View.GONE
+        } else {
+            headerTextView.visibility = View.VISIBLE
+            containerLayout.visibility = View.VISIBLE
+            winners.chunked(2).forEach { rowWinners ->
+                val rowLayout = android.widget.LinearLayout(context).apply {
+                    layoutParams = android.widget.LinearLayout.LayoutParams(
+                        android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
+                        android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
+                    ).apply {
+                        topMargin = (2 * context.resources.displayMetrics.density).toInt()
+                        bottomMargin = (2 * context.resources.displayMetrics.density).toInt()
+                    }
+                    orientation = android.widget.LinearLayout.HORIZONTAL
+                    weightSum = 2f
+                }
 
-        headerView.visibility = View.VISIBLE
-        container.visibility = View.VISIBLE
+                rowWinners.forEach { player ->
+                    val tvRow = TextView(context).apply {
+                        layoutParams = android.widget.LinearLayout.LayoutParams(
+                            0,
+                            android.widget.LinearLayout.LayoutParams.WRAP_CONTENT,
+                            1f
+                        )
+                        textSize = textSizeSp
+                        if (textColorResId != null) {
+                            setTextColor(ContextCompat.getColor(context, textColorResId))
+                        } else {
+                            val typedValue = android.util.TypedValue()
+                            context.theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurfaceVariant, typedValue, true)
+                            if (typedValue.resourceId != 0) {
+                                setTextColor(ContextCompat.getColor(context, typedValue.resourceId))
+                            }
+                        }
+                    }
+                    UiHelper.bindSmartPlayerName(tvRow, player)
+                    rowLayout.addView(tvRow)
+                }
 
-        winners.forEach { winner ->
-            val tv = TextView(context).apply {
-                setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, textSizeSp)
-                setTextColor(ContextCompat.getColor(context, R.color.grau_text_hell))
-                val layoutParams = android.widget.LinearLayout.LayoutParams(
-                    android.widget.LinearLayout.LayoutParams.WRAP_CONTENT,
-                    android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
-                )
-                layoutParams.setMargins(0, 4, 0, 4)
-                this.layoutParams = layoutParams
+                if (rowWinners.size == 1) {
+                    val emptyView = View(context).apply {
+                        layoutParams = android.widget.LinearLayout.LayoutParams(
+                            0,
+                            0,
+                            1f
+                        )
+                    }
+                    rowLayout.addView(emptyView)
+                }
+
+                containerLayout.addView(rowLayout)
             }
-            UiHelper.bindSmartPlayerName(tv, winner)
-            container.addView(tv)
         }
     }
 
@@ -128,80 +167,139 @@ object TournamentUiHelper {
         simulatingTournamentId: Long? = null
     ) {
         val context = itemView.context
-        val tvTournamentName = itemView.findViewById<TextView>(R.id.tvTournamentName)
-        val tvTournamentStatus = itemView.findViewById<TextView>(R.id.tvTournamentStatus)
-        val tvTournamentTypeBadge = itemView.findViewById<TextView>(R.id.tvTournamentTypeBadge)
-        val tvTournamentDetails = itemView.findViewById<TextView>(R.id.tvTournamentDetails)
-        val btnSimulateCompleteTournament = itemView.findViewById<Button>(R.id.btnSimulateCompleteTournament)
-        val btnStartTournament = itemView.findViewById<Button>(R.id.btnStartTournament)
-
         val tournament = model.tournament
-        val settingsManager = SettingsManager(context)
-        val debugMode = settingsManager.debugMode
 
-        tvTournamentName?.text = tournament.name
+        val tvTournamentName: TextView = itemView.findViewById(R.id.tvTournamentName)
+        val tvTournamentTypeBadge: TextView = itemView.findViewById(R.id.tvTournamentTypeBadge)
+        val tvTournamentStatus: TextView = itemView.findViewById(R.id.tvTournamentStatus)
+        val tvTournamentDetails: TextView = itemView.findViewById(R.id.tvTournamentDetails)
+        val btnStartTournament: Button = itemView.findViewById(R.id.btnStartTournament)
+        val btnSimulateCompleteTournament: Button = itemView.findViewById(R.id.btnSimulateCompleteTournament)
+
+        tvTournamentName.text = context.getString(R.string.tournament_order_name_format, tournament.order, tournament.name)
 
         val typeBadgeInfo = getTournamentTypeBadgeInfo(context, tournament.type)
-        tvTournamentTypeBadge?.text = typeBadgeInfo.text
-        tvTournamentTypeBadge?.setBackgroundColor(ContextCompat.getColor(context, typeBadgeInfo.colorResId))
+        tvTournamentTypeBadge.visibility = View.VISIBLE
+        tvTournamentTypeBadge.text = typeBadgeInfo.text
+        tvTournamentTypeBadge.background?.setTint(ContextCompat.getColor(context, typeBadgeInfo.colorResId))
 
-        val hostText = getTournamentCity(tournament.hostCountry, tournament.hostCity)
-        val hostCountryCode = tournament.hostCountry ?: Country.DEFAULT_CODE
-        if (tvTournamentDetails != null) {
-            UiHelper.formatFlagAndText(tvTournamentDetails, hostCountryCode, hostText)
+        val statusBadgeInfo = getStatusBadgeInfo(context, model)
+        tvTournamentStatus.text = statusBadgeInfo.text
+        tvTournamentStatus.background?.setTint(ContextCompat.getColor(context, statusBadgeInfo.colorResId))
+
+        val host = tournament.hostCountry ?: Country.DEFAULT_CODE
+        val city = getTournamentCity(tournament.hostCountry, tournament.hostCity)
+        UiHelper.formatFlagAndText(tvTournamentDetails, host, city)
+
+        val cardView = itemView as? MaterialCardView
+        when {
+            model.status == TournamentStatus.ACTIVE -> {
+                cardView?.setCardBackgroundColor(ContextCompat.getColor(context, R.color.surface_karte_aktiv))
+                cardView?.strokeColor = ContextCompat.getColor(context, R.color.status_active)
+                cardView?.strokeWidth = (2 * context.resources.displayMetrics.density).toInt()
+            }
+            model.isNextPlanned -> {
+                cardView?.setCardBackgroundColor(ContextCompat.getColor(context, R.color.surface_karte_aktiv))
+                cardView?.strokeColor = ContextCompat.getColor(context, R.color.status_planned)
+                cardView?.strokeWidth = (2 * context.resources.displayMetrics.density).toInt()
+            }
+            else -> {
+                cardView?.setCardBackgroundColor(ContextCompat.getColor(context, R.color.anthrazit_flaeche))
+                cardView?.strokeColor = ContextCompat.getColor(context, R.color.grau_rahmen_dunkel)
+                cardView?.strokeWidth = (1 * context.resources.displayMetrics.density).toInt()
+            }
         }
 
-        val isCurrentlySimulating = (simulatingTournamentId == tournament.id)
+        val isSimulatingAny = simulatingTournamentId != null
+        val isThisSimulating = simulatingTournamentId == tournament.id
 
-        when (model.status) {
-            TournamentStatus.COMPLETED -> {
-                val winnerText = model.winnerName?.let { context.getString(R.string.tournament_status_winner_format, it) }
-                    ?: context.getString(R.string.tournament_status_completed)
-                tvTournamentStatus?.text = winnerText
-                tvTournamentStatus?.setBackgroundColor(ContextCompat.getColor(context, R.color.status_completed))
+        if (model.status == TournamentStatus.PLANNED && model.isNextPlanned) {
+            btnStartTournament.visibility = View.VISIBLE
+            btnStartTournament.isEnabled = !isSimulatingAny
+            btnStartTournament.setOnClickListener { if (!isSimulatingAny) onStartTournamentClick(model) }
+        } else {
+            btnStartTournament.visibility = View.GONE
+        }
 
-                btnStartTournament?.visibility = View.GONE
-                btnSimulateCompleteTournament?.visibility = View.GONE
+        val settingsManager = SettingsManager(context)
+        val debugMode = settingsManager.debugMode
+        val isEligibleForQuickSim = debugMode && (model.status == TournamentStatus.ACTIVE || (model.status == TournamentStatus.PLANNED && model.isNextPlanned))
+        if (isEligibleForQuickSim) {
+            btnSimulateCompleteTournament.visibility = View.VISIBLE
+            btnSimulateCompleteTournament.isEnabled = !isSimulatingAny
+            if (isThisSimulating) {
+                btnSimulateCompleteTournament.text = context.getString(R.string.simulating_short)
+            } else {
+                btnSimulateCompleteTournament.text = context.getString(R.string.tournament_simulate_complete)
             }
+            btnSimulateCompleteTournament.setOnClickListener { if (!isSimulatingAny) onSimulateCompleteClick(model) }
+        } else {
+            btnSimulateCompleteTournament.visibility = View.GONE
+        }
 
-            TournamentStatus.ACTIVE -> {
-                val roundName = model.activeRoundName ?: context.getString(R.string.round_qual_r1)
-                tvTournamentStatus?.text = "${context.getString(R.string.tournament_status_active)} • $roundName"
-                tvTournamentStatus?.setBackgroundColor(ContextCompat.getColor(context, R.color.status_active))
+        itemView.setOnClickListener { onTournamentClick(model) }
+    }
 
-                btnStartTournament?.visibility = View.GONE
-                btnSimulateCompleteTournament?.visibility = if (debugMode && !isCurrentlySimulating) View.VISIBLE else View.GONE
-            }
+    fun bindTournamentHeader(
+        context: Context,
+        tvTitle: TextView,
+        tvStatusBadge: TextView,
+        tvTypeBadge: TextView,
+        tvHost: TextView,
+        tournament: Tournament,
+        statusText: String,
+        statusColorResId: Int,
+        headerCard: MaterialCardView? = null
+    ) {
+        tvTitle.text = tournament.name
 
-            TournamentStatus.PLANNED -> {
-                tvTournamentStatus?.text = context.getString(R.string.tournament_status_planned)
-                tvTournamentStatus?.setBackgroundColor(ContextCompat.getColor(context, R.color.status_planned))
+        tvStatusBadge.text = statusText
+        tvStatusBadge.backgroundTintList = ContextCompat.getColorStateList(context, statusColorResId)
 
-                btnSimulateCompleteTournament?.visibility = View.GONE
+        val typeBadgeInfo = getTournamentTypeBadgeInfo(context, tournament.type)
+        tvTypeBadge.visibility = View.VISIBLE
+        tvTypeBadge.text = typeBadgeInfo.text
+        tvTypeBadge.backgroundTintList = ContextCompat.getColorStateList(context, typeBadgeInfo.colorResId)
 
-                if (model.isNextPlanned && !isCurrentlySimulating) {
-                    btnStartTournament?.visibility = View.VISIBLE
-                } else {
-                    btnStartTournament?.visibility = View.GONE
+        val host = tournament.hostCountry ?: Country.DEFAULT_CODE
+        val city = getTournamentCity(tournament.hostCountry, tournament.hostCity)
+        UiHelper.formatFlagAndText(tvHost, host, city)
+
+        if (headerCard != null) {
+            val event = try { TournamentEvent.valueOf(tournament.type) } catch (_: Exception) { null }
+            val isMajor = event?.isMajor == true
+            val isQualifier = event?.isQualifier == true
+            val isEuropeanTour = event == TournamentEvent.EUROPEAN_TOUR
+            val isEtQualifier = event == TournamentEvent.QUALIFIER_ET
+            val isMajorQualifier = isQualifier && !isEtQualifier
+
+            val density = context.resources.displayMetrics.density
+            when {
+                isMajor -> {
+                    headerCard.strokeWidth = (2 * density).toInt()
+                    headerCard.strokeColor = ContextCompat.getColor(context, R.color.badge_major)
+                    headerCard.setCardBackgroundColor(ContextCompat.getColor(context, R.color.surface_major_tint))
                 }
-            }
-        }
-
-        itemView.setOnClickListener {
-            if (!isCurrentlySimulating) {
-                onTournamentClick(model)
-            }
-        }
-
-        btnStartTournament?.setOnClickListener {
-            if (!isCurrentlySimulating) {
-                onStartTournamentClick(model)
-            }
-        }
-
-        btnSimulateCompleteTournament?.setOnClickListener {
-            if (!isCurrentlySimulating) {
-                onSimulateCompleteClick(model)
+                isMajorQualifier -> {
+                    headerCard.strokeWidth = (2 * density).toInt()
+                    headerCard.strokeColor = ContextCompat.getColor(context, R.color.badge_major_qualifier)
+                    headerCard.setCardBackgroundColor(ContextCompat.getColor(context, R.color.surface_major_tint))
+                }
+                isEuropeanTour -> {
+                    headerCard.strokeWidth = (2 * density).toInt()
+                    headerCard.strokeColor = ContextCompat.getColor(context, R.color.badge_european_tour)
+                    headerCard.setCardBackgroundColor(ContextCompat.getColor(context, R.color.surface_et_tint))
+                }
+                isEtQualifier -> {
+                    headerCard.strokeWidth = (2 * density).toInt()
+                    headerCard.strokeColor = ContextCompat.getColor(context, R.color.badge_et_qualifier)
+                    headerCard.setCardBackgroundColor(ContextCompat.getColor(context, R.color.surface_et_tint))
+                }
+                else -> {
+                    headerCard.strokeWidth = (1 * density).toInt()
+                    headerCard.strokeColor = ContextCompat.getColor(context, R.color.grau_rahmen_dunkel)
+                    headerCard.setCardBackgroundColor(ContextCompat.getColor(context, R.color.anthrazit_flaeche))
+                }
             }
         }
     }

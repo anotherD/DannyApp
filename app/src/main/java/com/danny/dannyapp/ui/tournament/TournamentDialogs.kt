@@ -13,8 +13,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
 import com.danny.dannyapp.domain.enums.TournamentEvent
-import com.danny.dannyapp.ui.model.MatchUiModel
 import com.danny.dannyapp.ui.model.PrizeMoneyItem
+import com.danny.dannyapp.ui.model.MatchUiModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -27,6 +27,10 @@ object TournamentDialogs {
 
     /**
      * Shows a dialog displaying the total prize fund and round-by-round prize money breakdown.
+     *
+     * @param context Host context for building dialog.
+     * @param prizeMoneyItems List of prize money items per round.
+     * @param event Current tournament event metadata.
      */
     fun showPrizeMoneyDialog(
         context: Context,
@@ -45,32 +49,37 @@ object TournamentDialogs {
             setPadding(48, 24, 48, 24)
         }
 
-        val tvTotalPrizeHeader = TextView(context).apply {
+        val tvHeader = TextView(context).apply {
             text = totalPrize
-            setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 16f)
-            typeface = Typeface.DEFAULT_BOLD
-            setTextColor(ContextCompat.getColor(context, R.color.rot_hell))
+            textSize = 15f
+            setTypeface(null, Typeface.BOLD)
+            setTextColor(ContextCompat.getColor(context, R.color.rot_haupt))
             setPadding(0, 0, 0, 16)
         }
-        layout.addView(tvTotalPrizeHeader)
+        layout.addView(tvHeader)
 
-        val recyclerView = RecyclerView(context).apply {
+        val rv = RecyclerView(context).apply {
             layoutManager = LinearLayoutManager(context)
-            adapter = PrizeMoneyAdapter().apply {
-                submitList(prizeMoneyItems)
-            }
+            adapter = PrizeMoneyAdapter().apply { submitList(prizeMoneyItems) }
         }
-        layout.addView(recyclerView)
+        layout.addView(rv)
 
         MaterialAlertDialogBuilder(context)
             .setTitle(context.getString(R.string.tournament_preview_prizes_title))
             .setView(layout)
-            .setPositiveButton(android.R.string.ok, null)
+            .setPositiveButton(context.getString(R.string.dialog_close), null)
             .show()
     }
 
     /**
-     * Shows options dialog for a user match (e.g. Set Winner, Manual Score, Play Match).
+     * Shows a selection dialog for user match actions (Set Winner, Manual Score, Live Game).
+     *
+     * @param context Host context.
+     * @param matchModel Active match model.
+     * @param debugMode Flag indicating if debug options (Set Winner) are enabled.
+     * @param onSetWinner Callback when set winner option is chosen.
+     * @param onManualScore Callback when manual score option is chosen.
+     * @param onLiveGame Callback when live game engine option is chosen.
      */
     fun showUserMatchOptionsDialog(
         context: Context,
@@ -80,78 +89,102 @@ object TournamentDialogs {
         onManualScore: (MatchUiModel) -> Unit,
         onLiveGame: () -> Unit
     ) {
-        val options = mutableListOf<String>()
+        val setWinnerOption = context.getString(R.string.user_match_option_set_winner)
+        val manualScoreOption = context.getString(R.string.user_match_option_manual_score)
+        val liveGameOption = context.getString(R.string.user_match_option_live_game)
 
-        if (debugMode) {
-            options.add(context.getString(R.string.user_match_option_set_winner))
-            options.add(context.getString(R.string.user_match_option_manual_score))
+        val options = if (debugMode) {
+            arrayOf(setWinnerOption, manualScoreOption, liveGameOption)
+        } else {
+            arrayOf(manualScoreOption, liveGameOption)
         }
-        options.add(context.getString(R.string.user_match_option_live_game))
 
-        MaterialAlertDialogBuilder(context)
+        AlertDialog.Builder(context)
             .setTitle(context.getString(R.string.user_match_control_title))
-            .setItems(options.toTypedArray()) { _, which ->
+            .setItems(options) { _, which ->
                 val selectedOption = options[which]
                 when (selectedOption) {
-                    context.getString(R.string.user_match_option_set_winner) -> onSetWinner(matchModel)
-                    context.getString(R.string.user_match_option_manual_score) -> onManualScore(matchModel)
-                    context.getString(R.string.user_match_option_live_game) -> onLiveGame()
+                    setWinnerOption -> onSetWinner(matchModel)
+                    manualScoreOption -> onManualScore(matchModel)
+                    liveGameOption -> onLiveGame()
                 }
             }
-            .setNegativeButton(android.R.string.cancel, null)
+            .setNegativeButton(context.getString(R.string.dialog_cancel), null)
             .show()
     }
 
     /**
-     * Shows set winner dialog allowing immediate selection of winner.
+     * Shows a quick-selection dialog to set win or loss for the user match.
+     *
+     * @param context Host context.
+     * @param matchModel Selected match.
+     * @param onSetWinner Callback receiving match ID and Boolean flag (true = win, false = loss).
      */
     fun showSetWinnerDialog(
         context: Context,
         matchModel: MatchUiModel,
-        onWinnerSelected: (matchId: Long, userWins: Boolean) -> Unit
+        onSetWinner: (matchId: Long, userWins: Boolean) -> Unit
     ) {
-        val options = arrayOf(
+        val choices = arrayOf(
             context.getString(R.string.user_match_choice_win),
             context.getString(R.string.user_match_choice_loss)
         )
 
-        MaterialAlertDialogBuilder(context)
+        AlertDialog.Builder(context)
             .setTitle(context.getString(R.string.user_match_set_winner_title))
-            .setItems(options) { _, which ->
+            .setItems(choices) { _, which ->
                 val userWins = (which == 0)
-                onWinnerSelected(matchModel.match.id, userWins)
+                onSetWinner(matchModel.match.id, userWins)
             }
-            .setNegativeButton(android.R.string.cancel, null)
+            .setNegativeButton(context.getString(R.string.dialog_cancel), null)
             .show()
     }
 
     /**
-     * Shows manual score input dialog for entering player scores directly.
+     * Shows a manual score entry dialog with score validation and error handling.
+     *
+     * @param context Host context.
+     * @param matchModel Target match model.
+     * @param coroutineScope Coroutine scope for running validation and DB update.
+     * @param onSaveScore Suspending lambda to save score, returning error string if invalid or null if successful.
      */
     fun showManualScoreInputDialog(
         context: Context,
         matchModel: MatchUiModel,
         coroutineScope: CoroutineScope,
-        onSaveScore: suspend (matchId: Long, p1Score: Int, p2Score: Int) -> String?
+        onSaveScore: suspend (matchId: Long, scoreP1: Int, scoreP2: Int) -> String?
     ) {
         val layout = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(48, 24, 48, 24)
+            setPadding(50, 20, 50, 20)
+        }
+
+        val tvInfo = TextView(context).apply {
+            text = context.getString(
+                R.string.user_match_manual_info_format,
+                matchModel.player1.name,
+                matchModel.player2.name,
+                matchModel.roundDisplayName
+            )
+            setPadding(0, 0, 0, 20)
+            textSize = 14f
         }
 
         val etP1 = EditText(context).apply {
             hint = context.getString(R.string.user_match_player_score_hint, matchModel.player1.name)
             inputType = InputType.TYPE_CLASS_NUMBER
         }
+
         val etP2 = EditText(context).apply {
             hint = context.getString(R.string.user_match_player_score_hint, matchModel.player2.name)
             inputType = InputType.TYPE_CLASS_NUMBER
         }
 
+        layout.addView(tvInfo)
         layout.addView(etP1)
         layout.addView(etP2)
 
-        val dialog = MaterialAlertDialogBuilder(context)
+        val dialog = AlertDialog.Builder(context)
             .setTitle(context.getString(R.string.user_match_option_manual_score))
             .setView(layout)
             .setPositiveButton(context.getString(R.string.dialog_save), null)
@@ -159,20 +192,17 @@ object TournamentDialogs {
             .create()
 
         dialog.setOnShowListener {
-            val positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-            positiveButton.setOnClickListener {
-                val p1Score = etP1.text.toString().toIntOrNull()
-                val p2Score = etP2.text.toString().toIntOrNull()
-
-                if (p1Score == null || p2Score == null || p1Score < 0 || p2Score < 0) {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+                val p1 = etP1.text.toString().toIntOrNull() ?: -1
+                val p2 = etP2.text.toString().toIntOrNull() ?: -1
+                if (p1 < 0 || p2 < 0) {
                     Toast.makeText(context, context.getString(R.string.user_match_invalid_numbers), Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
                 }
-
                 coroutineScope.launch {
-                    val errorMsg = onSaveScore(matchModel.match.id, p1Score, p2Score)
-                    if (errorMsg != null) {
-                        Toast.makeText(context, errorMsg, Toast.LENGTH_LONG).show()
+                    val error = onSaveScore(matchModel.match.id, p1, p2)
+                    if (error != null) {
+                        Toast.makeText(context, error, Toast.LENGTH_LONG).show()
                     } else {
                         dialog.dismiss()
                     }
@@ -183,10 +213,12 @@ object TournamentDialogs {
     }
 
     /**
-     * Placeholder dialog for live game engine integration.
+     * Shows a placeholder dialog for live game engine integration.
+     *
+     * @param context Host context.
      */
     fun showLiveGameEnginePlaceholder(context: Context) {
-        MaterialAlertDialogBuilder(context)
+        AlertDialog.Builder(context)
             .setTitle(context.getString(R.string.user_match_option_live_game))
             .setMessage(context.getString(R.string.user_match_live_placeholder))
             .setPositiveButton(context.getString(R.string.dialog_ok), null)

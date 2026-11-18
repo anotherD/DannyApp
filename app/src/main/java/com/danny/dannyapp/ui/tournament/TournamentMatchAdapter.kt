@@ -8,7 +8,6 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
-import com.danny.dannyapp.domain.enums.TournamentRound
 import com.danny.dannyapp.ui.UiHelper
 import com.danny.dannyapp.ui.model.MatchUiModel
 import com.google.android.material.card.MaterialCardView
@@ -41,17 +40,31 @@ class TournamentMatchAdapter(
 
         val roundKey = match.round
         val isQualifierRound = roundKey in listOf(
-            TournamentRound.QUAL_R1.name,
-            TournamentRound.QUAL_R2.name,
-            TournamentRound.QUAL_FINAL.name
+            com.danny.dannyapp.domain.enums.TournamentRound.QUAL_R1.name,
+            com.danny.dannyapp.domain.enums.TournamentRound.QUAL_R2.name,
+            com.danny.dannyapp.domain.enums.TournamentRound.QUAL_FINAL.name
         )
 
-        if (roundKey == TournamentRound.QUAL_PRELIM.name) {
+        if (roundKey == com.danny.dannyapp.domain.enums.TournamentRound.QUAL_PRELIM.name) {
             val targetBoard = item.targetBoard
             val prevTargetBoard = if (position > 0) getItem(position - 1).targetBoard else null
             if (targetBoard != null && (position == 0 || targetBoard != prevTargetBoard)) {
                 holder.layoutBoardHeader.visibility = View.VISIBLE
-                holder.tvBoardHeader.text = context.getString(R.string.bracket_board_format, targetBoard)
+                holder.tvBoardHeader.text = context.getString(R.string.bracket_board_format, targetBoard + 1)
+            } else {
+                holder.layoutBoardHeader.visibility = View.GONE
+            }
+        } else if (isQualifierRound) {
+            val matchesPerBoard = when (roundKey) {
+                com.danny.dannyapp.domain.enums.TournamentRound.QUAL_R1.name -> 4
+                com.danny.dannyapp.domain.enums.TournamentRound.QUAL_R2.name -> 2
+                com.danny.dannyapp.domain.enums.TournamentRound.QUAL_FINAL.name -> 1
+                else -> 4
+            }
+            if (match.matchIndex % matchesPerBoard == 0) {
+                val boardIdx = match.matchIndex / matchesPerBoard
+                holder.layoutBoardHeader.visibility = View.VISIBLE
+                holder.tvBoardHeader.text = context.getString(R.string.bracket_board_format, boardIdx + 1)
             } else {
                 holder.layoutBoardHeader.visibility = View.GONE
             }
@@ -59,57 +72,26 @@ class TournamentMatchAdapter(
             holder.layoutBoardHeader.visibility = View.GONE
         }
 
-        if (match.groupName != null) {
-            holder.tvMatchRoundIndex.text = context.getString(
-                R.string.tournament_match_group_index_format,
-                match.groupName,
-                match.matchIndex + 1
-            )
+        if (!match.groupName.isNullOrBlank()) {
+            holder.tvMatchRoundIndex.text = context.getString(R.string.tournament_match_group_index_format, match.groupName, match.matchIndex + 1)
         } else {
-            holder.tvMatchRoundIndex.text = context.getString(
-                R.string.tournament_match_index_format,
-                match.matchIndex + 1
-            )
+            holder.tvMatchRoundIndex.text = context.getString(R.string.tournament_match_index_format, match.matchIndex + 1)
         }
 
-        UiHelper.bindSmartPlayerName(holder.tvPlayer1Name, item.player1)
-        UiHelper.bindSmartPlayerName(holder.tvPlayer2Name, item.player2)
+        UiHelper.bindSmartPlayerName(holder.tvPlayer1Name, item.player1, isLeft = true)
+        UiHelper.bindSmartPlayerName(holder.tvPlayer2Name, item.player2, isLeft = false)
 
-        if (match.isCompleted) {
-            holder.tvPlayer1Score.text = match.player1Score.toString()
-            holder.tvPlayer2Score.text = match.player2Score.toString()
+        UiHelper.applyMatchCardStyle(
+            card = holder.cardMatch,
+            item = item,
+            player1Name = holder.tvPlayer1Name,
+            player1Score = holder.tvPlayer1Score,
+            player2Name = holder.tvPlayer2Name,
+            player2Score = holder.tvPlayer2Score,
+            matchIndexBadge = holder.tvMatchRoundIndex
+        )
 
-            if (match.winnerId == item.player1.id) {
-                holder.tvPlayer1Name.setTypeface(null, android.graphics.Typeface.BOLD)
-                holder.tvPlayer1Score.setTypeface(null, android.graphics.Typeface.BOLD)
-                holder.tvPlayer2Name.setTypeface(null, android.graphics.Typeface.NORMAL)
-                holder.tvPlayer2Score.setTypeface(null, android.graphics.Typeface.NORMAL)
-            } else if (match.winnerId == item.player2.id) {
-                holder.tvPlayer2Name.setTypeface(null, android.graphics.Typeface.BOLD)
-                holder.tvPlayer2Score.setTypeface(null, android.graphics.Typeface.BOLD)
-                holder.tvPlayer1Name.setTypeface(null, android.graphics.Typeface.NORMAL)
-                holder.tvPlayer1Score.setTypeface(null, android.graphics.Typeface.NORMAL)
-            }
-        } else {
-            holder.tvPlayer1Score.text = "-"
-            holder.tvPlayer2Score.text = "-"
-            holder.tvPlayer1Name.setTypeface(null, android.graphics.Typeface.NORMAL)
-            holder.tvPlayer1Score.setTypeface(null, android.graphics.Typeface.NORMAL)
-            holder.tvPlayer2Name.setTypeface(null, android.graphics.Typeface.NORMAL)
-            holder.tvPlayer2Score.setTypeface(null, android.graphics.Typeface.NORMAL)
-        }
-
-        if (item.isUserMatch) {
-            holder.cardMatch.setCardBackgroundColor(context.getColor(R.color.rot_container_dunkel))
-            holder.cardMatch.strokeColor = context.getColor(R.color.rot_haupt)
-            holder.cardMatch.strokeWidth = (2 * context.resources.displayMetrics.density).toInt()
-        } else {
-            holder.cardMatch.setCardBackgroundColor(context.getColor(R.color.anthrazit_flaeche))
-            holder.cardMatch.strokeColor = context.getColor(R.color.grau_rahmen_dunkel)
-            holder.cardMatch.strokeWidth = (1 * context.resources.displayMetrics.density).toInt()
-        }
-
-        holder.cardMatch.setOnClickListener {
+        holder.itemView.setOnClickListener {
             onMatchClick(item)
         }
     }

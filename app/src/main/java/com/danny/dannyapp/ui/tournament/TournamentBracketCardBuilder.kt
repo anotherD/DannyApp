@@ -49,58 +49,91 @@ object TournamentBracketCardBuilder {
 
         val mainContainer = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding((12 * density).toInt(), (12 * density).toInt(), (12 * density).toInt(), (12 * density).toInt())
+            val px = (10 * density).toInt()
+            setPadding(px, px, px, px)
         }
 
         val tvInfo = TextView(context).apply {
             text = context.getString(R.string.draw_after_round_info, prevRoundName)
-            setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 13f)
-            typeface = Typeface.DEFAULT_BOLD
-            setTextColor(ContextCompat.getColor(context, R.color.rot_hell))
-            setPadding(0, 0, 0, (8 * density).toInt())
+            textSize = 12f
+            setTypeface(null, Typeface.BOLD)
+            setTextColor(ContextCompat.getColor(context, R.color.white))
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                bottomMargin = (8 * density).toInt()
+            }
         }
         mainContainer.addView(tvInfo)
 
-        groups.forEachIndexed { groupIndex, group ->
+        for ((groupIndex, group) in groups.withIndex()) {
             if (groupIndex > 0) {
-                val divider = com.google.android.material.divider.MaterialDivider(context).apply {
+                val divider = View(context).apply {
                     layoutParams = LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.MATCH_PARENT,
                         (1 * density).toInt()
                     ).apply {
-                        setMargins(0, (8 * density).toInt(), 0, (8 * density).toInt())
+                        topMargin = (6 * density).toInt()
+                        bottomMargin = (6 * density).toInt()
                     }
-                    dividerColor = ContextCompat.getColor(context, R.color.grau_rahmen_dunkel)
+                    setBackgroundColor(ContextCompat.getColor(context, R.color.grau_rahmen_dunkel))
                 }
                 mainContainer.addView(divider)
             }
 
             val tvGroupTitle = TextView(context).apply {
                 text = group.title
-                setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 12f)
-                typeface = Typeface.DEFAULT_BOLD
+                textSize = 11f
+                setTypeface(null, Typeface.BOLD)
                 setTextColor(ContextCompat.getColor(context, R.color.rot_sehr_hell))
-                setPadding(0, (4 * density).toInt(), 0, (4 * density).toInt())
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply {
+                    bottomMargin = (4 * density).toInt()
+                }
             }
             mainContainer.addView(tvGroupTitle)
 
-            val chipGroup = com.google.android.material.chip.ChipGroup(context).apply {
-                chipSpacingHorizontal = (4 * density).toInt()
-                chipSpacingVertical = (4 * density).toInt()
-            }
-
-            group.players.forEach { player ->
-                val chip = com.google.android.material.chip.Chip(context).apply {
-                    setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 11f)
-                    setTextColor(ContextCompat.getColor(context, R.color.white))
-                    setChipBackgroundColorResource(R.color.anthrazit_container_hoch)
-                    isClickable = false
-                    isFocusable = false
+            val playerPairs = group.players.chunked(2)
+            for (pair in playerPairs) {
+                val rowLayout = LinearLayout(context).apply {
+                    orientation = LinearLayout.HORIZONTAL
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                    ).apply {
+                        bottomMargin = (2 * density).toInt()
+                    }
                 }
-                UiHelper.bindSmartPlayerName(chip, player)
-                chipGroup.addView(chip)
+
+                for ((colIdx, player) in pair.withIndex()) {
+                    val tvPlayer = TextView(context).apply {
+                        textSize = 10f
+                        maxLines = 1
+                        ellipsize = TextUtils.TruncateAt.END
+                        layoutParams = LinearLayout.LayoutParams(
+                            0,
+                            LinearLayout.LayoutParams.WRAP_CONTENT,
+                            1f
+                        )
+                    }
+                    UiHelper.bindSmartPlayerName(tvPlayer, player, isLeft = true)
+                    rowLayout.addView(tvPlayer)
+
+                    if (colIdx == 0 && pair.size > 1) {
+                        val spacer = View(context).apply {
+                            layoutParams = LinearLayout.LayoutParams(
+                                (4 * density).toInt(),
+                                LinearLayout.LayoutParams.WRAP_CONTENT
+                            )
+                        }
+                        rowLayout.addView(spacer)
+                    }
+                }
+                mainContainer.addView(rowLayout)
             }
-            mainContainer.addView(chipGroup)
         }
 
         scrollView.addView(mainContainer)
@@ -109,16 +142,16 @@ object TournamentBracketCardBuilder {
     }
 
     /**
-     * Erstellt eine Tabelle für Grand-Slam-Gruppenergebnisse.
+     * Erstellt eine Gruppenkarten-Ansicht für die Grand Slam Gruppenphase.
      */
-    fun createGrandSlamGroupCardView(
+    fun createGroupCardView(
         context: Context,
         density: Float,
         groupLetter: String,
-        items: List<GrandSlamGroupItem>
+        standings: List<GrandSlamGroupItem>
     ): View {
         val card = MaterialCardView(context).apply {
-            radius = 8f * density
+            radius = 6f * density
             cardElevation = 2f * density
             strokeWidth = (1f * density).toInt()
             strokeColor = ContextCompat.getColor(context, R.color.grau_rahmen_dunkel)
@@ -126,138 +159,182 @@ object TournamentBracketCardBuilder {
             useCompatPadding = false
         }
 
-        val container = LinearLayout(context).apply {
+        val mainContainer = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding((10 * density).toInt(), (8 * density).toInt(), (10 * density).toInt(), (8 * density).toInt())
+            val pxH = (6 * density).toInt()
+            val pxV = (4 * density).toInt()
+            setPadding(pxH, pxV, pxH, pxV)
+        }
+
+        val headerLayout = LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
         }
 
         val tvTitle = TextView(context).apply {
             text = context.getString(R.string.group_label, groupLetter)
-            setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 13f)
+            textSize = 11f
             typeface = Typeface.DEFAULT_BOLD
-            setTextColor(ContextCompat.getColor(context, R.color.rot_hell))
-            setPadding(0, 0, 0, (6 * density).toInt())
-        }
-        container.addView(tvTitle)
-
-        // Header Row
-        val headerRow = LinearLayout(context).apply {
-            orientation = LinearLayout.HORIZONTAL
-            setPadding(0, 0, 0, (4 * density).toInt())
+            setTextColor(ContextCompat.getColor(context, R.color.white))
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
         }
 
-        val tvPosHead = TextView(context).apply {
-            text = "#"
-            setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 11f)
+        val widthPlayed = (28 * density).toInt()
+        val widthDiff = (40 * density).toInt()
+        val widthPoints = (32 * density).toInt()
+
+        val tvHeaderPlayed = TextView(context).apply {
+            text = context.getString(R.string.group_table_header_played)
+            textSize = 10f
             typeface = Typeface.DEFAULT_BOLD
+            gravity = Gravity.END or Gravity.CENTER_VERTICAL
+            maxLines = 1
+            fontFeatureSettings = "tnum"
             setTextColor(ContextCompat.getColor(context, R.color.grau_text_gedaempft))
-            layoutParams = LinearLayout.LayoutParams((20 * density).toInt(), ViewGroup.LayoutParams.WRAP_CONTENT)
+            layoutParams = LinearLayout.LayoutParams(widthPlayed, LinearLayout.LayoutParams.WRAP_CONTENT)
         }
 
-        val tvNameHead = TextView(context).apply {
-            text = context.getString(R.string.config_players)
-            setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 11f)
+        val tvHeaderDiff = TextView(context).apply {
+            text = context.getString(R.string.group_table_header_diff)
+            textSize = 10f
             typeface = Typeface.DEFAULT_BOLD
+            gravity = Gravity.END or Gravity.CENTER_VERTICAL
+            maxLines = 1
+            fontFeatureSettings = "tnum"
             setTextColor(ContextCompat.getColor(context, R.color.grau_text_gedaempft))
-            layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
+            layoutParams = LinearLayout.LayoutParams(widthDiff, LinearLayout.LayoutParams.WRAP_CONTENT)
         }
 
-        val tvPlayedHead = TextView(context).apply {
-            text = "Sp"
-            setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 11f)
+        val tvHeaderPoints = TextView(context).apply {
+            text = context.getString(R.string.group_table_header_points)
+            textSize = 10f
             typeface = Typeface.DEFAULT_BOLD
+            gravity = Gravity.END or Gravity.CENTER_VERTICAL
+            maxLines = 1
+            fontFeatureSettings = "tnum"
             setTextColor(ContextCompat.getColor(context, R.color.grau_text_gedaempft))
-            gravity = Gravity.END
-            layoutParams = LinearLayout.LayoutParams((28 * density).toInt(), ViewGroup.LayoutParams.WRAP_CONTENT)
+            layoutParams = LinearLayout.LayoutParams(widthPoints, LinearLayout.LayoutParams.WRAP_CONTENT)
         }
 
-        val tvDiffHead = TextView(context).apply {
-            text = "+/-"
-            setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 11f)
-            typeface = Typeface.DEFAULT_BOLD
-            setTextColor(ContextCompat.getColor(context, R.color.grau_text_gedaempft))
-            gravity = Gravity.END
-            layoutParams = LinearLayout.LayoutParams((32 * density).toInt(), ViewGroup.LayoutParams.WRAP_CONTENT)
+        headerLayout.addView(tvTitle)
+        headerLayout.addView(tvHeaderPlayed)
+        headerLayout.addView(tvHeaderDiff)
+        headerLayout.addView(tvHeaderPoints)
+        mainContainer.addView(headerLayout)
+
+        val divider = View(context).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                (1 * density).toInt()
+            ).apply {
+                topMargin = (2 * density).toInt()
+                bottomMargin = (2 * density).toInt()
+            }
+            setBackgroundColor(ContextCompat.getColor(context, R.color.grau_rahmen_dunkel))
         }
+        mainContainer.addView(divider)
 
-        val tvPtsHead = TextView(context).apply {
-            text = "Pkt"
-            setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 11f)
-            typeface = Typeface.DEFAULT_BOLD
-            setTextColor(ContextCompat.getColor(context, R.color.grau_text_gedaempft))
-            gravity = Gravity.END
-            layoutParams = LinearLayout.LayoutParams((28 * density).toInt(), ViewGroup.LayoutParams.WRAP_CONTENT)
-        }
-
-        headerRow.addView(tvPosHead)
-        headerRow.addView(tvNameHead)
-        headerRow.addView(tvPlayedHead)
-        headerRow.addView(tvDiffHead)
-        headerRow.addView(tvPtsHead)
-        container.addView(headerRow)
-
-        items.forEachIndexed { index, item ->
-            val row = LinearLayout(context).apply {
+        val displayItems = standings.take(3)
+        for (i in 0 until 3) {
+            val item = displayItems.getOrNull(i)
+            val rowLayout = LinearLayout(context).apply {
                 orientation = LinearLayout.HORIZONTAL
-                setPadding(0, (3 * density).toInt(), 0, (3 * density).toInt())
-                if (index < 2) {
-                    setBackgroundColor(ContextCompat.getColor(context, R.color.surface_karte_aktiv))
+                gravity = Gravity.CENTER_VERTICAL
+                setPadding((2 * density).toInt(), (1 * density).toInt(), (2 * density).toInt(), (1 * density).toInt())
+                if (item != null && item.player.id == USER_ID) {
+                    setBackgroundColor(ContextCompat.getColor(context, R.color.rot_container_dunkel))
                 }
             }
 
-            val tvPos = TextView(context).apply {
-                text = "${item.rank}."
-                setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 11f)
-                typeface = if (index < 2) Typeface.DEFAULT_BOLD else Typeface.DEFAULT
-                setTextColor(if (item.player.id == USER_ID) ContextCompat.getColor(context, R.color.rot_sehr_hell) else ContextCompat.getColor(context, R.color.grau_text_hell))
-                layoutParams = LinearLayout.LayoutParams((20 * density).toInt(), ViewGroup.LayoutParams.WRAP_CONTENT)
+            val tvRank = TextView(context).apply {
+                text = context.getString(R.string.group_table_rank_format, i + 1)
+                textSize = 10f
+                typeface = if (i == 0) Typeface.DEFAULT_BOLD else Typeface.DEFAULT
+                setTextColor(
+                    if (item != null && item.player.id == USER_ID) ContextCompat.getColor(context, R.color.rot_sehr_hell)
+                    else if (i == 0) ContextCompat.getColor(context, R.color.white)
+                    else ContextCompat.getColor(context, R.color.grau_text_gedaempft)
+                )
+                layoutParams = LinearLayout.LayoutParams((14 * density).toInt(), LinearLayout.LayoutParams.WRAP_CONTENT)
             }
 
             val tvName = TextView(context).apply {
-                setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 11f)
-                typeface = if (index < 2) Typeface.DEFAULT_BOLD else Typeface.DEFAULT
-                setTextColor(if (item.player.id == USER_ID) ContextCompat.getColor(context, R.color.rot_sehr_hell) else ContextCompat.getColor(context, R.color.grau_text_hell))
+                textSize = 10f
+                typeface = if (i == 0) Typeface.DEFAULT_BOLD else Typeface.DEFAULT
+                maxLines = 1
                 ellipsize = TextUtils.TruncateAt.END
-                isSingleLine = true
-                layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
+                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+                if (item != null) {
+                    UiHelper.bindSmartPlayerName(this, item.player, isLeft = true)
+                    if (item.player.id == USER_ID) {
+                        setTextColor(ContextCompat.getColor(context, R.color.rot_sehr_hell))
+                    } else if (i != 0) {
+                        setTextColor(ContextCompat.getColor(context, R.color.grau_text_gedaempft))
+                    }
+                } else {
+                    text = "-"
+                    setTextColor(ContextCompat.getColor(context, R.color.grau_text_gedaempft))
+                }
             }
-            UiHelper.bindSmartPlayerName(tvName, item.player)
+
+            val statsTextColor = if (item != null && item.player.id == USER_ID) {
+                ContextCompat.getColor(context, R.color.rot_sehr_hell)
+            } else if (i == 0) {
+                ContextCompat.getColor(context, R.color.white)
+            } else {
+                ContextCompat.getColor(context, R.color.grau_text_gedaempft)
+            }
 
             val tvPlayed = TextView(context).apply {
-                text = item.played.toString()
-                setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 11f)
-                setTextColor(ContextCompat.getColor(context, R.color.grau_text_hell))
-                gravity = Gravity.END
-                layoutParams = LinearLayout.LayoutParams((28 * density).toInt(), ViewGroup.LayoutParams.WRAP_CONTENT)
+                text = item?.played?.toString() ?: "0"
+                textSize = 10f
+                typeface = if (i == 0) Typeface.DEFAULT_BOLD else Typeface.DEFAULT
+                if (i == 0) paint.isFakeBoldText = true
+                gravity = Gravity.END or Gravity.CENTER_VERTICAL
+                maxLines = 1
+                fontFeatureSettings = "tnum"
+                setTextColor(statsTextColor)
+                layoutParams = LinearLayout.LayoutParams(widthPlayed, LinearLayout.LayoutParams.WRAP_CONTENT)
             }
 
+            val diffStr = if (item != null) {
+                if (item.legDiff > 0) "+${item.legDiff}" else "${item.legDiff}"
+            } else {
+                "0"
+            }
             val tvDiff = TextView(context).apply {
-                val diffStr = if (item.legDiff > 0) "+${item.legDiff}" else item.legDiff.toString()
                 text = diffStr
-                setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 11f)
-                setTextColor(ContextCompat.getColor(context, R.color.grau_text_hell))
-                gravity = Gravity.END
-                layoutParams = LinearLayout.LayoutParams((32 * density).toInt(), ViewGroup.LayoutParams.WRAP_CONTENT)
+                textSize = 10f
+                typeface = if (i == 0) Typeface.DEFAULT_BOLD else Typeface.DEFAULT
+                if (i == 0) paint.isFakeBoldText = true
+                gravity = Gravity.END or Gravity.CENTER_VERTICAL
+                maxLines = 1
+                fontFeatureSettings = "tnum"
+                setTextColor(statsTextColor)
+                layoutParams = LinearLayout.LayoutParams(widthDiff, LinearLayout.LayoutParams.WRAP_CONTENT)
             }
 
-            val tvPts = TextView(context).apply {
-                text = item.points.toString()
-                setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 11f)
-                typeface = Typeface.DEFAULT_BOLD
-                setTextColor(if (index < 2) ContextCompat.getColor(context, R.color.rot_hell) else ContextCompat.getColor(context, R.color.grau_text_hell))
-                gravity = Gravity.END
-                layoutParams = LinearLayout.LayoutParams((28 * density).toInt(), ViewGroup.LayoutParams.WRAP_CONTENT)
+            val tvPoints = TextView(context).apply {
+                text = item?.points?.toString() ?: "0"
+                textSize = 10f
+                typeface = if (i == 0) Typeface.DEFAULT_BOLD else Typeface.DEFAULT
+                if (i == 0) paint.isFakeBoldText = true
+                gravity = Gravity.END or Gravity.CENTER_VERTICAL
+                maxLines = 1
+                fontFeatureSettings = "tnum"
+                setTextColor(statsTextColor)
+                layoutParams = LinearLayout.LayoutParams(widthPoints, LinearLayout.LayoutParams.WRAP_CONTENT)
             }
 
-            row.addView(tvPos)
-            row.addView(tvName)
-            row.addView(tvPlayed)
-            row.addView(tvDiff)
-            row.addView(tvPts)
-            container.addView(row)
+            rowLayout.addView(tvRank)
+            rowLayout.addView(tvName)
+            rowLayout.addView(tvPlayed)
+            rowLayout.addView(tvDiff)
+            rowLayout.addView(tvPoints)
+            mainContainer.addView(rowLayout)
         }
 
-        card.addView(container)
+        card.addView(mainContainer)
         return card
     }
 }
