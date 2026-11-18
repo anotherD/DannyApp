@@ -9,7 +9,9 @@ import com.danny.dannyapp.data.db.Player
 import com.danny.dannyapp.data.db.PlayerDao
 import com.danny.dannyapp.data.db.SeasonDao
 import com.danny.dannyapp.data.db.TourCardDao
+import com.danny.dannyapp.data.db.Tournament
 import com.danny.dannyapp.data.db.TournamentMatch
+import com.danny.dannyapp.data.db.TournamentParticipant
 import com.danny.dannyapp.data.db.TournamentParticipantDao
 import com.danny.dannyapp.data.db.USER_ID
 import com.danny.dannyapp.domain.enums.OrderOfMeritType
@@ -53,6 +55,20 @@ data class QualifierFieldSplit(
     val prelimPlayers: List<Long>,
     val byePlayers: List<Long>,
     val seedCount: Int
+)
+
+/**
+ * Strukturiertes Ergebnis der Qualifikations- und Teilnehmerpool-Ermittlung
+ * als zentrale Single Source of Truth für Turnierstart und Auslosung.
+ */
+data class TournamentQualificationResult(
+    val oomSortedIds: List<Long> = emptyList(),
+    val proTourSortedIds: List<Long> = emptyList(),
+    val qualifierIds: List<Long> = emptyList(),
+    val participants: List<TournamentParticipant> = emptyList(),
+    val preQualifiedOomIds: List<Long> = emptyList(),
+    val preQualifiedPtOomIds: List<Long> = emptyList(),
+    val qualifierFieldSplit: QualifierFieldSplit? = null
 )
 
 /**
@@ -224,6 +240,473 @@ class TournamentQualificationUseCase(
     }
 
     /**
+     * Zentrale Single Source of Truth für Qualifikation, Töpfe, Setzlisten und Teilnehmer
+     * aller PDC-Turnierarten und Qualifiers.
+     */
+    suspend fun resolveTournamentQualification(
+        tournament: Tournament,
+        seasonId: Long,
+        careerId: Long,
+        precedingQualifierWinners: List<Long> = emptyList()
+    ): TournamentQualificationResult = withContext(Dispatchers.IO) {
+        val event = TournamentEvent.valueOf(tournament.type)
+        val tourCards = tourCardDao.getTourCardsListForSeason(seasonId)
+        val tourCardPlayerIds = tourCards.map { it.tourCard.playerId }.distinct()
+        val allPlayers = playerDao.getAllPlayersList()
+        val allPlayerIds = (listOf(USER_ID) + allPlayers.map { it.id }).distinct()
+
+        val oomEntries = getOrderOfMeritUseCase(careerId, OrderOfMeritType.OOM)
+        val ptOomEntries = getOrderOfMeritUseCase(careerId, OrderOfMeritType.PT_OOM)
+        val pcOomEntries = getOrderOfMeritUseCase(careerId, OrderOfMeritType.PC_OOM)
+        val etOomEntries = getOrderOfMeritUseCase(careerId, OrderOfMeritType.ET_OOM)
+
+        val tournamentId = tournament.id
+
+        when (event) {
+            TournamentEvent.PLAYERS_CHAMPIONSHIP -> {
+                val tcIds = fillToTargetCount(tourCardPlayerIds, 128, allPlayerIds, oomEntries)
+                val sortedByPt = sortPlayerIdsByOom(tcIds, ptOomEntries, allPlayers)
+                val top32 = sortedByPt.take(32)
+                val remaining96 = sortedByPt.drop(32)
+
+                val participants = top32.mapIndexed { index, playerId ->
+                    TournamentParticipant(
+                        tournamentId = tournamentId,
+                        playerId = playerId,
+                        seedNumber = index + 1,
+                        qualificationType = "PT_OOM"
+                    )
+                } + remaining96.map { playerId ->
+                    TournamentParticipant(
+                        tournamentId = tournamentId,
+                        playerId = playerId,
+                        seedNumber = null,
+                        qualificationType = "TOUR_CARD"
+                    )
+                }
+
+                TournamentQualificationResult(
+                    oomSortedIds = sortedByPt,
+                    proTourSortedIds = top32,
+                    qualifierIds = remaining96,
+                    participants = participants
+                )
+            }
+
+            TournamentEvent.QUALIFIER_ET, TournamentEvent.QUALIFIER_GRAND_SLAM, TournamentEvent.QUALIFIER_WM -> {
+                val split = resolveQualifierFieldSplit(
+                    event = event,
+                    tourCardPlayerIds = tourCardPlayerIds,
+                    oomList = oomEntries,
+                    ptOomList = ptOomEntries,
+                    allPlayers = allPlayers
+                )
+
+                val participants = split.nonPrequalifiedIds.mapIndexed { index, playerId ->
+                    TournamentParticipant(
+                        tournamentId = tournamentId,
+                        playerId = playerId,
+                        seedNumber = if (index < split.seedCount) index + 1 else null,
+                        qualificationType = "TOUR_CARD"
+                    )
+                }
+
+                TournamentQualificationResult(
+                    oomSortedIds = split.nonPrequalifiedIds,
+                    proTourSortedIds = emptyList(),
+                    qualifierIds = split.nonPrequalifiedIds,
+                    participants = participants,
+                    qualifierFieldSplit = split
+                )
+            }
+
+            TournamentEvent.EUROPEAN_TOUR -> {
+                val (top16Oom, top16PtOom) = resolvePrequalifiedTourCardIds(
+                    event = event,
+                    tourCardPlayerIds = tourCardPlayerIds,
+                    oomList = oomEntries,
+                    ptOomList = ptOomEntries,
+                    allPlayers = allPlayers
+                )
+                val etPreQualified = (top16Oom + top16PtOom).toSet()
+                val nonPreqEtTc = tourCardPlayerIds.filterNot { it in etPreQualified }
+
+                var tcQualifiers = if (precedingQualifierWinners.size >= 10) {
+                    precedingQualifierWinners.take(10)
+                } else {
+                    precedingQualifierWinners
+                }
+                if (tcQualifiers.size < 10) {
+                    tcQualifiers = fillToTargetCount(tcQualifiers, 10, nonPreqEtTc, oomEntries)
+                }
+
+                val nonTcPlayerIds = allPlayerIds.filterNot { it in tourCardPlayerIds }
+                val hostCountry = tournament.hostCountry ?: Country.DEFAULT_CODE
+                val hostCountryNonTc = nonTcPlayerIds.filter { id ->
+                    val player = allPlayers.find { it.id == id }
+                    player?.countryCode == hostCountry && player.tourCardYear == 0
+                }
+                val hostQualifiers = fillToTargetCount(hostCountryNonTc, 4, nonTcPlayerIds, oomEntries).take(4)
+                val remainingNonTc = nonTcPlayerIds.filterNot { it in hostQualifiers }
+                val otherQualifiers = sortPlayerIdsByOom(remainingNonTc, oomEntries, allPlayers).take(2)
+
+                var qualifiersPool = tcQualifiers + hostQualifiers + otherQualifiers
+                if (qualifiersPool.size < 16) {
+                    val candidatePool = allPlayerIds.filterNot { it in etPreQualified || it in qualifiersPool }
+                    qualifiersPool = fillToTargetCount(qualifiersPool, 16, candidatePool, oomEntries)
+                }
+
+                val participantList = mutableListOf<TournamentParticipant>()
+                top16Oom.forEachIndexed { index, playerId ->
+                    participantList.add(
+                        TournamentParticipant(
+                            tournamentId = tournamentId,
+                            playerId = playerId,
+                            seedNumber = index + 1,
+                            qualificationType = "OOM"
+                        )
+                    )
+                }
+                top16PtOom.forEachIndexed { index, playerId ->
+                    participantList.add(
+                        TournamentParticipant(
+                            tournamentId = tournamentId,
+                            playerId = playerId,
+                            seedNumber = index + 1,
+                            qualificationType = "PT_OOM"
+                        )
+                    )
+                }
+                tcQualifiers.forEach { playerId ->
+                    participantList.add(
+                        TournamentParticipant(
+                            tournamentId = tournamentId,
+                            playerId = playerId,
+                            seedNumber = null,
+                            qualificationType = "QUALIFIER"
+                        )
+                    )
+                }
+                hostQualifiers.forEach { playerId ->
+                    participantList.add(
+                        TournamentParticipant(
+                            tournamentId = tournamentId,
+                            playerId = playerId,
+                            seedNumber = null,
+                            qualificationType = "HOST_NATION"
+                        )
+                    )
+                }
+                otherQualifiers.forEach { playerId ->
+                    participantList.add(
+                        TournamentParticipant(
+                            tournamentId = tournamentId,
+                            playerId = playerId,
+                            seedNumber = null,
+                            qualificationType = "QUALIFIER"
+                        )
+                    )
+                }
+                qualifiersPool.filterNot { qualifierPlayerId -> participantList.any { it.playerId == qualifierPlayerId } }.forEach { playerId ->
+                    participantList.add(
+                        TournamentParticipant(
+                            tournamentId = tournamentId,
+                            playerId = playerId,
+                            seedNumber = null,
+                            qualificationType = "QUALIFIER"
+                        )
+                    )
+                }
+
+                TournamentQualificationResult(
+                    oomSortedIds = top16Oom,
+                    proTourSortedIds = top16PtOom,
+                    qualifierIds = qualifiersPool,
+                    participants = participantList,
+                    preQualifiedOomIds = top16Oom,
+                    preQualifiedPtOomIds = top16PtOom
+                )
+            }
+
+            TournamentEvent.UK_OPEN, TournamentEvent.EUROPEAN_OPEN -> {
+                val tcIds = fillToTargetCount(tourCardPlayerIds, 128, allPlayerIds, oomEntries)
+                val sortedTcOom = sortPlayerIdsByOom(tcIds, oomEntries, allPlayers)
+
+                val nonTcPlayerIds = allPlayerIds.filterNot { it in tcIds }
+                val nonTcQualifiers = sortPlayerIdsByOom(nonTcPlayerIds, oomEntries, allPlayers).take(32)
+                val final32Qualifiers = fillToTargetCount(nonTcQualifiers, 32, allPlayerIds.filterNot { it in tcIds }, oomEntries)
+
+                val participants = sortedTcOom.take(32).mapIndexed { index, playerId ->
+                    TournamentParticipant(
+                        tournamentId = tournamentId,
+                        playerId = playerId,
+                        seedNumber = index + 1,
+                        qualificationType = "OOM_TOP_32"
+                    )
+                } + sortedTcOom.drop(32).take(32).mapIndexed { index, playerId ->
+                    TournamentParticipant(
+                        tournamentId = tournamentId,
+                        playerId = playerId,
+                        seedNumber = 33 + index,
+                        qualificationType = "OOM_33_64"
+                    )
+                } + sortedTcOom.drop(64).take(32).mapIndexed { index, playerId ->
+                    TournamentParticipant(
+                        tournamentId = tournamentId,
+                        playerId = playerId,
+                        seedNumber = 65 + index,
+                        qualificationType = "OOM_65_96"
+                    )
+                } + sortedTcOom.drop(96).take(32).map { playerId ->
+                    TournamentParticipant(
+                        tournamentId = tournamentId,
+                        playerId = playerId,
+                        seedNumber = null,
+                        qualificationType = "OOM_97_128"
+                    )
+                } + final32Qualifiers.map { playerId ->
+                    TournamentParticipant(
+                        tournamentId = tournamentId,
+                        playerId = playerId,
+                        seedNumber = null,
+                        qualificationType = "QUALIFIER"
+                    )
+                }
+
+                TournamentQualificationResult(
+                    oomSortedIds = sortedTcOom,
+                    proTourSortedIds = emptyList(),
+                    qualifierIds = final32Qualifiers,
+                    participants = participants
+                )
+            }
+
+            TournamentEvent.WORLD_MATCHPLAY -> {
+                val sortedOom = sortPlayerIdsByOom(allPlayerIds, oomEntries, allPlayers)
+                val top16Oom = sortedOom.take(16)
+                val remainingForPt = allPlayerIds.filterNot { it in top16Oom }
+                val top16Pt = sortPlayerIdsByOom(remainingForPt, ptOomEntries, allPlayers).take(16)
+
+                val participants = top16Oom.mapIndexed { index, playerId ->
+                    TournamentParticipant(
+                        tournamentId = tournamentId,
+                        playerId = playerId,
+                        seedNumber = index + 1,
+                        qualificationType = "OOM"
+                    )
+                } + top16Pt.map { playerId ->
+                    TournamentParticipant(
+                        tournamentId = tournamentId,
+                        playerId = playerId,
+                        seedNumber = null,
+                        qualificationType = "PT_OOM"
+                    )
+                }
+
+                TournamentQualificationResult(
+                    oomSortedIds = top16Oom,
+                    proTourSortedIds = top16Pt,
+                    qualifierIds = emptyList(),
+                    participants = participants
+                )
+            }
+
+            TournamentEvent.WORLD_GRAND_PRIX -> {
+                val sortedOom = sortPlayerIdsByOom(allPlayerIds, oomEntries, allPlayers)
+                val top16Oom = sortedOom.take(16)
+                val remainingForPt = allPlayerIds.filterNot { it in top16Oom }
+                val top16Pt = sortPlayerIdsByOom(remainingForPt, ptOomEntries, allPlayers).take(16)
+
+                val participants = top16Oom.mapIndexed { index, playerId ->
+                    TournamentParticipant(
+                        tournamentId = tournamentId,
+                        playerId = playerId,
+                        seedNumber = index + 1,
+                        qualificationType = "OOM"
+                    )
+                } + top16Pt.map { playerId ->
+                    TournamentParticipant(
+                        tournamentId = tournamentId,
+                        playerId = playerId,
+                        seedNumber = null,
+                        qualificationType = "PT_OOM"
+                    )
+                }
+
+                TournamentQualificationResult(
+                    oomSortedIds = top16Oom,
+                    proTourSortedIds = top16Pt,
+                    qualifierIds = emptyList(),
+                    participants = participants
+                )
+            }
+
+            TournamentEvent.EUROPEAN_CHAMPIONSHIP -> {
+                val top32Et = sortPlayerIdsByOom(allPlayerIds, etOomEntries, allPlayers).take(32)
+                val final32Et = fillToTargetCount(top32Et, 32, allPlayerIds, oomEntries)
+
+                val participants = final32Et.mapIndexed { index, playerId ->
+                    TournamentParticipant(
+                        tournamentId = tournamentId,
+                        playerId = playerId,
+                        seedNumber = index + 1,
+                        qualificationType = "ET_OOM"
+                    )
+                }
+
+                TournamentQualificationResult(
+                    oomSortedIds = emptyList(),
+                    proTourSortedIds = emptyList(),
+                    qualifierIds = final32Et,
+                    participants = participants
+                )
+            }
+
+            TournamentEvent.GRAND_SLAM_OF_DARTS -> {
+                val top16Oom = resolvePrequalifiedTourCardIds(
+                    event = event,
+                    tourCardPlayerIds = tourCardPlayerIds,
+                    oomList = oomEntries,
+                    ptOomList = ptOomEntries,
+                    allPlayers = allPlayers
+                ).first
+                val remainingForPt = allPlayerIds.filterNot { it in top16Oom }
+                val pot2 = sortPlayerIdsByOom(remainingForPt, ptOomEntries, allPlayers).take(16)
+
+                var gsTchqWinners = if (precedingQualifierWinners.size >= 8) {
+                    precedingQualifierWinners.take(8)
+                } else {
+                    precedingQualifierWinners
+                }
+                if (gsTchqWinners.size < 8) {
+                    gsTchqWinners = fillToTargetCount(gsTchqWinners, 8, tourCardPlayerIds, oomEntries)
+                }
+                val nonTcPlayerIds = allPlayerIds.filterNot { it in tourCardPlayerIds }
+                val otherQuals = sortPlayerIdsByOom(nonTcPlayerIds, oomEntries, allPlayers).take(8)
+                val pot3 = fillToTargetCount(gsTchqWinners + otherQuals, 16, allPlayerIds, oomEntries)
+
+                val participants = top16Oom.mapIndexed { index, playerId ->
+                    TournamentParticipant(
+                        tournamentId = tournamentId,
+                        playerId = playerId,
+                        seedNumber = index + 1,
+                        qualificationType = "OOM"
+                    )
+                } + pot2.map { playerId ->
+                    TournamentParticipant(
+                        tournamentId = tournamentId,
+                        playerId = playerId,
+                        seedNumber = null,
+                        qualificationType = "PT_OOM"
+                    )
+                } + pot3.map { playerId ->
+                    TournamentParticipant(
+                        tournamentId = tournamentId,
+                        playerId = playerId,
+                        seedNumber = null,
+                        qualificationType = "QUALIFIER"
+                    )
+                }
+
+                TournamentQualificationResult(
+                    oomSortedIds = top16Oom,
+                    proTourSortedIds = pot2,
+                    qualifierIds = pot3,
+                    participants = participants
+                )
+            }
+
+            TournamentEvent.PLAYERS_CHAMPIONSHIP_FINALS -> {
+                val top64Pc = sortPlayerIdsByOom(allPlayerIds, pcOomEntries, allPlayers).take(64)
+                val final64Pc = fillToTargetCount(top64Pc, 64, allPlayerIds, oomEntries)
+
+                val participants = final64Pc.mapIndexed { index, playerId ->
+                    TournamentParticipant(
+                        tournamentId = tournamentId,
+                        playerId = playerId,
+                        seedNumber = index + 1,
+                        qualificationType = "PC_OOM"
+                    )
+                }
+
+                TournamentQualificationResult(
+                    oomSortedIds = emptyList(),
+                    proTourSortedIds = emptyList(),
+                    qualifierIds = final64Pc,
+                    participants = participants
+                )
+            }
+
+            TournamentEvent.WORLD_CHAMPIONSHIP -> {
+                val (top40Oom, top40PtOom) = resolvePrequalifiedTourCardIds(
+                    event = event,
+                    tourCardPlayerIds = tourCardPlayerIds,
+                    oomList = oomEntries,
+                    ptOomList = ptOomEntries,
+                    allPlayers = allPlayers
+                )
+
+                val tc80 = top40Oom + top40PtOom
+                val sortedTc80ByOom = sortPlayerIdsByOom(tc80, oomEntries, allPlayers)
+                val top32Oom = sortedTc80ByOom.take(32)
+                val ranks33To64 = sortedTc80ByOom.drop(32).take(32)
+                val remaining16 = sortedTc80ByOom.drop(64)
+
+                val nonPreqWmTc = tourCardPlayerIds.filterNot { it in tc80 }
+                var wmTchqWinners = if (precedingQualifierWinners.size >= 4) {
+                    precedingQualifierWinners.take(4)
+                } else {
+                    precedingQualifierWinners
+                }
+                if (wmTchqWinners.size < 4) {
+                    wmTchqWinners = fillToTargetCount(wmTchqWinners, 4, nonPreqWmTc, oomEntries)
+                }
+
+                val nonTcPlayerIds = allPlayerIds.filterNot { it in tourCardPlayerIds || it in tc80 }
+                val nonTc44 = sortPlayerIdsByOom(nonTcPlayerIds, oomEntries, allPlayers).take(44)
+                val nonTc44Full = fillToTargetCount(nonTc44, 44, nonTcPlayerIds, oomEntries)
+
+                val remaining64Pool = fillToTargetCount(
+                    remaining16 + wmTchqWinners + nonTc44Full,
+                    64,
+                    allPlayerIds.filterNot { it in top32Oom || it in ranks33To64 },
+                    oomEntries
+                )
+
+                val participants = top32Oom.mapIndexed { index, playerId ->
+                    TournamentParticipant(
+                        tournamentId = tournamentId,
+                        playerId = playerId,
+                        seedNumber = index + 1,
+                        qualificationType = "OOM"
+                    )
+                } + ranks33To64.map { playerId ->
+                    TournamentParticipant(
+                        tournamentId = tournamentId,
+                        playerId = playerId,
+                        seedNumber = null,
+                        qualificationType = "PT_OOM"
+                    )
+                } + remaining64Pool.map { playerId ->
+                    TournamentParticipant(
+                        tournamentId = tournamentId,
+                        playerId = playerId,
+                        seedNumber = null,
+                        qualificationType = "QUALIFIER"
+                    )
+                }
+
+                TournamentQualificationResult(
+                    oomSortedIds = top32Oom + ranks33To64,
+                    proTourSortedIds = emptyList(),
+                    qualifierIds = remaining64Pool,
+                    participants = participants
+                )
+            }
+        }
+    }
+
+    /**
      * Resolves the target board index for a preliminary round qualifier match.
      */
     fun resolvePrelimTargetBoard(
@@ -261,63 +744,22 @@ class TournamentQualificationUseCase(
         val season = seasonDao.getSeasonById(seasonId) ?: return@withContext emptyMap()
         val careerId = season.careerId
 
-        val tourCards = tourCardDao.getTourCardsListForSeason(seasonId)
-        val tourCardPlayerIds = tourCards.map { it.tourCard.playerId }.distinct()
-        val allPlayers = playerDao.getAllPlayersList()
-        val allPlayerIds = (listOf(USER_ID) + allPlayers.map { it.id }).distinct()
+        val dummyTournament = Tournament(
+            id = tournamentId,
+            seasonId = seasonId,
+            name = event.name,
+            type = event.name,
+            order = 1
+        )
+        val qualificationResult = resolveTournamentQualification(
+            tournament = dummyTournament,
+            seasonId = seasonId,
+            careerId = careerId
+        )
 
-        val oomEntries = getOrderOfMeritUseCase(careerId, OrderOfMeritType.OOM)
-        val ptOomEntries = getOrderOfMeritUseCase(careerId, OrderOfMeritType.PT_OOM)
-        val pcOomEntries = getOrderOfMeritUseCase(careerId, OrderOfMeritType.PC_OOM)
-        val etOomEntries = getOrderOfMeritUseCase(careerId, OrderOfMeritType.ET_OOM)
-
-        return@withContext when (event) {
-            TournamentEvent.PLAYERS_CHAMPIONSHIP -> {
-                val tourCardIds = fillToTargetCount(tourCardPlayerIds, 128, allPlayerIds, oomEntries)
-                val sortedByPt = sortPlayerIdsByOom(tourCardIds, ptOomEntries, allPlayers)
-                sortedByPt.take(32).mapIndexed { index, id -> id to (index + 1) }.toMap()
-            }
-            TournamentEvent.EUROPEAN_TOUR -> {
-                val (top16Oom, top16PtOom) = resolvePrequalifiedTourCardIds(event, tourCardPlayerIds, oomEntries, ptOomEntries, allPlayers)
-                val seedMap = mutableMapOf<Long, Int>()
-                top16Oom.forEachIndexed { index, id -> seedMap[id] = index + 1 }
-                top16PtOom.forEachIndexed { index, id -> seedMap[id] = index + 1 }
-                seedMap
-            }
-            TournamentEvent.WORLD_MATCHPLAY -> {
-                val sortedOom = sortPlayerIdsByOom(allPlayerIds, oomEntries, allPlayers)
-                sortedOom.take(16).mapIndexed { index, id -> id to (index + 1) }.toMap()
-            }
-            TournamentEvent.WORLD_GRAND_PRIX -> {
-                val sortedOom = sortPlayerIdsByOom(allPlayerIds, oomEntries, allPlayers)
-                sortedOom.take(16).mapIndexed { index, id -> id to (index + 1) }.toMap()
-            }
-            TournamentEvent.GRAND_SLAM_OF_DARTS -> {
-                val sortedOom = sortPlayerIdsByOom(allPlayerIds, oomEntries, allPlayers)
-                sortedOom.take(16).mapIndexed { index, id -> id to (index + 1) }.toMap()
-            }
-            TournamentEvent.EUROPEAN_CHAMPIONSHIP -> {
-                val top32Et = sortPlayerIdsByOom(allPlayerIds, etOomEntries, allPlayers).take(32)
-                val final32Et = fillToTargetCount(top32Et, 32, allPlayerIds, oomEntries)
-                final32Et.mapIndexed { index, id -> id to (index + 1) }.toMap()
-            }
-            TournamentEvent.PLAYERS_CHAMPIONSHIP_FINALS -> {
-                val top64Pc = sortPlayerIdsByOom(allPlayerIds, pcOomEntries, allPlayers).take(64)
-                val final64Pc = fillToTargetCount(top64Pc, 64, allPlayerIds, oomEntries)
-                final64Pc.mapIndexed { index, id -> id to (index + 1) }.toMap()
-            }
-            TournamentEvent.WORLD_CHAMPIONSHIP -> {
-                val (top40Oom, top40Pt) = resolvePrequalifiedTourCardIds(event, tourCardPlayerIds, oomEntries, ptOomEntries, allPlayers)
-                val tc80 = top40Oom + top40Pt
-                val sortedTc80ByOom = sortPlayerIdsByOom(tc80, oomEntries, allPlayers)
-                sortedTc80ByOom.take(32).mapIndexed { index, id -> id to (index + 1) }.toMap()
-            }
-            TournamentEvent.QUALIFIER_ET, TournamentEvent.QUALIFIER_GRAND_SLAM, TournamentEvent.QUALIFIER_WM -> {
-                val split = resolveQualifierFieldSplit(event, tourCardPlayerIds, oomEntries, ptOomEntries, allPlayers)
-                split.nonPrequalifiedIds.take(split.seedCount).mapIndexed { index, id -> id to (index + 1) }.toMap()
-            }
-            else -> emptyMap()
-        }
+        qualificationResult.participants
+            .filter { it.seedNumber != null }
+            .associate { it.playerId to it.seedNumber!! }
     }
 
     /**
@@ -387,12 +829,19 @@ class TournamentQualificationUseCase(
             } else {
                 val season = seasonDao.getSeasonById(seasonId)
                 val careerId = season?.careerId ?: fallbackCareerId
-                val tourCards = tourCardDao.getTourCardsListForSeason(seasonId)
-                val tourCardPlayerIds = tourCards.map { it.tourCard.playerId }.distinct()
-                val oomEntries = getOrderOfMeritUseCase(careerId, OrderOfMeritType.OOM)
-                val allPlayers = playerDao.getAllPlayersList()
-                val sortedOomTc = sortPlayerIdsByOom(tourCardPlayerIds, oomEntries, allPlayers)
-                sortedOomTc.take(16)
+                val dummyTournament = Tournament(
+                    id = tournamentId,
+                    seasonId = seasonId,
+                    name = event.name,
+                    type = event.name,
+                    order = 1
+                )
+                val result = resolveTournamentQualification(
+                    tournament = dummyTournament,
+                    seasonId = seasonId,
+                    careerId = careerId
+                )
+                result.preQualifiedOomIds
             }
             val l48Matches = allMatches.filter { it.round == TournamentRound.L48.name }.sortedBy { it.matchIndex }
 
@@ -453,10 +902,7 @@ class TournamentQualificationUseCase(
         val stored33To64 = storedParticipants.filter { it.qualificationType == "OOM_33_64" }.sortedBy { it.seedNumber ?: Int.MAX_VALUE }.map { it.playerId }
         val storedTop32 = storedParticipants.filter { it.qualificationType == "OOM_TOP_32" }.sortedBy { it.seedNumber ?: Int.MAX_VALUE }.map { it.playerId }
 
-        val oomEntries = getOrderOfMeritUseCase(careerId, OrderOfMeritType.OOM)
         val allPlayers = playerDao.getAllPlayersList()
-        val allPlayerIds = (listOf(USER_ID) + allPlayers.map { it.id }).distinct()
-        val sortedPlayerIds = sortPlayerIdsByOom(allPlayerIds, oomEntries, allPlayers)
         val allPlayersMap = allPlayers.associateBy { it.id }
 
         val careerWithProfile = careerDao.getCareerById(currentCareerId)
@@ -478,6 +924,10 @@ class TournamentQualificationUseCase(
         val roundIndex = sequence.indexOf(roundEnum)
 
         val groups = mutableListOf<EntrantGroupDomainData>()
+
+        val oomEntries = getOrderOfMeritUseCase(careerId, OrderOfMeritType.OOM)
+        val allPlayerIds = (listOf(USER_ID) + allPlayers.map { it.id }).distinct()
+        val sortedPlayerIds = sortPlayerIdsByOom(allPlayerIds, oomEntries, allPlayers)
 
         when (roundKey) {
             TournamentRound.R2_128.name -> {
@@ -517,8 +967,6 @@ class TournamentQualificationUseCase(
 
         return@withContext groups
     }
-
-
 
     /**
      * Generates placeholder preview matches for a specific round of a tournament.
@@ -610,27 +1058,28 @@ class TournamentQualificationUseCase(
     ): List<TournamentMatch> {
         val season = seasonDao.getSeasonById(seasonId)
         val careerId = season?.careerId ?: fallbackCareerId
-        val tourCards = tourCardDao.getTourCardsListForSeason(seasonId)
-        val tourCardPlayerIds = tourCards.map { it.tourCard.playerId }.distinct()
-        val oomEntries = getOrderOfMeritUseCase(careerId, OrderOfMeritType.OOM)
-        val ptOomEntries = getOrderOfMeritUseCase(careerId, OrderOfMeritType.PT_OOM)
-        val allPlayers = playerDao.getAllPlayersList()
-
-        val split = resolveQualifierFieldSplit(event, tourCardPlayerIds, oomEntries, ptOomEntries, allPlayers)
+        val dummyTournament = Tournament(
+            id = tournamentId,
+            seasonId = seasonId,
+            name = event.name,
+            type = event.name,
+            order = 1
+        )
+        val qualResult = resolveTournamentQualification(
+            tournament = dummyTournament,
+            seasonId = seasonId,
+            careerId = careerId
+        )
+        val split = qualResult.qualifierFieldSplit ?: return fallbackMatches
         val boardCount = split.boardCount
 
         return when (roundEnum) {
             TournamentRound.QUAL_R1 -> {
-                // Prüfe zuerst, ob bereits ausgeloste QUAL_R1-Matches persistiert sind (Single Source of Truth).
-                // Diese wurden beim Turnierstart in GenerateBracketUseCase gespeichert und dürfen nicht
-                // erneut zufällig gemischt werden.
                 val existingR1Matches = allMatches
                     .filter { it.round == TournamentRound.QUAL_R1.name }
                     .sortedBy { it.matchIndex }
 
                 if (existingR1Matches.isNotEmpty()) {
-                    // Vorrunden-Platzhalter (-1000L - prelimMatchIndex) durch tatsächliche Sieger ersetzen,
-                    // sofern das zugehörige QUAL_PRELIM-Match bereits abgeschlossen ist.
                     val completedPrelimMatches = allMatches
                         .filter { it.round == TournamentRound.QUAL_PRELIM.name && it.isCompleted }
                         .sortedBy { it.matchIndex }
@@ -644,7 +1093,6 @@ class TournamentQualificationUseCase(
                             playerId = storedR1Match.player2Id,
                             completedPrelimMatches = completedPrelimMatches
                         )
-                        // Nur neu verpacken, wenn sich etwas geändert hat (kein unnötiges Objekt-Erstellen)
                         if (resolvedPlayer1Id != storedR1Match.player1Id || resolvedPlayer2Id != storedR1Match.player2Id) {
                             storedR1Match.copy(player1Id = resolvedPlayer1Id, player2Id = resolvedPlayer2Id)
                         } else {
@@ -652,7 +1100,6 @@ class TournamentQualificationUseCase(
                         }
                     }
                 } else {
-                    // Fallback: Noch keine persistierten Paarungen vorhanden → frisch auslosten.
                     val byePlayers = split.byePlayers
                     val prelimMatches = allMatches
                         .filter { it.round == TournamentRound.QUAL_PRELIM.name }
