@@ -5,6 +5,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.danny.dannyapp.domain.enums.TournamentRound
 
 @Entity(
     tableName = "tournaments",

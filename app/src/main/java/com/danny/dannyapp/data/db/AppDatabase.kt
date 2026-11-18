@@ -193,7 +193,7 @@ abstract class AppDatabase : RoomDatabase() {
 
                     // 1. Kopfzeile auslesen und Index-Map erstellen (BOM-bereinigt, lowercase)
                     val headerLine = iterator.next()
-                    val cleanHeader = if (headerLine.startsWith("﻿")) headerLine.substring(1) else headerLine
+                    val cleanHeader = if (headerLine.startsWith("\uFEFF")) headerLine.substring(1) else headerLine
                     val columnIndexMap = cleanHeader.split(";")
                         .mapIndexed { index, columnName -> columnName.trim().lowercase() to index }
                         .toMap()

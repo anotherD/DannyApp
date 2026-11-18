@@ -111,8 +111,6 @@ class TournamentProgressionUseCase(
             if (updatedState != null && updatedState.canAdvanceRound) {
                 advanceTournamentRoundUseCase(tournamentId)
             } else {
-                tournament = currentTournamentDao.getTournamentById(tournamentId) ?: return@withContext false
-                if (tournament.isCompleted) return@withContext true
                 break
             }
         }

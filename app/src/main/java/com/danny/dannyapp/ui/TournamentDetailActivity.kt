@@ -696,7 +696,7 @@ class TournamentDetailActivity : BaseActivity() {
     }
 
     /**
-     * Aktualisiert das Icon und die Content-Description des Ansichts-Wechsel-Buttons basierend auf [SettingsManager.isBracketViewEnabled].
+     * Aktualisiert das Icon und die Content-Description des Ansichts-Wechsel-Buttons basierend auf [com.danny.dannyapp.data.SettingsManager.isBracketViewEnabled].
      */
     private fun updateBracketFabIcon() {
         if (settingsManager.isBracketViewEnabled) {
