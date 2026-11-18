@@ -157,7 +157,7 @@ object TournamentDetailUiHelper {
         boardCount: Int,
         qualificationUseCase: TournamentQualificationUseCase
     ): List<List<MatchUiModel>> {
-        if (boardIndex < 0 || boardIndex >= boardCount) {
+        if (boardIndex !in 0 until boardCount) {
             return allRoundsMatches
         }
 

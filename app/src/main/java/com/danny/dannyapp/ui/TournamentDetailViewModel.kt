@@ -663,12 +663,8 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         val host = TournamentUiHelper.getTournamentCity(tournament.hostCountry, tournament.hostCity)
 
         val allRoundsMatches = availableRounds.map { roundKey ->
-            val dbMatchesForRound = allMatches.filter { it.round == roundKey }
-            val roundMatches = if (dbMatchesForRound.isNotEmpty()) {
-                dbMatchesForRound
-            } else {
-                generatePreviewMatchesForRound(tournament.id, roundKey, event)
-            }
+            val roundMatches = allMatches.filter { it.round == roundKey }
+                .ifEmpty { generatePreviewMatchesForRound(tournament.id, roundKey, event) }
 
             val roundModels = roundMatches.map { match ->
                 createMatchUiModel(match, userName, userCountryCode, userLevel, allPlayersMap, roundKey, event, seededPlayerMap)

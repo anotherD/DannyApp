@@ -40,83 +40,83 @@
             android:layout_height="match_parent"
             android:background="@color/grau_rahmen_dunkel" />
 
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:orientation="vertical"
             android:paddingHorizontal="10dp"
             android:paddingVertical="4dp">
 
             <!-- Row 1: Player 1 -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
+            <TextView
+                android:id="@+id/tvPlayer1Name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="6dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="@color/grau_text_hell"
+                android:textSize="13sp"
+                app:layout_constraintBottom_toTopOf="@id/dividerBracketMatch"
+                app:layout_constraintEnd_toStartOf="@id/tvPlayer1Score"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="M.van Gerwen" />
 
-                <TextView
-                    android:id="@+id/tvPlayer1Name"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:ellipsize="end"
-                    android:maxLines="1"
-                    android:textColor="@color/grau_text_hell"
-                    android:textSize="13sp"
-                    tools:text="M.van Gerwen" />
-
-                <TextView
-                    android:id="@+id/tvPlayer1Score"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="6dp"
-                    android:gravity="end"
-                    android:maxLines="1"
-                    android:textColor="@color/grau_text_hell"
-                    android:textSize="13sp"
-                    tools:text="6" />
-            </LinearLayout>
+            <TextView
+                android:id="@+id/tvPlayer1Score"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="end"
+                android:maxLines="1"
+                android:textColor="@color/grau_text_hell"
+                android:textSize="13sp"
+                app:layout_constraintBottom_toTopOf="@id/dividerBracketMatch"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="6" />
 
             <!-- Divider line -->
             <View
                 android:id="@+id/dividerBracketMatch"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="1dp"
-                android:background="@color/grau_rahmen_dunkel" />
+                android:background="@color/grau_rahmen_dunkel"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <!-- Row 2: Player 2 -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
+            <TextView
+                android:id="@+id/tvPlayer2Name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="6dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="@color/grau_text_hell"
+                android:textSize="13sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/tvPlayer2Score"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/dividerBracketMatch"
+                tools:text="L.Littler" />
 
-                <TextView
-                    android:id="@+id/tvPlayer2Name"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:ellipsize="end"
-                    android:maxLines="1"
-                    android:textColor="@color/grau_text_hell"
-                    android:textSize="13sp"
-                    tools:text="L.Littler" />
+            <TextView
+                android:id="@+id/tvPlayer2Score"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="end"
+                android:maxLines="1"
+                android:textColor="@color/grau_text_hell"
+                android:textSize="13sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/dividerBracketMatch"
+                tools:text="4" />
 
-                <TextView
-                    android:id="@+id/tvPlayer2Score"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="6dp"
-                    android:gravity="end"
-                    android:maxLines="1"
-                    android:textColor="@color/grau_text_hell"
-                    android:textSize="13sp"
-                    tools:text="4" />
-            </LinearLayout>
-        </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </LinearLayout>
 
 </com.google.android.material.card.MaterialCardView>

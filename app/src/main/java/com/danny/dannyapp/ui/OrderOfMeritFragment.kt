@@ -1,6 +1,5 @@
 package com.danny.dannyapp.ui
 
-import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
@@ -42,12 +41,8 @@ class OrderOfMeritFragment : Fragment(R.layout.fragment_order_of_merit) {
 
         viewModel = ViewModelProvider(requireActivity())[OrderOfMeritViewModel::class.java]
 
-        oomType = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            arguments?.getSerializable(ARG_TYPE, OrderOfMeritType::class.java)
-        } else {
-            @Suppress("DEPRECATION")
-            arguments?.getSerializable(ARG_TYPE) as? OrderOfMeritType
-        } ?: OrderOfMeritType.OOM
+        oomType = arguments?.getSerializable(ARG_TYPE, OrderOfMeritType::class.java)
+            ?: OrderOfMeritType.OOM
 
         rvOom = view.findViewById(R.id.rvOrderOfMerit)
         tvEmptyOom = view.findViewById(R.id.tvEmptyOom)
