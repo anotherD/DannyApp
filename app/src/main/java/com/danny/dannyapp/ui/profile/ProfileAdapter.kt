@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
 import com.danny.dannyapp.data.db.UserProfile
-import com.danny.dannyapp.ui.UiHelper
+import com.danny.dannyapp.ui.UIHelper
 
 class ProfileAdapter(
     private val onItemClick: (UserProfile) -> Unit,
@@ -32,7 +32,7 @@ class ProfileAdapter(
         val profile = getItem(position)
         holder.tvProfileName.text = profile.name
 
-        UiHelper.formatFlagAndText(holder.tvPlayerNameAndFlag, profile.countryCode, profile.playerName)
+        UIHelper.formatFlagAndText(holder.tvPlayerNameAndFlag, profile.countryCode, profile.playerName)
 
         if (profile.description.isNotBlank()) {
             holder.tvProfileDescription.text = profile.description

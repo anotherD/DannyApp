@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
 import com.danny.dannyapp.domain.model.OrderOfMeritEntry
-import com.danny.dannyapp.ui.UiHelper
+import com.danny.dannyapp.ui.UIHelper
 import com.google.android.material.card.MaterialCardView
 
 class OrderOfMeritAdapter : ListAdapter<OrderOfMeritEntry, OrderOfMeritAdapter.OomViewHolder>(OomDiffCallback) {
@@ -32,7 +32,7 @@ class OrderOfMeritAdapter : ListAdapter<OrderOfMeritEntry, OrderOfMeritAdapter.O
         val context = holder.itemView.context
         holder.tvRank.text = context.getString(R.string.rank_format, entry.rank)
 
-        UiHelper.formatFlagAndText(holder.tvPlayerName, entry.countryCode, entry.name)
+        UIHelper.formatFlagAndText(holder.tvPlayerName, entry.countryCode, entry.name)
 
         holder.tvPrizeMoney.text = context.getString(R.string.prize_money_format, entry.prizeMoney)
 

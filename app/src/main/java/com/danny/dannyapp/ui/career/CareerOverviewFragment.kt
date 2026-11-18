@@ -12,7 +12,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.danny.dannyapp.R
-import com.danny.dannyapp.ui.UiHelper
+import com.danny.dannyapp.ui.UIHelper
 import com.danny.dannyapp.ui.enums.TournamentStatus
 import com.danny.dannyapp.ui.model.TournamentUiModel
 import com.danny.dannyapp.ui.tournament.TournamentCalendarState
@@ -73,7 +73,7 @@ class CareerOverviewFragment : Fragment(R.layout.fragment_career_overview) {
                             if (!careerWithProfile.playerName.isNullOrBlank()) {
                                 tvCareerOverviewPlayer.visibility = View.VISIBLE
                                 val countryCode = careerWithProfile.countryCode ?: "DEU"
-                                UiHelper.formatFlagAndText(tvCareerOverviewPlayer, countryCode, careerWithProfile.playerName)
+                                UIHelper.formatFlagAndText(tvCareerOverviewPlayer, countryCode, careerWithProfile.playerName)
                             } else {
                                 tvCareerOverviewPlayer.visibility = View.GONE
                             }

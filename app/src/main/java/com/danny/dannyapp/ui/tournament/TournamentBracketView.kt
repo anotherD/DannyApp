@@ -20,7 +20,7 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.danny.dannyapp.R
 import com.danny.dannyapp.data.db.USER_ID
-import com.danny.dannyapp.ui.UiHelper
+import com.danny.dannyapp.ui.UIHelper
 import com.danny.dannyapp.ui.enums.RoundStatus
 import com.danny.dannyapp.domain.enums.TournamentRound
 import com.danny.dannyapp.ui.model.EntrantGroupInfo
@@ -393,10 +393,10 @@ class TournamentBracketView @JvmOverloads constructor(
             tvBracketMatchIndex.text = context.getString(R.string.tournament_match_index_format, match.matchIndex + 1)
         }
 
-        UiHelper.bindSmartPlayerName(tvPlayer1Name, item.player1, isLeft = true)
-        UiHelper.bindSmartPlayerName(tvPlayer2Name, item.player2, isLeft = true)
+        UIHelper.bindSmartPlayerName(tvPlayer1Name, item.player1, isLeft = true)
+        UIHelper.bindSmartPlayerName(tvPlayer2Name, item.player2, isLeft = true)
 
-        UiHelper.applyMatchCardStyle(
+        UIHelper.applyMatchCardStyle(
             card = card,
             item = item,
             player1Name = tvPlayer1Name,

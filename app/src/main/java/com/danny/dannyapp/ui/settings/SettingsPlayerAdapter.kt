@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
 import com.danny.dannyapp.data.db.Player
 import com.danny.dannyapp.domain.enums.SkillLevel
-import com.danny.dannyapp.ui.UiHelper
+import com.danny.dannyapp.ui.UIHelper
 import com.danny.dannyapp.ui.toColorResId
 
 /**
@@ -36,7 +36,7 @@ class SettingsPlayerAdapter : ListAdapter<Player, SettingsPlayerAdapter.PlayerVi
         val player = getItem(position)
         val context = holder.itemView.context
 
-        UiHelper.formatFlagAndText(holder.tvPlayerName, player.countryCode, player.name)
+        UIHelper.formatFlagAndText(holder.tvPlayerName, player.countryCode, player.name)
 
         holder.tvPlayerSkill.text = context.getString(R.string.player_skill_short_format, player.skill)
 

@@ -39,7 +39,7 @@ fun SkillLevel.toColorResId(): Int {
     }
 }
 
-object UiHelper {
+object UIHelper {
 
     class VerticalCenteredImageSpan(
         drawable: Drawable

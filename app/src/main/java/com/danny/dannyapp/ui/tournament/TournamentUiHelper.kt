@@ -11,7 +11,7 @@ import com.danny.dannyapp.domain.model.Country
 import com.danny.dannyapp.data.db.Tournament
 import com.danny.dannyapp.domain.enums.TournamentEvent
 import com.danny.dannyapp.domain.enums.TournamentRound
-import com.danny.dannyapp.ui.UiHelper
+import com.danny.dannyapp.ui.UIHelper
 import com.danny.dannyapp.ui.enums.TournamentStatus
 import com.danny.dannyapp.ui.model.PlayerUiInfo
 import com.danny.dannyapp.ui.model.TournamentUiModel
@@ -138,7 +138,7 @@ object TournamentUiHelper {
                             }
                         }
                     }
-                    UiHelper.bindSmartPlayerName(tvRow, player)
+                    UIHelper.bindSmartPlayerName(tvRow, player)
                     rowLayout.addView(tvRow)
                 }
 
@@ -189,7 +189,7 @@ object TournamentUiHelper {
 
         val host = tournament.hostCountry ?: Country.DEFAULT_CODE
         val city = getTournamentCity(tournament.hostCountry, tournament.hostCity)
-        UiHelper.formatFlagAndText(tvTournamentDetails, host, city)
+        UIHelper.formatFlagAndText(tvTournamentDetails, host, city)
 
         val cardView = itemView as? MaterialCardView
         when {
@@ -263,7 +263,7 @@ object TournamentUiHelper {
 
         val host = tournament.hostCountry ?: Country.DEFAULT_CODE
         val city = getTournamentCity(tournament.hostCountry, tournament.hostCity)
-        UiHelper.formatFlagAndText(tvHost, host, city)
+        UIHelper.formatFlagAndText(tvHost, host, city)
 
         if (headerCard != null) {
             val event = try { TournamentEvent.valueOf(tournament.type) } catch (_: Exception) { null }

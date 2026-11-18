@@ -3,6 +3,7 @@ package com.danny.dannyapp.ui.career
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.danny.dannyapp.R
 import com.danny.dannyapp.data.db.Career
 import com.danny.dannyapp.data.db.CareerRepository
 import com.danny.dannyapp.data.db.CareerWithProfile
@@ -38,7 +39,7 @@ class CareersViewModel(application: Application) : AndroidViewModel(application)
             careerRepository.saveCareer(career)
             SaveCareerResult.Success(career.name, career.level)
         } catch (e: Exception) {
-            SaveCareerResult.Error(e.localizedMessage ?: "Fehler beim Speichern der Karriere")
+            SaveCareerResult.Error(e.localizedMessage ?: getApplication<Application>().getString(R.string.error_save_career))
         }
     }
 

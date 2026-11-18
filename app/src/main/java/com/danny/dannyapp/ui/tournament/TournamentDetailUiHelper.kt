@@ -22,7 +22,7 @@ import com.danny.dannyapp.domain.usecase.AdvanceTournamentRoundUseCase
 import com.danny.dannyapp.domain.usecase.EntrantGroupDomainData
 import com.danny.dannyapp.domain.usecase.EntrantGroupType
 import com.danny.dannyapp.domain.usecase.TournamentQualificationUseCase
-import com.danny.dannyapp.ui.UiHelper
+import com.danny.dannyapp.ui.UIHelper
 import com.danny.dannyapp.ui.enums.RoundStatus
 import com.danny.dannyapp.ui.model.EntrantGroupInfo
 import com.danny.dannyapp.ui.model.MatchUiModel
@@ -104,7 +104,7 @@ object TournamentDetailUiHelper {
                             setTextColor(ContextCompat.getColor(context, typedValue.resourceId))
                         }
                     }
-                    UiHelper.bindSmartPlayerName(tvPlayer, player, isLeft = true)
+                    UIHelper.bindSmartPlayerName(tvPlayer, player, isLeft = true)
                     rowLayout.addView(tvPlayer)
                 }
 

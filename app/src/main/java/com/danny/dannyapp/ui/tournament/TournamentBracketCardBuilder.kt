@@ -12,7 +12,7 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.danny.dannyapp.R
 import com.danny.dannyapp.data.db.USER_ID
-import com.danny.dannyapp.ui.UiHelper
+import com.danny.dannyapp.ui.UIHelper
 import com.danny.dannyapp.ui.model.EntrantGroupInfo
 import com.danny.dannyapp.ui.model.GrandSlamGroupItem
 import com.google.android.material.card.MaterialCardView
@@ -119,7 +119,7 @@ object TournamentBracketCardBuilder {
                             1f
                         )
                     }
-                    UiHelper.bindSmartPlayerName(tvPlayer, player, isLeft = true)
+                    UIHelper.bindSmartPlayerName(tvPlayer, player, isLeft = true)
                     rowLayout.addView(tvPlayer)
 
                     if (colIdx == 0 && pair.size > 1) {
@@ -265,7 +265,7 @@ object TournamentBracketCardBuilder {
                 ellipsize = TextUtils.TruncateAt.END
                 layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
                 if (item != null) {
-                    UiHelper.bindSmartPlayerName(this, item.player, isLeft = true)
+                    UIHelper.bindSmartPlayerName(this, item.player, isLeft = true)
                     if (item.player.id == USER_ID) {
                         setTextColor(ContextCompat.getColor(context, R.color.rot_sehr_hell))
                     } else if (i != 0) {

@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
 import com.danny.dannyapp.data.db.CareerWithProfile
 import com.danny.dannyapp.domain.model.Country
-import com.danny.dannyapp.ui.UiHelper
+import com.danny.dannyapp.ui.UIHelper
 
 class CareerAdapter(
     private val onItemClick: (CareerWithProfile) -> Unit,
@@ -46,7 +46,7 @@ class CareerAdapter(
         }
         if (!careerWithProfile.playerName.isNullOrBlank()) {
             val countryCode = careerWithProfile.countryCode ?: Country.DEFAULT_CODE
-            UiHelper.formatFlagAndText(holder.tvCareerPlayer, countryCode, careerWithProfile.playerName)
+            UIHelper.formatFlagAndText(holder.tvCareerPlayer, countryCode, careerWithProfile.playerName)
             holder.tvCareerPlayer.visibility = View.VISIBLE
         } else {
             holder.tvCareerPlayer.visibility = View.GONE

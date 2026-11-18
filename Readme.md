@@ -69,7 +69,7 @@ Ausführliche Fachkonzepte, Forschungsberichte und Architekturbeschreibungen bef
     - [ ] Eindeutige Match-Nummerierung einführen (entweder mit Runden-Präfix wie `#L64-1` oder fortlaufend durch das gesamte Turnier).
     - [ ] Horizontales Ausfaden (`fadingEdge`) an den Bildschirmrändern links/rechts für horizontal scrollbare Elemente (Turnierbaum-Kacheln, Runden-Pills, Ranglisten-Pills).
     - [ ] Einheitliches Chip-Auswahl-Verhalten angleichen: Runden-Chips (aktuell Rahmen = Auswahl, Hintergrund = Status) und Ranglisten-Chips (Hintergrund = Auswahl) auf einen konsistenten Android-Standard bringen.
-    - [ ] Material 3 Expressive Motion: Taktilen Spring-/Jump-Effekt (`SpringAnimation` zentral in `UiHelper`) gezielt für primäre Buttons, FABs und Filter-Chips einbauen (nicht für scrollbare Listen-Kacheln).
+    - [ ] Material 3 Expressive Motion: Taktilen Spring-/Jump-Effekt (`SpringAnimation` zentral in `UIHelper`) gezielt für primäre Buttons, FABs und Filter-Chips einbauen (nicht für scrollbare Listen-Kacheln).
     - [ ] Toasts durch einheitliche UI-Hinweise (z. B. Material `Snackbar` oder eigene Status-Banner) ersetzen.
 - [ ] **Spieler-Detailansicht:** Klick auf einen Spielernamen (in Turnieren, Ranglisten oder Spielerliste) öffnet die Detailseite mit Karriere-Stats und Erfolgen.
 - [ ] **Match-Detailansicht:** Klick auf ein abgeschlossenes oder laufendes Match öffnet die Match-Statistiken (Leg-/Set-Verlauf, Averages, Check-outs).

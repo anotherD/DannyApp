@@ -37,7 +37,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
-import java.util.Locale
+
 
 sealed interface TournamentDetailState {
     object Loading : TournamentDetailState
@@ -308,7 +308,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
 
         val allPlayersMap = playerDao.getAllPlayersList().associateBy { it.id }
         val seededPlayerMap = getSeededPlayerMap(event, tournament.seasonId, tournament.id)
-        val qualifierBoardCount = if (event.qualifierBoardCount > 0) event.qualifierBoardCount else 4
+        val qualifierBoardCount = TournamentDetailUiHelper.getQualifierBoardCount(event)
         val qualR1Matches = allMatches.filter { it.round == TournamentRound.QUAL_R1.name }
         val userContext = resolveUserDisplayContext()
 
@@ -419,7 +419,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         } else getApplication<Application>().getString(R.string.tournament_review_not_qualified)
 
         val userEarnedPrizeMoneyText = if (userPlacement != null && userPlacement.prizeMoney > 0) {
-            "£%,d".format(Locale.US, userPlacement.prizeMoney.toLong())
+            getApplication<Application>().getString(R.string.prize_money_format, userPlacement.prizeMoney)
         } else "£0"
 
         val sequence = getRoundSequence(event, allMatches)
@@ -457,7 +457,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         } else null
 
         val seededPlayerMap = getSeededPlayerMap(event, tournament.seasonId, tournament.id)
-        val qualifierBoardCount = if (event.qualifierBoardCount > 0) event.qualifierBoardCount else 4
+        val qualifierBoardCount = TournamentDetailUiHelper.getQualifierBoardCount(event)
         val qualR1Matches = allMatches.filter { it.round == TournamentRound.QUAL_R1.name }
 
         val matchUiModels = buildRoundMatchUiModels(

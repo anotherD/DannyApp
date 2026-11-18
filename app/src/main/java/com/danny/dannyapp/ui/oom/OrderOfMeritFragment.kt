@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
 import com.danny.dannyapp.domain.enums.OrderOfMeritType
-import com.danny.dannyapp.ui.UiHelper
+import com.danny.dannyapp.ui.UIHelper
 import com.google.android.material.card.MaterialCardView
 import kotlinx.coroutines.launch
 
@@ -134,7 +134,7 @@ class OrderOfMeritFragment : Fragment(R.layout.fragment_order_of_merit) {
             userIndex < firstVisible -> {
                 tvStickyRankTop?.text = rankText
                 tvStickyPlayerNameTop?.let {
-                    UiHelper.formatFlagAndText(it, userEntry.countryCode, userEntry.name)
+                    UIHelper.formatFlagAndText(it, userEntry.countryCode, userEntry.name)
                 }
                 tvStickyPrizeMoneyTop?.text = moneyText
 
@@ -149,7 +149,7 @@ class OrderOfMeritFragment : Fragment(R.layout.fragment_order_of_merit) {
             userIndex > lastVisible -> {
                 tvStickyRankBottom?.text = rankText
                 tvStickyPlayerNameBottom?.let {
-                    UiHelper.formatFlagAndText(it, userEntry.countryCode, userEntry.name)
+                    UIHelper.formatFlagAndText(it, userEntry.countryCode, userEntry.name)
                 }
                 tvStickyPrizeMoneyBottom?.text = moneyText
 

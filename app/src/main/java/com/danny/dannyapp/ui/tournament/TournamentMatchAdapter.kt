@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
-import com.danny.dannyapp.ui.UiHelper
+import com.danny.dannyapp.ui.UIHelper
 import com.danny.dannyapp.ui.model.MatchUiModel
 import com.google.android.material.card.MaterialCardView
 
@@ -78,10 +78,10 @@ class TournamentMatchAdapter(
             holder.tvMatchRoundIndex.text = context.getString(R.string.tournament_match_index_format, match.matchIndex + 1)
         }
 
-        UiHelper.bindSmartPlayerName(holder.tvPlayer1Name, item.player1, isLeft = true)
-        UiHelper.bindSmartPlayerName(holder.tvPlayer2Name, item.player2, isLeft = false)
+        UIHelper.bindSmartPlayerName(holder.tvPlayer1Name, item.player1, isLeft = true)
+        UIHelper.bindSmartPlayerName(holder.tvPlayer2Name, item.player2, isLeft = false)
 
-        UiHelper.applyMatchCardStyle(
+        UIHelper.applyMatchCardStyle(
             card = holder.cardMatch,
             item = item,
             player1Name = holder.tvPlayer1Name,

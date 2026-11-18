@@ -197,4 +197,5 @@
     <string name="error_invalid_career_id">Ungültige Karriere-ID</string>
     <string name="error_unknown">Unbekannter Fehler</string>
     <string name="error_empty_name">Name darf nicht leer sein</string>
+    <string name="error_save_career">Fehler beim Speichern der Karriere</string>
 </resources>

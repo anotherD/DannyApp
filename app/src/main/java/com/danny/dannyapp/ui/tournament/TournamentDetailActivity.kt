@@ -22,7 +22,7 @@ import com.danny.dannyapp.R
 import com.danny.dannyapp.domain.enums.TournamentEvent
 import com.danny.dannyapp.domain.usecase.TournamentQualificationUseCase
 import com.danny.dannyapp.ui.BaseActivity
-import com.danny.dannyapp.ui.UiHelper
+import com.danny.dannyapp.ui.UIHelper
 import com.danny.dannyapp.ui.enums.RoundStatus
 import com.danny.dannyapp.ui.model.MatchUiModel
 import com.danny.dannyapp.ui.model.PrizeMoneyItem
@@ -499,7 +499,7 @@ class TournamentDetailActivity : BaseActivity() {
                     this, tvReviewTitle, tvStatusBadgeReview, tvReviewTypeBadge, tvReviewHost,
                     state.tournament, getString(R.string.tournament_status_completed), R.color.status_completed, cardReviewSummary
                 )
-                UiHelper.formatFlagAndText(tvReviewHost, state.hostCountryCode, state.host)
+                UIHelper.formatFlagAndText(tvReviewHost, state.hostCountryCode, state.host)
 
                 currentEvent = state.event
 
@@ -516,7 +516,7 @@ class TournamentDetailActivity : BaseActivity() {
                     layoutReviewQualifierWinnersList.visibility = View.GONE
                     tvReviewWinnerLabel.visibility = View.VISIBLE
                     tvReviewWinner.visibility = View.VISIBLE
-                    UiHelper.bindSmartPlayerName(tvReviewWinner, state.winner)
+                    UIHelper.bindSmartPlayerName(tvReviewWinner, state.winner)
                 }
                 tvReviewUserRound.text = getString(R.string.tournament_review_user_round, state.userReachedRoundText)
                 tvReviewUserPrize.text = getString(R.string.tournament_review_user_prize, state.userEarnedPrizeMoneyText)

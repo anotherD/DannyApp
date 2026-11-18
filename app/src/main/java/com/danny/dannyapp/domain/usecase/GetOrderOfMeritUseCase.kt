@@ -1,6 +1,7 @@
 package com.danny.dannyapp.domain.usecase
 
 import android.content.Context
+import com.danny.dannyapp.R
 import com.danny.dannyapp.domain.model.Country
 import com.danny.dannyapp.data.db.AppDatabase
 import com.danny.dannyapp.data.db.CareerDao
@@ -25,14 +26,16 @@ class GetOrderOfMeritUseCase(
     private val seasonDao: SeasonDao,
     private val tournamentDao: TournamentDao,
     private val placementDao: TournamentPlacementDao,
-    private val playerDao: PlayerDao
+    private val playerDao: PlayerDao,
+    private val context: Context? = null
 ) {
     constructor(context: Context) : this(
         AppDatabase.getDatabase(context.applicationContext).careerDao(),
         AppDatabase.getDatabase(context.applicationContext).seasonDao(),
         AppDatabase.getDatabase(context.applicationContext).tournamentDao(),
         AppDatabase.getDatabase(context.applicationContext).tournamentPlacementDao(),
-        AppDatabase.getDatabase(context.applicationContext).playerDao()
+        AppDatabase.getDatabase(context.applicationContext).playerDao(),
+        context.applicationContext
     )
 
     suspend operator fun invoke(careerId: Long, type: OrderOfMeritType): List<OrderOfMeritEntry> = withContext(Dispatchers.IO) {
@@ -52,7 +55,7 @@ class GetOrderOfMeritUseCase(
         val playerMap = allPlayers.associateBy { it.id }
 
         val careerWithProfile = careerDao.getCareerById(careerId)
-        val userName = careerWithProfile?.playerName?.ifBlank { null } ?: careerWithProfile?.profileName ?: careerWithProfile?.career?.name ?: "Du"
+        val userName = careerWithProfile?.playerName?.ifBlank { null } ?: careerWithProfile?.profileName ?: careerWithProfile?.career?.name ?: (context?.getString(R.string.player_name_you) ?: "Du")
         val userCountryCode = careerWithProfile?.countryCode ?: Country.DEFAULT_USER_CODE
         val userSkill = careerWithProfile?.career?.level ?: SkillLevel.DEFAULT.value
 
@@ -125,7 +128,7 @@ class GetOrderOfMeritUseCase(
                 skill = userSkill
             } else {
                 val player = playerMap[playerId]
-                name = player?.name ?: "Unbekannt"
+                name = player?.name ?: (context?.getString(R.string.player_name_unknown) ?: "Unbekannt")
                 countryCode = player?.countryCode ?: Country.DEFAULT_CODE
                 skill = player?.skill ?: SkillLevel.DEFAULT.value
             }
