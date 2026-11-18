@@ -437,13 +437,8 @@ class TournamentBracketView @JvmOverloads constructor(
      * Offene Auslosungsrunden (R1_160, R2_128, R3_96) gelten nie als 1:1-Vorrunde.
      */
     private fun isOnceToOnePrelimRound(roundIndex: Int): Boolean {
-        val openDrawRoundKeys = setOf(
-            TournamentRound.R1_160.name,
-            TournamentRound.R2_128.name,
-            TournamentRound.R3_96.name
-        )
         val currentRoundKey = roundsMatches.getOrNull(roundIndex)?.firstOrNull()?.match?.round
-        if (currentRoundKey != null && currentRoundKey in openDrawRoundKeys) return false
+        if (currentRoundKey != null && currentRoundKey in OPEN_DRAW_ROUND_KEYS) return false
 
         val currentViewCount = matchViews.getOrNull(roundIndex)?.size ?: 0
         val nextViewCount = matchViews.getOrNull(roundIndex + 1)?.size ?: 0
@@ -640,18 +635,30 @@ class TournamentBracketView @JvmOverloads constructor(
         }
     }
 
+    /**
+     * Zeichnet eine 3-teilige rechtwinklige Verbindungslinie zwischen Quell- und Zielkachel
+     * (horizontal bis zum Mittelpunkt [midX], vertikal auf Höhe [targetY], horizontal zum Ziel [targetX]).
+     */
+    private fun drawBracketConnector(
+        canvas: Canvas,
+        startX: Float,
+        startY: Float,
+        midX: Float,
+        targetX: Float,
+        targetY: Float,
+        paint: Paint
+    ) {
+        canvas.drawLine(startX, startY, midX, startY, paint)
+        canvas.drawLine(midX, startY, midX, targetY, paint)
+        canvas.drawLine(midX, targetY, targetX, targetY, paint)
+    }
+
     override fun dispatchDraw(canvas: Canvas) {
         val headerHeightPx = 40f * density
         val clipTop = paddingTop.toFloat() + headerHeightPx
 
         canvas.save()
         canvas.clipRect(0f, clipTop, width.toFloat(), height.toFloat())
-
-        val openDrawRoundKeys = setOf(
-            TournamentRound.R1_160.name,
-            TournamentRound.R2_128.name,
-            TournamentRound.R3_96.name
-        )
 
         val numRounds = matchViews.size
         if (numRounds > 1) {
@@ -663,7 +670,7 @@ class TournamentBracketView @JvmOverloads constructor(
 
                 // Keine Verbindungslinien nach offenen Auslosungsrunden (UK/Euro Open),
                 // da Sieger dort per Losverfahren neu zugeordnet werden.
-                if (currentRoundKey != null && currentRoundKey in openDrawRoundKeys) continue
+                if (currentRoundKey != null && currentRoundKey in OPEN_DRAW_ROUND_KEYS) continue
 
                 val viewsCurr = matchViews.getOrNull(roundIdx) ?: continue
                 val viewsNext = matchViews.getOrNull(roundIdx + 1) ?: continue
@@ -691,82 +698,70 @@ class TournamentBracketView @JvmOverloads constructor(
                         val viewPairTop = viewsCurr.getOrNull(2 * pairIndex)
                         val viewPairBottom = viewsCurr.getOrNull(2 * pairIndex + 1)
 
-                        if (groupOrMatchIdx % 2 == 0 && viewPairTop != null && viewPairBottom != null) {
-                            val xPairTop = viewPairTop.right.toFloat()
-                            val yPairTop = viewPairTop.top + viewPairTop.height / 2f
-                            val xPairBottom = viewPairBottom.right.toFloat()
-                            val yPairBottom = viewPairBottom.top + viewPairBottom.height / 2f
-                            val xTarget = viewTarget.left.toFloat()
-                            val yTarget = viewTarget.top + viewTarget.height / 2f
-                            val midX = (xPairTop + xTarget) / 2f
+                        if (groupOrMatchIdx % 2 != 0 || viewPairTop == null || viewPairBottom == null) continue
 
-                            canvas.drawLine(xPairTop, yPairTop, midX, yPairTop, linePaintDefault)
-                            canvas.drawLine(xPairBottom, yPairBottom, midX, yPairBottom, linePaintDefault)
-                            canvas.drawLine(midX, min(yPairTop, yPairBottom), midX, max(yPairTop, yPairBottom), linePaintDefault)
-                            canvas.drawLine(midX, yTarget, xTarget, yTarget, linePaintDefault)
+                        val xPairTop = viewPairTop.right.toFloat()
+                        val yPairTop = viewPairTop.top + viewPairTop.height / 2f
+                        val xPairBottom = viewPairBottom.right.toFloat()
+                        val yPairBottom = viewPairBottom.top + viewPairBottom.height / 2f
+                        val xTarget = viewTarget.left.toFloat()
+                        val yTarget = viewTarget.top + viewTarget.height / 2f
+                        val midX = (xPairTop + xTarget) / 2f
 
-                            if (isGrandSlamGroupRound) {
-                                // Grand-Slam-Gruppenphase: Verbindungslinie rot hervorheben, falls der User
-                                // bereits in das entsprechende Achtelfinal-Match (vTarget) eingezogen ist.
-                                val matchNext = roundMatchesNext.getOrNull(pairIndex)
-                                val userIsInTargetMatch = matchNext != null &&
-                                    (matchNext.isUserMatch || matchNext.match.player1Id == USER_ID || matchNext.match.player2Id == USER_ID)
+                        canvas.drawLine(xPairTop, yPairTop, midX, yPairTop, linePaintDefault)
+                        canvas.drawLine(xPairBottom, yPairBottom, midX, yPairBottom, linePaintDefault)
+                        canvas.drawLine(midX, min(yPairTop, yPairBottom), midX, max(yPairTop, yPairBottom), linePaintDefault)
+                        canvas.drawLine(midX, yTarget, xTarget, yTarget, linePaintDefault)
 
-                                if (userIsInTargetMatch) {
-                                    val topGroupLetter = ('A' + 2 * pairIndex).toString()
-                                    val bottomGroupLetter = ('A' + 2 * pairIndex + 1).toString()
-                                    val userInTopGroup = grandSlamGroupStandings[topGroupLetter]?.any { it.player.id == USER_ID } == true
-                                    val userInBottomGroup = grandSlamGroupStandings[bottomGroupLetter]?.any { it.player.id == USER_ID } == true
+                        if (isGrandSlamGroupRound) {
+                            // Grand-Slam-Gruppenphase: Verbindungslinie rot hervorheben, falls der User
+                            // bereits in das entsprechende Achtelfinal-Match (vTarget) eingezogen ist.
+                            val matchNext = roundMatchesNext.getOrNull(pairIndex)
+                            val userIsInTargetMatch = matchNext != null &&
+                                (matchNext.isUserMatch || matchNext.match.player1Id == USER_ID || matchNext.match.player2Id == USER_ID)
 
-                                    val highlightTop = userInTopGroup || !userInBottomGroup
-                                    val highlightBottom = userInBottomGroup || !userInTopGroup
+                            if (userIsInTargetMatch) {
+                                val topGroupLetter = ('A' + 2 * pairIndex).toString()
+                                val bottomGroupLetter = ('A' + 2 * pairIndex + 1).toString()
+                                val userInTopGroup = grandSlamGroupStandings[topGroupLetter]?.any { it.player.id == USER_ID } == true
+                                val userInBottomGroup = grandSlamGroupStandings[bottomGroupLetter]?.any { it.player.id == USER_ID } == true
 
-                                    if (highlightTop) {
-                                        canvas.drawLine(xPairTop, yPairTop, midX, yPairTop, linePaintHighlight)
-                                        canvas.drawLine(midX, yPairTop, midX, yTarget, linePaintHighlight)
-                                        canvas.drawLine(midX, yTarget, xTarget, yTarget, linePaintHighlight)
-                                    }
-                                    if (highlightBottom) {
-                                        canvas.drawLine(xPairBottom, yPairBottom, midX, yPairBottom, linePaintHighlight)
-                                        canvas.drawLine(midX, yPairBottom, midX, yTarget, linePaintHighlight)
-                                        canvas.drawLine(midX, yTarget, xTarget, yTarget, linePaintHighlight)
-                                    }
+                                val highlightTop = userInTopGroup || !userInBottomGroup
+                                val highlightBottom = userInBottomGroup || !userInTopGroup
+
+                                if (highlightTop) {
+                                    drawBracketConnector(canvas, xPairTop, yPairTop, midX, xTarget, yTarget, linePaintHighlight)
                                 }
-                            } else {
-                                // Standard: Verbindungslinie des Siegers rot hervorheben, falls es der User ist
-                                val matchTop = roundMatchesR.getOrNull(2 * pairIndex)
-                                if (matchTop != null && matchTop.isCompleted && matchTop.winnerId == USER_ID) {
-                                    canvas.drawLine(xPairTop, yPairTop, midX, yPairTop, linePaintHighlight)
-                                    canvas.drawLine(midX, yPairTop, midX, yTarget, linePaintHighlight)
-                                    canvas.drawLine(midX, yTarget, xTarget, yTarget, linePaintHighlight)
+                                if (highlightBottom) {
+                                    drawBracketConnector(canvas, xPairBottom, yPairBottom, midX, xTarget, yTarget, linePaintHighlight)
                                 }
-                                val matchBottom = roundMatchesR.getOrNull(2 * pairIndex + 1)
-                                if (matchBottom != null && matchBottom.isCompleted && matchBottom.winnerId == USER_ID) {
-                                    canvas.drawLine(xPairBottom, yPairBottom, midX, yPairBottom, linePaintHighlight)
-                                    canvas.drawLine(midX, yPairBottom, midX, yTarget, linePaintHighlight)
-                                    canvas.drawLine(midX, yTarget, xTarget, yTarget, linePaintHighlight)
-                                }
+                            }
+                        } else {
+                            // Standard: Verbindungslinie des Siegers rot hervorheben, falls es der User ist
+                            val matchTop = roundMatchesR.getOrNull(2 * pairIndex)
+                            if (matchTop != null && matchTop.isCompleted && matchTop.winnerId == USER_ID) {
+                                drawBracketConnector(canvas, xPairTop, yPairTop, midX, xTarget, yTarget, linePaintHighlight)
+                            }
+                            val matchBottom = roundMatchesR.getOrNull(2 * pairIndex + 1)
+                            if (matchBottom != null && matchBottom.isCompleted && matchBottom.winnerId == USER_ID) {
+                                drawBracketConnector(canvas, xPairBottom, yPairBottom, midX, xTarget, yTarget, linePaintHighlight)
                             }
                         }
                     } else {
                         // ── 1:1-Verbindungslinie (Vorrunden wie QUAL_PRELIM, L48) ──
-                        if (targetMatchIndex >= 0 && targetMatchIndex < viewsNext.size) {
-                            val xCurr = viewCurr.right.toFloat()
-                            val yCurr = viewCurr.top + viewCurr.height / 2f
-                            val xNext = viewTarget.left.toFloat()
-                            val yNext = viewTarget.top + viewTarget.height / 2f
-                            val midX = (xCurr + xNext) / 2f
+                        if (targetMatchIndex < 0 || targetMatchIndex >= viewsNext.size) continue
 
-                            canvas.drawLine(xCurr, yCurr, midX, yCurr, linePaintDefault)
-                            canvas.drawLine(midX, min(yCurr, yNext), midX, max(yCurr, yNext), linePaintDefault)
-                            canvas.drawLine(midX, yNext, xNext, yNext, linePaintDefault)
+                        val xCurr = viewCurr.right.toFloat()
+                        val yCurr = viewCurr.top + viewCurr.height / 2f
+                        val xNext = viewTarget.left.toFloat()
+                        val yNext = viewTarget.top + viewTarget.height / 2f
+                        val midX = (xCurr + xNext) / 2f
 
-                            val currentMatch = roundMatchesR.getOrNull(groupOrMatchIdx)
-                            if (currentMatch != null && currentMatch.isCompleted && currentMatch.winnerId == USER_ID) {
-                                canvas.drawLine(xCurr, yCurr, midX, yCurr, linePaintHighlight)
-                                canvas.drawLine(midX, min(yCurr, yNext), midX, max(yCurr, yNext), linePaintHighlight)
-                                canvas.drawLine(midX, yNext, xNext, yNext, linePaintHighlight)
-                            }
+                        drawBracketConnector(canvas, xCurr, yCurr, midX, xNext, yNext, linePaintDefault)
+
+                        val currentMatch = roundMatchesR.getOrNull(groupOrMatchIdx)
+                        if (currentMatch != null && currentMatch.isCompleted && currentMatch.winnerId == USER_ID) {
+                            drawBracketConnector(canvas, xCurr, yCurr, midX, xNext, yNext, linePaintHighlight)
                         }
                     }
                 }
@@ -937,5 +932,13 @@ class TournamentBracketView @JvmOverloads constructor(
     private fun recycleVelocityTracker() {
         velocityTracker?.recycle()
         velocityTracker = null
+    }
+
+    companion object {
+        private val OPEN_DRAW_ROUND_KEYS = setOf(
+            TournamentRound.R1_160.name,
+            TournamentRound.R2_128.name,
+            TournamentRound.R3_96.name
+        )
     }
 }
