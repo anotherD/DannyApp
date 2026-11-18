@@ -263,13 +263,9 @@ class TournamentBracketView @JvmOverloads constructor(
                     addView(cardView, insertIndex++)
                     currentRoundViews.add(cardView)
                 }
-            } else if (roundMatches.isEmpty() && openDrawInfoMap.containsKey(roundIdx)) {
-                val (prevName, groups) = openDrawInfoMap[roundIdx]!!
+            } else if (roundMatches.isEmpty() && (openDrawInfoMap.containsKey(roundIdx) || openEntrantsGroups.isNotEmpty() || isOpenDrawInfoVisible)) {
+                val (prevName, groups) = openDrawInfoMap[roundIdx] ?: Pair(prevRoundDisplayName, openEntrantsGroups)
                 val infoCardView = TournamentBracketCardBuilder.createOpenDrawInfoCardView(context, density, prevName, groups)
-                addView(infoCardView, insertIndex++)
-                currentRoundViews.add(infoCardView)
-            } else if (roundMatches.isEmpty() && (openEntrantsGroups.isNotEmpty() || isOpenDrawInfoVisible)) {
-                val infoCardView = TournamentBracketCardBuilder.createOpenDrawInfoCardView(context, density, prevRoundDisplayName, openEntrantsGroups)
                 addView(infoCardView, insertIndex++)
                 currentRoundViews.add(infoCardView)
             } else {
@@ -388,55 +384,7 @@ class TournamentBracketView @JvmOverloads constructor(
     }
 
     private fun getTargetMatchIndex(r: Int, m: Int): Int {
-        val roundMatchesR = roundsMatches.getOrNull(r) ?: return m
-        val roundMatchesNext = roundsMatches.getOrNull(r + 1) ?: return m
-        val sizeCurr = roundMatchesR.size
-        val sizeNext = roundMatchesNext.size
-        val matchItem = roundMatchesR.getOrNull(m)
-
-        return when {
-            sizeCurr == sizeNext * 2 -> m / 2
-            sizeCurr == sizeNext -> {
-                if (matchItem?.isCompleted == true && (matchItem.winnerId ?: 0L) > 0L) {
-                    val idx = roundMatchesNext.indexOfFirst { it.player1.id == matchItem.winnerId || it.player2.id == matchItem.winnerId }
-                    if (idx >= 0) {
-                        idx
-                    } else if (headerDisplayNames.getOrNull(r)?.contains("L48") == true) {
-                        val targetIdx = com.danny.dannyapp.domain.usecase.BracketGenerator.BRACKET_SEED_ORDER_16.indexOf(sizeNext - 1 - m)
-                        if (targetIdx >= 0) targetIdx else m
-                    } else {
-                        m
-                    }
-                } else {
-                    if (headerDisplayNames.getOrNull(r)?.contains("L48") == true) {
-                        val targetIdx = com.danny.dannyapp.domain.usecase.BracketGenerator.BRACKET_SEED_ORDER_16.indexOf(sizeNext - 1 - m)
-                        if (targetIdx >= 0) targetIdx else m
-                    } else {
-                        m
-                    }
-                }
-            }
-            sizeCurr < sizeNext -> {
-                if (matchItem?.isCompleted == true && (matchItem.winnerId ?: 0L) > 0L) {
-                    val idx = roundMatchesNext.indexOfFirst { it.player1.id == matchItem.winnerId || it.player2.id == matchItem.winnerId }
-                    if (idx >= 0) return idx
-                }
-                if (matchItem != null) {
-                    val targetBoard = matchItem.targetBoard
-                    if (targetBoard != null) {
-                        val targetGlobalIndex = 4 * targetBoard + 3
-                        val idx = roundMatchesNext.indexOfFirst { it.match.matchIndex == targetGlobalIndex }
-                        if (idx >= 0) return idx
-                    }
-                }
-                if (sizeNext == 4) {
-                    min(3, sizeNext - 1)
-                } else {
-                    (sizeNext - sizeCurr + m).coerceIn(0, sizeNext - 1)
-                }
-            }
-            else -> m / 2
-        }
+        return TournamentDetailUiHelper.resolveBracketTargetMatchIndex(roundsMatches, r, m)
     }
 
     private fun computeMatchCenterY(r: Int, m: Int, focus: Float): Float {

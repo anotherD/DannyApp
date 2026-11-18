@@ -1,23 +1,32 @@
 package com.danny.dannyapp.ui
 
 import android.content.Context
+import android.content.res.ColorStateList
 import android.graphics.Typeface
 import android.util.TypedValue
 import android.view.GestureDetector
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
+import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
 import com.danny.dannyapp.domain.enums.TournamentEvent
 import com.danny.dannyapp.domain.enums.TournamentRound
+import com.danny.dannyapp.domain.usecase.BracketGenerator
 import com.danny.dannyapp.domain.usecase.TournamentQualificationUseCase
+import com.danny.dannyapp.ui.enums.RoundStatus
 import com.danny.dannyapp.ui.model.EntrantGroupInfo
 import com.danny.dannyapp.ui.model.MatchUiModel
+import com.google.android.material.chip.Chip
+import com.google.android.material.chip.ChipGroup
 import com.google.android.material.divider.MaterialDivider
+import kotlin.math.min
 
 /**
  * UI helper class for [TournamentDetailActivity] to render open draw entrants,
@@ -237,5 +246,148 @@ object TournamentDetailUiHelper {
         views.forEach { view ->
             view.setOnTouchListener(genericTouchListener)
         }
+    }
+
+    /**
+     * Resolves the target match index in round [r] + 1 for match [m] in round [r].
+     *
+     * @param roundsMatches Full list of round match UI models.
+     * @param r Current round index.
+     * @param m Current match index within round [r].
+     * @return Target match index in round [r] + 1.
+     */
+    fun resolveBracketTargetMatchIndex(roundsMatches: List<List<MatchUiModel>>, r: Int, m: Int): Int {
+        val roundMatchesR = roundsMatches.getOrNull(r) ?: return m
+        val roundMatchesNext = roundsMatches.getOrNull(r + 1) ?: return m
+        val sizeCurr = roundMatchesR.size
+        val sizeNext = roundMatchesNext.size
+        val matchItem = roundMatchesR.getOrNull(m)
+
+        return when {
+            sizeCurr == sizeNext * 2 -> m / 2
+            sizeCurr == sizeNext -> {
+                if (matchItem?.isCompleted == true && (matchItem.winnerId ?: 0L) > 0L) {
+                    val idx = roundMatchesNext.indexOfFirst { it.player1.id == matchItem.winnerId || it.player2.id == matchItem.winnerId }
+                    if (idx >= 0) {
+                        return idx
+                    }
+                }
+                val isL48Round = matchItem?.match?.round == TournamentRound.L48.name || roundMatchesR.firstOrNull()?.match?.round == TournamentRound.L48.name
+                if (isL48Round) {
+                    val targetIdx = BracketGenerator.BRACKET_SEED_ORDER_16.indexOf(sizeNext - 1 - m)
+                    if (targetIdx >= 0) targetIdx else m
+                } else {
+                    m
+                }
+            }
+            sizeCurr < sizeNext -> {
+                if (matchItem?.isCompleted == true && (matchItem.winnerId ?: 0L) > 0L) {
+                    val idx = roundMatchesNext.indexOfFirst { it.player1.id == matchItem.winnerId || it.player2.id == matchItem.winnerId }
+                    if (idx >= 0) return idx
+                }
+                if (matchItem != null) {
+                    val targetBoard = matchItem.targetBoard
+                    if (targetBoard != null) {
+                        val targetGlobalIndex = 4 * targetBoard + 3
+                        val idx = roundMatchesNext.indexOfFirst { it.match.matchIndex == targetGlobalIndex }
+                        if (idx >= 0) return idx
+                    }
+                }
+                if (sizeNext == 4) {
+                    min(3, sizeNext - 1)
+                } else {
+                    (sizeNext - sizeCurr + m).coerceIn(0, sizeNext - 1)
+                }
+            }
+            else -> m / 2
+        }
+    }
+
+    /**
+     * Dynamically builds round filter [Chip] views into [chipGroup] and smooth-scrolls [scrollContainer]
+     * to keep the selected chip centered.
+     *
+     * @param chipGroup The container layout for the round chips.
+     * @param scrollContainer The parent [HorizontalScrollView] containing the chip group.
+     * @param roundDisplayNames List of display names for each round.
+     * @param roundStatuses Optional list of [RoundStatus] per round index (defaults to [RoundStatus.COMPLETED]).
+     * @param selectedIndex Currently selected round index.
+     * @param onRoundSelected Callback invoked when a round chip is clicked.
+     */
+    fun bindRoundChips(
+        chipGroup: ChipGroup,
+        scrollContainer: HorizontalScrollView,
+        roundDisplayNames: List<String>,
+        roundStatuses: List<RoundStatus>? = null,
+        selectedIndex: Int,
+        onRoundSelected: (Int) -> Unit
+    ) {
+        val context = chipGroup.context
+        chipGroup.removeAllViews()
+        var selectedChip: Chip? = null
+
+        roundDisplayNames.forEachIndexed { index, displayName ->
+            val status = roundStatuses?.getOrNull(index) ?: RoundStatus.COMPLETED
+            val chip = Chip(context).apply {
+                text = displayName
+                isCheckable = true
+                isChecked = (index == selectedIndex)
+
+                val (bgRes, textRes) = when (status) {
+                    RoundStatus.COMPLETED -> R.color.status_completed to R.color.grau_text_gedaempft
+                    RoundStatus.ACTIVE -> R.color.status_active to R.color.white
+                    RoundStatus.PENDING -> R.color.anthrazit_container_niedrig to R.color.grau_text_gedaempft
+                }
+
+                chipBackgroundColor = ColorStateList.valueOf(ContextCompat.getColor(context, bgRes))
+                setTextColor(ContextCompat.getColor(context, textRes))
+
+                if (isChecked) {
+                    chipStrokeColor = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.white))
+                    chipStrokeWidth = 2 * context.resources.displayMetrics.density
+                } else {
+                    chipStrokeWidth = 0f
+                }
+
+                setOnClickListener {
+                    onRoundSelected(index)
+                }
+            }
+            chipGroup.addView(chip)
+            if (index == selectedIndex) {
+                selectedChip = chip
+            }
+        }
+
+        selectedChip?.let { chip ->
+            chip.post {
+                val scrollX = chip.left - (scrollContainer.width - chip.width) / 2
+                scrollContainer.smoothScrollTo(scrollX.coerceAtLeast(0), 0)
+            }
+        }
+    }
+
+    /**
+     * Smoothly scrolls a [RecyclerView] to center the match item at [position].
+     *
+     * @param recyclerView Target RecyclerView.
+     * @param position Zero-based adapter position of the target item.
+     */
+    fun scrollToMatchCentered(recyclerView: RecyclerView, position: Int) {
+        if (position < 0) return
+        val layoutManager = recyclerView.layoutManager as? LinearLayoutManager ?: return
+        val smoothScroller = object : LinearSmoothScroller(recyclerView.context) {
+            override fun calculateDtToFit(
+                viewStart: Int,
+                viewEnd: Int,
+                boxStart: Int,
+                boxEnd: Int,
+                snapPreference: Int
+            ): Int {
+                return (boxStart + (boxEnd - boxStart) / 2) - (viewStart + (viewEnd - viewStart) / 2)
+            }
+        }
+        smoothScroller.targetPosition = position
+        layoutManager.startSmoothScroll(smoothScroller)
     }
 }

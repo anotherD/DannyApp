@@ -1,6 +1,5 @@
 package com.danny.dannyapp.ui
 
-import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.View
 import com.danny.dannyapp.domain.usecase.TournamentQualificationUseCase
@@ -14,7 +13,6 @@ import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.core.content.ContextCompat
 import androidx.core.view.children
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -413,46 +411,14 @@ class TournamentDetailActivity : BaseActivity() {
                 currentPrizeMoneyItems = state.prizeMoneyItems
 
                 // Round Chips setup
-                chipGroupRounds.removeAllViews()
-                var selectedChip: Chip? = null
-                state.availableRoundDisplayNames.forEachIndexed { index, displayName ->
-                    val status = state.roundStatuses.getOrNull(index) ?: RoundStatus.PENDING
-                    val chip = Chip(this).apply {
-                        text = displayName
-                        isCheckable = true
-                        isChecked = (index == state.selectedRoundIndex)
-
-                        val (bgRes, textRes) = when (status) {
-                            RoundStatus.COMPLETED -> R.color.status_completed to R.color.grau_text_gedaempft
-                            RoundStatus.ACTIVE -> R.color.status_active to R.color.white
-                            RoundStatus.PENDING -> R.color.anthrazit_container_niedrig to R.color.grau_text_gedaempft
-                        }
-
-                        chipBackgroundColor = ColorStateList.valueOf(ContextCompat.getColor(this@TournamentDetailActivity, bgRes))
-                        setTextColor(ContextCompat.getColor(this@TournamentDetailActivity, textRes))
-
-                        if (isChecked) {
-                            chipStrokeColor = ColorStateList.valueOf(ContextCompat.getColor(this@TournamentDetailActivity, R.color.white))
-                            chipStrokeWidth = 2 * resources.displayMetrics.density
-                        } else {
-                            chipStrokeWidth = 0f
-                        }
-
-                        setOnClickListener {
-                            viewModel.selectRound(index)
-                        }
-                    }
-                    chipGroupRounds.addView(chip)
-                    if (index == state.selectedRoundIndex) {
-                        selectedChip = chip
-                    }
-                }
-                selectedChip?.let { chip ->
-                    chip.post {
-                        val scrollX = chip.left - (scrollRoundPills.width - chip.width) / 2
-                        scrollRoundPills.smoothScrollTo(scrollX.coerceAtLeast(0), 0)
-                    }
-                }
+                TournamentDetailUiHelper.bindRoundChips(
+                    chipGroup = chipGroupRounds,
+                    scrollContainer = scrollRoundPills,
+                    roundDisplayNames = state.availableRoundDisplayNames,
+                    roundStatuses = state.roundStatuses,
+                    selectedIndex = state.selectedRoundIndex,
+                    onRoundSelected = { index -> viewModel.selectRound(index) }
+                )
 
                 // Group Chips setup
                 if (state.availableGroups.isNotEmpty()) {
@@ -557,39 +523,14 @@ class TournamentDetailActivity : BaseActivity() {
                 currentPrizeMoneyItems = state.prizeMoneyItems
 
                 // Round Chips
-                chipGroupReviewRounds.removeAllViews()
-                var selectedReviewChip: Chip? = null
-                state.availableRoundDisplayNames.forEachIndexed { index, displayName ->
-                    val chip = Chip(this).apply {
-                        text = displayName
-                        isCheckable = true
-                        isChecked = (index == state.selectedRoundIndex)
-
-                        chipBackgroundColor = ColorStateList.valueOf(ContextCompat.getColor(this@TournamentDetailActivity, R.color.status_completed))
-                        setTextColor(ContextCompat.getColor(this@TournamentDetailActivity, R.color.grau_text_gedaempft))
-
-                        if (isChecked) {
-                            chipStrokeColor = ColorStateList.valueOf(ContextCompat.getColor(this@TournamentDetailActivity, R.color.white))
-                            chipStrokeWidth = 2 * resources.displayMetrics.density
-                        } else {
-                            chipStrokeWidth = 0f
-                        }
-
-                        setOnClickListener {
-                            viewModel.selectRound(index)
-                        }
-                    }
-                    chipGroupReviewRounds.addView(chip)
-                    if (index == state.selectedRoundIndex) {
-                        selectedReviewChip = chip
-                    }
-                }
-                selectedReviewChip?.let { chip ->
-                    chip.post {
-                        val scrollX = chip.left - (scrollReviewRoundPills.width - chip.width) / 2
-                        scrollReviewRoundPills.smoothScrollTo(scrollX.coerceAtLeast(0), 0)
-                    }
-                }
+                TournamentDetailUiHelper.bindRoundChips(
+                    chipGroup = chipGroupReviewRounds,
+                    scrollContainer = scrollReviewRoundPills,
+                    roundDisplayNames = state.availableRoundDisplayNames,
+                    roundStatuses = null,
+                    selectedIndex = state.selectedRoundIndex,
+                    onRoundSelected = { index -> viewModel.selectRound(index) }
+                )
 
                 if (settingsManager.isBracketViewEnabled) {
                     scrollReviewRoundPills.visibility = View.GONE
@@ -741,30 +682,9 @@ class TournamentDetailActivity : BaseActivity() {
                     is TournamentDetailState.Review -> rvReviewMatches
                     else -> return
                 }
-                scrollToMatchCentered(targetRecyclerView, userMatchIndex)
+                TournamentDetailUiHelper.scrollToMatchCentered(targetRecyclerView, userMatchIndex)
             }
         }
-    }
-
-    /**
-     * Scrollt eine [RecyclerView] zentriert auf die angegebene Position.
-     */
-    private fun scrollToMatchCentered(recyclerView: RecyclerView, position: Int) {
-        if (position < 0) return
-        val layoutManager = recyclerView.layoutManager as? LinearLayoutManager ?: return
-        val smoothScroller = object : androidx.recyclerview.widget.LinearSmoothScroller(recyclerView.context) {
-            override fun calculateDtToFit(
-                viewStart: Int,
-                viewEnd: Int,
-                boxStart: Int,
-                boxEnd: Int,
-                snapPreference: Int
-            ): Int {
-                return (boxStart + (boxEnd - boxStart) / 2) - (viewStart + (viewEnd - viewStart) / 2)
-            }
-        }
-        smoothScroller.targetPosition = position
-        layoutManager.startSmoothScroll(smoothScroller)
     }
 
     /**
