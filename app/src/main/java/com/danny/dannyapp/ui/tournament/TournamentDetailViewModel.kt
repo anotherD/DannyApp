@@ -306,49 +306,42 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             dbMatchesForRound.filter { it.groupName == availableGroups[selectedGroupIndexFlow.value] }
         } else dbMatchesForRound
 
-        val careerWithProfile = careerRepository.getCareerById(currentCareerId)
-        val userLevel = careerWithProfile?.career?.level?.coerceIn(1, 10) ?: SkillLevel.DEFAULT.value
-        val userName = careerWithProfile?.playerName?.ifBlank { null }
-            ?: careerWithProfile?.profileName ?: careerWithProfile?.career?.name
-            ?: getApplication<Application>().getString(R.string.player_name_you)
-        val userCountryCode = careerWithProfile?.countryCode ?: Country.DEFAULT_USER_CODE
-
         val allPlayersMap = playerDao.getAllPlayersList().associateBy { it.id }
         val seededPlayerMap = getSeededPlayerMap(event, tournament.seasonId, tournament.id)
         val qualifierBoardCount = if (event.qualifierBoardCount > 0) event.qualifierBoardCount else 4
         val qualR1Matches = allMatches.filter { it.round == TournamentRound.QUAL_R1.name }
+        val userContext = resolveUserDisplayContext()
 
-        val rawMatchUiModels = filteredMatches.map { match ->
-            TournamentDetailMapper.createMatchUiModel(getApplication(), match, userName, userCountryCode, userLevel, allPlayersMap, currentRoundKey, event, seededPlayerMap)
-        }
-
-        val matchUiModels = if (currentRoundKey == TournamentRound.QUAL_PRELIM.name) {
-            rawMatchUiModels.map { model ->
-                val board = tournamentQualificationUseCase.resolvePrelimTargetBoard(qualR1Matches, model.match.matchIndex, model.match.winnerId, qualifierBoardCount)
-                model.copy(targetBoard = board)
-            }.sortedWith(compareBy<MatchUiModel> { it.targetBoard ?: 0 }.thenBy { it.match.matchIndex })
-        } else rawMatchUiModels
+        val matchUiModels = buildRoundMatchUiModels(
+            matches = filteredMatches,
+            roundKey = currentRoundKey,
+            event = event,
+            userContext = userContext,
+            allPlayersMap = allPlayersMap,
+            seededPlayerMap = seededPlayerMap,
+            qualR1Matches = qualR1Matches,
+            qualifierBoardCount = qualifierBoardCount,
+            sortPrelimByBoard = true
+        )
 
         val isSelectedRoundPlayable = dbMatchesForRound.isNotEmpty() && dbMatchesForRound.any { !it.isCompleted }
         val prevRoundDisplayName = if (selectedRoundIndexFlow.value > 0) {
             availableRoundDisplayNames.getOrNull(selectedRoundIndexFlow.value - 1) ?: ""
         } else ""
 
-        val allRoundsMatches = availableRounds.map { roundKey ->
-            val roundMatches = allMatches.filter { it.round == roundKey }
-            val roundModels = roundMatches.map { match ->
-                TournamentDetailMapper.createMatchUiModel(getApplication(), match, userName, userCountryCode, userLevel, allPlayersMap, roundKey, event, seededPlayerMap)
-            }
-            if (roundKey == TournamentRound.QUAL_PRELIM.name) {
-                roundModels.map { model ->
-                    val board = tournamentQualificationUseCase.resolvePrelimTargetBoard(qualR1Matches, model.match.matchIndex, model.match.winnerId, qualifierBoardCount)
-                    model.copy(targetBoard = board)
-                }
-            } else roundModels
-        }
+        val allRoundsMatches = buildAllRoundsMatches(
+            availableRounds = availableRounds,
+            allMatches = allMatches,
+            event = event,
+            userContext = userContext,
+            allPlayersMap = allPlayersMap,
+            seededPlayerMap = seededPlayerMap,
+            qualR1Matches = qualR1Matches,
+            qualifierBoardCount = qualifierBoardCount
+        )
 
         val grandSlamGroupStandings = if (event == TournamentEvent.GRAND_SLAM_OF_DARTS) {
-            calculateGrandSlamGroupStandings(allMatches, userName, userCountryCode, allPlayersMap, tournament.seasonId, tournament.id)
+            calculateGrandSlamGroupStandings(allMatches, userContext.userName, userContext.userCountryCode, allPlayersMap, tournament.seasonId, tournament.id)
         } else emptyMap()
 
         val openDrawInfoMap = mutableMapOf<Int, Pair<String, List<EntrantGroupInfo>>>()
@@ -380,7 +373,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             isCurrentRoundCompleted = isCurrentRoundCompleted,
             isSelectedRoundPlayable = isSelectedRoundPlayable,
             canAdvanceRound = canAdvanceRound,
-            userLevel = userLevel,
+            userLevel = userContext.userLevel,
             careerName = careerName,
             seasonNumber = seasonNumber,
             isOpenDrawInfoVisible = isOpenDrawInfoVisible,
@@ -403,18 +396,12 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
     ) {
         val finalMatch = allMatches.find { it.round == TournamentRound.F.name } ?: allMatches.lastOrNull()
         val allPlayersMap = playerDao.getAllPlayersList().associateBy { it.id }
-
-        val careerWithProfile = careerRepository.getCareerById(currentCareerId)
-        val userLevel = careerWithProfile?.career?.level?.coerceIn(1, 10) ?: SkillLevel.DEFAULT.value
-        val userName = careerWithProfile?.playerName?.ifBlank { null }
-            ?: careerWithProfile?.profileName ?: careerWithProfile?.career?.name
-            ?: getApplication<Application>().getString(R.string.player_name_you)
-        val userCountryCode = careerWithProfile?.countryCode ?: Country.DEFAULT_USER_CODE
+        val userContext = resolveUserDisplayContext()
 
         val winnerId = finalMatch?.winnerId
         val winner = if (winnerId != null) {
             if (winnerId == USER_ID) {
-                PlayerUiInfo(id = USER_ID, name = userName, countryCode = userCountryCode)
+                PlayerUiInfo(id = USER_ID, name = userContext.userName, countryCode = userContext.userCountryCode)
             } else {
                 val player = allPlayersMap[winnerId]
                 PlayerUiInfo(
@@ -461,7 +448,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         val qualifierWinners = if (isQualifier) {
             allMatches.filter { it.round == TournamentRound.QUAL_FINAL.name }.sortedBy { it.matchIndex }.mapNotNull { match ->
                 val wId = match.winnerId ?: return@mapNotNull null
-                if (wId == USER_ID) PlayerUiInfo(id = USER_ID, name = userName, countryCode = userCountryCode)
+                if (wId == USER_ID) PlayerUiInfo(id = USER_ID, name = userContext.userName, countryCode = userContext.userCountryCode)
                 else {
                     val player = allPlayersMap[wId]
                     PlayerUiInfo(id = wId, name = player?.name ?: "CPU #$wId", countryCode = player?.countryCode ?: Country.DEFAULT_CODE, skill = player?.skill ?: SkillLevel.DEFAULT.value)
@@ -473,32 +460,31 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         val qualifierBoardCount = if (event.qualifierBoardCount > 0) event.qualifierBoardCount else 4
         val qualR1Matches = allMatches.filter { it.round == TournamentRound.QUAL_R1.name }
 
-        val rawMatchUiModels = filteredMatches.map { match ->
-            TournamentDetailMapper.createMatchUiModel(getApplication(), match, userName, userCountryCode, userLevel, allPlayersMap, currentRoundKey, event, seededPlayerMap)
-        }
+        val matchUiModels = buildRoundMatchUiModels(
+            matches = filteredMatches,
+            roundKey = currentRoundKey,
+            event = event,
+            userContext = userContext,
+            allPlayersMap = allPlayersMap,
+            seededPlayerMap = seededPlayerMap,
+            qualR1Matches = qualR1Matches,
+            qualifierBoardCount = qualifierBoardCount,
+            sortPrelimByBoard = true
+        )
 
-        val matchUiModels = if (currentRoundKey == TournamentRound.QUAL_PRELIM.name) {
-            rawMatchUiModels.map { model ->
-                val board = tournamentQualificationUseCase.resolvePrelimTargetBoard(qualR1Matches, model.match.matchIndex, model.match.winnerId, qualifierBoardCount)
-                model.copy(targetBoard = board)
-            }.sortedWith(compareBy<MatchUiModel> { it.targetBoard ?: 0 }.thenBy { it.match.matchIndex })
-        } else rawMatchUiModels
-
-        val allRoundsMatches = availableRounds.map { roundKey ->
-            val roundMatches = allMatches.filter { it.round == roundKey }
-            val roundModels = roundMatches.map { match ->
-                TournamentDetailMapper.createMatchUiModel(getApplication(), match, userName, userCountryCode, userLevel, allPlayersMap, roundKey, event, seededPlayerMap)
-            }
-            if (roundKey == TournamentRound.QUAL_PRELIM.name) {
-                roundModels.map { model ->
-                    val board = tournamentQualificationUseCase.resolvePrelimTargetBoard(qualR1Matches, model.match.matchIndex, model.match.winnerId, qualifierBoardCount)
-                    model.copy(targetBoard = board)
-                }
-            } else roundModels
-        }
+        val allRoundsMatches = buildAllRoundsMatches(
+            availableRounds = availableRounds,
+            allMatches = allMatches,
+            event = event,
+            userContext = userContext,
+            allPlayersMap = allPlayersMap,
+            seededPlayerMap = seededPlayerMap,
+            qualR1Matches = qualR1Matches,
+            qualifierBoardCount = qualifierBoardCount
+        )
 
         val grandSlamGroupStandings = if (event == TournamentEvent.GRAND_SLAM_OF_DARTS) {
-            calculateGrandSlamGroupStandings(allMatches, userName, userCountryCode, allPlayersMap, tournament.seasonId, tournament.id)
+            calculateGrandSlamGroupStandings(allMatches, userContext.userName, userContext.userCountryCode, allPlayersMap, tournament.seasonId, tournament.id)
         } else emptyMap()
 
         _uiState.value = TournamentDetailState.Review(
@@ -523,6 +509,99 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             seasonNumber = seasonNumber,
             grandSlamGroupStandings = grandSlamGroupStandings
         )
+    }
+
+    private data class UserDisplayContext(
+        val userLevel: Int,
+        val userName: String,
+        val userCountryCode: String
+    )
+
+    /**
+     * Ermittelt Anzeigename, Landescode und Spielstärke des Users für die aktuelle Karriere.
+     */
+    private suspend fun resolveUserDisplayContext(): UserDisplayContext {
+        val careerWithProfile = careerRepository.getCareerById(currentCareerId)
+        val userLevel = careerWithProfile?.career?.level?.coerceIn(1, 10) ?: SkillLevel.DEFAULT.value
+        val userName = careerWithProfile?.playerName?.ifBlank { null }
+            ?: careerWithProfile?.profileName
+            ?: careerWithProfile?.career?.name
+            ?: getApplication<Application>().getString(R.string.player_name_you)
+        val userCountryCode = careerWithProfile?.countryCode ?: Country.DEFAULT_USER_CODE
+        return UserDisplayContext(userLevel, userName, userCountryCode)
+    }
+
+    /**
+     * Wandelt die Datenbank-Matches einer Runde in UI-Modelle um und ergänzt bei Vorrunden-Matches das Ziel-Board.
+     */
+    private fun buildRoundMatchUiModels(
+        matches: List<TournamentMatch>,
+        roundKey: String,
+        event: TournamentEvent,
+        userContext: UserDisplayContext,
+        allPlayersMap: Map<Long, Player>,
+        seededPlayerMap: Map<Long, Int>,
+        qualR1Matches: List<TournamentMatch>,
+        qualifierBoardCount: Int,
+        sortPrelimByBoard: Boolean
+    ): List<MatchUiModel> {
+        val rawModels = matches.map { match ->
+            TournamentDetailMapper.createMatchUiModel(
+                context = getApplication(),
+                match = match,
+                userName = userContext.userName,
+                userCountryCode = userContext.userCountryCode,
+                userLevel = userContext.userLevel,
+                allPlayersMap = allPlayersMap,
+                roundKey = roundKey,
+                event = event,
+                seededPlayerMap = seededPlayerMap
+            )
+        }
+        if (roundKey != TournamentRound.QUAL_PRELIM.name) return rawModels
+
+        val withBoards = rawModels.map { model ->
+            val board = tournamentQualificationUseCase.resolvePrelimTargetBoard(
+                qualR1Matches = qualR1Matches,
+                prelimMatchIndex = model.match.matchIndex,
+                winnerId = model.match.winnerId,
+                boardCount = qualifierBoardCount
+            )
+            model.copy(targetBoard = board)
+        }
+        return if (sortPrelimByBoard) {
+            withBoards.sortedWith(compareBy<MatchUiModel> { it.targetBoard ?: 0 }.thenBy { it.match.matchIndex })
+        } else {
+            withBoards
+        }
+    }
+
+    /**
+     * Erzeugt die komplette Runden-Matrix für den Turnierbaum (Bracket).
+     */
+    private fun buildAllRoundsMatches(
+        availableRounds: List<String>,
+        allMatches: List<TournamentMatch>,
+        event: TournamentEvent,
+        userContext: UserDisplayContext,
+        allPlayersMap: Map<Long, Player>,
+        seededPlayerMap: Map<Long, Int>,
+        qualR1Matches: List<TournamentMatch>,
+        qualifierBoardCount: Int
+    ): List<List<MatchUiModel>> {
+        return availableRounds.map { roundKey ->
+            buildRoundMatchUiModels(
+                matches = allMatches.filter { it.round == roundKey },
+                roundKey = roundKey,
+                event = event,
+                userContext = userContext,
+                allPlayersMap = allPlayersMap,
+                seededPlayerMap = seededPlayerMap,
+                qualR1Matches = qualR1Matches,
+                qualifierBoardCount = qualifierBoardCount,
+                sortPrelimByBoard = false
+            )
+        }
     }
 
     private suspend fun calculateGrandSlamGroupStandings(
