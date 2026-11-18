@@ -555,13 +555,15 @@ class GenerateBracketUseCase(
             }
 
             TournamentEvent.GRAND_SLAM_OF_DARTS -> {
-                val (top16Oom, pot2) = tournamentQualificationUseCase.resolvePrequalifiedTourCardIds(
+                val top16Oom = tournamentQualificationUseCase.resolvePrequalifiedTourCardIds(
                     event = event,
                     tourCardPlayerIds = tourCardPlayerIds,
                     oomList = oomEntries,
                     ptOomList = ptOomEntries,
                     allPlayers = allPlayers
-                )
+                ).first
+                val remainingForPt = allPlayerIds.filterNot { it in top16Oom }
+                val pot2 = getPlayerListSortedByOom(remainingForPt, ptOomEntries).take(16)
 
                 var gsTchqWinners = getQualifierWinnersFromPreceding(8)
                 if (gsTchqWinners.size < 8) {
