@@ -820,7 +820,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         userName: String,
         userCountryCode: String,
         userLevel: Int,
-        allPlayersMap: Map<Long, com.danny.dannyapp.data.db.Player>,
+        allPlayersMap: Map<Long, Player>,
         roundKey: String,
         event: TournamentEvent,
         seededPlayerMap: Map<Long, Int> = emptyMap()
