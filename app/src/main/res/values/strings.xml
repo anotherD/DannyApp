@@ -215,4 +215,6 @@
     <string name="settings_section_design">Design</string>
     <string name="settings_section_developer">Entwickler</string>
     <string name="settings_modern_match_card">Modernes Match-Kachel-Design</string>
+    <string name="player_skill_short_format">L%d</string>
+    <string name="tournament_order_name_format">#%1$d %2$s</string>
 </resources>

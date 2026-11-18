@@ -38,7 +38,7 @@ class SettingsPlayerAdapter : ListAdapter<Player, SettingsPlayerAdapter.PlayerVi
 
         UiHelper.formatFlagAndText(holder.tvPlayerName, player.countryCode, player.name)
 
-        holder.tvPlayerSkill.text = "L${player.skill}"
+        holder.tvPlayerSkill.text = context.getString(R.string.player_skill_short_format, player.skill)
 
         val skillColor = getSkillColor(context, player.skill)
         holder.tvPlayerSkill.setTextColor(skillColor)

@@ -175,7 +175,7 @@ object TournamentUiHelper {
         val btnStartTournament: Button = itemView.findViewById(R.id.btnStartTournament)
         val btnSimulateCompleteTournament: Button = itemView.findViewById(R.id.btnSimulateCompleteTournament)
 
-        tvTournamentName.text = "#${tournament.order} ${tournament.name}"
+        tvTournamentName.text = context.getString(R.string.tournament_order_name_format, tournament.order, tournament.name)
 
         val typeBadgeInfo = getTournamentTypeBadgeInfo(context, tournament.type)
         tvTournamentTypeBadge.visibility = View.VISIBLE

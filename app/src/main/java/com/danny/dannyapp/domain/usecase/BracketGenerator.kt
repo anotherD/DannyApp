@@ -329,13 +329,13 @@ object BracketGenerator {
         event: TournamentEvent,
         oomSortedIds: List<Long>
     ): List<MatchPairing> {
-        val K = if (event.qualifierBoardCount > 0) event.qualifierBoardCount else 4
+        val boardCount = if (event.qualifierBoardCount > 0) event.qualifierBoardCount else 4
 
-        val N = oomSortedIds.size
-        if (N == 0) return emptyList()
+        val participantCount = oomSortedIds.size
+        if (participantCount == 0) return emptyList()
 
-        if (N > 8 * K) {
-            val prelimMatchCount = N - 8 * K
+        if (participantCount > 8 * boardCount) {
+            val prelimMatchCount = participantCount - 8 * boardCount
             val prelimPlayers = oomSortedIds.takeLast(2 * prelimMatchCount)
             return (0 until prelimMatchCount).map { i ->
                 MatchPairing(
@@ -346,7 +346,7 @@ object BracketGenerator {
                 )
             }
         } else {
-            return buildQualifierRound1Pairings(K, oomSortedIds, emptyList())
+            return buildQualifierRound1Pairings(boardCount, oomSortedIds, emptyList())
         }
     }
 

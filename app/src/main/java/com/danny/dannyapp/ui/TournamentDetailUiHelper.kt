@@ -243,11 +243,14 @@ object TournamentDetailUiHelper {
             rv.addOnItemTouchListener(rvTouchListener)
         }
 
-        val genericTouchListener = View.OnTouchListener { _, event ->
-            gestureDetector.onTouchEvent(event)
-        }
         views.forEach { view ->
-            view.setOnTouchListener(genericTouchListener)
+            view.setOnTouchListener { v, event ->
+                val handled = gestureDetector.onTouchEvent(event)
+                if (!handled && event.action == MotionEvent.ACTION_UP) {
+                    v.performClick()
+                }
+                handled
+            }
         }
     }
 

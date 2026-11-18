@@ -28,13 +28,13 @@ class OrderOfMeritAdapter : ListAdapter<OrderOfMeritEntry, OrderOfMeritAdapter.O
 
     override fun onBindViewHolder(holder: OomViewHolder, position: Int) {
         val entry = getItem(position)
-        holder.tvRank.text = "#${entry.rank}"
+        val context = holder.itemView.context
+        holder.tvRank.text = context.getString(R.string.rank_format, entry.rank)
 
         UiHelper.formatFlagAndText(holder.tvPlayerName, entry.countryCode, entry.name)
 
-        holder.tvPrizeMoney.text = "£%,.0f".format(entry.prizeMoney)
+        holder.tvPrizeMoney.text = context.getString(R.string.prize_money_format, entry.prizeMoney)
 
-        val context = holder.itemView.context
         if (entry.isUser) {
             holder.card.setCardBackgroundColor(context.getColor(R.color.rot_container_dunkel))
             holder.tvPlayerName.setTextColor(context.getColor(R.color.rot_sehr_hell))

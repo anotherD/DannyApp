@@ -179,8 +179,8 @@ class TournamentDetailActivity : BaseActivity() {
             btnSimulateComplete.visibility = if (debugMode) View.VISIBLE else View.GONE
             btnSimulateCpuMatches.visibility = if (debugMode && state.hasOpenCpuMatchesInActiveRound) View.VISIBLE else View.GONE
         }
-        if (::activeMatchesAdapter.isInitialized) activeMatchesAdapter.notifyDataSetChanged()
-        if (::reviewMatchesAdapter.isInitialized) reviewMatchesAdapter.notifyDataSetChanged()
+        if (::activeMatchesAdapter.isInitialized) activeMatchesAdapter.notifyItemRangeChanged(0, activeMatchesAdapter.itemCount)
+        if (::reviewMatchesAdapter.isInitialized) reviewMatchesAdapter.notifyItemRangeChanged(0, reviewMatchesAdapter.itemCount)
         if (::bracketViewActive.isInitialized) bracketViewActive.refreshStyles()
         if (::bracketViewReview.isInitialized) bracketViewReview.refreshStyles()
     }
@@ -608,10 +608,10 @@ class TournamentDetailActivity : BaseActivity() {
         }
 
         scrollView.visibility = View.VISIBLE
-        val k = TournamentDetailUiHelper.getQualifierBoardCount(event)
+        val boardCount = TournamentDetailUiHelper.getQualifierBoardCount(event)
 
         if (selectedBoardFilterIndex == -2) {
-            selectedBoardFilterIndex = TournamentDetailUiHelper.findDefaultBoardIndex(allRoundsMatches, k)
+            selectedBoardFilterIndex = TournamentDetailUiHelper.findDefaultBoardIndex(allRoundsMatches, boardCount)
         }
 
         chipGroup.removeAllViews()
@@ -627,8 +627,7 @@ class TournamentDetailActivity : BaseActivity() {
         }
         chipGroup.addView(chipAll)
 
-        for (b in 0 until k) {
-            val boardIdx = b
+        for (boardIdx in 0 until boardCount) {
             val chipBoard = com.google.android.material.chip.Chip(this).apply {
                 text = getString(R.string.bracket_board_format, boardIdx + 1)
                 isCheckable = true
@@ -644,7 +643,7 @@ class TournamentDetailActivity : BaseActivity() {
         val filtered = TournamentDetailUiHelper.filterMatchesForBoard(
             allRoundsMatches = allRoundsMatches,
             boardIndex = selectedBoardFilterIndex,
-            boardCount = k,
+            boardCount = boardCount,
             qualificationUseCase = TournamentQualificationUseCase(this)
         )
         onFilterChanged(filtered)
