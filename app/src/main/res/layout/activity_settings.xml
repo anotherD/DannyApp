@@ -147,29 +147,15 @@
                 android:clickable="true"
                 android:focusable="true">
 
-                <LinearLayout
+                <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:padding="16dp"
                     android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:padding="16dp">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/config_players"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
-
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:contentDescription="@null"
-                        android:rotation="180"
-                        android:src="@drawable/ic_arrow_back" />
-
-                </LinearLayout>
+                    android:text="@string/config_players"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    app:drawableEndCompat="@drawable/ic_arrow_forward" />
             </com.google.android.material.card.MaterialCardView>
 
         </LinearLayout>

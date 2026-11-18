@@ -15,6 +15,7 @@ import com.danny.dannyapp.ui.BaseActivity
 import com.google.android.material.button.MaterialButtonToggleGroup
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlin.math.abs
 
 /**
  * Activity for configuring and viewing players in settings, supporting sorting and swipe gestures.
@@ -74,8 +75,8 @@ class SettingsPlayersActivity : BaseActivity() {
                 if (e1 == null) return false
                 val diffX = e2.x - e1.x
                 val diffY = e2.y - e1.y
-                if (Math.abs(diffX) > Math.abs(diffY)) {
-                    if (Math.abs(diffX) > swipeThreshold && Math.abs(velocityX) > swipeVelocityThreshold) {
+                if (abs(diffX) > abs(diffY)) {
+                    if (abs(diffX) > swipeThreshold && abs(velocityX) > swipeVelocityThreshold) {
                         if (diffX < 0) {
                             toggleGroupSort.check(R.id.btnSortName)
                         } else {
