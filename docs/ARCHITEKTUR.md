@@ -67,7 +67,6 @@ Wenn du `players.csv` in den Assets bearbeitest:
 ### 4.2 UI-Helper & Builder (`ui/`)
 * **`TournamentDetailUiHelper`**: UI-Hilfsklasse für die Aufbereitung und Darstellung von Turnierdetails.
 * **`TournamentBracketCardBuilder`**: Builder-Klasse zur Erstellung von Turnierbaum-Karten (Brackets).
-* **`TournamentPreviewHelper`**: Arbeitet als reiner UI-Delegate ohne direkte DAO-Zugriffe und greift sauber auf die Domain-Layer-Abstraktionen zu.
 
 ---
 

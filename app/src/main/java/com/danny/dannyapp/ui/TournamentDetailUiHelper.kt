@@ -19,10 +19,13 @@ import com.danny.dannyapp.R
 import com.danny.dannyapp.domain.enums.TournamentEvent
 import com.danny.dannyapp.domain.enums.TournamentRound
 import com.danny.dannyapp.domain.usecase.BracketGenerator
+import com.danny.dannyapp.domain.usecase.EntrantGroupDomainData
+import com.danny.dannyapp.domain.usecase.EntrantGroupType
 import com.danny.dannyapp.domain.usecase.TournamentQualificationUseCase
 import com.danny.dannyapp.ui.enums.RoundStatus
 import com.danny.dannyapp.ui.model.EntrantGroupInfo
 import com.danny.dannyapp.ui.model.MatchUiModel
+import com.danny.dannyapp.ui.model.PlayerUiInfo
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.divider.MaterialDivider
@@ -389,5 +392,35 @@ object TournamentDetailUiHelper {
         }
         smoothScroller.targetPosition = position
         layoutManager.startSmoothScroll(smoothScroller)
+    }
+
+    /**
+     * Maps domain entrant groups to UI entrant group information.
+     */
+    fun mapEntrantGroupsToUi(context: Context, domainGroups: List<EntrantGroupDomainData>): List<EntrantGroupInfo> {
+        return domainGroups.map { domainGroup ->
+            val title = when (domainGroup.groupType) {
+                EntrantGroupType.OOM_65_96 -> context.getString(R.string.entrant_reason_oom_65_96)
+                EntrantGroupType.OOM_33_64 -> context.getString(R.string.entrant_reason_oom_33_64)
+                EntrantGroupType.OOM_TOP_32 -> context.getString(R.string.entrant_reason_oom_top_32)
+                EntrantGroupType.ROUND_WINNERS -> {
+                    val prevRoundDisplayName = TournamentUiHelper.getDisplayRoundName(
+                        domainGroup.prevRoundName ?: "",
+                        context
+                    )
+                    context.getString(R.string.entrant_reason_round_winners, prevRoundDisplayName)
+                }
+            }
+            val players = domainGroup.players.map { player ->
+                PlayerUiInfo(
+                    id = player.id,
+                    name = player.name,
+                    countryCode = player.countryCode,
+                    seed = player.seed,
+                    skill = player.skill
+                )
+            }
+            EntrantGroupInfo(title = title, players = players)
+        }
     }
 }

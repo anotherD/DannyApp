@@ -137,7 +137,6 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
     private val advanceTournamentRoundUseCase = AdvanceTournamentRoundUseCase(application)
     private val tournamentProgressionUseCase = TournamentProgressionUseCase(application)
     private val tournamentQualificationUseCase = TournamentQualificationUseCase(application)
-    private val previewHelper = TournamentPreviewHelper(application, tournamentQualificationUseCase)
 
     /** Domain use-case: single source of truth for Grand-Slam group standings. */
     private val calculateGroupStandingsUseCase = CalculateGroupStandingsUseCase()
@@ -1007,7 +1006,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         event: TournamentEvent,
         allMatches: List<TournamentMatch> = emptyList()
     ): List<TournamentRound> {
-        return previewHelper.getRoundSequence(event, allMatches)
+        return tournamentQualificationUseCase.getRoundSequence(event, allMatches)
     }
 
     /**
@@ -1018,7 +1017,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         seasonId: Long,
         tournamentId: Long = 0L
     ): Map<Long, Int> {
-        return previewHelper.getSeededPlayerMap(event, seasonId, tournamentId)
+        return tournamentQualificationUseCase.getSeededPlayerMap(event, seasonId, tournamentId)
     }
 
     /**
@@ -1029,7 +1028,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         roundKey: String,
         event: TournamentEvent
     ): List<TournamentMatch> {
-        return previewHelper.generatePreviewMatchesForRound(tournamentId, roundKey, event)
+        return tournamentQualificationUseCase.generatePreviewMatchesForRound(tournamentId, roundKey, event)
     }
 
     /**
@@ -1042,13 +1041,13 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         allMatches: List<TournamentMatch>,
         seasonId: Long
     ): List<TournamentMatch> {
-        return previewHelper.generatePreviewMatchesWithPropagation(
+        return tournamentQualificationUseCase.generatePreviewMatchesWithPropagation(
             tournamentId = tournamentId,
             roundKey = roundKey,
             event = event,
             allMatches = allMatches,
             seasonId = seasonId,
-            currentCareerId = currentCareerId
+            fallbackCareerId = currentCareerId
         )
     }
 
@@ -1062,7 +1061,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         allMatches: List<TournamentMatch>,
         event: TournamentEvent
     ): List<EntrantGroupInfo> {
-        return previewHelper.getUkOpenEntrantGroups(
+        val domainGroups = tournamentQualificationUseCase.getUkOpenEntrantGroups(
             tournamentId = tournamentId,
             careerId = careerId,
             roundKey = roundKey,
@@ -1070,6 +1069,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             event = event,
             currentCareerId = currentCareerId
         )
+        return TournamentDetailUiHelper.mapEntrantGroupsToUi(getApplication(), domainGroups)
     }
 
     /**

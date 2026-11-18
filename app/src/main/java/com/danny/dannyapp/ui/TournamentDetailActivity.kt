@@ -21,11 +21,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
 import com.danny.dannyapp.domain.enums.TournamentEvent
-import com.danny.dannyapp.ui.enums.RoundStatus
 import com.danny.dannyapp.ui.model.MatchUiModel
 import com.danny.dannyapp.ui.model.PrizeMoneyItem
 import com.google.android.material.card.MaterialCardView
-import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.launch
@@ -425,7 +423,7 @@ class TournamentDetailActivity : BaseActivity() {
                     layoutGroupSelector.visibility = View.VISIBLE
                     chipGroupGroups.removeAllViews()
                     state.availableGroups.forEachIndexed { index, groupLetter ->
-                        val chip = Chip(this).apply {
+                        val chip = com.google.android.material.chip.Chip(this).apply {
                             text = getString(R.string.group_label, groupLetter)
                             isCheckable = true
                             isChecked = (index == state.selectedGroupIndex)
@@ -536,7 +534,7 @@ class TournamentDetailActivity : BaseActivity() {
                     scrollReviewRoundPills.visibility = View.GONE
                     rvReviewMatches.visibility = View.GONE
                     bracketViewReview.visibility = View.VISIBLE
-                    val reviewRoundStatuses = List(state.availableRoundDisplayNames.size) { RoundStatus.COMPLETED }
+                    val reviewRoundStatuses = List(state.availableRoundDisplayNames.size) { com.danny.dannyapp.ui.enums.RoundStatus.COMPLETED }
                     setupQualifierBoardFilterChips(state.event, state.allRoundsMatches, scrollReviewBoardPills, chipGroupReviewBoards) { filteredRounds ->
                         bracketViewReview.setRoundHeaders(state.availableRoundDisplayNames, reviewRoundStatuses)
                         bracketViewReview.setRounds(filteredRounds, state.selectedRoundIndex, state.grandSlamGroupStandings)
@@ -618,7 +616,7 @@ class TournamentDetailActivity : BaseActivity() {
 
         chipGroup.removeAllViews()
 
-        val chipAll = Chip(this).apply {
+        val chipAll = com.google.android.material.chip.Chip(this).apply {
             text = getString(R.string.bracket_board_all)
             isCheckable = true
             isChecked = (selectedBoardFilterIndex == -1)
@@ -631,7 +629,7 @@ class TournamentDetailActivity : BaseActivity() {
 
         for (b in 0 until k) {
             val boardIdx = b
-            val chipBoard = Chip(this).apply {
+            val chipBoard = com.google.android.material.chip.Chip(this).apply {
                 text = getString(R.string.bracket_board_format, boardIdx + 1)
                 isCheckable = true
                 isChecked = (selectedBoardFilterIndex == boardIdx)
