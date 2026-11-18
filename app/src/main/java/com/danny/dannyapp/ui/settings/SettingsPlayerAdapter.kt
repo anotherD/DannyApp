@@ -1,4 +1,4 @@
-package com.danny.dannyapp.ui.config
+package com.danny.dannyapp.ui.settings
 
 import android.view.LayoutInflater
 import android.view.View
@@ -14,7 +14,10 @@ import com.danny.dannyapp.domain.enums.SkillLevel
 import com.danny.dannyapp.ui.UiHelper
 import com.danny.dannyapp.ui.toColorResId
 
-class ConfigPlayerAdapter : ListAdapter<Player, ConfigPlayerAdapter.PlayerViewHolder>(PlayerDiffCallback) {
+/**
+ * RecyclerView adapter for displaying players in the settings configuration screen.
+ */
+class SettingsPlayerAdapter : ListAdapter<Player, SettingsPlayerAdapter.PlayerViewHolder>(PlayerDiffCallback) {
 
     class PlayerViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val tvPlayerName: TextView = view.findViewById(R.id.tvPlayerName)
@@ -36,7 +39,7 @@ class ConfigPlayerAdapter : ListAdapter<Player, ConfigPlayerAdapter.PlayerViewHo
         UiHelper.formatFlagAndText(holder.tvPlayerName, player.countryCode, player.name)
 
         holder.tvPlayerSkill.text = "L${player.skill}"
-        
+
         val skillColor = getSkillColor(context, player.skill)
         holder.tvPlayerSkill.setTextColor(skillColor)
         (holder.itemView as? com.google.android.material.card.MaterialCardView)?.strokeColor = skillColor

@@ -1,4 +1,4 @@
-package com.danny.dannyapp.ui.config
+package com.danny.dannyapp.ui.settings
 
 import android.os.Bundle
 import android.view.GestureDetector
@@ -16,10 +16,13 @@ import com.google.android.material.button.MaterialButtonToggleGroup
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-class ConfigPlayersActivity : BaseActivity() {
+/**
+ * Activity for configuring and viewing players in settings, supporting sorting and swipe gestures.
+ */
+class SettingsPlayersActivity : BaseActivity() {
 
     private lateinit var getPlayersUseCase: GetPlayersUseCase
-    private lateinit var playerAdapter: ConfigPlayerAdapter
+    private lateinit var playerAdapter: SettingsPlayerAdapter
     private lateinit var rvPlayers: RecyclerView
     private lateinit var tvEmptyPlayers: TextView
     private lateinit var toggleGroupSort: MaterialButtonToggleGroup
@@ -43,7 +46,7 @@ class ConfigPlayersActivity : BaseActivity() {
         toggleGroupSort = findViewById(R.id.toggleGroupSort)
 
         rvPlayers.layoutManager = LinearLayoutManager(this)
-        playerAdapter = ConfigPlayerAdapter()
+        playerAdapter = SettingsPlayerAdapter()
         rvPlayers.adapter = playerAdapter
 
         toggleGroupSort.addOnButtonCheckedListener { _, checkedId, isChecked ->

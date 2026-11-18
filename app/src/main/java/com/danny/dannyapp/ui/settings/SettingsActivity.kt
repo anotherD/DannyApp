@@ -1,13 +1,16 @@
-package com.danny.dannyapp.ui
+package com.danny.dannyapp.ui.settings
 
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import com.danny.dannyapp.R
-import com.danny.dannyapp.ui.config.ConfigPlayersActivity
+import com.danny.dannyapp.ui.BaseActivity
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.materialswitch.MaterialSwitch
 
+/**
+ * Activity for managing application settings such as debug mode, simulation settings, and player configuration.
+ */
 class SettingsActivity : BaseActivity() {
 
     private lateinit var switchDebugMode: MaterialSwitch
@@ -53,7 +56,7 @@ class SettingsActivity : BaseActivity() {
         }
 
         cardPlayers.setOnClickListener {
-            val intent = Intent(this, ConfigPlayersActivity::class.java)
+            val intent = Intent(this, SettingsPlayersActivity::class.java)
             startActivity(intent)
         }
     }

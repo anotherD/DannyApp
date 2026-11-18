@@ -43,11 +43,11 @@
             android:exported="false" />
 
         <activity
-            android:name=".ui.SettingsActivity"
+            android:name=".ui.settings.SettingsActivity"
             android:exported="false" />
 
         <activity
-            android:name=".ui.config.ConfigPlayersActivity"
+            android:name=".ui.settings.SettingsPlayersActivity"
             android:exported="false" />
 
 

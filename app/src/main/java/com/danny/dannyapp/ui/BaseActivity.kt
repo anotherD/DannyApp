@@ -9,7 +9,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.danny.dannyapp.R
 import com.danny.dannyapp.data.SettingsManager
-import com.danny.dannyapp.ui.SettingsActivity
+import com.danny.dannyapp.ui.settings.SettingsActivity
 import com.google.android.material.appbar.MaterialToolbar
 
 abstract class BaseActivity : AppCompatActivity() {

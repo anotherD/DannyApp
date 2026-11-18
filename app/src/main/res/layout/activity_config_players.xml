@@ -5,7 +5,7 @@
     android:id="@+id/playersMain"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.config.ConfigPlayersActivity">
+    tools:context=".ui.settings.SettingsPlayersActivity">
 
     <include
         android:id="@+id/toolbar"
