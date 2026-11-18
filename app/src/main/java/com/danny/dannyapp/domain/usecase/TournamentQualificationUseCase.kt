@@ -45,6 +45,16 @@ data class EntrantGroupDomainData(
     val players: List<EntrantPlayerDomainInfo>
 )
 
+/** Pure domain model representing the split of players for a qualifier event. */
+data class QualifierFieldSplit(
+    val preQualifiedIds: List<Long>,
+    val nonPrequalifiedIds: List<Long>,
+    val boardCount: Int,
+    val prelimPlayers: List<Long>,
+    val byePlayers: List<Long>,
+    val seedCount: Int
+)
+
 /**
  * Central domain use-case for tournament qualification, seeding, player sorting, fill-to-target logic,
  * qualifier board assignment, and preview match propagation.
@@ -142,6 +152,78 @@ class TournamentQualificationUseCase(
     }
 
     /**
+     * Resolves prequalified Tour Card holders (top OOM and top Pro Tour OOM) for events or qualifiers.
+     * Returns a pair of (topOomIds, topPtOomIds).
+     */
+    fun resolvePrequalifiedTourCardIds(
+        event: TournamentEvent,
+        tourCardPlayerIds: List<Long>,
+        oomList: List<OrderOfMeritEntry>,
+        ptOomList: List<OrderOfMeritEntry>,
+        allPlayers: List<Player>
+    ): Pair<List<Long>, List<Long>> {
+        val isWorldChampionship = event == TournamentEvent.QUALIFIER_WM || event == TournamentEvent.WORLD_CHAMPIONSHIP
+        val targetOomCount = if (isWorldChampionship) 40 else 16
+        val targetPtOomCount = if (isWorldChampionship) 40 else 16
+
+        val sortedOomTc = sortPlayerIdsByOom(tourCardPlayerIds, oomList, allPlayers)
+        val topOomIds = sortedOomTc.take(targetOomCount)
+        val remainingTcAfterOom = tourCardPlayerIds.filterNot { it in topOomIds }
+        val topPtOomIds = sortPlayerIdsByOom(remainingTcAfterOom, ptOomList, allPlayers).take(targetPtOomCount)
+
+        return Pair(topOomIds, topPtOomIds)
+    }
+
+    /**
+     * Central resolution of the qualifier field split into prequalified players, non-prequalified players,
+     * preliminary round players, R1 bye players, and seed count.
+     */
+    fun resolveQualifierFieldSplit(
+        event: TournamentEvent,
+        tourCardPlayerIds: List<Long>,
+        oomList: List<OrderOfMeritEntry>,
+        ptOomList: List<OrderOfMeritEntry>,
+        allPlayers: List<Player>
+    ): QualifierFieldSplit {
+        val (topOomIds, topPtOomIds) = resolvePrequalifiedTourCardIds(
+            event = event,
+            tourCardPlayerIds = tourCardPlayerIds,
+            oomList = oomList,
+            ptOomList = ptOomList,
+            allPlayers = allPlayers
+        )
+        val preQualifiedIds = (topOomIds + topPtOomIds).distinct()
+        val remainingTc = tourCardPlayerIds.filterNot { it in preQualifiedIds }
+        val nonPrequalifiedIds = sortPlayerIdsByOom(remainingTc, oomList, allPlayers)
+
+        val boardCount = if (event.qualifierBoardCount > 0) event.qualifierBoardCount else 4
+        val totalNonPrequalified = nonPrequalifiedIds.size
+
+        val prelimPlayers = if (totalNonPrequalified > 8 * boardCount) {
+            nonPrequalifiedIds.takeLast(2 * (totalNonPrequalified - 8 * boardCount))
+        } else {
+            emptyList()
+        }
+
+        val byePlayers = if (totalNonPrequalified > 8 * boardCount) {
+            nonPrequalifiedIds.take((16 * boardCount - totalNonPrequalified).coerceAtLeast(0))
+        } else {
+            nonPrequalifiedIds
+        }
+
+        val seedCount = (2 * boardCount).coerceAtMost(totalNonPrequalified)
+
+        return QualifierFieldSplit(
+            preQualifiedIds = preQualifiedIds,
+            nonPrequalifiedIds = nonPrequalifiedIds,
+            boardCount = boardCount,
+            prelimPlayers = prelimPlayers,
+            byePlayers = byePlayers,
+            seedCount = seedCount
+        )
+    }
+
+    /**
      * Resolves the target board index for a preliminary round qualifier match.
      */
     fun resolvePrelimTargetBoard(
@@ -196,16 +278,12 @@ class TournamentQualificationUseCase(
                 sortedByPt.take(32).mapIndexed { index, id -> id to (index + 1) }.toMap()
             }
             TournamentEvent.EUROPEAN_TOUR -> {
-                val sortedOomTc = sortPlayerIdsByOom(tourCardPlayerIds, oomEntries, allPlayers)
-                val top16Oom = sortedOomTc.take(16)
-                val remainingTcAfterOom = tourCardPlayerIds.filterNot { it in top16Oom }
-                val top16PtOom = sortPlayerIdsByOom(remainingTcAfterOom, ptOomEntries, allPlayers).take(16)
+                val (top16Oom, top16PtOom) = resolvePrequalifiedTourCardIds(event, tourCardPlayerIds, oomEntries, ptOomEntries, allPlayers)
                 val seedMap = mutableMapOf<Long, Int>()
                 top16Oom.forEachIndexed { index, id -> seedMap[id] = index + 1 }
                 top16PtOom.forEachIndexed { index, id -> seedMap[id] = index + 1 }
                 seedMap
             }
-            TournamentEvent.UK_OPEN, TournamentEvent.EUROPEAN_OPEN -> emptyMap()
             TournamentEvent.WORLD_MATCHPLAY -> {
                 val sortedOom = sortPlayerIdsByOom(allPlayerIds, oomEntries, allPlayers)
                 sortedOom.take(16).mapIndexed { index, id -> id to (index + 1) }.toMap()
@@ -229,51 +307,16 @@ class TournamentQualificationUseCase(
                 final64Pc.mapIndexed { index, id -> id to (index + 1) }.toMap()
             }
             TournamentEvent.WORLD_CHAMPIONSHIP -> {
-                val sortedOomTc = sortPlayerIdsByOom(tourCardPlayerIds, oomEntries, allPlayers)
-                val top40Oom = sortedOomTc.take(40)
-                val remainingForPt = tourCardPlayerIds.filterNot { it in top40Oom }
-                val top40Pt = sortPlayerIdsByOom(remainingForPt, ptOomEntries, allPlayers).take(40)
+                val (top40Oom, top40Pt) = resolvePrequalifiedTourCardIds(event, tourCardPlayerIds, oomEntries, ptOomEntries, allPlayers)
                 val tc80 = top40Oom + top40Pt
                 val sortedTc80ByOom = sortPlayerIdsByOom(tc80, oomEntries, allPlayers)
                 sortedTc80ByOom.take(32).mapIndexed { index, id -> id to (index + 1) }.toMap()
             }
             TournamentEvent.QUALIFIER_ET, TournamentEvent.QUALIFIER_GRAND_SLAM, TournamentEvent.QUALIFIER_WM -> {
-                val sortedOomTc = sortPlayerIdsByOom(tourCardPlayerIds, oomEntries, allPlayers)
-                val prequalifiedSet = when (event) {
-                    TournamentEvent.QUALIFIER_ET -> {
-                        val top16Oom = sortedOomTc.take(16)
-                        val remaining = tourCardPlayerIds.filterNot { it in top16Oom }
-                        (top16Oom + sortPlayerIdsByOom(remaining, ptOomEntries, allPlayers).take(16)).toSet()
-                    }
-                    TournamentEvent.QUALIFIER_GRAND_SLAM -> {
-                        val top16Oom = sortedOomTc.take(16)
-                        val remaining = tourCardPlayerIds.filterNot { it in top16Oom }
-                        (top16Oom + sortPlayerIdsByOom(remaining, ptOomEntries, allPlayers).take(16)).toSet()
-                    }
-                    TournamentEvent.QUALIFIER_WM -> {
-                        val top40Oom = sortedOomTc.take(40)
-                        val remaining = tourCardPlayerIds.filterNot { it in top40Oom }
-                        (top40Oom + sortPlayerIdsByOom(remaining, ptOomEntries, allPlayers).take(40)).toSet()
-                    }
-                    else -> emptySet()
-                }
-                val nonPrequalified = tourCardPlayerIds.filterNot { it in prequalifiedSet }
-                val sortedNonPrequalified = sortPlayerIdsByOom(nonPrequalified, oomEntries, allPlayers)
-                val targetQualifierCount = if (event.qualifierBoardCount > 0) event.qualifierBoardCount else 4
-                val nonPrequalifiedCount = sortedNonPrequalified.size
-                val targetCount = when {
-                    nonPrequalifiedCount > 8 * targetQualifierCount -> 8 * targetQualifierCount
-                    nonPrequalifiedCount > 4 * targetQualifierCount -> 4 * targetQualifierCount
-                    nonPrequalifiedCount > 2 * targetQualifierCount -> 2 * targetQualifierCount
-                    else -> targetQualifierCount
-                }
-                val seedCount = if (nonPrequalifiedCount > targetCount) {
-                    (2 * targetCount - nonPrequalifiedCount).coerceAtLeast(targetQualifierCount)
-                } else {
-                    targetQualifierCount
-                }
-                sortedNonPrequalified.take(seedCount).mapIndexed { index, id -> id to (index + 1) }.toMap()
+                val split = resolveQualifierFieldSplit(event, tourCardPlayerIds, oomEntries, ptOomEntries, allPlayers)
+                split.nonPrequalifiedIds.take(split.seedCount).mapIndexed { index, id -> id to (index + 1) }.toMap()
             }
+            else -> emptyMap()
         }
     }
 
@@ -309,15 +352,15 @@ class TournamentQualificationUseCase(
             return@withContext (0 until 8).map { matchIndex ->
                 val groupLetter1 = ('A' + 2 * matchIndex).toString()
                 val groupLetter2 = ('A' + (2 * matchIndex + 1)).toString()
-                val p1Id = groupWinners[groupLetter1] ?: (-9000L - (2 * matchIndex))
-                val p2Id = groupWinners[groupLetter2] ?: (-9000L - (2 * matchIndex + 1))
+                val player1Id = groupWinners[groupLetter1] ?: (-9000L - (2 * matchIndex))
+                val player2Id = groupWinners[groupLetter2] ?: (-9000L - (2 * matchIndex + 1))
                 TournamentMatch(
                     id = -2000L - (roundEnum.ordinal * 100) - matchIndex,
                     tournamentId = tournamentId,
                     round = roundKey,
                     matchIndex = matchIndex,
-                    player1Id = p1Id,
-                    player2Id = p2Id,
+                    player1Id = player1Id,
+                    player2Id = player2Id,
                     isCompleted = false
                 )
             }
@@ -485,24 +528,7 @@ class TournamentQualificationUseCase(
         ptOomList: List<OrderOfMeritEntry>,
         allPlayers: List<Player>
     ): List<Long> {
-        val sortedOomTc = sortPlayerIdsByOom(tourCardPlayerIds, oomList, allPlayers)
-        val top16Oom = sortedOomTc.take(16)
-        val remainingTcAfterOom = tourCardPlayerIds.filterNot { it in top16Oom }
-        val top16PtOom = sortPlayerIdsByOom(remainingTcAfterOom, ptOomList, allPlayers).take(16)
-
-        val preQualifiedSet: Set<Long> = when (event) {
-            TournamentEvent.QUALIFIER_ET, TournamentEvent.QUALIFIER_GRAND_SLAM -> (top16Oom + top16PtOom).toSet()
-            TournamentEvent.QUALIFIER_WM -> {
-                val top40Oom = sortedOomTc.take(40)
-                val remainingAfterTop40Oom = tourCardPlayerIds.filterNot { it in top40Oom }
-                val top40PtOom = sortPlayerIdsByOom(remainingAfterTop40Oom, ptOomList, allPlayers).take(40)
-                (top40Oom + top40PtOom).toSet()
-            }
-            else -> emptySet()
-        }
-
-        val nonPrequalified = tourCardPlayerIds.filterNot { it in preQualifiedSet }
-        return sortPlayerIdsByOom(nonPrequalified, oomList, allPlayers)
+        return resolveQualifierFieldSplit(event, tourCardPlayerIds, oomList, ptOomList, allPlayers).nonPrequalifiedIds
     }
 
     /**
@@ -593,7 +619,6 @@ class TournamentQualificationUseCase(
         fallbackCareerId: Long,
         fallbackMatches: List<TournamentMatch>
     ): List<TournamentMatch> {
-        val boardCount = if (event.qualifierBoardCount > 0) event.qualifierBoardCount else 4
         val season = seasonDao.getSeasonById(seasonId)
         val careerId = season?.careerId ?: fallbackCareerId
         val tourCards = tourCardDao.getTourCardsListForSeason(seasonId)
@@ -601,16 +626,16 @@ class TournamentQualificationUseCase(
         val oomEntries = getOrderOfMeritUseCase(careerId, OrderOfMeritType.OOM)
         val ptOomEntries = getOrderOfMeritUseCase(careerId, OrderOfMeritType.PT_OOM)
         val allPlayers = playerDao.getAllPlayersList()
-        val nonPreqTc = getNonPrequalifiedTcHoldersForQualifier(event, tourCardPlayerIds, oomEntries, ptOomEntries, allPlayers)
-        val nonPreqCount = nonPreqTc.size
+
+        val split = resolveQualifierFieldSplit(event, tourCardPlayerIds, oomEntries, ptOomEntries, allPlayers)
+        val boardCount = split.boardCount
 
         return when (roundEnum) {
             TournamentRound.QUAL_R1 -> {
-                val byeCount = (16 * boardCount - nonPreqCount).coerceAtLeast(0)
-                val byePlayers = nonPreqTc.take(byeCount)
+                val byePlayers = split.byePlayers
                 val prelimMatches = allMatches.filter { it.round == TournamentRound.QUAL_PRELIM.name }.sortedBy { it.matchIndex }
-                val prelimWinners = prelimMatches.mapIndexed { idx, match ->
-                    match.winnerId ?: (-1000L - idx)
+                val prelimWinners = prelimMatches.mapIndexed { matchIndex, match ->
+                    match.winnerId ?: (-1000L - matchIndex)
                 }
 
                 val pairings = BracketGenerator.buildQualifierRound1Pairings(boardCount, byePlayers, prelimWinners)

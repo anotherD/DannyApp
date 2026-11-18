@@ -3,9 +3,12 @@ package com.danny.dannyapp.domain.usecase
 import android.content.Context
 import android.util.Log
 import com.danny.dannyapp.data.db.AppDatabase
+import com.danny.dannyapp.data.db.PLACEHOLDER_PREVIOUS_WINNER_ID
+import com.danny.dannyapp.data.db.Player
 import com.danny.dannyapp.data.db.PlayerDao
 import com.danny.dannyapp.data.db.SeasonDao
 import com.danny.dannyapp.data.db.TourCardDao
+import com.danny.dannyapp.data.db.Tournament
 import com.danny.dannyapp.data.db.TournamentDao
 import com.danny.dannyapp.data.db.TournamentMatch
 import com.danny.dannyapp.data.db.TournamentMatchDao
@@ -13,18 +16,18 @@ import com.danny.dannyapp.data.db.TournamentParticipant
 import com.danny.dannyapp.data.db.TournamentParticipantDao
 import com.danny.dannyapp.data.db.TournamentPlacement
 import com.danny.dannyapp.data.db.TournamentPlacementDao
-import com.danny.dannyapp.data.db.PLACEHOLDER_PREVIOUS_WINNER_ID
 import com.danny.dannyapp.data.db.USER_ID
 import com.danny.dannyapp.domain.enums.OrderOfMeritType
-import com.danny.dannyapp.domain.enums.SkillLevel
 import com.danny.dannyapp.domain.enums.TournamentEvent
 import com.danny.dannyapp.domain.enums.TournamentRound
 import com.danny.dannyapp.domain.model.Country
-import com.danny.dannyapp.domain.model.MatchPairing
 import com.danny.dannyapp.domain.model.OrderOfMeritEntry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
+/**
+ * Use case responsible for generating initial bracket matches, seeding, and participants for all tournament types.
+ */
 class GenerateBracketUseCase(
     private val tournamentDao: TournamentDao,
     private val seasonDao: SeasonDao,
@@ -92,8 +95,8 @@ class GenerateBracketUseCase(
 
         fun formatPlayer(id: Long): String {
             if (id == USER_ID) return "ID: -1 | User"
-            val p = allPlayers.find { it.id == id }
-            return if (p != null) "ID: ${p.id} | ${p.name} (Land: ${p.countryCode}, Skill: ${p.skill})" else "ID: $id | CPU #$id"
+            val player = allPlayers.find { it.id == id }
+            return if (player != null) "ID: ${player.id} | ${player.name} (Land: ${player.countryCode}, Skill: ${player.skill})" else "ID: $id | CPU #$id"
         }
 
         fun logI(tag: String, msg: String) {
@@ -106,8 +109,8 @@ class GenerateBracketUseCase(
 
         fun logQualificationGroup(label: String, playerIds: List<Long>) {
             logI("TournamentQualification", "--- $label (${playerIds.size} Spieler) ---")
-            playerIds.forEachIndexed { i, id ->
-                logI("TournamentQualification", "  %2d. %s".format(i + 1, formatPlayer(id)))
+            playerIds.forEachIndexed { index, playerId ->
+                logI("TournamentQualification", "  %2d. %s".format(index + 1, formatPlayer(playerId)))
             }
         }
 
@@ -119,8 +122,8 @@ class GenerateBracketUseCase(
             if (prevMatches.isEmpty()) return emptyList()
 
             val rounds = prevMatches.map { it.round }.distinct()
-            val finalRoundName = rounds.lastOrNull { r ->
-                prevMatches.filter { it.round == r }.all { it.isCompleted && it.winnerId != null }
+            val finalRoundName = rounds.lastOrNull { round ->
+                prevMatches.filter { it.round == round }.all { it.isCompleted && it.winnerId != null }
             } ?: rounds.lastOrNull() ?: return emptyList()
 
             val finalRoundMatches = prevMatches.filter { it.round == finalRoundName }
@@ -131,24 +134,6 @@ class GenerateBracketUseCase(
             return winners
         }
 
-        fun calculateQualifierSeedCount(event: TournamentEvent, totalCount: Int): Int {
-            val targetQualifierCount = when (event) {
-                TournamentEvent.QUALIFIER_ET -> 10
-                TournamentEvent.QUALIFIER_GRAND_SLAM -> 8
-                TournamentEvent.QUALIFIER_WM -> 4
-                else -> 4
-            }
-            return (2 * targetQualifierCount).coerceAtMost(totalCount)
-        }
-
-                // Pre-qualified sets for ET and Grand Slam
-        val sortedOomTc = getPlayerListSortedByOom(tourCardPlayerIds, oomEntries)
-        val top16Oom = sortedOomTc.take(16)
-        val remainingTcAfterOom = tourCardPlayerIds.filterNot { it in top16Oom }
-        val top16PtOom = getPlayerListSortedByOom(remainingTcAfterOom, ptOomEntries).take(16)
-        val etPreQualified = (top16Oom + top16PtOom).toSet()
-        val nonPreqEtTc = tourCardPlayerIds.filterNot { it in etPreQualified }
-
         val tournamentMatches = mutableListOf<TournamentMatch>()
 
         fun appendSubsequentKoRounds(startRound: TournamentRound, startMatchCount: Int) {
@@ -156,15 +141,15 @@ class GenerateBracketUseCase(
             val startIndex = roundSequence.indexOf(startRound)
             if (startIndex == -1) return
             var currentCount = startMatchCount
-            for (r in startIndex + 1 until roundSequence.size) {
-                val roundEnum = roundSequence[r]
+            for (roundIdx in startIndex + 1 until roundSequence.size) {
+                val roundEnum = roundSequence[roundIdx]
                 currentCount /= 2
-                for (i in 0 until currentCount) {
+                for (matchIndex in 0 until currentCount) {
                     tournamentMatches.add(
                         TournamentMatch(
                             tournamentId = tournamentId,
                             round = roundEnum.name,
-                            matchIndex = i,
+                            matchIndex = matchIndex,
                             player1Id = PLACEHOLDER_PREVIOUS_WINNER_ID,
                             player2Id = PLACEHOLDER_PREVIOUS_WINNER_ID
                         )
@@ -192,13 +177,13 @@ class GenerateBracketUseCase(
                     proTourSortedIds = top32,
                     qualifierIds = remaining96
                 )
-                val startMatches = pairings.map { p ->
+                val startMatches = pairings.map { pairing ->
                     TournamentMatch(
                         tournamentId = tournamentId,
                         round = TournamentRound.L128.name,
-                        matchIndex = p.matchIndex,
-                        player1Id = p.player1Id,
-                        player2Id = p.player2Id
+                        matchIndex = pairing.matchIndex,
+                        player1Id = pairing.player1Id,
+                        player2Id = pairing.player2Id
                     )
                 }
                 tournamentMatches.addAll(startMatches)
@@ -221,71 +206,32 @@ class GenerateBracketUseCase(
                 }
             }
 
-            TournamentEvent.QUALIFIER_ET -> {
-                val sortedNonPreq = getPlayerListSortedByOom(nonPreqEtTc, oomEntries)
-
-                logI("TournamentQualification", "==================================================")
-                logI("TournamentQualification", "Qualifikation & Auslosung: #${tournament.order} ${tournament.name} (${tournament.type})")
-                logQualificationGroup("Vorqualifiziert (Top 16 OOM + Top 16 PT OOM - Befreit)", etPreQualified.toList())
-                logQualificationGroup("Teilnehmende Tour-Card-Inhaber im ET Qualifier", sortedNonPreq)
-                logI("TournamentQualification", "==================================================")
-
-                val K = 10
-                val N = sortedNonPreq.size
-                val r1MatchesList: List<TournamentMatch> = if (N > 8 * K) {
-                    val prelimMatchCount = N - 8 * K
-                    val prelimPlayers = sortedNonPreq.takeLast(2 * prelimMatchCount)
-                    for (i in 0 until prelimMatchCount) {
-                        tournamentMatches.add(
-                            TournamentMatch(
-                                tournamentId = tournamentId,
-                                round = TournamentRound.QUAL_PRELIM.name,
-                                matchIndex = i,
-                                player1Id = prelimPlayers[i],
-                                player2Id = prelimPlayers[2 * prelimMatchCount - 1 - i]
-                            )
-                        )
-                    }
-                    val byeCount = (16 * K - N).coerceAtLeast(0)
-                    val byePlayers = sortedNonPreq.take(byeCount)
-                    val prelimPlaceholders = (0 until prelimMatchCount).map { i -> -1000L - i }
-                    val r1Pairings = BracketGenerator.buildQualifierRound1Pairings(K, byePlayers, prelimPlaceholders)
-                    r1Pairings.map { p ->
-                        TournamentMatch(
-                            tournamentId = tournamentId,
-                            round = TournamentRound.QUAL_R1.name,
-                            matchIndex = p.matchIndex,
-                            player1Id = p.player1Id,
-                            player2Id = p.player2Id
-                        )
-                    }
-                } else {
-                    val r1Pairings = BracketGenerator.buildQualifierRound1Pairings(K, sortedNonPreq, emptyList())
-                    r1Pairings.map { p ->
-                        TournamentMatch(
-                            tournamentId = tournamentId,
-                            round = TournamentRound.QUAL_R1.name,
-                            matchIndex = p.matchIndex,
-                            player1Id = p.player1Id,
-                            player2Id = p.player2Id
-                        )
-                    }
-                }
-                tournamentMatches.addAll(r1MatchesList)
-                appendSubsequentKoRounds(TournamentRound.QUAL_R1, r1MatchesList.size)
-
-                val seedCount = calculateQualifierSeedCount(event, sortedNonPreq.size)
-                sortedNonPreq.mapIndexed { index, playerId ->
-                    TournamentParticipant(
-                        tournamentId = tournamentId,
-                        playerId = playerId,
-                        seedNumber = if (index < seedCount) index + 1 else null,
-                        qualificationType = "TOUR_CARD"
-                    )
-                }
+            TournamentEvent.QUALIFIER_ET, TournamentEvent.QUALIFIER_GRAND_SLAM, TournamentEvent.QUALIFIER_WM -> {
+                buildQualifierBracket(
+                    tournament = tournament,
+                    event = event,
+                    tourCardPlayerIds = tourCardPlayerIds,
+                    oomEntries = oomEntries,
+                    ptOomEntries = ptOomEntries,
+                    allPlayers = allPlayers,
+                    tournamentMatches = tournamentMatches,
+                    appendSubsequentKoRounds = ::appendSubsequentKoRounds,
+                    logI = ::logI,
+                    logQualificationGroup = ::logQualificationGroup
+                )
             }
 
             TournamentEvent.EUROPEAN_TOUR -> {
+                val (top16Oom, top16PtOom) = tournamentQualificationUseCase.resolvePrequalifiedTourCardIds(
+                    event = event,
+                    tourCardPlayerIds = tourCardPlayerIds,
+                    oomList = oomEntries,
+                    ptOomList = ptOomEntries,
+                    allPlayers = allPlayers
+                )
+                val etPreQualified = (top16Oom + top16PtOom).toSet()
+                val nonPreqEtTc = tourCardPlayerIds.filterNot { it in etPreQualified }
+
                 var tcQualifiers = getQualifierWinnersFromPreceding(10)
                 if (tcQualifiers.size < 10) {
                     tcQualifiers = fillToTargetCount(tcQualifiers, 10, nonPreqEtTc, oomEntries)
@@ -322,24 +268,24 @@ class GenerateBracketUseCase(
                     proTourSortedIds = top16PtOom,
                     qualifierIds = qualifiersPool
                 )
-                val l48Matches = l48Pairings.map { p ->
+                val l48Matches = l48Pairings.map { pairing ->
                     TournamentMatch(
                         tournamentId = tournamentId,
                         round = TournamentRound.L48.name,
-                        matchIndex = p.matchIndex,
-                        player1Id = p.player1Id,
-                        player2Id = p.player2Id
+                        matchIndex = pairing.matchIndex,
+                        player1Id = pairing.player1Id,
+                        player2Id = pairing.player2Id
                     )
                 }
                 tournamentMatches.addAll(l48Matches)
 
                 val seedOrder = BracketGenerator.BRACKET_SEED_ORDER_16
-                val l32Matches = (0 until 16).map { i ->
-                    val seedIndex = seedOrder[i]
+                val l32Matches = (0 until 16).map { matchIndex ->
+                    val seedIndex = seedOrder[matchIndex]
                     TournamentMatch(
                         tournamentId = tournamentId,
                         round = TournamentRound.L32.name,
-                        matchIndex = i,
+                        matchIndex = matchIndex,
                         player1Id = top16Oom.getOrElse(seedIndex) { 0L },
                         player2Id = PLACEHOLDER_PREVIOUS_WINNER_ID
                     )
@@ -398,7 +344,7 @@ class GenerateBracketUseCase(
                         )
                     )
                 }
-                qualifiersPool.filterNot { qId -> participantList.any { it.playerId == qId } }.forEach { playerId ->
+                qualifiersPool.filterNot { qualifierPlayerId -> participantList.any { it.playerId == qualifierPlayerId } }.forEach { playerId ->
                     participantList.add(
                         TournamentParticipant(
                             tournamentId = tournamentId,
@@ -430,14 +376,14 @@ class GenerateBracketUseCase(
                     oomSortedIds = sortedTcOom,
                     qualifierIds = final32Qualifiers
                 )
-                tournamentMatches.addAll(pairings.map { p ->
+                tournamentMatches.addAll(pairings.map { pairing ->
                     TournamentMatch(
                         tournamentId = tournamentId,
-                        round = p.round.name,
-                        matchIndex = p.matchIndex,
-                        player1Id = p.player1Id,
-                        player2Id = p.player2Id,
-                        groupName = p.groupName
+                        round = pairing.round.name,
+                        matchIndex = pairing.matchIndex,
+                        player1Id = pairing.player1Id,
+                        player2Id = pairing.player2Id,
+                        groupName = pairing.groupName
                     )
                 })
 
@@ -496,13 +442,13 @@ class GenerateBracketUseCase(
                     oomSortedIds = top16Oom,
                     proTourSortedIds = top16Pt
                 )
-                val startMatches = pairings.map { p ->
+                val startMatches = pairings.map { pairing ->
                     TournamentMatch(
                         tournamentId = tournamentId,
                         round = TournamentRound.L32.name,
-                        matchIndex = p.matchIndex,
-                        player1Id = p.player1Id,
-                        player2Id = p.player2Id
+                        matchIndex = pairing.matchIndex,
+                        player1Id = pairing.player1Id,
+                        player2Id = pairing.player2Id
                     )
                 }
                 tournamentMatches.addAll(startMatches)
@@ -543,13 +489,13 @@ class GenerateBracketUseCase(
                     oomSortedIds = top16Oom,
                     proTourSortedIds = top16Pt
                 )
-                val startMatches = pairings.map { p ->
+                val startMatches = pairings.map { pairing ->
                     TournamentMatch(
                         tournamentId = tournamentId,
                         round = TournamentRound.L32.name,
-                        matchIndex = p.matchIndex,
-                        player1Id = p.player1Id,
-                        player2Id = p.player2Id
+                        matchIndex = pairing.matchIndex,
+                        player1Id = pairing.player1Id,
+                        player2Id = pairing.player2Id
                     )
                 }
                 tournamentMatches.addAll(startMatches)
@@ -586,13 +532,13 @@ class GenerateBracketUseCase(
                     oomSortedIds = emptyList(),
                     qualifierIds = final32Et
                 )
-                val startMatches = pairings.map { p ->
+                val startMatches = pairings.map { pairing ->
                     TournamentMatch(
                         tournamentId = tournamentId,
                         round = TournamentRound.L32.name,
-                        matchIndex = p.matchIndex,
-                        player1Id = p.player1Id,
-                        player2Id = p.player2Id
+                        matchIndex = pairing.matchIndex,
+                        player1Id = pairing.player1Id,
+                        player2Id = pairing.player2Id
                     )
                 }
                 tournamentMatches.addAll(startMatches)
@@ -608,76 +554,14 @@ class GenerateBracketUseCase(
                 }
             }
 
-            TournamentEvent.QUALIFIER_GRAND_SLAM -> {
-                val remainingForPt = tourCardPlayerIds.filterNot { it in top16Oom }
-                val gsPreq = top16Oom + getPlayerListSortedByOom(remainingForPt, ptOomEntries).take(16)
-                val nonPreqGsTc = tourCardPlayerIds.filterNot { it in gsPreq }
-                val sortedNonPreq = getPlayerListSortedByOom(nonPreqGsTc, oomEntries)
-
-                logI("TournamentQualification", "==================================================")
-                logI("TournamentQualification", "Qualifikation & Auslosung: #${tournament.order} ${tournament.name} (${tournament.type})")
-                logQualificationGroup("Vorqualifiziert (Top 16 OOM + Top 16 PT OOM - Befreit)", gsPreq)
-                logQualificationGroup("Teilnehmende Tour-Card-Inhaber im Grand Slam Qualifier", sortedNonPreq)
-                logI("TournamentQualification", "==================================================")
-
-                val K = 8
-                val N = sortedNonPreq.size
-                val r1MatchesList: List<TournamentMatch> = if (N > 8 * K) {
-                    val prelimMatchCount = N - 8 * K
-                    val prelimPlayers = sortedNonPreq.takeLast(2 * prelimMatchCount)
-                    for (i in 0 until prelimMatchCount) {
-                        tournamentMatches.add(
-                            TournamentMatch(
-                                tournamentId = tournamentId,
-                                round = TournamentRound.QUAL_PRELIM.name,
-                                matchIndex = i,
-                                player1Id = prelimPlayers[i],
-                                player2Id = prelimPlayers[2 * prelimMatchCount - 1 - i]
-                            )
-                        )
-                    }
-                    val byeCount = (16 * K - N).coerceAtLeast(0)
-                    val byePlayers = sortedNonPreq.take(byeCount)
-                    val prelimPlaceholders = (0 until prelimMatchCount).map { i -> -1000L - i }
-                    val r1Pairings = BracketGenerator.buildQualifierRound1Pairings(K, byePlayers, prelimPlaceholders)
-                    r1Pairings.map { p ->
-                        TournamentMatch(
-                            tournamentId = tournamentId,
-                            round = TournamentRound.QUAL_R1.name,
-                            matchIndex = p.matchIndex,
-                            player1Id = p.player1Id,
-                            player2Id = p.player2Id
-                        )
-                    }
-                } else {
-                    val r1Pairings = BracketGenerator.buildQualifierRound1Pairings(K, sortedNonPreq, emptyList())
-                    r1Pairings.map { p ->
-                        TournamentMatch(
-                            tournamentId = tournamentId,
-                            round = TournamentRound.QUAL_R1.name,
-                            matchIndex = p.matchIndex,
-                            player1Id = p.player1Id,
-                            player2Id = p.player2Id
-                        )
-                    }
-                }
-                tournamentMatches.addAll(r1MatchesList)
-                appendSubsequentKoRounds(TournamentRound.QUAL_R1, r1MatchesList.size)
-
-                val seedCount = calculateQualifierSeedCount(event, sortedNonPreq.size)
-                sortedNonPreq.mapIndexed { index, playerId ->
-                    TournamentParticipant(
-                        tournamentId = tournamentId,
-                        playerId = playerId,
-                        seedNumber = if (index < seedCount) index + 1 else null,
-                        qualificationType = "TOUR_CARD"
-                    )
-                }
-            }
-
             TournamentEvent.GRAND_SLAM_OF_DARTS -> {
-                val remainingForPt = allPlayerIds.filterNot { it in top16Oom }
-                val pot2 = getPlayerListSortedByOom(remainingForPt, ptOomEntries).take(16)
+                val (top16Oom, pot2) = tournamentQualificationUseCase.resolvePrequalifiedTourCardIds(
+                    event = event,
+                    tourCardPlayerIds = tourCardPlayerIds,
+                    oomList = oomEntries,
+                    ptOomList = ptOomEntries,
+                    allPlayers = allPlayers
+                )
 
                 var gsTchqWinners = getQualifierWinnersFromPreceding(8)
                 if (gsTchqWinners.size < 8) {
@@ -700,14 +584,14 @@ class GenerateBracketUseCase(
                     proTourSortedIds = pot2,
                     qualifierIds = pot3
                 )
-                val groupMatches = groupPairings.map { p ->
+                val groupMatches = groupPairings.map { pairing ->
                     TournamentMatch(
                         tournamentId = tournamentId,
                         round = TournamentRound.GROUP.name,
-                        matchIndex = p.matchIndex,
-                        player1Id = p.player1Id,
-                        player2Id = p.player2Id,
-                        groupName = p.groupName
+                        matchIndex = pairing.matchIndex,
+                        player1Id = pairing.player1Id,
+                        player2Id = pairing.player2Id,
+                        groupName = pairing.groupName
                     )
                 }
                 tournamentMatches.addAll(groupMatches)
@@ -719,13 +603,13 @@ class GenerateBracketUseCase(
                     tournamentMatches.add(TournamentMatch(tournamentId = tournamentId, round = TournamentRound.GROUP.name, matchIndex = 32 + groupIdx, player1Id = pot2Player, player2Id = PLACEHOLDER_PREVIOUS_WINNER_ID, groupName = groupLetter))
                 }
 
-                val l16Matches = (0 until 8).map { i ->
+                val l16Matches = (0 until 8).map { matchIndex ->
                     TournamentMatch(
                         tournamentId = tournamentId,
                         round = TournamentRound.L16.name,
-                        matchIndex = i,
-                        player1Id = -9000L - (2 * i),
-                        player2Id = -9000L - (2 * i + 1)
+                        matchIndex = matchIndex,
+                        player1Id = -9000L - (2 * matchIndex),
+                        player2Id = -9000L - (2 * matchIndex + 1)
                     )
                 }
                 tournamentMatches.addAll(l16Matches)
@@ -769,13 +653,13 @@ class GenerateBracketUseCase(
                     oomSortedIds = emptyList(),
                     qualifierIds = final64Pc
                 )
-                val startMatches = pairings.map { p ->
+                val startMatches = pairings.map { pairing ->
                     TournamentMatch(
                         tournamentId = tournamentId,
                         round = TournamentRound.L64.name,
-                        matchIndex = p.matchIndex,
-                        player1Id = p.player1Id,
-                        player2Id = p.player2Id
+                        matchIndex = pairing.matchIndex,
+                        player1Id = pairing.player1Id,
+                        player2Id = pairing.player2Id
                     )
                 }
                 tournamentMatches.addAll(startMatches)
@@ -791,82 +675,14 @@ class GenerateBracketUseCase(
                 }
             }
 
-            TournamentEvent.QUALIFIER_WM -> {
-                val sortedTcOom = getPlayerListSortedByOom(tourCardPlayerIds, oomEntries)
-                val top40Oom = sortedTcOom.take(40)
-                val remainingTcAfterTop40Oom = tourCardPlayerIds.filterNot { it in top40Oom }
-                val top40PtOom = getPlayerListSortedByOom(remainingTcAfterTop40Oom, ptOomEntries).take(40)
-                val wmPreQualified = (top40Oom + top40PtOom).toSet()
-                val nonPreqWmTc = tourCardPlayerIds.filterNot { it in wmPreQualified }
-                val sortedNonPreq = getPlayerListSortedByOom(nonPreqWmTc, oomEntries)
-
-                logI("TournamentQualification", "==================================================")
-                logI("TournamentQualification", "Qualifikation & Auslosung: #${tournament.order} ${tournament.name} (${tournament.type})")
-                logQualificationGroup("Vorqualifiziert (Top 40 OOM + Top 40 PT OOM - Befreit)", wmPreQualified.toList())
-                logQualificationGroup("Teilnehmende Tour-Card-Inhaber im WM Qualifier", sortedNonPreq)
-                logI("TournamentQualification", "==================================================")
-
-                val K = 4
-                val N = sortedNonPreq.size
-                val r1MatchesList: List<TournamentMatch> = if (N > 8 * K) {
-                    val prelimMatchCount = N - 8 * K
-                    val prelimPlayers = sortedNonPreq.takeLast(2 * prelimMatchCount)
-                    for (i in 0 until prelimMatchCount) {
-                        tournamentMatches.add(
-                            TournamentMatch(
-                                tournamentId = tournamentId,
-                                round = TournamentRound.QUAL_PRELIM.name,
-                                matchIndex = i,
-                                player1Id = prelimPlayers[i],
-                                player2Id = prelimPlayers[2 * prelimMatchCount - 1 - i]
-                            )
-                        )
-                    }
-                    val byeCount = (16 * K - N).coerceAtLeast(0)
-                    val byePlayers = sortedNonPreq.take(byeCount)
-                    val prelimPlaceholders = (0 until prelimMatchCount).map { i -> -1000L - i }
-                    val r1Pairings = BracketGenerator.buildQualifierRound1Pairings(K, byePlayers, prelimPlaceholders)
-                    r1Pairings.map { p ->
-                        TournamentMatch(
-                            tournamentId = tournamentId,
-                            round = TournamentRound.QUAL_R1.name,
-                            matchIndex = p.matchIndex,
-                            player1Id = p.player1Id,
-                            player2Id = p.player2Id
-                        )
-                    }
-                } else {
-                    val r1Pairings = BracketGenerator.buildQualifierRound1Pairings(K, sortedNonPreq, emptyList())
-                    r1Pairings.map { p ->
-                        TournamentMatch(
-                            tournamentId = tournamentId,
-                            round = TournamentRound.QUAL_R1.name,
-                            matchIndex = p.matchIndex,
-                            player1Id = p.player1Id,
-                            player2Id = p.player2Id
-                        )
-                    }
-                }
-                tournamentMatches.addAll(r1MatchesList)
-                appendSubsequentKoRounds(TournamentRound.QUAL_R1, r1MatchesList.size)
-
-                val seedCount = calculateQualifierSeedCount(event, sortedNonPreq.size)
-                sortedNonPreq.mapIndexed { index, playerId ->
-                    TournamentParticipant(
-                        tournamentId = tournamentId,
-                        playerId = playerId,
-                        seedNumber = if (index < seedCount) index + 1 else null,
-                        qualificationType = "TOUR_CARD"
-                    )
-                }
-            }
-
             TournamentEvent.WORLD_CHAMPIONSHIP -> {
-                val sortedOomTc = getPlayerListSortedByOom(tourCardPlayerIds, oomEntries)
-                val top40Oom = sortedOomTc.take(40)
-
-                val remainingForPt = tourCardPlayerIds.filterNot { it in top40Oom }
-                val top40PtOom = getPlayerListSortedByOom(remainingForPt, ptOomEntries).take(40)
+                val (top40Oom, top40PtOom) = tournamentQualificationUseCase.resolvePrequalifiedTourCardIds(
+                    event = event,
+                    tourCardPlayerIds = tourCardPlayerIds,
+                    oomList = oomEntries,
+                    ptOomList = ptOomEntries,
+                    allPlayers = allPlayers
+                )
 
                 val tc80 = top40Oom + top40PtOom
                 val sortedTc80ByOom = getPlayerListSortedByOom(tc80, oomEntries)
@@ -904,13 +720,13 @@ class GenerateBracketUseCase(
                     oomSortedIds = top32Oom + ranks33To64,
                     qualifierIds = remaining64Pool
                 )
-                val startMatches = pairings.map { p ->
+                val startMatches = pairings.map { pairing ->
                     TournamentMatch(
                         tournamentId = tournamentId,
                         round = TournamentRound.L128.name,
-                        matchIndex = p.matchIndex,
-                        player1Id = p.player1Id,
-                        player2Id = p.player2Id
+                        matchIndex = pairing.matchIndex,
+                        player1Id = pairing.player1Id,
+                        player2Id = pairing.player2Id
                     )
                 }
                 tournamentMatches.addAll(startMatches)
@@ -948,11 +764,11 @@ class GenerateBracketUseCase(
             val initialPlacements = mutableListOf<TournamentPlacement>()
             when (event) {
                 TournamentEvent.PLAYERS_CHAMPIONSHIP -> {
-                    participants.forEach { p ->
+                    participants.forEach { participant ->
                         initialPlacements.add(
                             TournamentPlacement(
                                 tournamentId = tournamentId,
-                                playerId = p.playerId,
+                                playerId = participant.playerId,
                                 reachedRound = TournamentRound.L128.name,
                                 prizeMoney = 0.0
                             )
@@ -960,6 +776,13 @@ class GenerateBracketUseCase(
                     }
                 }
                 TournamentEvent.EUROPEAN_TOUR -> {
+                    val (top16Oom, top16PtOom) = tournamentQualificationUseCase.resolvePrequalifiedTourCardIds(
+                        event = event,
+                        tourCardPlayerIds = tourCardPlayerIds,
+                        oomList = oomEntries,
+                        ptOomList = ptOomEntries,
+                        allPlayers = allPlayers
+                    )
                     top16Oom.forEach { playerId ->
                         initialPlacements.add(TournamentPlacement(tournamentId = tournamentId, playerId = playerId, reachedRound = TournamentRound.L32.name, prizeMoney = 0.0))
                     }
@@ -967,13 +790,13 @@ class GenerateBracketUseCase(
                         initialPlacements.add(TournamentPlacement(tournamentId = tournamentId, playerId = playerId, reachedRound = TournamentRound.L48.name, prizeMoney = 0.0))
                     }
                     val assignedPlayerIds = (top16Oom + top16PtOom).toSet()
-                    participants.filter { it.playerId !in assignedPlayerIds }.forEach { p ->
-                        initialPlacements.add(TournamentPlacement(tournamentId = tournamentId, playerId = p.playerId, reachedRound = TournamentRound.L48.name, prizeMoney = event.getRankingPrizeMoney(TournamentRound.L48)))
+                    participants.filter { it.playerId !in assignedPlayerIds }.forEach { participant ->
+                        initialPlacements.add(TournamentPlacement(tournamentId = tournamentId, playerId = participant.playerId, reachedRound = TournamentRound.L48.name, prizeMoney = event.getRankingPrizeMoney(TournamentRound.L48)))
                     }
                 }
                 TournamentEvent.UK_OPEN, TournamentEvent.EUROPEAN_OPEN -> {
-                    participants.forEach { p ->
-                        val round = when (p.qualificationType) {
+                    participants.forEach { participant ->
+                        val round = when (participant.qualificationType) {
                             "OOM_TOP_32" -> TournamentRound.L64
                             "OOM_33_64" -> TournamentRound.R3_96
                             "OOM_65_96" -> TournamentRound.R2_128
@@ -982,7 +805,7 @@ class GenerateBracketUseCase(
                         initialPlacements.add(
                             TournamentPlacement(
                                 tournamentId = tournamentId,
-                                playerId = p.playerId,
+                                playerId = participant.playerId,
                                 reachedRound = round.name,
                                 prizeMoney = event.getRankingPrizeMoney(round)
                             )
@@ -990,11 +813,11 @@ class GenerateBracketUseCase(
                     }
                 }
                 TournamentEvent.GRAND_SLAM_OF_DARTS -> {
-                    participants.forEach { p ->
+                    participants.forEach { participant ->
                         initialPlacements.add(
                             TournamentPlacement(
                                 tournamentId = tournamentId,
-                                playerId = p.playerId,
+                                playerId = participant.playerId,
                                 reachedRound = TournamentRound.GROUP_3RD.name,
                                 prizeMoney = event.getRankingPrizeMoney(TournamentRound.GROUP_3RD)
                             )
@@ -1004,11 +827,11 @@ class GenerateBracketUseCase(
                 else -> {
                     val startRound = event.getRoundSequence().firstOrNull() ?: TournamentRound.L32
                     val startRoundPrize = event.getRankingPrizeMoney(startRound)
-                    participants.forEach { p ->
+                    participants.forEach { participant ->
                         initialPlacements.add(
                             TournamentPlacement(
                                 tournamentId = tournamentId,
-                                playerId = p.playerId,
+                                playerId = participant.playerId,
                                 reachedRound = startRound.name,
                                 prizeMoney = startRoundPrize
                             )
@@ -1033,5 +856,98 @@ class GenerateBracketUseCase(
         }
 
         tournamentMatchDao.getMatchesListForTournament(tournamentId)
+    }
+
+    /**
+     * Builds the bracket matches and participants for qualifier events (ET, Grand Slam, WM Qualifiers)
+     * using the central [TournamentQualificationUseCase.resolveQualifierFieldSplit].
+     */
+    private fun buildQualifierBracket(
+        tournament: Tournament,
+        event: TournamentEvent,
+        tourCardPlayerIds: List<Long>,
+        oomEntries: List<OrderOfMeritEntry>,
+        ptOomEntries: List<OrderOfMeritEntry>,
+        allPlayers: List<Player>,
+        tournamentMatches: MutableList<TournamentMatch>,
+        appendSubsequentKoRounds: (TournamentRound, Int) -> Unit,
+        logI: (String, String) -> Unit,
+        logQualificationGroup: (String, List<Long>) -> Unit
+    ): List<TournamentParticipant> {
+        val split = tournamentQualificationUseCase.resolveQualifierFieldSplit(
+            event = event,
+            tourCardPlayerIds = tourCardPlayerIds,
+            oomList = oomEntries,
+            ptOomList = ptOomEntries,
+            allPlayers = allPlayers
+        )
+
+        val prequalifiedLabel = if (event == TournamentEvent.QUALIFIER_WM) {
+            "Vorqualifiziert (Top 40 OOM + Top 40 PT OOM - Befreit)"
+        } else {
+            "Vorqualifiziert (Top 16 OOM + Top 16 PT OOM - Befreit)"
+        }
+        val qualifierName = when (event) {
+            TournamentEvent.QUALIFIER_ET -> "ET Qualifier"
+            TournamentEvent.QUALIFIER_GRAND_SLAM -> "Grand Slam Qualifier"
+            TournamentEvent.QUALIFIER_WM -> "WM Qualifier"
+            else -> "Qualifier"
+        }
+
+        logI("TournamentQualification", "==================================================")
+        logI("TournamentQualification", "Qualifikation & Auslosung: #${tournament.order} ${tournament.name} (${tournament.type})")
+        logQualificationGroup(prequalifiedLabel, split.preQualifiedIds)
+        logQualificationGroup("Teilnehmende Tour-Card-Inhaber im $qualifierName", split.nonPrequalifiedIds)
+        logI("TournamentQualification", "==================================================")
+
+        val boardCount = split.boardCount
+        val r1MatchesList: List<TournamentMatch> = if (split.prelimPlayers.isNotEmpty()) {
+            val prelimMatchCount = split.prelimPlayers.size / 2
+            val prelimPlayers = split.prelimPlayers
+            for (matchIndex in 0 until prelimMatchCount) {
+                tournamentMatches.add(
+                    TournamentMatch(
+                        tournamentId = tournament.id,
+                        round = TournamentRound.QUAL_PRELIM.name,
+                        matchIndex = matchIndex,
+                        player1Id = prelimPlayers[matchIndex],
+                        player2Id = prelimPlayers[2 * prelimMatchCount - 1 - matchIndex]
+                    )
+                )
+            }
+            val prelimPlaceholders = (0 until prelimMatchCount).map { matchIndex -> -1000L - matchIndex }
+            val r1Pairings = BracketGenerator.buildQualifierRound1Pairings(boardCount, split.byePlayers, prelimPlaceholders)
+            r1Pairings.map { pairing ->
+                TournamentMatch(
+                    tournamentId = tournament.id,
+                    round = TournamentRound.QUAL_R1.name,
+                    matchIndex = pairing.matchIndex,
+                    player1Id = pairing.player1Id,
+                    player2Id = pairing.player2Id
+                )
+            }
+        } else {
+            val r1Pairings = BracketGenerator.buildQualifierRound1Pairings(boardCount, split.byePlayers, emptyList())
+            r1Pairings.map { pairing ->
+                TournamentMatch(
+                    tournamentId = tournament.id,
+                    round = TournamentRound.QUAL_R1.name,
+                    matchIndex = pairing.matchIndex,
+                    player1Id = pairing.player1Id,
+                    player2Id = pairing.player2Id
+                )
+            }
+        }
+        tournamentMatches.addAll(r1MatchesList)
+        appendSubsequentKoRounds(TournamentRound.QUAL_R1, r1MatchesList.size)
+
+        return split.nonPrequalifiedIds.mapIndexed { index, playerId ->
+            TournamentParticipant(
+                tournamentId = tournament.id,
+                playerId = playerId,
+                seedNumber = if (index < split.seedCount) index + 1 else null,
+                qualificationType = "TOUR_CARD"
+            )
+        }
     }
 }
