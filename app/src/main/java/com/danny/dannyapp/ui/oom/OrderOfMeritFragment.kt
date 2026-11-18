@@ -127,8 +127,8 @@ class OrderOfMeritFragment : Fragment(R.layout.fragment_order_of_merit) {
             return
         }
 
-        val rankText = "#${userEntry.rank}"
-        val moneyText = "£%,.0f".format(userEntry.prizeMoney)
+        val rankText = getString(R.string.rank_format, userEntry.rank)
+        val moneyText = getString(R.string.prize_money_format, userEntry.prizeMoney)
 
         when {
             userIndex < firstVisible -> {

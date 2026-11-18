@@ -194,4 +194,7 @@
     <string name="tournament_order_name_format">#%1$d %2$s</string>
     <string name="career_season_level_format">%1$s • %2$s</string>
     <string name="group_table_rank_format">%d.</string>
+    <string name="error_invalid_career_id">Ungültige Karriere-ID</string>
+    <string name="error_unknown">Unbekannter Fehler</string>
+    <string name="error_empty_name">Name darf nicht leer sein</string>
 </resources>

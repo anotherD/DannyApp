@@ -61,7 +61,7 @@ class TournamentCalendarViewModel(application: Application) : AndroidViewModel(a
 
     fun loadTournaments(careerId: Long) {
         if (careerId <= 0L) {
-            _uiState.value = TournamentCalendarState.Error("Ungültige Karriere-ID")
+            _uiState.value = TournamentCalendarState.Error(getApplication<Application>().getString(R.string.error_invalid_career_id))
             return
         }
 
@@ -91,7 +91,7 @@ class TournamentCalendarViewModel(application: Application) : AndroidViewModel(a
                     _uiState.value = state
                 }
             } catch (e: Exception) {
-                _uiState.value = TournamentCalendarState.Error(e.message ?: "Unbekannter Fehler")
+                _uiState.value = TournamentCalendarState.Error(e.message ?: getApplication<Application>().getString(R.string.error_unknown))
             }
         }
     }

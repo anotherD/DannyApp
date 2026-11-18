@@ -4,6 +4,7 @@ import android.app.Application
 import android.database.sqlite.SQLiteConstraintException
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.danny.dannyapp.R
 import com.danny.dannyapp.data.db.CareerRepository
 import com.danny.dannyapp.data.db.UserProfile
 import com.danny.dannyapp.data.db.UserProfileRepository
@@ -59,7 +60,7 @@ class ProfilesViewModel(application: Application) : AndroidViewModel(application
             if (isDuplicate) {
                 SaveProfileResult.DuplicateName(trimmedName)
             } else {
-                SaveProfileResult.Error(e.localizedMessage ?: "Unbekannter Fehler")
+                SaveProfileResult.Error(e.localizedMessage ?: getApplication<Application>().getString(R.string.error_unknown))
             }
         }
     }
@@ -68,7 +69,7 @@ class ProfilesViewModel(application: Application) : AndroidViewModel(application
         val trimmedName = newName.trim()
         val trimmedPlayerName = newPlayerName.trim().ifEmpty { trimmedName }
         if (trimmedName.isEmpty()) {
-            return SaveProfileResult.Error("Name darf nicht leer sein")
+            return SaveProfileResult.Error(getApplication<Application>().getString(R.string.error_empty_name))
         }
 
         if (!trimmedName.equals(profile.name, ignoreCase = true)) {
@@ -95,7 +96,7 @@ class ProfilesViewModel(application: Application) : AndroidViewModel(application
             if (isDuplicate) {
                 SaveProfileResult.DuplicateName(trimmedName)
             } else {
-                SaveProfileResult.Error(e.localizedMessage ?: "Unbekannter Fehler")
+                SaveProfileResult.Error(e.localizedMessage ?: getApplication<Application>().getString(R.string.error_unknown))
             }
         }
     }
