@@ -373,13 +373,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             emptyList()
         }
 
-        val currentRoundMatches = if (dbMatchesForRound.isNotEmpty()) {
-            dbMatchesForRound
-        } else if (isOpenDrawInfoVisible) {
-            emptyList()
-        } else {
-            generatePreviewMatchesWithPropagation(currentTournamentId, currentRoundKey, event, allMatches, tournament.seasonId)
-        }
+        val currentRoundMatches = dbMatchesForRound
 
         val isGrandSlamGroup = (event == TournamentEvent.GRAND_SLAM_OF_DARTS && currentRoundKey == TournamentRound.GROUP.name)
         val availableGroups = if (isGrandSlamGroup) {
@@ -412,17 +406,8 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
 
         val qualifierBoardCount = if (event.qualifierBoardCount > 0) event.qualifierBoardCount else 4
 
-        // QUAL_R1-Matches (DB oder Preview) zur Board-Zuordnung der Vorrundensieger
+        // QUAL_R1-Matches zur Board-Zuordnung der Vorrundensieger
         val qualR1Matches = allMatches.filter { it.round == TournamentRound.QUAL_R1.name }
-            .ifEmpty {
-                generatePreviewMatchesWithPropagation(
-                    currentTournamentId,
-                    TournamentRound.QUAL_R1.name,
-                    event,
-                    allMatches,
-                    tournament.seasonId
-                )
-            }
 
         val rawMatchUiModels = filteredMatches.map { match ->
             createMatchUiModel(match, userName, userCountryCode, userLevel, allPlayersMap, currentRoundKey, event, seededPlayerMap)
@@ -454,15 +439,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
 
         val allRoundsMatches = availableRounds.map { roundKey ->
             val dbMatchesForRound = allMatches.filter { it.round == roundKey }
-            val isUkOpenUngenerated = isOpenDrawRoundPending(event, roundKey, dbMatchesForRound)
-
-            val roundMatches = if (dbMatchesForRound.isNotEmpty()) {
-                dbMatchesForRound
-            } else if (isUkOpenUngenerated) {
-                emptyList()
-            } else {
-                generatePreviewMatchesWithPropagation(currentTournamentId, roundKey, event, allMatches, tournament.seasonId)
-            }
+            val roundMatches = dbMatchesForRound
 
             val roundModels = roundMatches.map { match ->
                 createMatchUiModel(match, userName, userCountryCode, userLevel, allPlayersMap, roundKey, event, seededPlayerMap)
@@ -589,11 +566,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         val availableRoundDisplayNames = availableRounds.map { TournamentUiHelper.getDisplayRoundName(it, getApplication()) }
 
         val dbMatchesForRound = allMatches.filter { it.round == currentRoundKey }
-        val currentRoundMatches = if (dbMatchesForRound.isNotEmpty()) {
-            dbMatchesForRound
-        } else {
-            generatePreviewMatchesForRound(tournament.id, currentRoundKey, event)
-        }
+        val currentRoundMatches = dbMatchesForRound
 
         val isGrandSlamGroup = (event == TournamentEvent.GRAND_SLAM_OF_DARTS && currentRoundKey == TournamentRound.GROUP.name)
         val availableGroups = if (isGrandSlamGroup) ('A'..'P').map { it.toString() } else emptyList()
@@ -636,11 +609,8 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
 
         val qualifierBoardCount = if (event.qualifierBoardCount > 0) event.qualifierBoardCount else 4
 
-        // QUAL_R1-Matches (DB oder Preview) zur Board-Zuordnung der Vorrundensieger
+        // QUAL_R1-Matches zur Board-Zuordnung der Vorrundensieger
         val qualR1Matches = allMatches.filter { it.round == TournamentRound.QUAL_R1.name }
-            .ifEmpty {
-                generatePreviewMatchesForRound(tournament.id, TournamentRound.QUAL_R1.name, event)
-            }
 
         val rawMatchUiModels = filteredMatches.map { match ->
             createMatchUiModel(match, userName, userCountryCode, userLevel, allPlayersMap, currentRoundKey, event, seededPlayerMap)
@@ -664,7 +634,6 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
 
         val allRoundsMatches = availableRounds.map { roundKey ->
             val roundMatches = allMatches.filter { it.round == roundKey }
-                .ifEmpty { generatePreviewMatchesForRound(tournament.id, roundKey, event) }
 
             val roundModels = roundMatches.map { match ->
                 createMatchUiModel(match, userName, userCountryCode, userLevel, allPlayersMap, roundKey, event, seededPlayerMap)
@@ -1016,36 +985,6 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         return tournamentQualificationUseCase.getSeededPlayerMap(event, seasonId, tournamentId)
     }
 
-    /**
-     * Generates preview matches for the specified [roundKey].
-     */
-    private fun generatePreviewMatchesForRound(
-        tournamentId: Long,
-        roundKey: String,
-        event: TournamentEvent
-    ): List<TournamentMatch> {
-        return tournamentQualificationUseCase.generatePreviewMatchesForRound(tournamentId, roundKey, event)
-    }
-
-    /**
-     * Generates preview matches with propagation from previous rounds.
-     */
-    private suspend fun generatePreviewMatchesWithPropagation(
-        tournamentId: Long,
-        roundKey: String,
-        event: TournamentEvent,
-        allMatches: List<TournamentMatch>,
-        seasonId: Long
-    ): List<TournamentMatch> {
-        return tournamentQualificationUseCase.generatePreviewMatchesWithPropagation(
-            tournamentId = tournamentId,
-            roundKey = roundKey,
-            event = event,
-            allMatches = allMatches,
-            seasonId = seasonId,
-            fallbackCareerId = currentCareerId
-        )
-    }
 
     /**
      * Retrieves entrant group information for open draw events.

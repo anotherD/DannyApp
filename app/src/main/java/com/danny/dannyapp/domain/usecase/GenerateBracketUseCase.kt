@@ -141,46 +141,10 @@ class GenerateBracketUseCase(
             TournamentEvent.QUALIFIER_ET, TournamentEvent.QUALIFIER_GRAND_SLAM, TournamentEvent.QUALIFIER_WM -> {
                 val split = qualResult.qualifierFieldSplit
                     ?: throw IllegalStateException("QualifierFieldSplit missing for qualifier tournament $tournamentId")
-                val boardCount = split.boardCount
-                val r1MatchesList: List<TournamentMatch> = if (split.prelimPlayers.isNotEmpty()) {
-                    val prelimMatchCount = split.prelimPlayers.size / 2
-                    val prelimPlayers = split.prelimPlayers
-                    for (matchIndex in 0 until prelimMatchCount) {
-                        tournamentMatches.add(
-                            TournamentMatch(
-                                tournamentId = tournament.id,
-                                round = TournamentRound.QUAL_PRELIM.name,
-                                matchIndex = matchIndex,
-                                player1Id = prelimPlayers[matchIndex],
-                                player2Id = prelimPlayers[2 * prelimMatchCount - 1 - matchIndex]
-                            )
-                        )
-                    }
-                    val prelimPlaceholders = (0 until prelimMatchCount).map { matchIndex -> -1000L - matchIndex }
-                    val r1Pairings = BracketGenerator.buildQualifierRound1Pairings(boardCount, split.byePlayers, prelimPlaceholders)
-                    r1Pairings.map { pairing ->
-                        TournamentMatch(
-                            tournamentId = tournament.id,
-                            round = TournamentRound.QUAL_R1.name,
-                            matchIndex = pairing.matchIndex,
-                            player1Id = pairing.player1Id,
-                            player2Id = pairing.player2Id
-                        )
-                    }
-                } else {
-                    val r1Pairings = BracketGenerator.buildQualifierRound1Pairings(boardCount, split.byePlayers, emptyList())
-                    r1Pairings.map { pairing ->
-                        TournamentMatch(
-                            tournamentId = tournament.id,
-                            round = TournamentRound.QUAL_R1.name,
-                            matchIndex = pairing.matchIndex,
-                            player1Id = pairing.player1Id,
-                            player2Id = pairing.player2Id
-                        )
-                    }
-                }
-                tournamentMatches.addAll(r1MatchesList)
-                appendSubsequentKoRounds(TournamentRound.QUAL_R1, r1MatchesList.size)
+                val (prelimMatches, r1Matches) = createQualifierMatches(tournamentId, split)
+                tournamentMatches.addAll(prelimMatches)
+                tournamentMatches.addAll(r1Matches)
+                appendSubsequentKoRounds(TournamentRound.QUAL_R1, r1Matches.size)
             }
 
             TournamentEvent.EUROPEAN_TOUR -> {
@@ -234,7 +198,7 @@ class GenerateBracketUseCase(
                 })
             }
 
-            TournamentEvent.WORLD_MATCHPLAY -> {
+            TournamentEvent.WORLD_MATCHPLAY, TournamentEvent.WORLD_GRAND_PRIX -> {
                 val pairings = BracketGenerator.generateInitialMatches(
                     event = event,
                     oomSortedIds = qualResult.oomSortedIds,
@@ -253,26 +217,8 @@ class GenerateBracketUseCase(
                 appendSubsequentKoRounds(TournamentRound.L32, startMatches.size)
             }
 
-            TournamentEvent.WORLD_GRAND_PRIX -> {
-                val pairings = BracketGenerator.generateInitialMatches(
-                    event = event,
-                    oomSortedIds = qualResult.oomSortedIds,
-                    proTourSortedIds = qualResult.proTourSortedIds
-                )
-                val startMatches = pairings.map { pairing ->
-                    TournamentMatch(
-                        tournamentId = tournamentId,
-                        round = TournamentRound.L32.name,
-                        matchIndex = pairing.matchIndex,
-                        player1Id = pairing.player1Id,
-                        player2Id = pairing.player2Id
-                    )
-                }
-                tournamentMatches.addAll(startMatches)
-                appendSubsequentKoRounds(TournamentRound.L32, startMatches.size)
-            }
-
-            TournamentEvent.EUROPEAN_CHAMPIONSHIP -> {
+            TournamentEvent.EUROPEAN_CHAMPIONSHIP, TournamentEvent.PLAYERS_CHAMPIONSHIP_FINALS -> {
+                val startRound = if (event == TournamentEvent.EUROPEAN_CHAMPIONSHIP) TournamentRound.L32 else TournamentRound.L64
                 val pairings = BracketGenerator.generateInitialMatches(
                     event = event,
                     oomSortedIds = emptyList(),
@@ -281,14 +227,14 @@ class GenerateBracketUseCase(
                 val startMatches = pairings.map { pairing ->
                     TournamentMatch(
                         tournamentId = tournamentId,
-                        round = TournamentRound.L32.name,
+                        round = startRound.name,
                         matchIndex = pairing.matchIndex,
                         player1Id = pairing.player1Id,
                         player2Id = pairing.player2Id
                     )
                 }
                 tournamentMatches.addAll(startMatches)
-                appendSubsequentKoRounds(TournamentRound.L32, startMatches.size)
+                appendSubsequentKoRounds(startRound, startMatches.size)
             }
 
             TournamentEvent.GRAND_SLAM_OF_DARTS -> {
@@ -328,25 +274,6 @@ class GenerateBracketUseCase(
                 }
                 tournamentMatches.addAll(l16Matches)
                 appendSubsequentKoRounds(TournamentRound.L16, l16Matches.size)
-            }
-
-            TournamentEvent.PLAYERS_CHAMPIONSHIP_FINALS -> {
-                val pairings = BracketGenerator.generateInitialMatches(
-                    event = event,
-                    oomSortedIds = emptyList(),
-                    qualifierIds = qualResult.qualifierIds
-                )
-                val startMatches = pairings.map { pairing ->
-                    TournamentMatch(
-                        tournamentId = tournamentId,
-                        round = TournamentRound.L64.name,
-                        matchIndex = pairing.matchIndex,
-                        player1Id = pairing.player1Id,
-                        player2Id = pairing.player2Id
-                    )
-                }
-                tournamentMatches.addAll(startMatches)
-                appendSubsequentKoRounds(TournamentRound.L64, startMatches.size)
             }
 
             TournamentEvent.WORLD_CHAMPIONSHIP -> {
@@ -463,4 +390,54 @@ class GenerateBracketUseCase(
 
         tournamentMatchDao.getMatchesListForTournament(tournamentId)
     }
+
+    /**
+     * Erstellt die Vorrunden- und R1-Matches für ein Qualifier-Turnier basierend auf [split].
+     */
+    private fun createQualifierMatches(
+        tournamentId: Long,
+        split: QualifierFieldSplit
+    ): Pair<List<TournamentMatch>, List<TournamentMatch>> {
+        val prelimMatches = mutableListOf<TournamentMatch>()
+        val boardCount = split.boardCount
+        val r1Matches = if (split.prelimPlayers.isNotEmpty()) {
+            val prelimMatchCount = split.prelimPlayers.size / 2
+            val prelimPlayers = split.prelimPlayers
+            for (matchIndex in 0 until prelimMatchCount) {
+                prelimMatches.add(
+                    TournamentMatch(
+                        tournamentId = tournamentId,
+                        round = TournamentRound.QUAL_PRELIM.name,
+                        matchIndex = matchIndex,
+                        player1Id = prelimPlayers[matchIndex],
+                        player2Id = prelimPlayers[2 * prelimMatchCount - 1 - matchIndex]
+                    )
+                )
+            }
+            val prelimPlaceholders = (0 until prelimMatchCount).map { matchIndex -> -1000L - matchIndex }
+            val r1Pairings = BracketGenerator.buildQualifierRound1Pairings(boardCount, split.byePlayers, prelimPlaceholders)
+            r1Pairings.map { pairing ->
+                TournamentMatch(
+                    tournamentId = tournamentId,
+                    round = TournamentRound.QUAL_R1.name,
+                    matchIndex = pairing.matchIndex,
+                    player1Id = pairing.player1Id,
+                    player2Id = pairing.player2Id
+                )
+            }
+        } else {
+            val r1Pairings = BracketGenerator.buildQualifierRound1Pairings(boardCount, split.byePlayers, emptyList())
+            r1Pairings.map { pairing ->
+                TournamentMatch(
+                    tournamentId = tournamentId,
+                    round = TournamentRound.QUAL_R1.name,
+                    matchIndex = pairing.matchIndex,
+                    player1Id = pairing.player1Id,
+                    player2Id = pairing.player2Id
+                )
+            }
+        }
+        return Pair(prelimMatches, r1Matches)
+    }
 }
+
