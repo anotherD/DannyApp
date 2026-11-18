@@ -39,6 +39,7 @@
             android:id="@+id/autoCompleteProfile"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:hint="@string/careers_create_profile_hint"
             android:inputType="none" />
 
     </com.google.android.material.textfield.TextInputLayout>
