@@ -1,6 +1,7 @@
 package com.danny.dannyapp.domain.usecase
 
 import android.content.Context
+import com.danny.dannyapp.R
 import com.danny.dannyapp.data.db.AppDatabase
 import com.danny.dannyapp.data.db.CareerDao
 import com.danny.dannyapp.data.db.Player
@@ -79,7 +80,8 @@ class TournamentQualificationUseCase(
     private val playerDao: PlayerDao,
     private val tournamentParticipantDao: TournamentParticipantDao,
     private val careerDao: CareerDao,
-    private val getOrderOfMeritUseCase: GetOrderOfMeritUseCase
+    private val getOrderOfMeritUseCase: GetOrderOfMeritUseCase,
+    private val context: Context? = null
 ) {
 
     constructor(context: Context) : this(
@@ -88,7 +90,8 @@ class TournamentQualificationUseCase(
         AppDatabase.getDatabase(context.applicationContext).playerDao(),
         AppDatabase.getDatabase(context.applicationContext).tournamentParticipantDao(),
         AppDatabase.getDatabase(context.applicationContext).careerDao(),
-        GetOrderOfMeritUseCase(context)
+        GetOrderOfMeritUseCase(context),
+        context.applicationContext
     )
 
     /**
@@ -902,7 +905,7 @@ class TournamentQualificationUseCase(
         val userName = careerWithProfile?.playerName?.ifBlank { null }
             ?: careerWithProfile?.profileName
             ?: careerWithProfile?.career?.name
-            ?: "Du"
+            ?: context?.getString(R.string.player_name_you) ?: "Du"
         val userCountryCode = careerWithProfile?.countryCode ?: Country.DEFAULT_USER_CODE
 
         fun createEntrantPlayerDomainInfo(id: Long, rank: Int?): EntrantPlayerDomainInfo {

@@ -23,6 +23,7 @@ import kotlinx.coroutines.flow.StateFlow
 import com.danny.dannyapp.domain.model.Country
 import com.danny.dannyapp.domain.enums.SkillLevel
 import com.danny.dannyapp.domain.enums.TournamentRound
+import com.danny.dannyapp.R
 import com.danny.dannyapp.ui.enums.TournamentStatus
 import com.danny.dannyapp.ui.model.PlayerUiInfo
 import com.danny.dannyapp.ui.model.TournamentUiModel
@@ -139,19 +140,19 @@ class TournamentCalendarViewModel(application: Application) : AndroidViewModel(a
 
             // Resolve winner name from winnerId supplied by the domain use-case.
             val winnerName: String? = summary.winnerId?.let { winnerId ->
-                if (winnerId == USER_ID) "Du" else allPlayers[winnerId]?.name ?: "CPU"
+                if (winnerId == USER_ID) getApplication<Application>().getString(R.string.player_name_you) else allPlayers[winnerId]?.name ?: getApplication<Application>().getString(R.string.player_name_unknown)
             }
 
             // Resolve qualifier winners to PlayerUiInfo (player names, flags, skill levels).
             val qualifierWinners: List<PlayerUiInfo>? = if (summary.qualifierWinnerIds.isNotEmpty()) {
                 summary.qualifierWinnerIds.map { winnerId ->
                     if (winnerId == USER_ID) {
-                        PlayerUiInfo(id = USER_ID, name = "Du", countryCode = userCountryCode)
+                        PlayerUiInfo(id = USER_ID, name = getApplication<Application>().getString(R.string.player_name_you), countryCode = userCountryCode)
                     } else {
                         val dbPlayer = allPlayers[winnerId]
                         PlayerUiInfo(
                             id = winnerId,
-                            name = dbPlayer?.name ?: "CPU #$winnerId",
+                            name = dbPlayer?.name ?: "${getApplication<Application>().getString(R.string.player_name_unknown)} #$winnerId",
                             countryCode = dbPlayer?.countryCode ?: Country.DEFAULT_CODE,
                             skill = dbPlayer?.skill ?: SkillLevel.DEFAULT.value
                         )

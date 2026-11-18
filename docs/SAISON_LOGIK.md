@@ -49,7 +49,7 @@ Beim Saisonwechsel wird die bisherige Saison als abgeschlossen markiert (`isComp
   * Sobald ein Match abgeschlossen ist, wird der Gewinner sofort in den entsprechenden Slot der Folgerunde eingetragen und im Preisgeld-Placement unmittelbar auf die erreichte Folgerunde hochgestuft (wodurch z. B. vorqualifizierte ET-Seeds nach ihrem Auftaktsieg automatisch von £0 auf das reguläre Rundenpreisgeld steigen).
   * Beim *Grand Slam of Darts* werden nach Abschluss der Gruppenphase Gruppenzweite und Gruppensieger automatisch auf ihre entsprechenden Platzierungs-Preisgelder hochgestuft.
 * **Zentrale Zustandsmaschine & Rundenfortschritt (`AdvanceTournamentRoundUseCase`):**
-  * Ermittelt über `evaluateTournamentState(...)` als *Single Source of Truth* den Rundenstatus: Die **aktive Runde wird vorrangig direkt vom Turnier selbst gelesen** (dort bei jedem Rundenwechsel fortgeschrieben); für ältere Datensätze ohne gespeicherte Runde greift ein Fallback auf die erste Runde mit offenen Matches.
+  * Ermittelt über `evaluateTournamentState(...)` als *Single Source of Truth* den Rundenstatus: Die **aktive Runde wird direkt vom Turnier selbst gelesen** (`tournament.currentRound`).
   * Alle Runden vor der aktiven Runde gelten als abgeschlossen, alle danach als ausstehend – einheitlich für alle Turnierarten inkl. Qualifier, ohne gesonderte Sonderbehandlung.
   * Die Preisgelder jeder abgeschlossenen Runde werden **sofort** beim Rundenwechsel verbucht; nach dem Finale wird das Sieger-Preisgeld eingetragen, das Turnier als abgeschlossen markiert und die aktive Runde am Turnier gelöscht.
   * Bei Qualifiern (`QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIFIER_WM`) wird das Turnier nach Abschluss des Qualifikationsfinales ohne Preisgeldbuchung beendet.

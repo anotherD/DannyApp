@@ -18,7 +18,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
 import com.danny.dannyapp.domain.enums.TournamentEvent
 import com.danny.dannyapp.domain.enums.TournamentRound
-import com.danny.dannyapp.domain.usecase.BracketGenerator
+import com.danny.dannyapp.domain.usecase.AdvanceTournamentRoundUseCase
 import com.danny.dannyapp.domain.usecase.EntrantGroupDomainData
 import com.danny.dannyapp.domain.usecase.EntrantGroupType
 import com.danny.dannyapp.domain.usecase.TournamentQualificationUseCase
@@ -281,7 +281,7 @@ object TournamentDetailUiHelper {
                 }
                 val isL48Round = matchItem?.match?.round == TournamentRound.L48.name || roundMatchesR.firstOrNull()?.match?.round == TournamentRound.L48.name
                 if (isL48Round) {
-                    val targetIdx = BracketGenerator.BRACKET_SEED_ORDER_16.indexOf(sizeNext - 1 - m)
+                    val targetIdx = AdvanceTournamentRoundUseCase.resolveNextRoundSlot(TournamentEvent.EUROPEAN_TOUR, TournamentRound.L48, m).first
                     if (targetIdx >= 0) targetIdx else m
                 } else {
                     m

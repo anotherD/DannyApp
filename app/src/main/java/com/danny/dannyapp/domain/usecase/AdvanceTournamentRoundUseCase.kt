@@ -4,14 +4,14 @@ import android.content.Context
 import com.danny.dannyapp.data.db.AppDatabase
 import com.danny.dannyapp.data.db.PlayerDao
 import com.danny.dannyapp.data.db.SeasonDao
-import com.danny.dannyapp.data.db.TourCardDao
+
 import com.danny.dannyapp.data.db.Tournament
 import com.danny.dannyapp.data.db.TournamentDao
 import com.danny.dannyapp.data.db.TournamentMatch
 import com.danny.dannyapp.data.db.TournamentMatchDao
 import com.danny.dannyapp.data.db.TournamentParticipantDao
 import com.danny.dannyapp.data.db.TournamentPlacementDao
-import com.danny.dannyapp.domain.enums.OrderOfMeritType
+
 import com.danny.dannyapp.domain.enums.TournamentEvent
 import com.danny.dannyapp.domain.enums.TournamentRound
 import com.danny.dannyapp.domain.model.TournamentProgressState
@@ -28,10 +28,8 @@ class AdvanceTournamentRoundUseCase(
     private val tournamentMatchDao: TournamentMatchDao,
     private val tournamentPlacementDao: TournamentPlacementDao,
     private val seasonDao: SeasonDao,
-    private val tourCardDao: TourCardDao,
     private val playerDao: PlayerDao,
     private val tournamentParticipantDao: TournamentParticipantDao,
-    private val getOrderOfMeritUseCase: GetOrderOfMeritUseCase,
     private val tournamentQualificationUseCase: TournamentQualificationUseCase
 ) {
     /** Single source of truth for group-stage standings – shared with the advance logic. */
@@ -41,12 +39,27 @@ class AdvanceTournamentRoundUseCase(
         AppDatabase.getDatabase(context.applicationContext).tournamentMatchDao(),
         AppDatabase.getDatabase(context.applicationContext).tournamentPlacementDao(),
         AppDatabase.getDatabase(context.applicationContext).seasonDao(),
-        AppDatabase.getDatabase(context.applicationContext).tourCardDao(),
         AppDatabase.getDatabase(context.applicationContext).playerDao(),
         AppDatabase.getDatabase(context.applicationContext).tournamentParticipantDao(),
-        GetOrderOfMeritUseCase(context),
         TournamentQualificationUseCase(context)
     )
+
+    companion object {
+        /**
+         * Resolves the target match index and slot in the next round for a given match.
+         * Returns (targetMatchIndex, isPlayer1Slot).
+         */
+        fun resolveNextRoundSlot(event: TournamentEvent, currentRound: TournamentRound, matchIndex: Int): Pair<Int, Boolean> {
+            return when {
+                event == TournamentEvent.EUROPEAN_TOUR && currentRound == TournamentRound.L48 -> {
+                    Pair(BracketGenerator.BRACKET_SEED_ORDER_16.indexOf(15 - matchIndex), false)
+                }
+                else -> {
+                    Pair(matchIndex / 2, matchIndex % 2 == 0)
+                }
+            }
+        }
+    }
 
     /**
      * Ermittelt den aktuellen Zustand eines Turniers direkt aus der Datenbank (Single Source of Truth).
@@ -79,13 +92,6 @@ class AdvanceTournamentRoundUseCase(
 
         val activeRound: TournamentRound = tournament.currentRound
             ?.let { roundKey -> TournamentRound.entries.find { it.name == roundKey } }
-            ?: roundSequence.firstOrNull { round ->
-                val roundMatches = allMatches.filter { it.round == round.name }
-                roundMatches.isNotEmpty() && roundMatches.any { !it.isCompleted }
-            }
-            ?: roundSequence.firstOrNull { round ->
-                allMatches.any { it.round == round.name }
-            }
             ?: return@withContext null
 
         val roundPhases = roundSequence.associateWith { round ->
@@ -233,22 +239,10 @@ class AdvanceTournamentRoundUseCase(
             val winners = currentRoundMatches.sortedBy { it.matchIndex }.mapNotNull { it.winnerId }
             val shuffledWinners = winners.shuffled()
 
-            val season = seasonDao.getSeasonById(tournament.seasonId)
-            val careerId = season?.careerId ?: 0L
-            val tourCardsWithPlayer = tourCardDao.getTourCardsListForSeason(season?.id ?: 0L)
-            val tourCardPlayerIds = tourCardsWithPlayer.map { it.tourCard.playerId }.distinct()
-            val allPlayers = playerDao.getAllPlayersList()
-            val oomEntries = getOrderOfMeritUseCase(careerId, OrderOfMeritType.OOM)
-
             val participants = tournamentParticipantDao.getParticipantsForTournament(tournament.id)
-            val stored65To96 = participants.filter { it.qualificationType == "OOM_65_96" }.sortedBy { it.seedNumber ?: Int.MAX_VALUE }.map { it.playerId }
-            val stored33To64 = participants.filter { it.qualificationType == "OOM_33_64" }.sortedBy { it.seedNumber ?: Int.MAX_VALUE }.map { it.playerId }
-            val storedTop32 = participants.filter { it.qualificationType == "OOM_TOP_32" }.sortedBy { it.seedNumber ?: Int.MAX_VALUE }.map { it.playerId }
-
-            val sortedTcOom = tournamentQualificationUseCase.sortPlayerIdsByOom(tourCardPlayerIds, oomEntries, allPlayers)
-            val oom65To96 = stored65To96.ifEmpty { sortedTcOom.drop(64).take(32) }
-            val oom33To64 = stored33To64.ifEmpty { sortedTcOom.drop(32).take(32) }
-            val top32Oom = storedTop32.ifEmpty { sortedTcOom.take(32) }
+            val oom65To96 = participants.filter { it.qualificationType == "OOM_65_96" }.sortedBy { it.seedNumber ?: Int.MAX_VALUE }.map { it.playerId }
+            val oom33To64 = participants.filter { it.qualificationType == "OOM_33_64" }.sortedBy { it.seedNumber ?: Int.MAX_VALUE }.map { it.playerId }
+            val top32Oom = participants.filter { it.qualificationType == "OOM_TOP_32" }.sortedBy { it.seedNumber ?: Int.MAX_VALUE }.map { it.playerId }
 
             val nextMatches = when (currentRound) {
                 TournamentRound.R1_160 -> {
@@ -292,22 +286,6 @@ class AdvanceTournamentRoundUseCase(
             return
         }
 
-        if (event == TournamentEvent.EUROPEAN_TOUR && currentRound == TournamentRound.L48) {
-            val currentRoundMatches = allMatches.filter { it.round == currentRound.name }
-            val existingL32 = allMatches.filter { it.round == TournamentRound.L32.name }.sortedBy { it.matchIndex }
-            val l48Winners = currentRoundMatches.sortedBy { it.matchIndex }.mapNotNull { it.winnerId }
-            val seedOrder = BracketGenerator.BRACKET_SEED_ORDER_16
-            val updatedL32 = existingL32.mapIndexed { index, match ->
-                val seedIndex = seedOrder[index]
-                val winnerId = l48Winners.getOrNull(15 - seedIndex) ?: 0L
-                match.copy(player2Id = winnerId)
-            }
-            if (updatedL32.isNotEmpty()) {
-                tournamentMatchDao.insertMatches(updatedL32)
-            }
-            return
-        }
-
         val roundSequence = event.getRoundSequence()
         val currentIndex = roundSequence.indexOf(currentRound)
         if (currentIndex == -1 || currentIndex >= roundSequence.size - 1) return
@@ -318,10 +296,20 @@ class AdvanceTournamentRoundUseCase(
         val existingNextRoundMatches = allMatches.filter { it.round == nextRoundEnum.name }.sortedBy { it.matchIndex }
 
         if (existingNextRoundMatches.isNotEmpty()) {
-            val updatedNextRoundMatches = existingNextRoundMatches.mapIndexed { matchIndex, match ->
-                val player1Id = sortedWinners.getOrNull(2 * matchIndex) ?: match.player1Id
-                val player2Id = sortedWinners.getOrNull(2 * matchIndex + 1) ?: match.player2Id
-                match.copy(player1Id = player1Id, player2Id = player2Id)
+            val updatedNextRoundMatches = existingNextRoundMatches.toMutableList()
+            for (match in currentRoundMatches) {
+                val winnerId = match.winnerId ?: continue
+                val (targetIdx, isPlayer1Slot) = resolveNextRoundSlot(event, currentRound, match.matchIndex)
+                val nextMatch = updatedNextRoundMatches.find { it.matchIndex == targetIdx }
+                if (nextMatch != null) {
+                    val updated = if (isPlayer1Slot) {
+                        nextMatch.copy(player1Id = winnerId)
+                    } else {
+                        nextMatch.copy(player2Id = winnerId)
+                    }
+                    val idx = updatedNextRoundMatches.indexOf(nextMatch)
+                    updatedNextRoundMatches[idx] = updated
+                }
             }
             tournamentMatchDao.insertMatches(updatedNextRoundMatches)
         }
@@ -421,22 +409,24 @@ class AdvanceTournamentRoundUseCase(
 
         if (event == TournamentEvent.EUROPEAN_TOUR && match.round == TournamentRound.L48.name) {
             val l32Matches = allMatches.filter { it.round == TournamentRound.L32.name }
-            val targetIdx = BracketGenerator.BRACKET_SEED_ORDER_16.indexOf(15 - match.matchIndex)
+            val (targetIdx, isPlayer1Slot) = resolveNextRoundSlot(event, TournamentRound.L48, match.matchIndex)
             val l32Match = l32Matches.find { it.matchIndex == targetIdx }
             if (l32Match != null) {
-                tournamentMatchDao.updateMatch(l32Match.copy(player2Id = winnerId))
+                val updated = if (isPlayer1Slot) l32Match.copy(player1Id = winnerId) else l32Match.copy(player2Id = winnerId)
+                tournamentMatchDao.updateMatch(updated)
             }
             return@withContext
         }
 
-        val currentIdx = roundSequence.indexOf(currentRoundEnum)
+        val currentRound = currentRoundEnum ?: return@withContext
+        val currentIdx = roundSequence.indexOf(currentRound)
         if (currentIdx < 0) return@withContext
         val nextRoundEnum = roundSequence.getOrNull(currentIdx + 1) ?: return@withContext
         val nextMatches = allMatches.filter { it.round == nextRoundEnum.name }
-        val targetMatchIndex = match.matchIndex / 2
+        val (targetMatchIndex, isPlayer1Slot) = resolveNextRoundSlot(event, currentRound, match.matchIndex)
         val nextMatch = nextMatches.find { it.matchIndex == targetMatchIndex }
         if (nextMatch != null) {
-            val updatedNext = if (match.matchIndex % 2 == 0) {
+            val updatedNext = if (isPlayer1Slot) {
                 nextMatch.copy(player1Id = winnerId)
             } else {
                 nextMatch.copy(player2Id = winnerId)
