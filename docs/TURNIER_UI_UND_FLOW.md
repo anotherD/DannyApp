@@ -56,7 +56,11 @@ Beim Klick auf ein eigenes offenes Match stehen folgende Optionen bereit:
 
 ### 3.3 Turnierbaum-Ansicht (Bracket View) & Schwebe-Buttons
 * **Schwebe-Buttons unten:** Im aktiven Modus und im Rückblick ermöglichen zwei runde Buttons das Zentrieren auf das eigene Match in der aktuellen Runde (deaktiviert/ausgegraut, falls der User in dieser Runde nicht spielt) sowie das Umschalten zwischen **Rundenliste** und **Turnierbaum**.
-* **Turnierbaum:** Zeigt alle Runden nebeneinander mit synchronem vertikalem Scrollen, Verbindungslinien (mit Hervorhebung eigener Siege) und kompakten 2-Zeilen-Matchkacheln.
+* **Turnierbaum & Layout-Regeln:**
+    * Zeigt alle Runden nebeneinander mit synchronem vertikalem Scrollen, Verbindungslinien (mit Hervorhebung eigener Siege) und kompakten Matchkacheln.
+    * **1:1-Vorrunden-Ausrichtung (`QUAL_PRELIM` → `QUAL_R1`, European Tour `L48` → `L32`):** Vorrunden-Kacheln stehen unabhängig von der fokussierten Runde immer exakt auf derselben vertikalen Höhe links vor ihrem zugehörigen Ziel-Match in der Folgerunde (gerade 1:1-Verbindungslinie, Lücken zwischen nicht belegten Runde-1-Matches bleiben erhalten, kein vertikales Springen beim Rundenwechsel).
+    * **Grand Slam of Darts (Gruppenphase → K.o.-Runde):** In der Gruppenphase werden die 16 Gruppentabellen (`A–P`) angezeigt; je zwei benachbarte Gruppen (`A+B`, `C+D`, …, `O+P`) führen mit 2:1-Verbindungslinien zu ihrem Achtelfinal-Match (`L16`).
+    * **Offene Auslosungen (`UK Open` & `European Open`):** Zwischen Runden mit freier Neu-Auslosung (`R1_160`, `R2_128`, `R3_96`) werden keine Verbindungslinien gezeichnet; erst ab dem festen 64er-Turnierbaum (`L64` bis `F`) werden reguläre 2:1-Baumlinien dargestellt.
 * **Sonderformate:** Im Grand Slam of Darts werden in der Gruppenphase kompakte Gruppentabellen angezeigt; bei Qualifiern lassen sich einzelne Boards (`Board 1..K` oder `Alle`) filtern.
 
 ---

@@ -430,50 +430,87 @@ class TournamentBracketView @JvmOverloads constructor(
         return yFloor + (yCeil - yFloor) * fraction
     }
 
-    private fun computeIntegerFocusY(r: Int, m: Int, focusInt: Int): Float {
+    /**
+     * Prüft, ob Runde [roundIndex] eine 1:1-Vorrunden-Beziehung zur Folgerunde [roundIndex]+1 hat.
+     * Kriterium: Die Anzahl der gerenderten Kacheln in der aktuellen Runde ist kleiner oder gleich
+     * der Anzahl in der Folgerunde (z. B. QUAL_PRELIM → QUAL_R1, European Tour L48 → L32).
+     * Offene Auslosungsrunden (R1_160, R2_128, R3_96) gelten nie als 1:1-Vorrunde.
+     */
+    private fun isOnceToOnePrelimRound(roundIndex: Int): Boolean {
+        val openDrawRoundKeys = setOf(
+            TournamentRound.R1_160.name,
+            TournamentRound.R2_128.name,
+            TournamentRound.R3_96.name
+        )
+        val currentRoundKey = roundsMatches.getOrNull(roundIndex)?.firstOrNull()?.match?.round
+        if (currentRoundKey != null && currentRoundKey in openDrawRoundKeys) return false
+
+        val currentViewCount = matchViews.getOrNull(roundIndex)?.size ?: 0
+        val nextViewCount = matchViews.getOrNull(roundIndex + 1)?.size ?: 0
+        return nextViewCount > 0 && currentViewCount <= nextViewCount
+    }
+
+    /**
+     * Berechnet die vertikale Mitte (Y-Koordinate) einer Match-Kachel in Runde [roundIndex],
+     * Index [matchIndex], wenn der Fokus auf ganzzahligem Rundenindex [focusInt] liegt.
+     *
+     * - **Spezialregel 1 (1:1-Vorrunde):** Vorrunden-Kacheln werden immer exakt auf Höhe ihres
+     *   Ziel-Matches in der Folgerunde positioniert – unabhängig von [focusInt].
+     * - **Spezialregel 2 (Anker-Runde):** Die erste echte Runde nach einer 1:1-Vorrunde wird
+     *   auf ihrem regulären Basis-Raster verankert, damit Kacheln nicht springen.
+     */
+    private fun computeIntegerFocusY(roundIndex: Int, matchIndex: Int, focusInt: Int): Float {
         val tileHeight = 68f * density
         val baseSlotHeight = 76f * density
         val headerHeight = 40f * density
         val paddingTopPx = paddingTop.toFloat() + headerHeight + 8f * density
 
-        if (r == focusInt) {
-            return paddingTopPx + m * baseSlotHeight + tileHeight / 2f
+        // ── Spezialregel 1: 1:1-Vorrunde → immer auf Höhe des Ziel-Matches in der Folgerunde ──
+        if (roundIndex < roundsMatches.lastIndex && isOnceToOnePrelimRound(roundIndex)) {
+            val targetMatchIndex = getTargetMatchIndex(roundIndex, matchIndex)
+            return computeIntegerFocusY(roundIndex + 1, targetMatchIndex, focusInt)
         }
 
-        if (r > focusInt) {
-            val sizePrev = roundsMatches.getOrNull(r - 1)?.size ?: 0
-            val sizeCurr = roundsMatches.getOrNull(r)?.size ?: 0
-            return if (sizePrev < sizeCurr) {
-                paddingTopPx + m * baseSlotHeight + tileHeight / 2f
-            } else if (sizePrev == sizeCurr * 2) {
-                val y1 = computeIntegerFocusY(r - 1, 2 * m, focusInt)
-                val y2 = computeIntegerFocusY(r - 1, 2 * m + 1, focusInt)
+        if (roundIndex == focusInt) {
+            return paddingTopPx + matchIndex * baseSlotHeight + tileHeight / 2f
+        }
+
+        if (roundIndex > focusInt) {
+            val prevViewCount = matchViews.getOrNull(roundIndex - 1)?.size ?: 0
+            val currentViewCount = matchViews.getOrNull(roundIndex)?.size ?: 0
+
+            // ── Spezialregel 2: Erste echte Runde nach einer 1:1-Vorrunde → fester Raster-Anker ──
+            val prevRoundWasPrelim = roundIndex > 0 && isOnceToOnePrelimRound(roundIndex - 1)
+            if (prevRoundWasPrelim || prevViewCount < currentViewCount) {
+                return paddingTopPx + matchIndex * baseSlotHeight + tileHeight / 2f
+            }
+
+            return if (prevViewCount == currentViewCount * 2) {
+                val y1 = computeIntegerFocusY(roundIndex - 1, 2 * matchIndex, focusInt)
+                val y2 = computeIntegerFocusY(roundIndex - 1, 2 * matchIndex + 1, focusInt)
                 (y1 + y2) / 2f
-            } else if (sizePrev == sizeCurr) {
-                paddingTopPx + m * baseSlotHeight + tileHeight / 2f
+            } else if (prevViewCount == currentViewCount) {
+                paddingTopPx + matchIndex * baseSlotHeight + tileHeight / 2f
             } else {
-                computeIntegerFocusY(r - 1, m, focusInt)
+                computeIntegerFocusY(roundIndex - 1, matchIndex, focusInt)
             }
         } else {
-            val sizeCurr = roundsMatches.getOrNull(r)?.size ?: 0
-            val sizeNext = roundsMatches.getOrNull(r + 1)?.size ?: 0
-            return if (sizeCurr < sizeNext) {
-                val targetM = getTargetMatchIndex(r, m)
-                val targetY = computeIntegerFocusY(r + 1, targetM, focusInt)
-                val fallbackY = paddingTopPx + m * baseSlotHeight + tileHeight / 2f
-                max(targetY, fallbackY)
-            } else if (sizeNext == sizeCurr) {
-                val targetM = getTargetMatchIndex(r, m)
-                computeIntegerFocusY(r + 1, targetM, focusInt)
-            } else if (sizeNext * 2 == sizeCurr) {
-                val parentY = computeIntegerFocusY(r + 1, m / 2, focusInt)
-                val distanceRound = focusInt - r
-                val factor = 0.5f.pow(distanceRound + 1)
-                val offset = if (m % 2 == 0) -factor * baseSlotHeight else factor * baseSlotHeight
-                parentY + offset
+            // roundIndex < focusInt
+            val currentViewCount = matchViews.getOrNull(roundIndex)?.size ?: 0
+            val nextViewCount = matchViews.getOrNull(roundIndex + 1)?.size ?: 0
+
+            return if (nextViewCount * 2 == currentViewCount) {
+                val parentY = computeIntegerFocusY(roundIndex + 1, matchIndex / 2, focusInt)
+                val distanceToFocus = focusInt - roundIndex
+                val spreadFactor = 0.5f.pow(distanceToFocus + 1)
+                val verticalOffset = if (matchIndex % 2 == 0) -spreadFactor * baseSlotHeight else spreadFactor * baseSlotHeight
+                parentY + verticalOffset
+            } else if (nextViewCount == currentViewCount) {
+                val targetMatchIndex = getTargetMatchIndex(roundIndex, matchIndex)
+                computeIntegerFocusY(roundIndex + 1, targetMatchIndex, focusInt)
             } else {
-                val targetM = getTargetMatchIndex(r, m)
-                computeIntegerFocusY(r + 1, targetM, focusInt)
+                val targetMatchIndex = getTargetMatchIndex(roundIndex, matchIndex)
+                computeIntegerFocusY(roundIndex + 1, targetMatchIndex, focusInt)
             }
         }
     }
@@ -482,17 +519,26 @@ class TournamentBracketView @JvmOverloads constructor(
         return computeMaxScrollYForFocus(focusedRoundFloat)
     }
 
+    /**
+     * Berechnet den maximalen vertikalen Scroll-Offset für den gegebenen Fokus-Wert [focus].
+     *
+     * In 1:1-Vorrunden (z. B. QUAL_PRELIM, L48) können Kacheln auf Slots liegen, die weit
+     * unten in der Folgerunde verankert sind. Daher wird das Maximum über **alle** Kacheln
+     * der fokussierten Runde ermittelt, damit man immer bis zur untersten Kachel scrollen kann.
+     */
     private fun computeMaxScrollYForFocus(focus: Float): Float {
         val numRounds = roundsMatches.size
         if (numRounds == 0) return 0f
         val currentRoundInt = focus.roundToInt().coerceIn(0, numRounds - 1)
-        val roundMatches = roundsMatches.getOrNull(currentRoundInt) ?: return 0f
-        if (roundMatches.isEmpty()) return 0f
+        val roundViews = matchViews.getOrNull(currentRoundInt) ?: return 0f
+        if (roundViews.isEmpty()) return 0f
 
         val tileHeight = 68f * density
-        val lastIndex = roundMatches.lastIndex
-        val lastCenterY = computeMatchCenterY(currentRoundInt, lastIndex, focus)
-        val totalContentHeight = lastCenterY + tileHeight / 2f + paddingBottom.toFloat() + 16f * density
+        // Maximum über alle Kacheln der Runde bilden, damit Vorrunden vollständig scrollbar sind
+        val maxCenterY = roundViews.indices.maxOf { tileIndex ->
+            computeMatchCenterY(currentRoundInt, tileIndex, focus)
+        }
+        val totalContentHeight = maxCenterY + tileHeight / 2f + paddingBottom.toFloat() + 16f * density
         return max(0f, totalContentHeight - height.toFloat())
     }
 
@@ -612,60 +658,98 @@ class TournamentBracketView @JvmOverloads constructor(
             for (roundIdx in 0 until numRounds - 1) {
                 val roundMatchesR = roundsMatches.getOrNull(roundIdx) ?: continue
                 val roundMatchesNext = roundsMatches.getOrNull(roundIdx + 1) ?: continue
-                if (roundMatchesNext.isEmpty()) continue
 
-                // Bug 4: Keine Verbindungslinien nach der Grand-Slam-Gruppenphase,
-                // da dort Gruppentabellen (A–P) statt eines 1:1-Baums angezeigt werden.
                 val currentRoundKey = roundMatchesR.firstOrNull()?.match?.round
-                if (currentRoundKey == TournamentRound.GROUP.name) continue
 
-                // Bug 5: Keine Verbindungslinien nach offenen Auslosungsrunden (UK/Euro Open),
-                // da dort Sieger nicht entlang eines festen Baums weiterwandern.
+                // Keine Verbindungslinien nach offenen Auslosungsrunden (UK/Euro Open),
+                // da Sieger dort per Losverfahren neu zugeordnet werden.
                 if (currentRoundKey != null && currentRoundKey in openDrawRoundKeys) continue
-                val viewsNext = matchViews.getOrNull(roundIdx + 1) ?: continue
+
                 val viewsCurr = matchViews.getOrNull(roundIdx) ?: continue
-                val sizeCurr = roundMatchesR.size
-                val sizeNext = roundMatchesNext.size
+                val viewsNext = matchViews.getOrNull(roundIdx + 1) ?: continue
+                if (viewsNext.isEmpty()) continue
 
-                for (matchIdx in 0 until sizeCurr) {
-                    val targetMatchIndex = getTargetMatchIndex(roundIdx, matchIdx)
+                // Stets die Anzahl der tatsächlich gerenderten Kacheln verwenden (nicht roundsMatches.size),
+                // damit z. B. die 16 Gruppentabellen des Grand Slam korrekt als 2:1-Baum vor L16 verbunden werden.
+                val renderedCountCurr = viewsCurr.size
+                val renderedCountNext = viewsNext.size
+                val isGrandSlamGroupRound = (currentRoundKey == TournamentRound.GROUP.name)
+
+                for (groupOrMatchIdx in 0 until renderedCountCurr) {
+                    val targetMatchIndex = if (renderedCountCurr == renderedCountNext * 2) {
+                        groupOrMatchIdx / 2
+                    } else {
+                        getTargetMatchIndex(roundIdx, groupOrMatchIdx)
+                    }
+
+                    val viewCurr = viewsCurr.getOrNull(groupOrMatchIdx) ?: continue
                     val viewTarget = viewsNext.getOrNull(targetMatchIndex) ?: continue
-                    val viewCurr = viewsCurr.getOrNull(matchIdx) ?: continue
 
-                    if (sizeCurr == sizeNext * 2) {
-                        val pairIndex = matchIdx / 2
+                    if (renderedCountCurr == renderedCountNext * 2) {
+                        // ── 2:1-Baum-Verbindungslinie (Standard & Grand-Slam-Gruppen → L16) ──
+                        val pairIndex = groupOrMatchIdx / 2
                         val viewPairTop = viewsCurr.getOrNull(2 * pairIndex)
                         val viewPairBottom = viewsCurr.getOrNull(2 * pairIndex + 1)
-                        if (matchIdx % 2 == 0 && viewPairTop != null && viewPairBottom != null) {
-                            val xTop = viewPairTop.right.toFloat()
-                            val yTop = viewPairTop.top + viewPairTop.height / 2f
-                            val xBottom = viewPairBottom.right.toFloat()
-                            val yBottom = viewPairBottom.top + viewPairBottom.height / 2f
-                            val pairTargetIdx = getTargetMatchIndex(roundIdx, 2 * pairIndex)
-                            val viewPairTarget = viewsNext.getOrNull(pairTargetIdx) ?: continue
-                            val xPairTarget = viewPairTarget.left.toFloat()
-                            val yPairTarget = viewPairTarget.top + viewPairTarget.height / 2f
-                            val midX = (xTop + xPairTarget) / 2f
 
-                            canvas.drawLine(xTop, yTop, midX, yTop, linePaintDefault)
-                            canvas.drawLine(xBottom, yBottom, midX, yBottom, linePaintDefault)
-                            canvas.drawLine(midX, min(yTop, yBottom), midX, max(yTop, yBottom), linePaintDefault)
-                            canvas.drawLine(midX, yPairTarget, xPairTarget, yPairTarget, linePaintDefault)
+                        if (groupOrMatchIdx % 2 == 0 && viewPairTop != null && viewPairBottom != null) {
+                            val xPairTop = viewPairTop.right.toFloat()
+                            val yPairTop = viewPairTop.top + viewPairTop.height / 2f
+                            val xPairBottom = viewPairBottom.right.toFloat()
+                            val yPairBottom = viewPairBottom.top + viewPairBottom.height / 2f
+                            val xTarget = viewTarget.left.toFloat()
+                            val yTarget = viewTarget.top + viewTarget.height / 2f
+                            val midX = (xPairTop + xTarget) / 2f
 
-                            val matchTop = roundMatchesR.getOrNull(2 * pairIndex)
-                            if (matchTop != null && matchTop.isCompleted && matchTop.winnerId == USER_ID) {
-                                canvas.drawLine(xTop, yTop, midX, yTop, linePaintHighlight)
-                                canvas.drawLine(midX, yTop, midX, yPairTarget, linePaintHighlight)
-                                canvas.drawLine(midX, yPairTarget, xPairTarget, yPairTarget, linePaintHighlight)
-                            }
-                            val matchBottom = roundMatchesR.getOrNull(2 * pairIndex + 1)
-                            if (matchBottom != null && matchBottom.isCompleted && matchBottom.winnerId == USER_ID) {
-                                canvas.drawLine(xBottom, yBottom, midX, yBottom, linePaintHighlight)
-                                canvas.drawLine(midX, yBottom, midX, yPairTarget, linePaintHighlight)
-                                canvas.drawLine(midX, yPairTarget, xPairTarget, yPairTarget, linePaintHighlight)
+                            canvas.drawLine(xPairTop, yPairTop, midX, yPairTop, linePaintDefault)
+                            canvas.drawLine(xPairBottom, yPairBottom, midX, yPairBottom, linePaintDefault)
+                            canvas.drawLine(midX, min(yPairTop, yPairBottom), midX, max(yPairTop, yPairBottom), linePaintDefault)
+                            canvas.drawLine(midX, yTarget, xTarget, yTarget, linePaintDefault)
+
+                            if (isGrandSlamGroupRound) {
+                                // Grand-Slam-Gruppenphase: Verbindungslinie rot hervorheben, falls der User
+                                // bereits in das entsprechende Achtelfinal-Match (vTarget) eingezogen ist.
+                                val matchNext = roundMatchesNext.getOrNull(pairIndex)
+                                val userIsInTargetMatch = matchNext != null &&
+                                    (matchNext.isUserMatch || matchNext.match.player1Id == USER_ID || matchNext.match.player2Id == USER_ID)
+
+                                if (userIsInTargetMatch) {
+                                    val topGroupLetter = ('A' + 2 * pairIndex).toString()
+                                    val bottomGroupLetter = ('A' + 2 * pairIndex + 1).toString()
+                                    val userInTopGroup = grandSlamGroupStandings[topGroupLetter]?.any { it.player.id == USER_ID } == true
+                                    val userInBottomGroup = grandSlamGroupStandings[bottomGroupLetter]?.any { it.player.id == USER_ID } == true
+
+                                    val highlightTop = userInTopGroup || !userInBottomGroup
+                                    val highlightBottom = userInBottomGroup || !userInTopGroup
+
+                                    if (highlightTop) {
+                                        canvas.drawLine(xPairTop, yPairTop, midX, yPairTop, linePaintHighlight)
+                                        canvas.drawLine(midX, yPairTop, midX, yTarget, linePaintHighlight)
+                                        canvas.drawLine(midX, yTarget, xTarget, yTarget, linePaintHighlight)
+                                    }
+                                    if (highlightBottom) {
+                                        canvas.drawLine(xPairBottom, yPairBottom, midX, yPairBottom, linePaintHighlight)
+                                        canvas.drawLine(midX, yPairBottom, midX, yTarget, linePaintHighlight)
+                                        canvas.drawLine(midX, yTarget, xTarget, yTarget, linePaintHighlight)
+                                    }
+                                }
+                            } else {
+                                // Standard: Verbindungslinie des Siegers rot hervorheben, falls es der User ist
+                                val matchTop = roundMatchesR.getOrNull(2 * pairIndex)
+                                if (matchTop != null && matchTop.isCompleted && matchTop.winnerId == USER_ID) {
+                                    canvas.drawLine(xPairTop, yPairTop, midX, yPairTop, linePaintHighlight)
+                                    canvas.drawLine(midX, yPairTop, midX, yTarget, linePaintHighlight)
+                                    canvas.drawLine(midX, yTarget, xTarget, yTarget, linePaintHighlight)
+                                }
+                                val matchBottom = roundMatchesR.getOrNull(2 * pairIndex + 1)
+                                if (matchBottom != null && matchBottom.isCompleted && matchBottom.winnerId == USER_ID) {
+                                    canvas.drawLine(xPairBottom, yPairBottom, midX, yPairBottom, linePaintHighlight)
+                                    canvas.drawLine(midX, yPairBottom, midX, yTarget, linePaintHighlight)
+                                    canvas.drawLine(midX, yTarget, xTarget, yTarget, linePaintHighlight)
+                                }
                             }
                         }
                     } else {
+                        // ── 1:1-Verbindungslinie (Vorrunden wie QUAL_PRELIM, L48) ──
                         if (targetMatchIndex >= 0 && targetMatchIndex < viewsNext.size) {
                             val xCurr = viewCurr.right.toFloat()
                             val yCurr = viewCurr.top + viewCurr.height / 2f
@@ -677,7 +761,7 @@ class TournamentBracketView @JvmOverloads constructor(
                             canvas.drawLine(midX, min(yCurr, yNext), midX, max(yCurr, yNext), linePaintDefault)
                             canvas.drawLine(midX, yNext, xNext, yNext, linePaintDefault)
 
-                            val currentMatch = roundMatchesR.getOrNull(matchIdx)
+                            val currentMatch = roundMatchesR.getOrNull(groupOrMatchIdx)
                             if (currentMatch != null && currentMatch.isCompleted && currentMatch.winnerId == USER_ID) {
                                 canvas.drawLine(xCurr, yCurr, midX, yCurr, linePaintHighlight)
                                 canvas.drawLine(midX, min(yCurr, yNext), midX, max(yCurr, yNext), linePaintHighlight)
