@@ -301,79 +301,17 @@ class GenerateBracketUseCase(
         tournamentParticipantDao.insertParticipants(uniqueParticipants)
 
         if (!event.isQualifier) {
-            val initialPlacements = mutableListOf<TournamentPlacement>()
-            when (event) {
-                TournamentEvent.PLAYERS_CHAMPIONSHIP -> {
-                    participants.forEach { participant ->
-                        initialPlacements.add(
-                            TournamentPlacement(
-                                tournamentId = tournamentId,
-                                playerId = participant.playerId,
-                                reachedRound = TournamentRound.L128.name,
-                                prizeMoney = 0.0
-                            )
-                        )
-                    }
-                }
-                TournamentEvent.EUROPEAN_TOUR -> {
-                    qualResult.preQualifiedOomIds.forEach { playerId ->
-                        initialPlacements.add(TournamentPlacement(tournamentId = tournamentId, playerId = playerId, reachedRound = TournamentRound.L32.name, prizeMoney = 0.0))
-                    }
-                    qualResult.preQualifiedPtOomIds.forEach { playerId ->
-                        initialPlacements.add(TournamentPlacement(tournamentId = tournamentId, playerId = playerId, reachedRound = TournamentRound.L48.name, prizeMoney = 0.0))
-                    }
-                    val assignedPlayerIds = (qualResult.preQualifiedOomIds + qualResult.preQualifiedPtOomIds).toSet()
-                    participants.filter { it.playerId !in assignedPlayerIds }.forEach { participant ->
-                        initialPlacements.add(TournamentPlacement(tournamentId = tournamentId, playerId = participant.playerId, reachedRound = TournamentRound.L48.name, prizeMoney = event.getRankingPrizeMoney(TournamentRound.L48)))
-                    }
-                }
-                TournamentEvent.UK_OPEN, TournamentEvent.EUROPEAN_OPEN -> {
-                    participants.forEach { participant ->
-                        val round = when (participant.qualificationType) {
-                            "OOM_TOP_32" -> TournamentRound.L64
-                            "OOM_33_64" -> TournamentRound.R3_96
-                            "OOM_65_96" -> TournamentRound.R2_128
-                            else -> TournamentRound.R1_160
-                        }
-                        initialPlacements.add(
-                            TournamentPlacement(
-                                tournamentId = tournamentId,
-                                playerId = participant.playerId,
-                                reachedRound = round.name,
-                                prizeMoney = event.getRankingPrizeMoney(round)
-                            )
-                        )
-                    }
-                }
-                TournamentEvent.GRAND_SLAM_OF_DARTS -> {
-                    participants.forEach { participant ->
-                        initialPlacements.add(
-                            TournamentPlacement(
-                                tournamentId = tournamentId,
-                                playerId = participant.playerId,
-                                reachedRound = TournamentRound.GROUP_3RD.name,
-                                prizeMoney = event.getRankingPrizeMoney(TournamentRound.GROUP_3RD)
-                            )
-                        )
-                    }
-                }
-                else -> {
-                    val startRound = event.getRoundSequence().firstOrNull() ?: TournamentRound.L32
-                    val startRoundPrize = event.getRankingPrizeMoney(startRound)
-                    participants.forEach { participant ->
-                        initialPlacements.add(
-                            TournamentPlacement(
-                                tournamentId = tournamentId,
-                                playerId = participant.playerId,
-                                reachedRound = startRound.name,
-                                prizeMoney = startRoundPrize
-                            )
-                        )
-                    }
-                }
+            val initialPlacements = uniqueParticipants.map { participant ->
+                val (reachedRound, initialPrize) = event.resolveInitialPlacement(participant.qualificationType)
+                TournamentPlacement(
+                    tournamentId = tournamentId,
+                    playerId = participant.playerId,
+                    reachedRound = reachedRound.name,
+                    prizeMoney = initialPrize
+                )
             }
             if (initialPlacements.isNotEmpty()) {
-                tournamentPlacementDao.insertPlacements(initialPlacements.distinctBy { it.playerId })
+                tournamentPlacementDao.insertPlacements(initialPlacements)
             }
         }
 

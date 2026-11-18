@@ -273,4 +273,48 @@ enum class TournamentEvent(val totalPrizeFund: Double) {
             QUALIFIER_ET, QUALIFIER_GRAND_SLAM, QUALIFIER_WM -> 0.0
         }
     }
+
+    /**
+     * Prüft, ob dieses Turnier eine offene Runden-Auslosung besitzt (UK Open oder European Open)
+     * und die übergebene Runde eine der offen ausgelosten Runden ist.
+     */
+    fun isOpenDrawRound(round: TournamentRound): Boolean {
+        if (this != UK_OPEN && this != EUROPEAN_OPEN) return false
+        return round in listOf(
+            TournamentRound.R2_128,
+            TournamentRound.R3_96,
+            TournamentRound.L64,
+            TournamentRound.L32,
+            TournamentRound.L16,
+            TournamentRound.QF,
+            TournamentRound.SF,
+            TournamentRound.F
+        )
+    }
+
+    /**
+     * Ermittelt die Einstiegsrunde und das sofort garantierte Einstiegs-Ranglistenpreisgeld
+     * für einen Teilnehmer beim Turnierstart anhand seines Qualifikationstyps.
+     */
+    fun resolveInitialPlacement(qualificationType: String?): Pair<TournamentRound, Double> {
+        return when (this) {
+            PLAYERS_CHAMPIONSHIP -> TournamentRound.L128 to 0.0
+            EUROPEAN_TOUR -> when (qualificationType) {
+                "OOM" -> TournamentRound.L32 to 0.0
+                "PT_OOM" -> TournamentRound.L48 to 0.0
+                else -> TournamentRound.L48 to getRankingPrizeMoney(TournamentRound.L48)
+            }
+            UK_OPEN, EUROPEAN_OPEN -> when (qualificationType) {
+                "OOM_TOP_32" -> TournamentRound.L64 to getRankingPrizeMoney(TournamentRound.L64)
+                "OOM_33_64" -> TournamentRound.R3_96 to getRankingPrizeMoney(TournamentRound.R3_96)
+                "OOM_65_96" -> TournamentRound.R2_128 to getRankingPrizeMoney(TournamentRound.R2_128)
+                else -> TournamentRound.R1_160 to getRankingPrizeMoney(TournamentRound.R1_160)
+            }
+            GRAND_SLAM_OF_DARTS -> TournamentRound.GROUP_3RD to getRankingPrizeMoney(TournamentRound.GROUP_3RD)
+            else -> {
+                val startRound = getRoundSequence().firstOrNull() ?: TournamentRound.L32
+                startRound to getRankingPrizeMoney(startRound)
+            }
+        }
+    }
 }

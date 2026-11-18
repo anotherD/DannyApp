@@ -457,7 +457,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             dbMatchesForRound.filter { it.groupName == availableGroups[selectedGroupIndexFlow.value] }
         } else dbMatchesForRound
 
-        val isQualifier = event in listOf(TournamentEvent.QUALIFIER_ET, TournamentEvent.QUALIFIER_GRAND_SLAM, TournamentEvent.QUALIFIER_WM)
+        val isQualifier = event.isQualifier
         val qualifierWinners = if (isQualifier) {
             allMatches.filter { it.round == TournamentRound.QUAL_FINAL.name }.sortedBy { it.matchIndex }.mapNotNull { match ->
                 val wId = match.winnerId ?: return@mapNotNull null
@@ -602,12 +602,9 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
     }
 
     private fun isOpenDrawRoundPending(event: TournamentEvent, roundKey: String, matchesForRound: List<TournamentMatch>): Boolean {
-        val isUkOrEuropeanOpen = event == TournamentEvent.UK_OPEN || event == TournamentEvent.EUROPEAN_OPEN
-        val openDrawRounds = listOf(
-            TournamentRound.R2_128.name, TournamentRound.R3_96.name, TournamentRound.L64.name,
-            TournamentRound.L32.name, TournamentRound.L16.name, TournamentRound.QF.name, TournamentRound.SF.name, TournamentRound.F.name
-        )
-        return isUkOrEuropeanOpen && matchesForRound.isEmpty() && roundKey in openDrawRounds
+        if (matchesForRound.isNotEmpty()) return false
+        val round = TournamentRound.fromKey(roundKey) ?: return false
+        return event.isOpenDrawRound(round)
     }
 
     private fun getRoundSequence(event: TournamentEvent, allMatches: List<TournamentMatch> = emptyList()): List<TournamentRound> {
