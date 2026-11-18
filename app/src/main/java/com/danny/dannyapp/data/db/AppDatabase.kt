@@ -11,6 +11,7 @@ import com.danny.dannyapp.domain.model.Country
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import androidx.core.content.edit
 
 val MIGRATION_12_13 = object : Migration(12, 13) {
     override fun migrate(db: SupportSQLiteDatabase) {
@@ -175,7 +176,7 @@ abstract class AppDatabase : RoomDatabase() {
                             val playersFromCsv = loadPlayersFromAssets(context, "players.csv")
                             if (playersFromCsv.isNotEmpty()) {
                                 getDatabase(context).playerDao().syncPlayersFromCsv(playersFromCsv)
-                                prefs.edit().putInt(KEY_CSV_DATA_VERSION, CURRENT_CSV_VERSION).apply()
+                                prefs.edit { putInt(KEY_CSV_DATA_VERSION, CURRENT_CSV_VERSION) }
                                 Log.i("CSVImport", "Spieler aus CSV erfolgreich synchronisiert (Version $CURRENT_CSV_VERSION).")
                             }
                         }

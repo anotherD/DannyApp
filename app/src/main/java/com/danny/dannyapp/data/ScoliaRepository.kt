@@ -26,6 +26,7 @@ class ScoliaRepository private constructor(context: Context) {
     fun getLogFilePath(): String = scoliaLogger.getLogFilePath()
 
     inner class ScoliaJavaScriptInterface {
+        @Suppress("unused")
         @JavascriptInterface
         fun onScoliaMessage(jsonData: String) {
             // 1. Ungefiltert in Datei loggen
