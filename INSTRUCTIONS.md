@@ -5,10 +5,10 @@
 - Wenn du **eigenmächtig Änderungen** vornehmen möchtest, ohne Anweisung dafür und du es aber für sinnvoll oder notwendig hälst, dann wirst du mich vorher darüber Informieren, mir erklären, warum du das machen möchtest und **nur mit meiner expliziten Erlaubnis diese Änderung vornehmen!**
 
 # Projekt-Anweisungen
-- Referenz-Codebase auf der Festplatte: C:\Users\Danny\Desktop\MDT\MDT-Gradle-export-AndroidApp. Schlage bei Fragen zu Spiellogiken, Scolia-Integration oder UI-Verhalten immer in dieser Referenz-Codebase nach. Dieses Referenz-Projekt heißt "MDT" oder "My Dart Training".
+- TODO: [VOR RELEASE / DB-FREEZE] Wir befinden uns in der Entwicklungsphase der App. Bei jedem Test lösche ich alle Karrieren und lege neue an. Wir brauchen also keine Rücksicht auf alte Datenbankeinträge aus Vorversionen und dafür auch keine Fallbacks bauen oder im code belassen. Noch kann ich die DB auch einfach löschen.
 - Erstelle Unit-Tests nur, wenn explizit danach gefragt wird
 - **Strings-Pflicht:** Alle sichtbaren UI-Texte, Labels, Turniertypen und Status-Bezeichnungen müssen zwingend in `app/src/main/res/values/strings.xml` gepflegt werden (keine hartcodierten deutschen Texte im Kotlin-Code).
-
+ 
 # PDC-Regeln, Preisgelder & Kalender-Daten (Nur bei explizitem Regel-/Kalender-Update)
 - **Strikte Faktenbasis (Keine Vermutungen):** Übernimm bei Turnierformaten, Preisgeldern, Qualifikationskriterien und Spielplänen ausschließlich offiziell bestätigte und verifizierte PDC-Daten für die Ziel-Saison (aktuell 2027).
 - **Quellen-Prüfung:** Prüfe Änderungen immer gegen offizielle PDC-Verlautbarungen (`pdc.tv` / *PDC Rankings Rules*) sowie aktuelle Turnierpläne und rechne Preisgeldsummen gegen den Gesamttopf (Prize Fund) gegen.

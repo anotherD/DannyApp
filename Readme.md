@@ -73,6 +73,7 @@ Ausführliche Fachkonzepte, Forschungsberichte und Architekturbeschreibungen bef
     - [ ] Toasts durch einheitliche UI-Hinweise (z. B. Material `Snackbar` oder eigene Status-Banner) ersetzen.
 - [ ] **Spieler-Detailansicht:** Klick auf einen Spielernamen (in Turnieren, Ranglisten oder Spielerliste) öffnet die Detailseite mit Karriere-Stats und Erfolgen.
 - [ ] **Match-Detailansicht:** Klick auf ein abgeschlossenes oder laufendes Match öffnet die Match-Statistiken (Leg-/Set-Verlauf, Averages, Check-outs).
+- [ ] Entwicklungs-Hinweis zu DB-Fallbacks aus INSTRUCTIONS.md entfernen, sobald Produktiv-Migrationen greifen
 
 ---
 
