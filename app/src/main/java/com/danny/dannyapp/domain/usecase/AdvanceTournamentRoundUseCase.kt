@@ -165,8 +165,14 @@ class AdvanceTournamentRoundUseCase(
     }
 
     /**
-     * Executes round progression by setting participants into the next round matches
-     * or drawing subsequent rounds for unseeded open draws (UK Open / European Open).
+     * Setzt die Turnierteilnehmer der abgeschlossenen [currentRound] in die Matches der Folgerunde ein.
+     * Für offene Auslosungen (UK Open / European Open) werden die nächsten Paarungen frisch ausgelost.
+     *
+     * Bei allen Nicht-Qualifier-Turnieren und Nicht-Gruppenrunden wird zusätzlich für jeden Sieger
+     * das Placement auf die Folgerunde hochgestuft (`nextRoundEnum` mit dem entsprechenden Preisgeld).
+     * Damit ist sichergestellt, dass vorqualifizierte Spieler (z. B. Top-16-OOM auf der European Tour,
+     * die mit `prizeMoney = 0.0` starten) nach einem Sieg in `L48` oder `L32` nicht ohne
+     * Preisgeld-Eintrag bleiben.
      */
     private suspend fun advanceToNextRound(
         tournament: Tournament,
@@ -308,16 +314,32 @@ class AdvanceTournamentRoundUseCase(
         val nextRoundEnum = roundSequence[currentIndex + 1]
 
         val currentRoundMatches = allMatches.filter { it.round == currentRound.name }
-        val winners = currentRoundMatches.sortedBy { it.matchIndex }.mapNotNull { it.winnerId }
-        val existingNext = allMatches.filter { it.round == nextRoundEnum.name }.sortedBy { it.matchIndex }
+        val sortedWinners = currentRoundMatches.sortedBy { it.matchIndex }.mapNotNull { it.winnerId }
+        val existingNextRoundMatches = allMatches.filter { it.round == nextRoundEnum.name }.sortedBy { it.matchIndex }
 
-        if (existingNext.isNotEmpty()) {
-            val updatedNext = existingNext.mapIndexed { index, match ->
-                val player1Id = winners.getOrNull(2 * index) ?: match.player1Id
-                val player2Id = winners.getOrNull(2 * index + 1) ?: match.player2Id
+        if (existingNextRoundMatches.isNotEmpty()) {
+            val updatedNextRoundMatches = existingNextRoundMatches.mapIndexed { matchIndex, match ->
+                val player1Id = sortedWinners.getOrNull(2 * matchIndex) ?: match.player1Id
+                val player2Id = sortedWinners.getOrNull(2 * matchIndex + 1) ?: match.player2Id
                 match.copy(player1Id = player1Id, player2Id = player2Id)
             }
-            tournamentMatchDao.insertMatches(updatedNext)
+            tournamentMatchDao.insertMatches(updatedNextRoundMatches)
+        }
+
+        // Preisgeld-Hochstufung beim Rundenwechsel: Jeder Sieger der abgeschlossenen Runde wird
+        // auf die Folgerunde hochgestuft. Betrifft insbesondere vorqualifizierte European-Tour-
+        // Spieler (Top-16 OOM in L32, Top-16 PT-OOM in L48), die mit prizeMoney = 0.0 starten
+        // und nach einem Sieg in L48 oder L32 sonst ohne Preisgeld-Eintrag bleiben würden.
+        if (!event.isQualifier && currentRound != TournamentRound.GROUP) {
+            val prizeMoneyForNextRound = event.getRankingPrizeMoney(nextRoundEnum)
+            for (winnerId in sortedWinners) {
+                tournamentPlacementDao.upsertPlayerPlacement(
+                    tournamentId = tournament.id,
+                    playerId = winnerId,
+                    reachedRound = nextRoundEnum.name,
+                    prizeMoney = prizeMoneyForNextRound
+                )
+            }
         }
     }
 

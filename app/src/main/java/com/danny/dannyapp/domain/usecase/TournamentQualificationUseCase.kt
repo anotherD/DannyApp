@@ -621,22 +621,57 @@ class TournamentQualificationUseCase(
 
         return when (roundEnum) {
             TournamentRound.QUAL_R1 -> {
-                val byePlayers = split.byePlayers
-                val prelimMatches = allMatches.filter { it.round == TournamentRound.QUAL_PRELIM.name }.sortedBy { it.matchIndex }
-                val prelimWinners = prelimMatches.mapIndexed { matchIndex, match ->
-                    match.winnerId ?: (-1000L - matchIndex)
-                }
+                // Prüfe zuerst, ob bereits ausgeloste QUAL_R1-Matches persistiert sind (Single Source of Truth).
+                // Diese wurden beim Turnierstart in GenerateBracketUseCase gespeichert und dürfen nicht
+                // erneut zufällig gemischt werden.
+                val existingR1Matches = allMatches
+                    .filter { it.round == TournamentRound.QUAL_R1.name }
+                    .sortedBy { it.matchIndex }
 
-                val pairings = BracketGenerator.buildQualifierRound1Pairings(boardCount, byePlayers, prelimWinners)
-                pairings.mapIndexed { matchIdx, pairing ->
-                    TournamentMatch(
-                        id = -3000L - matchIdx,
-                        tournamentId = tournamentId,
-                        round = roundKey,
-                        matchIndex = pairing.matchIndex,
-                        player1Id = if (pairing.player1Id == 0L) PLACEHOLDER_PREVIOUS_WINNER_ID else pairing.player1Id,
-                        player2Id = if (pairing.player2Id == 0L) PLACEHOLDER_PREVIOUS_WINNER_ID else pairing.player2Id
-                    )
+                if (existingR1Matches.isNotEmpty()) {
+                    // Vorrunden-Platzhalter (-1000L - prelimMatchIndex) durch tatsächliche Sieger ersetzen,
+                    // sofern das zugehörige QUAL_PRELIM-Match bereits abgeschlossen ist.
+                    val completedPrelimMatches = allMatches
+                        .filter { it.round == TournamentRound.QUAL_PRELIM.name && it.isCompleted }
+                        .sortedBy { it.matchIndex }
+
+                    existingR1Matches.map { storedR1Match ->
+                        val resolvedPlayer1Id = resolvePrelimPlaceholder(
+                            playerId = storedR1Match.player1Id,
+                            completedPrelimMatches = completedPrelimMatches
+                        )
+                        val resolvedPlayer2Id = resolvePrelimPlaceholder(
+                            playerId = storedR1Match.player2Id,
+                            completedPrelimMatches = completedPrelimMatches
+                        )
+                        // Nur neu verpacken, wenn sich etwas geändert hat (kein unnötiges Objekt-Erstellen)
+                        if (resolvedPlayer1Id != storedR1Match.player1Id || resolvedPlayer2Id != storedR1Match.player2Id) {
+                            storedR1Match.copy(player1Id = resolvedPlayer1Id, player2Id = resolvedPlayer2Id)
+                        } else {
+                            storedR1Match
+                        }
+                    }
+                } else {
+                    // Fallback: Noch keine persistierten Paarungen vorhanden → frisch auslosten.
+                    val byePlayers = split.byePlayers
+                    val prelimMatches = allMatches
+                        .filter { it.round == TournamentRound.QUAL_PRELIM.name }
+                        .sortedBy { it.matchIndex }
+                    val prelimWinnersOrPlaceholders = prelimMatches.mapIndexed { prelimMatchIndex, match ->
+                        match.winnerId ?: (-1000L - prelimMatchIndex)
+                    }
+
+                    val pairings = BracketGenerator.buildQualifierRound1Pairings(boardCount, byePlayers, prelimWinnersOrPlaceholders)
+                    pairings.mapIndexed { matchIdx, pairing ->
+                        TournamentMatch(
+                            id = -3000L - matchIdx,
+                            tournamentId = tournamentId,
+                            round = roundKey,
+                            matchIndex = pairing.matchIndex,
+                            player1Id = if (pairing.player1Id == 0L) PLACEHOLDER_PREVIOUS_WINNER_ID else pairing.player1Id,
+                            player2Id = if (pairing.player2Id == 0L) PLACEHOLDER_PREVIOUS_WINNER_ID else pairing.player2Id
+                        )
+                    }
                 }
             }
             TournamentRound.QUAL_R2 -> {
@@ -668,5 +703,26 @@ class TournamentQualificationUseCase(
             }
             else -> fallbackMatches
         }
+    }
+
+    /**
+     * Löst einen Vorrunden-Platzhalter der Form `-1000L - prelimMatchIndex` auf:
+     * Ist das entsprechende QUAL_PRELIM-Match bereits abgeschlossen, wird dessen [winnerId] zurückgegeben;
+     * andernfalls bleibt der ursprüngliche Platzhalter erhalten.
+     *
+     * @param playerId Die zu prüfende Spieler-ID (kann echter Spieler oder Platzhalter sein).
+     * @param completedPrelimMatches Bereits abgeschlossene QUAL_PRELIM-Matches, sortiert nach [matchIndex].
+     * @return Tatsächliche [winnerId] des Vorrunden-Matches oder unvereränderter [playerId].
+     */
+    private fun resolvePrelimPlaceholder(
+        playerId: Long,
+        completedPrelimMatches: List<TournamentMatch>
+    ): Long {
+        val isPrelimPlaceholder = playerId <= -1000L && playerId > -2000L
+        if (!isPrelimPlaceholder) return playerId
+
+        val prelimMatchIndex = (-1000L - playerId).toInt()
+        val correspondingPrelimMatch = completedPrelimMatches.find { it.matchIndex == prelimMatchIndex }
+        return correspondingPrelimMatch?.winnerId ?: playerId
     }
 }
