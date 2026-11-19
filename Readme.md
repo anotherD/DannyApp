@@ -59,9 +59,9 @@ Ausführliche Fachkonzepte, Forschungsberichte und Architekturbeschreibungen bef
 - [ ] **Turnier-Details, Infos & Rückblick:**
     - [ ] Modifizierbare Match-Distanzen vor Karrierestart (z. B. 50 % / 75 % / 100 % Distanz für kürzere Spielzeiten).
     - [ ] Turnier-Beschreibungen in der Vorschau um Qualifikations-Boni ergänzen (z. B. *„Sieger qualifiziert sich für Grand Slam of Darts“*).
-    - [ ] Turnier-Info-Dialog erweitern:
-        - [ ] Teilnehmerliste mit Qualifikationsweg und Setzposition pro Spieler anzeigen (live aktualisiert für bereits fix qualifizierte Spieler + temporärer Stand).
-        - [ ] Bei den Runden-Preisgeldern die Ranglisten-Ausnahmen anzeigen (z. B. £0 bei Auftaktniederlage gesetzter Spieler auf der European Tour).
+    - [X] Turnier-Info-Dialog erweitern:
+        - [X] Teilnehmerliste mit Qualifikationsweg und Setzposition pro Spieler anzeigen (live aktualisiert für bereits fix qualifizierte Spieler + temporärer Stand).
+        - [X] Bei den Runden-Preisgeldern die Ranglisten-Ausnahmen anzeigen (z. B. £0 bei Auftaktniederlage gesetzter Spieler auf der European Tour).
     - [ ] Im Turnier-Rückblick (abgeschlossene Turniere) optional alle eigenen Spiele dieses Turniers gesammelt anzeigen.
 - [ ] **UI-Polish, Navigation & Branding:**
     - [ ] Finaler App-Name, eigenes Launcher-Icon und überarbeitete, moderne Startseite (`MainActivity`).

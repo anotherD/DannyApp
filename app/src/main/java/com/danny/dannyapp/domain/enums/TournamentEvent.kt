@@ -43,7 +43,7 @@ enum class TournamentEvent(val totalPrizeFund: Double) {
             GRAND_SLAM_OF_DARTS -> 48
             PLAYERS_CHAMPIONSHIP_FINALS -> 64
             WORLD_CHAMPIONSHIP -> 128
-            QUALIFIER_ET, QUALIFIER_GRAND_SLAM, QUALIFIER_WM -> 128
+            QUALIFIER_ET, QUALIFIER_GRAND_SLAM, QUALIFIER_WM -> 0
         }
 
     /** Liefert den zugehörigen Qualifier, falls es sich um ein Hauptturnier mit Qualifier handelt, sonst null. */

@@ -597,7 +597,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
                         name = userContext.userName,
                         countryCode = userContext.userCountryCode,
                         seed = participant.seedNumber,
-                        skill = 5
+                        skill = userContext.userLevel
                     )
                 } else {
                     val player = allPlayersMap[participant.playerId]
