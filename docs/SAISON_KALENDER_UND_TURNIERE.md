@@ -272,13 +272,13 @@ Da regionale Touren und Amateur-Qualifier nicht als eigene Turniere simuliert we
   * **Teilnehmer:** 32 Spieler.
   * **Modus:** K.o.-System, Legs, mit **„Two-Clear-Legs Rule“** (Details siehe Abschnitt 3.3).
 * **Teilnehmer & Qualifikation:**
-  1. Top 16 der Order of Merit
-  2. Top 16 der Pro Tour Order of Merit, die nicht bereits über Punkt 1 qualifiziert sind
+  1. Top 16 der **PDC Order of Merit (`OOM`)**.
+  2. Top 16 der **Pro Tour Order of Merit (`PT OOM`)**, die nicht bereits über Punkt 1 qualifiziert sind.
 * **Setzliste & Auslosung:**
-  * Die **Top 16 der Order of Merit** sind auf den Plätzen 1 bis 16 im Standard-Setzbaum (`BRACKET_SEED_ORDER_16`) gesetzt.
-  * Die **16 Qualifikanten der Pro Tour Order of Merit** sind ungesetzt und werden den 16 gesetzten Spielern in Runde 1 (`L32`) **frei zugelost**.
+  * Die **Top 16 der `OOM`** sind auf den Plätzen 1 bis 16 im offiziellen 16er-Standard-Setzbaum (`BRACKET_SEED_ORDER_16`) gesetzt.
+  * Die **16 Qualifikanten der `PT OOM`** sind ungesetzt und werden den 16 gesetzten Spielern in Runde 1 (`L32`) **frei zugelost**.
 * **Turnierverlauf & Paarungslogik:**
-  * Fester K.o.-Turnierbaum ab `L32` → `L16` → `QF` → `SF` → `F`.
+  * Fester K.o.-Turnierbaum ab `L32` → `L16` → `QF` → `SF` → `F` ohne erneutes Mischen.
 * **Preisgeld & Ranglisten-Ausnahmen (Gesamt: £1.000.000):**
 
 | Platzierung / Runde          | Enum-Key | Anzahl Spieler | Preisgeld pro Spieler |
@@ -290,13 +290,15 @@ Da regionale Touren und Amateur-Qualifier nicht als eigene Turniere simuliert we
 | **Achtelfinale (L16 / R2)**  | `L16`    | 8              | £22.500               |
 | **Letzte 32 (R1-Verlierer)** | `L32`    | 16             | £12.500               |
 
-  * Alle 32 Teilnehmer erhalten bei regulärer Teilnahme mindestens £12.500 voll für die Order of Merit angerechnet.
-  * *TODO:* Ranglisten-Zuordnung der Preisgelder (`OOM`) mit Quelle verifizieren und hier ergänzen.
+  * **Ranglisten-Zuordnung:** Das Preisgeld fließt voll in die **PDC Order of Merit (`OOM`)** ein (nicht in `PT OOM`, `PC OOM` oder `ET OOM`).
+  * Alle 32 Teilnehmer (auch gesetzte Erstrundenverlierer) erhalten bei regulärer Teilnahme das Preisgeld für die entsprechende Runde voll für die `OOM` angerechnet.
 * **App-Vereinfachung vs. reale PDC-Regeln:**
-  * Keine App-Vereinfachung nötig; Teilnehmerfeld, freie Auslosung der 16 Pro-Tour-Qualifikanten gegen die Top 16 Seeds und Preisgelder entsprechen 1:1 dem offiziellen PDC-Regelwerk.
+  * Keine App-Vereinfachung nötig; Teilnehmerfeld, freie Auslosung der 16 `PT OOM`-Qualifikanten gegen die Top 16 `OOM`-Seeds und Preisgelder entsprechen 1:1 dem offiziellen PDC-Regelwerk.
 * **Verifizierte Quellen:**
+  * [PDC Tournaments – World Matchplay](https://pdc.tv)
+  * [PDC News – 2026 Betfred World Matchplay preview](https://www.pdc.tv/news/2026/july/17/2026-betfred-world-matchplay-preview/)
+  * [PDC Rankings Rules (Section 2 & 4)](https://pdc.tv)
   * [Wikipedia – 2026 World Matchplay](https://en.wikipedia.org/wiki/2026_World_Matchplay)
-  * *TODO:* Weitere offizielle PDC-Quellen für Qualifikation, Setzliste und Two-Clear-Legs-Regel ergänzen.
 
 ---
 
