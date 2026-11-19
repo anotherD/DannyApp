@@ -18,7 +18,8 @@ object BracketGenerator {
         event: TournamentEvent,
         oomSortedIds: List<Long>,
         proTourSortedIds: List<Long> = emptyList(),
-        qualifierIds: List<Long> = emptyList()
+        qualifierIds: List<Long> = emptyList(),
+        dynamicBoardCount: Int? = null
     ): List<MatchPairing> {
         return when (event) {
             TournamentEvent.WORLD_MATCHPLAY -> generateWorldMatchplayRound1(
@@ -64,7 +65,8 @@ object BracketGenerator {
             TournamentEvent.QUALIFIER_GRAND_SLAM,
             TournamentEvent.QUALIFIER_WM -> generateQualifierInitialMatches(
                 event = event,
-                oomSortedIds = oomSortedIds
+                oomSortedIds = oomSortedIds,
+                dynamicBoardCount = dynamicBoardCount
             )
         }
     }
@@ -327,10 +329,11 @@ object BracketGenerator {
      */
     fun generateQualifierInitialMatches(
         event: TournamentEvent,
-        oomSortedIds: List<Long>
+        oomSortedIds: List<Long>,
+        dynamicBoardCount: Int? = null
     ): List<MatchPairing> {
-        require(event.qualifierBoardCount > 0) { "Kein Qualifier-Event oder ungültiger boardCount: $event" }
-        val boardCount = event.qualifierBoardCount
+        val boardCount = dynamicBoardCount ?: event.qualifierBoardCount
+        require(boardCount > 0) { "Kein Qualifier-Event oder ungültiger boardCount: $event" }
 
         val participantCount = oomSortedIds.size
         if (participantCount == 0) return emptyList()
