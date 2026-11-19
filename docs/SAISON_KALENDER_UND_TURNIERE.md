@@ -56,7 +56,7 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
 
 ### 2.1 Players Championship (PC)
 * **Rahmendaten:**
-  * **Gastgeberländer & Austragungsorte:** England, Deutschland und Niederlande gemäß `season_calendar_2027.json`.
+  * **Gastgeberland & Austragungsort:** Aktuelle und verbindliche Informationen siehe [season_calendar_2027.json](../app/src/main/assets/season_calendar_2027.json).
   * **Teilnehmer:** 128 Spieler.
   * **Modus:** K.o.-System, Legs.
 * **Teilnehmer & Qualifikation:**
@@ -84,13 +84,14 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
 * **App-Vereinfachung vs. reale PDC-Regeln:**
   * *Reale PDC:* Sagen Tour-Card-Inhaber für ein PC-Event ab, rücken Spieler aus der *Challenge Tour Order of Merit* (und bei Bedarf *Development Tour*) nach, um das 128er-Feld aufzufüllen. Da diese Secondary Tours aktuell nicht simuliert werden, wird das Feld ggf. aus Nicht-Tourcard-Spielern (`tour_card_year == 0`) aufgefüllt oder mit Byes gearbeitet.
 * **Verifizierte Quellen:**
-  * *TODO:* Turnierspezifische Links für Qualifikation, Setzbaum und Preisgeld-Split 2026/2027 direkt hier ergänzen.
+  * [Wikipedia – 2026 PDC Players Championship series](https://en.wikipedia.org/wiki/2026_PDC_Players_Championship_series)
+  * *TODO:* Weitere offizielle PDC-Quellen für Qualifikation, Setzbaum und Preisgeld-Split 2026/2027 gegenprüfen.
 
 ---
 
-### 2.2 European Tour (ET) & ET Tour Card Holder Qualifier (`QUALIFIER_ET`)
+### 2.2 European Tour (ET)
 * **Rahmendaten:**
-  * **Gastgeberländer & Austragungsorte:** Gemäß `season_calendar_2027.json` (inkl. der zwei neuen 2027er-Events *Darts Grand Prix de France* und *Slovak Darts Open*).
+  * **Gastgeberland & Austragungsort:** Aktuelle und verbindliche Informationen siehe [season_calendar_2027.json](../app/src/main/assets/season_calendar_2027.json).
   * **Teilnehmer (Hauptfeld):** 48 Spieler.
   * **Modus:** K.o.-System, Legs.
 * **Teilnehmer & Qualifikation:**
@@ -107,7 +108,7 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
     * ... bis OOM Nr. 16 gegen den Sieger von Pro Tour Seed Nr. 1.
   * *TODO:* Prüfen und dokumentieren, ob die 16 OOM-Seeds in `L32` nach dem Standard-Setzbaum (`BRACKET_SEED_ORDER_16`) im Turnierbaum verteilt werden, sodass `(1)` und `(2)` frühestens im Finale aufeinandertreffen.
 * **Turnierverlauf & Paarungslogik:**
-  * **Vorgeschalteter Qualifier (`QUALIFIER_ET`):** Findet vor jedem ET-Event statt. Teilnahmeberechtigt sind alle nicht-vorqualifizierten Tour-Card-Inhaber (inkl. `USER_ID = -1L`). Gespielt wird auf `K = 10` Boards im K.o.-Modus (Best-of 11 Legs, £0 Preisgeld) um exakt 10 Startplätze (Details zum Board-System siehe Unterabschnitt unten).
+  * **Vorgeschalteter Qualifier:** Vor jedem ET-Event findet ein `QUALIFIER_ET` statt (Details siehe Abschnitt 2.3).
   * **Hauptfeld:** Fester K.o.-Baum ab `L48` → `L32` → `L16` → `QF` → `SF` → `F`.
 * **Preisgeld & Ranglisten-Ausnahmen (Gesamt: £230.000 pro Event):**
 
@@ -124,34 +125,53 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
   * **\*Auftaktniederlage gesetzter/vorqualifizierter Spieler:** Alle 32 vorqualifizierten Spieler (Top 16 OOM in `L32` sowie Top 16 Pro Tour in `L48`) erhalten ihr Preisgeld real ausgezahlt, aber **£0 für die Ranglisten (OOM, PT OOM, ET OOM)**, wenn sie ihr **erstes Match** im Turnier verlieren (`TournamentPlacement.prize_money = 0.0`).
   * Qualifikanten (die 16 Spieler aus den Qualifiern) erhalten ihr Preisgeld auch bei einer Auftaktniederlage in Runde 1 (£2.000) voll für alle Ranglisten angerechnet.
 * **App-Vereinfachung vs. reale PDC-Regeln:**
-  * *Reale PDC:* Die 6 Nicht-Tourcard-Plätze (Punkte 4 & 5) teilen sich in der Realität auf in **4 Host Nation Qualifier**, **1 Nordic & Baltic Qualifier** sowie **1 East Europe Qualifier**. In der App sind die beiden regionalen Tour-Qualifier aktuell zu „2 Gewinner anderer Qualifier“ ohne Nationsbindung zusammengefasst. *TODO:* Die Regionalen Qualifier abbilden (oder zumindest bei der Spielerauswahl nach den Ländern filtern)
+  * *Reale PDC:* Die 6 Nicht-Tourcard-Plätze (Punkte 4 & 5) teilen sich in der Realität auf in **4 Host Nation Qualifier**, **1 Nordic & Baltic Qualifier** sowie **1 East Europe Qualifier**. In der App sind die beiden regionalen Tour-Qualifier aktuell zu „2 Gewinner anderer Qualifier“ ohne Nationsbindung zusammengefasst. *TODO:* Regionale Qualifier abbilden (oder zumindest bei der Spielerauswahl nach Ländern filtern).
 * **Verifizierte Quellen:**
-  * *TODO:* Turnierspezifische Links für Qualifikation, Setzbaum, £0-Regel und Preisgeld-Split 2026/2027 direkt hier ergänzen.
-
-#### Offizielles Board-System & Rundenablauf der Tour Card Holder Qualifier
-Alle Tour Card Holder Qualifier (`QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIFIER_WM`) werden als K.o.-Turnier auf **K Boards** gleichzeitig ausgetragen, wobei K der Anzahl der zu vergebenden Qualifikationsplätze entspricht:
-* **`QUALIFIER_ET`:** K = 10 Boards (10 Sieger) → Hauptrunden: **80 → 40 → 20 → 10 Sieger** (`QUAL_R1` [40 Matches] → `QUAL_R2` [20 Matches] → `QUAL_FINAL` [10 Matches]).
-* **`QUALIFIER_GRAND_SLAM`:** K = 8 Boards (8 Sieger) → Hauptrunden: **64 → 32 → 16 → 8 Sieger** (`QUAL_R1` [32 Matches] → `QUAL_R2` [16 Matches] → `QUAL_FINAL` [8 Matches]).
-* **`QUALIFIER_WM`:** K = 4 Boards (4 Sieger) → Hauptrunden: **32 → 16 → 8 → 4 Sieger** (`QUAL_R1` [16 Matches] → `QUAL_R2` [8 Matches] → `QUAL_FINAL` [4 Matches]).
-
-**Vorrunde, Gruppenköpfe & Freilose (Byes):**
-* **Offizielle Board-Setzliste:** Die Top `2 * K` teilnehmenden Tour-Card-Inhaber (gemäß PDC Order of Merit) sind als Seeds `(1)` bis `(2 * K)` über die `K` Boards verteilt (Board `b`: Seed `b + 1` in Match 1 und Seed `2 * K - b` in Match 4), sodass kein Seed in `QUAL_R1` auf einen anderen Seed trifft und die beiden Top-Seeds eines Boards erst im `QUAL_FINAL` aufeinandertreffen können.
-* Das Hauptfeld vor `QUAL_R1` ist als `K` getrennte 8er-Boards (insgesamt `8 * K` Startplätze) aufgebaut.
-* Ist die Anzahl der teilnehmenden Tour-Card-Inhaber N größer als `8 * K`:
-  * Die obersten `16 * K - N` gesetzten Spieler (inkl. `Seed 1..K`) erhalten ein Freilos in `QUAL_PRELIM` und stehen auf festen Board-Positionen in `QUAL_R1`.
-  * Nur die untersten `2 * (N - 8 * K)` Spieler spielen in `QUAL_PRELIM` um die restlichen freien Plätze der `K` Boards.
-* **Freie Auslosung der restlichen Board-Slots:** Alle nicht zu den Top `2 * K` Seeds gehörenden Freilos-Spieler (`byePlayers.drop(2 * K)`) sowie die Plätze für die Vorrundensieger (`prelimWinners`) werden frei zugelost (`.shuffled()`) und auf die `6 * K` freien Erstrunden-Plätze der `K` Boards verteilt.
-* **Fester K.o.-Baum ab `QUAL_R1`:** Ab `QUAL_R1` läuft jedes Board als fester K.o.-Baum (`QUAL_R1` → `QUAL_R2` → `QUAL_FINAL`) ohne erneutes Mischen.
+  * [PDC News: Major expansion announced for PDC European events in 2027](https://www.pdc.tv/news/2026/september/25/major-expansion-announced-for-pdc-european-events-in-2027)
+  * [European Darts Tour 2027 (Wikipedia)](https://de.wikipedia.org/wiki/European_Darts_Tour_2027)
+  * *TODO:* Offizielle Quellen für Setzbaum und £0-Regel (PDC Rankings Rules) direkt hier verlinken.
 
 ---
 
-### 2.3 Die Major-Turniere
-
-**Major-Turniere folgen spezifischen Format- und Qualifikationsregeln (Austragungsorte siehe `season_calendar_2027.json`):**
-
-#### 2.3.1 UK Open
+### 2.3 Tour Card Holder Qualifier (`QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIFIER_WM`)
 * **Rahmendaten:**
-  * **Gastgeberland & Austragungsort:** England (`"ENG"`), Minehead.
+  * **Gastgeberland & Austragungsort:** Aktuelle und verbindliche Informationen siehe [season_calendar_2027.json](../app/src/main/assets/season_calendar_2027.json).
+  * **Teilnehmer:** Alle nicht für das jeweilige Hauptturnier vorqualifizierten Tour-Card-Inhaber (inkl. `USER_ID = -1L`).
+  * **Modus:** K.o.-System auf `K` parallelen Boards (Best-of 11 Legs, £0 Preisgeld), bis exakt `K` Qualifikanten feststehen:
+    * `QUALIFIER_ET`: `K = 10` Boards → 10 Sieger
+    * `QUALIFIER_GRAND_SLAM`: `K = 8` Boards → 8 Sieger
+    * `QUALIFIER_WM`: `K = 4` Boards → 4 Sieger
+* **Teilnehmer & Qualifikation:**
+  * Alle Tour-Card-Inhaber der aktuellen Saison (`tour_cards`), die nicht bereits über die Vorqualifikationslisten des jeweiligen Hauptturniers (z. B. Top 16 OOM + Top 16 PT OOM bei ET; Top 40 OOM + Top 40 PT OOM bei WM) qualifiziert sind.
+* **Setzliste & Auslosung:**
+  * **Offizielle Board-Setzliste:** Die Top `2 * K` teilnehmenden Tour-Card-Inhaber (gemäß PDC Order of Merit) sind als Seeds `(1)` bis `(2 * K)` über die `K` Boards verteilt (Board `b`: Seed `b + 1` in Match 1 und Seed `2 * K - b` in Match 4), sodass kein Seed in `QUAL_R1` auf einen anderen Seed trifft und die beiden Top-Seeds eines Boards erst im `QUAL_FINAL` aufeinandertreffen können.
+  * **Vorrunde & Freilose (Byes):** Das Hauptfeld vor `QUAL_R1` ist als `K` getrennte 8er-Boards (insgesamt `8 * K` Startplätze) aufgebaut. Ist die Teilnehmerzahl `N > 8 * K`:
+    * Die obersten `16 * K - N` gesetzten Spieler (inkl. `Seed 1..K`) erhalten ein Freilos in `QUAL_PRELIM` und stehen auf festen Board-Positionen in `QUAL_R1`.
+    * Nur die untersten `2 * (N - 8 * K)` Spieler spielen in `QUAL_PRELIM` um die restlichen freien Plätze der `K` Boards.
+  * **Freie Auslosung der restlichen Board-Slots:** Alle nicht zu den Top `2 * K` Seeds gehörenden Freilos-Spieler (`byePlayers.drop(2 * K)`) sowie die Plätze für die Vorrundensieger (`prelimWinners`) werden frei zugelost (`.shuffled()`) und auf die `6 * K` freien Erstrunden-Plätze der `K` Boards verteilt.
+* **Turnierverlauf & Paarungslogik:**
+  * Hauptrunden pro Board:
+    * `QUALIFIER_ET` (`K = 10`): `QUAL_PRELIM` (falls `N > 80`) → `QUAL_R1` (40 Matches) → `QUAL_R2` (20 Matches) → `QUAL_FINAL` (10 Matches → 10 Sieger).
+    * `QUALIFIER_GRAND_SLAM` (`K = 8`): `QUAL_PRELIM` (falls `N > 64`) → `QUAL_R1` (32 Matches) → `QUAL_R2` (16 Matches) → `QUAL_FINAL` (8 Matches → 8 Sieger).
+    * `QUALIFIER_WM` (`K = 4`): `QUAL_PRELIM` (falls `N > 32`) → `QUAL_R1` (16 Matches) → `QUAL_R2` (8 Matches) → `QUAL_FINAL` (4 Matches → 4 Sieger).
+  * Ab `QUAL_R1` läuft jedes Board als fester K.o.-Baum ohne erneutes Mischen.
+* **Preisgeld & Ranglisten-Ausnahmen (Gesamt: £0):**
+  * **£0 Preisgeld:** Qualifier-Turniere schütten kein Preisgeld aus und fließen nicht in die Ranglisten ein.
+* **App-Vereinfachung vs. reale PDC-Regeln:**
+  * In der App nehmen alle nicht-vorqualifizierten Tour-Card-Inhaber geschlossen teil; freiwillige Nichtmeldungen einzelner Profis werden aktuell nicht simuliert.
+* **Verifizierte Quellen:**
+  * [Qualifikationsturniere für die European Darts Tour 2027 (Wikipedia)](https://de.wikipedia.org/wiki/Qualifikationsturniere_f%C3%BCr_die_European_Darts_Tour_2027)
+  * *TODO:* Offizielle PDC-Quellen für `QUALIFIER_GRAND_SLAM` und `QUALIFIER_WM` sowie das Board-Setzsystem ergänzen.
+
+---
+
+### 2.4 Die Major-Turniere
+
+**Major-Turniere folgen spezifischen Format- und Qualifikationsregeln (Austragungsorte siehe [season_calendar_2027.json](../app/src/main/assets/season_calendar_2027.json)).**
+
+#### 2.4.1 UK Open
+* **Rahmendaten:**
+  * **Gastgeberland & Austragungsort:** Aktuelle und verbindliche Informationen siehe [season_calendar_2027.json](../app/src/main/assets/season_calendar_2027.json).
   * **Teilnehmer:** 160 Spieler.
   * **Modus:** K.o.-System, Legs.
 * **Teilnehmer & Qualifikation:**
@@ -186,13 +206,14 @@ Alle Tour Card Holder Qualifier (`QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIF
 * **App-Vereinfachung vs. reale PDC-Regeln:**
   * *Reale PDC:* Die 32 Nicht-Tourcard-Plätze setzen sich zusammen aus den **Top 8 der Challenge Tour OOM**, den **Top 8 der Development Tour OOM** (jeweils des Vorjahres, sofern keine Tour Card gewonnen wurde) sowie **16 Amateur-Qualifikanten** (8x Rileys Amateur Qualifiers + 8x PDC in the Community Qualifiers). In der App wird dies vereinfacht über die Top 32 Nicht-Tourcard-Spieler nach `skill DESC` abgebildet.
 * **Verifizierte Quellen:**
-  * *TODO:* Turnierspezifische Links für Qualifikation, Runden-Auslosung und Preisgeld-Split 2026/2027 direkt hier ergänzen.
+  * [Wikipedia – 2026 UK Open](https://en.wikipedia.org/wiki/2026_UK_Open)
+  * *TODO:* Weitere offizielle PDC-Quellen für Qualifikation, Runden-Auslosung und Preisgeld-Split 2026/2027 gegenprüfen.
 
 ---
 
-#### 2.3.2 European Open (Neues PDC-Major ab 2027)
+#### 2.4.2 European Open (Neues PDC-Major ab 2027)
 * **Rahmendaten:**
-  * **Gastgeberland & Austragungsort:** Österreich (`"AUT"`), Salzburg.
+  * **Gastgeberland & Austragungsort:** Aktuelle und verbindliche Informationen siehe [season_calendar_2027.json](../app/src/main/assets/season_calendar_2027.json).
   * **Teilnehmer:** 160 Spieler.
   * **Modus:** K.o.-System, Legs.
 * **Teilnehmer & Qualifikation:**
@@ -207,13 +228,14 @@ Alle Tour Card Holder Qualifier (`QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIF
 * **App-Vereinfachung vs. reale PDC-Regeln:**
   * *Reale PDC:* Bei der Premiere ab 2027 in Salzburg teilen sich die 32 Nicht-Tourcard-Plätze auf in **Top 4 Challenge Tour**, **Top 4 Development Tour**, **8 PDC Europe Next Gen / START Qualifier** sowie **16 internationale Qualifikanten**. In der App wird dies wie bei den UK Open über die Top 32 Nicht-Tourcard-Spieler nach `skill DESC` abgebildet.
 * **Verifizierte Quellen:**
-  * *TODO:* Konkrete PDC-News-URL zur Ankündigung der European Open 2027 hier verlinken.
+  * [PDC News: Major expansion announced for PDC European events in 2027](https://www.pdc.tv/news/2026/september/25/major-expansion-announced-for-pdc-european-events-in-2027)
+  * [PDC News: European Open & historic French event headline 2027 PDC calendar](https://www.pdc.tv/news/2026/september/25/european-open-historic-french-event-headline-2027-pdc-calendar/)
 
 ---
 
-#### 2.3.3 World Matchplay
+#### 2.4.3 World Matchplay
 * **Rahmendaten:**
-  * **Gastgeberland & Austragungsort:** England (`"ENG"`), Blackpool.
+  * **Gastgeberland & Austragungsort:** Aktuelle und verbindliche Informationen siehe [season_calendar_2027.json](../app/src/main/assets/season_calendar_2027.json).
   * **Teilnehmer:** 32 Spieler.
   * **Modus:** K.o.-System, Legs, mit **„Two-Clear-Legs Rule“** (Details siehe Abschnitt 3.3).
 * **Teilnehmer & Qualifikation:**
@@ -239,13 +261,14 @@ Alle Tour Card Holder Qualifier (`QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIF
 * **App-Vereinfachung vs. reale PDC-Regeln:**
   * Keine App-Vereinfachung nötig; Teilnehmerfeld, freie Auslosung der 16 Pro-Tour-Qualifikanten gegen die Top 16 Seeds und Preisgelder entsprechen 1:1 dem offiziellen PDC-Regelwerk.
 * **Verifizierte Quellen:**
-  * *TODO:* Turnierspezifische Links für Qualifikation, Setzliste, Two-Clear-Legs-Regel und Preisgeld-Split 2026/2027 direkt hier ergänzen.
+  * [Wikipedia – 2026 World Matchplay](https://en.wikipedia.org/wiki/2026_World_Matchplay)
+  * *TODO:* Weitere offizielle PDC-Quellen für Qualifikation, Setzliste und Two-Clear-Legs-Regel ergänzen.
 
 ---
 
-#### 2.3.4 World Grand Prix
+#### 2.4.4 World Grand Prix
 * **Rahmendaten:**
-  * **Gastgeberland & Austragungsort:** England (`"ENG"`), Leicester.
+  * **Gastgeberland & Austragungsort:** Aktuelle und verbindliche Informationen siehe [season_calendar_2027.json](../app/src/main/assets/season_calendar_2027.json).
   * **Teilnehmer:** 32 Spieler.
   * **Modus:** K.o.-System, Sets (jedes Set: Best-of 3 Legs) mit **Double-In / Double-Out** und **„Two-Clear-Legs Rule“** im Entscheidungssatz (Details siehe Abschnitt 3.3).
 * **Teilnehmer & Qualifikation:**
@@ -277,9 +300,9 @@ Alle Tour Card Holder Qualifier (`QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIF
 
 ---
 
-#### 2.3.5 European Championship
+#### 2.4.5 European Championship
 * **Rahmendaten:**
-  * **Gastgeberland & Austragungsort:** Deutschland (`"DEU"`), Dortmund.
+  * **Gastgeberland & Austragungsort:** Aktuelle und verbindliche Informationen siehe [season_calendar_2027.json](../app/src/main/assets/season_calendar_2027.json).
   * **Teilnehmer:** 32 Spieler (*TODO:* vorerst verifiziertes 32er-Schema; 2027er-Erweiterung auf 48 Spieler noch ohne Detailregeln).
   * **Modus:** K.o.-System, Legs.
 * **Teilnehmer & Qualifikation:**
@@ -303,21 +326,22 @@ Alle Tour Card Holder Qualifier (`QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIF
 * **App-Vereinfachung vs. reale PDC-Regeln:**
   * **Hinweis zu 2027er-Reformen:** Die angekündigte Erweiterung auf 48 Spieler und £1.000.000 Preisgeld wartet noch auf Detailregeln der PDC (siehe [PDC-Regel-Update-Checkliste](PDC_REGEL_UPDATE_CHECKLISTE.md)); bis dahin gilt das verifizierte 32er-Schema.
 * **Verifizierte Quellen:**
-  * *TODO:* Turnierspezifische Links für Qualifikation, Setzbaum, Preisgeld-Split sowie PDC-Ankündigung 2027 direkt hier ergänzen.
+  * [PDC News: Major expansion announced for PDC European events in 2027](https://www.pdc.tv/news/2026/september/25/major-expansion-announced-for-pdc-european-events-in-2027)
+  * *TODO:* Turnierspezifische Links für Qualifikation, Setzbaum und Preisgeld-Split 2026/2027 ergänzen.
 
 ---
 
-#### 2.3.6 Grand Slam of Darts & Qualifier (`QUALIFIER_GRAND_SLAM`)
+#### 2.4.6 Grand Slam of Darts
 * **Rahmendaten:**
-  * **Gastgeberland & Austragungsort:** England (`"ENG"`), Wolverhampton.
+  * **Gastgeberland & Austragungsort:** Aktuelle und verbindliche Informationen siehe [season_calendar_2027.json](../app/src/main/assets/season_calendar_2027.json).
   * **Teilnehmer (Hauptfeld):** 48 Spieler (Offizielles PDC-Format ab 2026).
   * **Modus:** Gruppenphase (16 Gruppen A–P zu je 3 Spielern, Best-of 9 Legs) + K.o.-Phase ab Achtelfinale (`L16`, Legs).
 * **Teilnehmer & Qualifikation:**
-  * *TODO:* Exakte offizielle PDC-Qualifikationskriterien und Reihenfolge der 48 Startplätze (inkl. `QUALIFIER_GRAND_SLAM`) verifizieren und hier festhalten.
+  * *TODO:* Exakte offizielle PDC-Qualifikationskriterien und Reihenfolge der 48 Startplätze (inkl. `QUALIFIER_GRAND_SLAM`, siehe Abschnitt 2.3) verifizieren und hier festhalten.
 * **Setzliste & Auslosung:**
   * *TODO:* Offizielle Bildung der 3 Lostöpfe (16 Gruppenköpfe A–P, Topf 2, Topf 3) und Zuordnung zu den Gruppen A–P verifizieren und hier festhalten.
 * **Turnierverlauf & Paarungslogik:**
-  * **Vorgeschalteter Qualifier (`QUALIFIER_GRAND_SLAM`):** K.o.-Turnier auf `K = 8` Boards (Best-of 11 Legs, £0 Preisgeld) um **8 Startplätze** für nicht-vorqualifizierte Tour-Card-Inhaber.
+  * **Vorgeschalteter Qualifier:** Vor dem Grand Slam findet der `QUALIFIER_GRAND_SLAM` statt (`K = 8` Boards, 8 Sieger; Details siehe Abschnitt 2.3).
   * **Gruppenphase (Dreiergruppen):**
     * Tag 1: Topf 1 gegen Topf 3 (Topf 2 setzt aus).
     * Tag 2: Topf 2 gegen Verlierer von Tag 1 (Sieger von Tag 1 setzt aus).
@@ -338,16 +362,18 @@ Alle Tour Card Holder Qualifier (`QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIF
 | **Gruppenzweiter (Aus in Gruppe)** | `GROUP_2ND` | 16             | £12.500               |
 | **Gruppendritter (Aus in Gruppe)** | `GROUP_3RD` | 16             | £5.000                |
 
+  * Alle Preisgelder zählen voll für die Order of Merit.
 * **App-Vereinfachung vs. reale PDC-Regeln:**
   * *TODO:* Nach Verifizierung der realen Qualifikationsliste genau festhalten, wie nicht-simulierte Touren (Women's Series, World Youth, Challenge/Development Tour, World Series, World Cup) in der App kompensiert werden.
 * **Verifizierte Quellen:**
-  * *TODO:* Offizielle Quellen für Qualifikation, Töpfe, Tie-Breaker, Spielplan und Preisgeld-Split des 48er-Formats (ab 2026) direkt hier verlinken.
+  * [Sky Sports – Grand Slam of Darts 2026](https://www.skysports.com/darts/news/13610214/grand-slam-of-darts-2026-schedule-new-format-players-prize-money-past-winners-as-luke-littler-looks-to-retain-title)
+  * *TODO:* Offizielle Quellen für Qualifikation und OOM-Töpfe des 48er-Formats direkt hier verlinken.
 
 ---
 
-#### 2.3.7 Players Championship Finals
+#### 2.4.7 Players Championship Finals
 * **Rahmendaten:**
-  * **Gastgeberland & Austragungsort:** England (`"ENG"`), Minehead.
+  * **Gastgeberland & Austragungsort:** Aktuelle und verbindliche Informationen siehe [season_calendar_2027.json](../app/src/main/assets/season_calendar_2027.json).
   * **Teilnehmer:** 64 Spieler (*TODO:* vorerst verifiziertes 64er-Schema; 2027er-Erweiterung auf 128 Spieler noch ohne Detailregeln).
   * **Modus:** K.o.-System, Legs.
 * **Teilnehmer & Qualifikation:**
@@ -376,16 +402,16 @@ Alle Tour Card Holder Qualifier (`QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIF
 
 ---
 
-#### 2.3.8 World Championship & Qualifier (`QUALIFIER_WM`)
+#### 2.4.8 World Championship
 * **Rahmendaten:**
-  * **Gastgeberland & Austragungsort:** England (`"ENG"`), London.
+  * **Gastgeberland & Austragungsort:** Aktuelle und verbindliche Informationen siehe [season_calendar_2027.json](../app/src/main/assets/season_calendar_2027.json).
   * **Teilnehmer (Hauptfeld):** 128 Spieler.
   * **Modus:** K.o.-System, Sets (jedes Set: Best-of 5 Legs) mit **„Two-Clear-Legs Rule“** im Entscheidungssatz (Details siehe Abschnitt 3.3).
 * **Teilnehmer & Qualifikation:**
   1. Top 40 der Order of Merit (80 vorqualifizierte TC-Spieler zusammen mit Punkt 2)
   2. Top 40 der Pro Tour Order of Merit, die nicht bereits durch Punkt 1 qualifiziert sind
   3. 48 Qualifier-Plätze:
-     * **4 Sieger des World Championship Tour Card Holder Qualifiers (`QUALIFIER_WM`)**
+     * **4 Sieger des World Championship Tour Card Holder Qualifiers (`QUALIFIER_WM`, siehe Abschnitt 2.3)**
      * **44 internationale Nicht-Tourcard-Qualifier** (`tour_card_year == 0`) der aktuellen Saison
 * **Setzliste & Auslosung:**
   1. Die qualifizierten Spieler werden nach ihrer Position in der Order of Merit sortiert.
@@ -394,7 +420,7 @@ Alle Tour Card Holder Qualifier (`QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIF
   4. Die restlichen 64 Spieler (inkl. der 48 Qualifier-Sieger) werden zufällig auf die freien Plätze 65–128 zugelost.
   * *TODO:* Offizielle PDC-Setzlistenregel für das 128er-WM-Feld gegenprüfen (sind wirklich Plätze 33–64 OOM auf eigene Slots gelost oder sind alle 96 ungesetzten Spieler frei gegen die Top 32 Seeds gelost?).
 * **Turnierverlauf & Paarungslogik:**
-  * **Vorgeschalteter Qualifier (`QUALIFIER_WM`):** Findet unmittelbar vor der WM statt (`hostCountry = "ENG"`). Teilnahmeberechtigt sind alle nicht-vorqualifizierten Tour-Card-Inhaber (inkl. `USER_ID = -1L`). K.o.-System auf `K = 4` Boards (Best-of 11 Legs, £0 Preisgeld) um **exakt 4 Startplätze**.
+  * **Vorgeschalteter Qualifier:** Unmittelbar vor der WM findet der `QUALIFIER_WM` statt (`K = 4` Boards, 4 Sieger; Details siehe Abschnitt 2.3).
   * **Hauptfeld:** Fester K.o.-Turnierbaum ab `L128` → `L64` → `L32` → `L16` → `QF` → `SF` → `F`.
 * **Preisgeld & Ranglisten-Ausnahmen (Gesamt: £5.000.000):**
 
@@ -409,11 +435,12 @@ Alle Tour Card Holder Qualifier (`QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIF
 | **Letzte 64 (R2)**            | `L64`    | 32             | £25.000               |
 | **Letzte 128 (R1-Verlierer)** | `L128`   | 64             | £15.000               |
 
-  * Seit der Erweiterung auf 128 Spieler starten auch die Top 32 in Runde 1 (`L128`). Verliert ein gesetzter Spieler in Runde 1, erhält er die £15.000 dennoch voll für die Order of Merit angerechnet. *(Optionaler Sonderbonus: Ein 9-Darter bei der WM wird oft mit £60.000 gesponsert, zählt aber **nicht** zur Order of Merit).*
+  * Verliert ein gesetzter Spieler in Runde 1 (`L128`), erhält er die £15.000 dennoch voll für die Order of Merit angerechnet. *(Optionaler Sonderbonus: Ein 9-Darter bei der WM wird oft mit £60.000 gesponsert, zählt aber **nicht** zur Order of Merit).*
 * **App-Vereinfachung vs. reale PDC-Regeln:**
   * *Reale PDC:* Die 44 internationalen Nicht-Tourcard-Plätze setzen sich aus festen Kontingenten zusammen, darunter **Women's Series** (mindestens 4 Plätze inkl. Women's World Matchplay), **Development Tour** (Top 3 + World Youth Champion), **Challenge Tour** (Top 3), regionale Touren (**Asian Tour**, **Nordic & Baltic**, **CDC Nordamerika**, **ANZ/Australien**, **Afrika**) sowie regionale Super Leagues (z. B. **DACH Super League**). In der App werden diese Plätze als einheitlicher Pool freier Nicht-Tourcard-Qualifier abgebildet.
 * **Verifizierte Quellen:**
-  * *TODO:* Turnierspezifische Links für Qualifikation, Setzbaum, Two-Clear-Legs-Regel und Preisgeld-Split 2026/2027 direkt hier ergänzen.
+  * [Wikipedia – 2027 PDC World Darts Championship](https://en.wikipedia.org/wiki/2027_PDC_World_Darts_Championship)
+  * *TODO:* Weitere offizielle PDC-Quellen für Qualifikation, Setzbaum und Two-Clear-Legs-Regel ergänzen.
 
 ---
 
@@ -454,6 +481,7 @@ Alle konkreten Runden-Distanzen (Best-of-Legs/Sets) aller Turniere sind zentral 
   * *Set-Format (World Grand Prix & World Championship):* Greift erst im entscheidenden letzten Satz, wenn beide Spieler nur noch ein Set zum Sieg benötigen. Dieser Satz muss mit 2 Legs Vorsprung gewonnen werden; bei 5:5 entscheidet das 11. Leg als Sudden-Death-Leg (6:5).
 * **Double-In / Double-Out (World Grand Prix):** Das Leg wird mathematisch erst heruntergezählt, sobald der erste Pfeil des Spielers in einem äußeren Doppelring oder im Double-Bull landet, und muss auf einem Doppel beendet werden.
 * *TODO:* Quellen
+
 ---
 
 ## 🛠️ 4. Technische Umsetzung & Implementierungsübersicht
