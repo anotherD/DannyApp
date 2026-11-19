@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
+import com.danny.dannyapp.data.db.TournamentMatch
 import com.danny.dannyapp.domain.enums.TournamentEvent
 import com.danny.dannyapp.domain.enums.TournamentRound
 import com.danny.dannyapp.domain.usecase.AdvanceTournamentRoundUseCase
@@ -128,7 +129,27 @@ object TournamentDetailUiHelper {
      * Returns the number of qualifier boards for the given tournament event.
      */
     fun getQualifierBoardCount(event: TournamentEvent): Int {
-        return if (event.qualifierBoardCount > 0) event.qualifierBoardCount else 4
+        if (!event.isQualifier) return 0
+        require(event.qualifierBoardCount > 0) { "Kein Qualifier-Event oder Board-Count ungültig: $event" }
+        return event.qualifierBoardCount
+    }
+
+    fun getQualifierBoardCountFromMatches(event: TournamentEvent, allMatches: List<TournamentMatch>): Int {
+        val qualFinal = allMatches.filter { it.round == TournamentRound.QUAL_FINAL.name }
+        val qualR2 = allMatches.filter { it.round == TournamentRound.QUAL_R2.name }
+        val qualR1 = allMatches.filter { it.round == TournamentRound.QUAL_R1.name }
+
+        return when {
+            qualFinal.isNotEmpty() -> qualFinal.size
+            qualR2.isNotEmpty() -> qualR2.size / 2
+            qualR1.isNotEmpty() -> qualR1.size / 4
+            else -> getQualifierBoardCount(event)
+        }
+    }
+
+    fun getQualifierBoardCountFromRounds(event: TournamentEvent, allRoundsMatches: List<List<MatchUiModel>>): Int {
+        val matches = allRoundsMatches.flatten().map { it.match }
+        return getQualifierBoardCountFromMatches(event, matches)
     }
 
     /**

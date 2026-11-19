@@ -347,7 +347,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
 
         val allPlayersMap = (preloadedPlayers ?: playerDao.getAllPlayersList()).associateBy { it.id }
         val seededPlayerMap = getSeededPlayerMap(event, tournament.seasonId, tournament.id)
-        val qualifierBoardCount = TournamentDetailUiHelper.getQualifierBoardCount(event)
+        val qualifierBoardCount = TournamentDetailUiHelper.getQualifierBoardCountFromMatches(event, allMatches)
         val qualR1Matches = allMatches.filter { it.round == TournamentRound.QUAL_R1.name }
         val userContext = resolveUserDisplayContext()
 
@@ -486,7 +486,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         } else null
 
         val seededPlayerMap = getSeededPlayerMap(event, tournament.seasonId, tournament.id)
-        val qualifierBoardCount = TournamentDetailUiHelper.getQualifierBoardCount(event)
+        val qualifierBoardCount = TournamentDetailUiHelper.getQualifierBoardCountFromMatches(event, allMatches)
         val qualR1Matches = allMatches.filter { it.round == TournamentRound.QUAL_R1.name }
 
         val matchUiModels = buildRoundMatchUiModels(

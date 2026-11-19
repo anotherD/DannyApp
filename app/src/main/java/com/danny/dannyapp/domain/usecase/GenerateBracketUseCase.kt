@@ -256,9 +256,10 @@ class GenerateBracketUseCase(
                 }
                 tournamentMatches.addAll(groupMatches)
 
+                val shuffledPot2 = qualResult.proTourSortedIds.shuffled()
                 for (groupIdx in 0 until 16) {
                     val groupLetter = ('A' + groupIdx).toString()
-                    val pot2Player = qualResult.proTourSortedIds[groupIdx]
+                    val pot2Player = shuffledPot2[groupIdx]
                     tournamentMatches.add(TournamentMatch(tournamentId = tournamentId, round = TournamentRound.GROUP.name, matchIndex = 16 + groupIdx, player1Id = pot2Player, player2Id = PLACEHOLDER_PREVIOUS_WINNER_ID, groupName = groupLetter))
                     tournamentMatches.add(TournamentMatch(tournamentId = tournamentId, round = TournamentRound.GROUP.name, matchIndex = 32 + groupIdx, player1Id = pot2Player, player2Id = PLACEHOLDER_PREVIOUS_WINNER_ID, groupName = groupLetter))
                 }

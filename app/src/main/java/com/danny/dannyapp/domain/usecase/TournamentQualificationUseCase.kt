@@ -243,12 +243,12 @@ class TournamentQualificationUseCase(
                 val matches = tournamentMatchDao.getMatchesListForTournament(mostRecent.id)
                 val finalMatch = matches.firstOrNull { it.round == TournamentRound.F.name && it.isCompleted && it.winnerId != null }
                 val wId = finalMatch?.winnerId
-                if (wId != null && wId > 0L) {
+                if (wId != null && (wId > 0L || wId == USER_ID)) {
                     val winnerId = wId
                     val runnerUpId = if (finalMatch.winnerId == finalMatch.player1Id) {
-                        finalMatch.player2Id.takeIf { it > 0L }
+                        finalMatch.player2Id.takeIf { it > 0L || it == USER_ID }
                     } else {
-                        finalMatch.player1Id.takeIf { it > 0L }
+                        finalMatch.player1Id.takeIf { it > 0L || it == USER_ID }
                     }
                     winnersAndRunnerUps.add(Pair(winnerId, runnerUpId))
                 }
@@ -323,7 +323,8 @@ class TournamentQualificationUseCase(
             val preQualifiedCount = (majorIds + additionalIds).distinct().size
             return (40 - preQualifiedCount).coerceAtLeast(1)
         }
-        return if (event.qualifierBoardCount > 0) event.qualifierBoardCount else 4
+        require(event.qualifierBoardCount > 0) { "Kein Qualifier-Event: $event" }
+        return event.qualifierBoardCount
     }
 
     /**
@@ -351,10 +352,9 @@ class TournamentQualificationUseCase(
 
         val boardCount = if (dynamicBoardCount != null && dynamicBoardCount > 0) {
             dynamicBoardCount
-        } else if (event.qualifierBoardCount > 0) {
-            event.qualifierBoardCount
         } else {
-            4
+            require(event.qualifierBoardCount > 0) { "Kein Qualifier-Event: $event" }
+            event.qualifierBoardCount
         }
 
         val totalNonPrequalified = nonPrequalifiedIds.size
@@ -930,7 +930,7 @@ class TournamentQualificationUseCase(
         for (t in completedEtTournaments) {
             val matches = tournamentMatchDao.getMatchesListForTournament(t.id)
             val finalMatch = matches.firstOrNull { it.round == TournamentRound.F.name && it.isCompleted && it.winnerId != null }
-            if (finalMatch != null && finalMatch.winnerId != null && finalMatch.winnerId > 0L) {
+            if (finalMatch != null && finalMatch.winnerId != null && (finalMatch.winnerId > 0L || finalMatch.winnerId == USER_ID)) {
                 val wId = finalMatch.winnerId
                 etWinsMap[wId] = (etWinsMap[wId] ?: 0) + 1
             }
@@ -951,7 +951,7 @@ class TournamentQualificationUseCase(
             for (t in completedPcTournaments) {
                 val matches = tournamentMatchDao.getMatchesListForTournament(t.id)
                 val finalMatch = matches.firstOrNull { it.round == TournamentRound.F.name && it.isCompleted && it.winnerId != null }
-                if (finalMatch != null && finalMatch.winnerId != null && finalMatch.winnerId > 0L) {
+                if (finalMatch != null && finalMatch.winnerId != null && (finalMatch.winnerId > 0L || finalMatch.winnerId == USER_ID)) {
                     val wId = finalMatch.winnerId
                     pcWinsMap[wId] = (pcWinsMap[wId] ?: 0) + 1
                 }

@@ -611,7 +611,7 @@ class TournamentDetailActivity : BaseActivity() {
         }
 
         scrollView.visibility = View.VISIBLE
-        val boardCount = TournamentDetailUiHelper.getQualifierBoardCount(event)
+        val boardCount = TournamentDetailUiHelper.getQualifierBoardCountFromRounds(event, allRoundsMatches)
 
         if (selectedBoardFilterIndex == -2) {
             selectedBoardFilterIndex = TournamentDetailUiHelper.findDefaultBoardIndex(allRoundsMatches, boardCount)
