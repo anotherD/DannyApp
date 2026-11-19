@@ -306,17 +306,15 @@ Da regionale Touren und Amateur-Qualifier nicht als eigene Turniere simuliert we
 * **Rahmendaten:**
   * **Gastgeberland & Austragungsort:** Aktuelle und verbindliche Informationen siehe [season_calendar_2027.json](../app/src/main/assets/season_calendar_2027.json).
   * **Teilnehmer:** 32 Spieler.
-  * **Modus:** K.o.-System, Sets (jedes Set: Best-of 3 Legs) mit **Double-In / Double-Out** und **„Two-Clear-Legs Rule“** im Entscheidungssatz (Details siehe Abschnitt 3.3).
+  * **Modus:** K.o.-System, Sets (jedes Set: **Best-of 5 Legs** / First to 3 Legs) mit **Double-In / Double-Out** und **„Two-Clear-Legs Rule“** im Entscheidungssatz (Details siehe Abschnitt 3.3).
 * **Teilnehmer & Qualifikation:**
-  1. Top 16 der Order of Merit
-  2. Top 16 der Pro Tour Order of Merit, die nicht bereits über Punkt 1 qualifiziert sind
+  1. Top 16 der **PDC Order of Merit (`OOM`)**.
+  2. Top 16 der **Pro Tour Order of Merit (`PT OOM`)**, die nicht bereits über Punkt 1 qualifiziert sind.
 * **Setzliste & Auslosung:**
-  * Die Top 8 der Order of Merit sind auf den festen Top-8-Positionen im Standard-Setzbaum gesetzt.
-  * Platz 9–16 der OOM sind ebenfalls für Runde 1 gesetzt (treffen nicht auf die Top 8 oder aufeinander), ihre genaue Position unter den Plätzen 9–16 im Baum wird jedoch ausgelost.
-  * Die 16 Qualifikanten der Pro Tour Order of Merit sind ungesetzt und werden frei zugelost.
-  * *TODO:* Offizielle PDC-Setzlistenregel für Platz 9–16 gegenprüfen (sind wirklich nur Top 8 fix und 9–16 gelost, oder Top 16 fix wie beim Matchplay?).
+  * Die **Top 16 der `OOM`** sind auf den Plätzen 1 bis 16 im offiziellen 16er-Standard-Setzbaum (`BRACKET_SEED_ORDER_16`) gesetzt.
+  * Die **16 Qualifikanten der `PT OOM`** sind ungesetzt und werden den 16 gesetzten Spielern in Runde 1 (`L32`) **frei zugelost**.
 * **Turnierverlauf & Paarungslogik:**
-  * Fester K.o.-Turnierbaum ab `L32` → `L16` → `QF` → `SF` → `F`.
+  * Fester K.o.-Turnierbaum ab `L32` → `L16` → `QF` → `SF` → `F` ohne erneutes Mischen.
 * **Preisgeld & Ranglisten-Ausnahmen (Gesamt: £750.000):**
 
 | Platzierung / Runde          | Enum-Key | Anzahl Spieler | Preisgeld pro Spieler |
@@ -328,12 +326,15 @@ Da regionale Touren und Amateur-Qualifier nicht als eigene Turniere simuliert we
 | **Achtelfinale (L16 / R2)**  | `L16`    | 8              | £20.000               |
 | **Letzte 32 (R1-Verlierer)** | `L32`    | 16             | £7.500                |
 
-  * Alle 32 Teilnehmer erhalten bei regulärer Teilnahme mindestens £7.500 voll für die Order of Merit angerechnet.
-  * *TODO:* Ranglisten-Zuordnung der Preisgelder (`OOM`) mit Quelle verifizieren und hier ergänzen.
+  * **Ranglisten-Zuordnung:** Das Preisgeld fließt voll in die **PDC Order of Merit (`OOM`)** ein (nicht in `PT OOM`, `PC OOM` oder `ET OOM`).
+  * Alle 32 Teilnehmer (auch gesetzte Erstrundenverlierer) erhalten bei regulärer Teilnahme mindestens £7.500 voll für die `OOM` angerechnet.
 * **App-Vereinfachung vs. reale PDC-Regeln:**
-  * Keine App-Vereinfachung nötig; Teilnehmerfeld und Preisgelder entsprechen 1:1 dem offiziellen PDC-Regelwerk.
+  * Keine App-Vereinfachung nötig; Teilnehmerfeld, Setzliste, Double-In/Out-Format und Preisgelder entsprechen 1:1 dem offiziellen PDC-Regelwerk.
 * **Verifizierte Quellen:**
-  * *TODO:* Turnierspezifische Links für Qualifikation, Setzliste, Double-In/Out und Preisgeld-Split 2026/2027 direkt hier ergänzen.
+  * [Sky Sports – World Grand Prix Darts 2026: Schedule, format, prize money](https://www.skysports.com/darts/news/13585772/world-grand-prix-darts-2026-schedule-format-prize-money-venue-dates-as-luke-littler-luke-humphries-seek-title)
+  * [BBC Sport – Darts' World Grand Prix: Results and prize money](https://www.bbc.com/sport/darts/articles/ckge4vv3dplxo)
+  * [DartsNews – World Grand Prix: All top 16 players seeded](https://dartsnews.com/pdc/world-grand-prix-2025-field-schedule-draw-results-predictions-and-format)
+  * [Wikipedia – 2026 World Grand Prix (darts)](https://en.wikipedia.org/wiki/2026_World_Grand_Prix_(darts))
 
 ---
 
