@@ -59,7 +59,7 @@ class GenerateBracketUseCase(
         val careerId = season.careerId
 
         // Helfer zur Ermittlung vorheriger Qualifier-Sieger
-        suspend fun getQualifierWinnersFromPreceding(targetCount: Int): List<Long> {
+        suspend fun getQualifierWinnersFromPreceding(targetCount: Int? = null): List<Long> {
             val prevTournament = tournamentDao.getTournamentsListForSeason(season.id)
                 .find { it.order == tournament.order - 1 } ?: return emptyList()
             val prevMatches = tournamentMatchDao.getMatchesListForTournament(prevTournament.id)
@@ -72,7 +72,7 @@ class GenerateBracketUseCase(
 
             val finalRoundMatches = prevMatches.filter { it.round == finalRoundName }
             val winners = finalRoundMatches.mapNotNull { it.winnerId }
-            if (winners.size >= targetCount) {
+            if (targetCount != null && winners.size >= targetCount) {
                 return winners.take(targetCount)
             }
             return winners
@@ -80,8 +80,8 @@ class GenerateBracketUseCase(
 
         val precedingWinners = when (event) {
             TournamentEvent.EUROPEAN_TOUR -> getQualifierWinnersFromPreceding(10)
-            TournamentEvent.GRAND_SLAM_OF_DARTS -> getQualifierWinnersFromPreceding(8)
-            TournamentEvent.WORLD_CHAMPIONSHIP -> getQualifierWinnersFromPreceding(4)
+            TournamentEvent.GRAND_SLAM_OF_DARTS -> getQualifierWinnersFromPreceding(null)
+            TournamentEvent.WORLD_CHAMPIONSHIP -> getQualifierWinnersFromPreceding(2)
             else -> emptyList()
         }
 
