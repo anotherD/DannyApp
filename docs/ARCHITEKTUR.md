@@ -63,6 +63,7 @@ Wenn du `players.csv` in den Assets bearbeitest:
 * **`GetTournamentSummaryUseCase`**: Einheitliche Zustandsermittlung (`COMPLETED`/`ACTIVE`/`PLANNED`), Sieger- & User-Platzierungs-Zusammenfassung für den Saisonkalender und die Detailansicht.
 * **`TournamentQualificationUseCase`**: Zentrale Logik für Qualifikationspools, Setzlisten, OOM-Sortierung, Qualifier-Board-Zuordnung und Vorschau-Paarungen.
 * **`GetPlayersUseCase`**: Reaktiver Zugriff auf sortierte Spielerlisten für die Spielerkonfiguration (`ConfigPlayersActivity`).
+* **`ResolveNonSimulatedQualifiersUseCase`**: Zentrale Ermittlung nicht-simulierter regionaler und internationaler Qualifier-Pools (ISO-3-Regionen nach OOM sowie Sekundärtouren/Damen/Youth).
 
 ### 4.2 UI-Paketstruktur & Helper (`ui/`)
 * **`ui/UIHelper.kt`**: Zentrale Helper für Flaggen-Rendering (`formatFlagAndText`), dynamische Namenskürzungen (`bindSmartPlayerName`) und Match-Kachel-Stile.
