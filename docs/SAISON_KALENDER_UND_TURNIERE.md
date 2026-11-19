@@ -15,7 +15,7 @@ Wichtig: Es sollen die Regeln, Namen und Pläne für die PDC Pro-Tour für das J
    * **Setzliste & Auslosung:** Nach welcher Rangliste wird gesetzt, wie werden Töpfe oder Seeds gebildet, wer erhält feste Baumpositionen (z. B. Standard-Setzbaum) und was wird frei gelost?
    * **Turnierverlauf & Paarungslogik:** Einstiegsrunden (falls gestaffelt), Spieltagsreihenfolge (bei Gruppen), Übergang in die Folgerunden (fester Turnierbaum vs. freie Neu-Auslosung) sowie vorgeschaltete Qualifier (`QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIFIER_WM`).
    * **Tabellen-Sortierung (nur bei Gruppenphase):** Exakte Reihenfolge der Tie-Breaker bei Punktgleichheit.
-   * **Preisgeld & Ranglisten-Ausnahmen:** Vollständige Runden-Preisgeldtabelle (rechnerisch geprüft gegen den Gesamttopf) sowie Sonderregeln (z. B. £0 bei Auftaktniederlage, £0 in Runde 1).
+   * **Preisgeld & Ranglisten-Ausnahmen:** Vollständige Runden-Preisgeldtabelle (rechnerisch geprüft gegen den Gesamttopf), explizite Zuordnung in welche Ranglisten (`OOM`, `PT OOM`, `PC OOM`, `ET OOM`) das Preisgeld einfließt sowie Sonderregeln (z. B. £0 bei Auftaktniederlage, £0 in Runde 1).
    * **App-Vereinfachung vs. reale PDC-Regeln:** Klare Gegenüberstellung, wo die App bewusst vereinfacht, inklusive Verweis auf die reale PDC-Quelle.
    * **Verifizierte Quellen:** Konkrete Links zu genau diesem Turnier.
 
@@ -81,6 +81,7 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
 | **Letzte 128 (R1-Verlierer)** | `L128`   | 64             | **£0** *(kein Preisgeld)* |
 
   * **Runde-1-Verlierer:** Wer in der 1. Runde (`L128`) ausscheidet, erhält **£0** (siehe auch turnierübergreifende Freilos-Regel in Abschnitt 3.2).
+  * *TODO:* Ranglisten-Zuordnung der Preisgelder (`OOM`, `PT OOM`, `PC OOM`) mit Quelle verifizieren und hier ergänzen.
 * **App-Vereinfachung vs. reale PDC-Regeln:**
   * *Reale PDC:* Sagen Tour-Card-Inhaber für ein PC-Event ab, rücken Spieler aus der *Challenge Tour Order of Merit* (und bei Bedarf *Development Tour*) nach, um das 128er-Feld aufzufüllen. Da diese Secondary Tours aktuell nicht simuliert werden, wird das Feld ggf. aus Nicht-Tourcard-Spielern (`tour_card_year == 0`) aufgefüllt oder mit Byes gearbeitet.
 * **Verifizierte Quellen:**
@@ -124,6 +125,7 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
 
   * **\*Auftaktniederlage gesetzter/vorqualifizierter Spieler:** Alle 32 vorqualifizierten Spieler (Top 16 OOM in `L32` sowie Top 16 Pro Tour in `L48`) erhalten ihr Preisgeld real ausgezahlt, aber **£0 für die Ranglisten (OOM, PT OOM, ET OOM)**, wenn sie ihr **erstes Match** im Turnier verlieren (`TournamentPlacement.prize_money = 0.0`).
   * Qualifikanten (die 16 Spieler aus den Qualifiern) erhalten ihr Preisgeld auch bei einer Auftaktniederlage in Runde 1 (£2.000) voll für alle Ranglisten angerechnet.
+  * *TODO:* Ranglisten-Zuordnung der Preisgelder (`OOM`, `PT OOM`, `ET OOM`) mit Quelle verifizieren und hier ergänzen.
 * **App-Vereinfachung vs. reale PDC-Regeln:**
   * *Reale PDC:* Die 6 Nicht-Tourcard-Plätze (Punkte 4 & 5) teilen sich in der Realität auf in **4 Host Nation Qualifier**, **1 Nordic & Baltic Qualifier** sowie **1 East Europe Qualifier**. In der App sind die beiden regionalen Tour-Qualifier aktuell zu „2 Gewinner anderer Qualifier“ ohne Nationsbindung zusammengefasst. *TODO:* Regionale Qualifier abbilden (oder zumindest bei der Spielerauswahl nach Ländern filtern).
 * **Verifizierte Quellen:**
@@ -203,6 +205,7 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
 
   * **Runde-1-Verlierer (`R1_160`):** Alle Verlierer der 1. Runde (Qualifikanten sowie OOM-Plätze 97–128) erhalten **£0**.
   * **Einstieg in spätere Runden (Top 96):** Spieler, die erst in `R2_128`, `R3_96` oder `L64` einsteigen und dort sofort verlieren, erhalten regulär das Preisgeld dieser Runde (£1.250, £2.000 bzw. £3.000) voll für die OOM angerechnet (keine Nullrunde).
+  * *TODO:* Ranglisten-Zuordnung der Preisgelder (`OOM`) mit Quelle verifizieren und hier ergänzen.
 * **App-Vereinfachung vs. reale PDC-Regeln:**
   * *Reale PDC:* Die 32 Nicht-Tourcard-Plätze setzen sich zusammen aus den **Top 8 der Challenge Tour OOM**, den **Top 8 der Development Tour OOM** (jeweils des Vorjahres, sofern keine Tour Card gewonnen wurde) sowie **16 Amateur-Qualifikanten** (8x Rileys Amateur Qualifiers + 8x PDC in the Community Qualifiers). In der App wird dies vereinfacht über die Top 32 Nicht-Tourcard-Spieler nach `skill DESC` abgebildet.
 * **Verifizierte Quellen:**
@@ -225,6 +228,7 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
   * Identisch zu den UK Open (`R1_160` bis `F`).
 * **Preisgeld & Ranglisten-Ausnahmen (Gesamt: £750.000):**
   * Identisch zu den UK Open (Gesamtpreisgeld **£750.000**, `R1_160` = £0).
+  * *TODO:* Ranglisten-Zuordnung der Preisgelder (`OOM`) mit Quelle verifizieren und hier ergänzen.
 * **App-Vereinfachung vs. reale PDC-Regeln:**
   * *Reale PDC:* Bei der Premiere ab 2027 in Salzburg teilen sich die 32 Nicht-Tourcard-Plätze auf in **Top 4 Challenge Tour**, **Top 4 Development Tour**, **8 PDC Europe Next Gen / START Qualifier** sowie **16 internationale Qualifikanten**. In der App wird dies wie bei den UK Open über die Top 32 Nicht-Tourcard-Spieler nach `skill DESC` abgebildet.
 * **Verifizierte Quellen:**
@@ -258,6 +262,7 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
 | **Letzte 32 (R1-Verlierer)** | `L32`    | 16             | £12.500               |
 
   * Alle 32 Teilnehmer erhalten bei regulärer Teilnahme mindestens £12.500 voll für die Order of Merit angerechnet.
+  * *TODO:* Ranglisten-Zuordnung der Preisgelder (`OOM`) mit Quelle verifizieren und hier ergänzen.
 * **App-Vereinfachung vs. reale PDC-Regeln:**
   * Keine App-Vereinfachung nötig; Teilnehmerfeld, freie Auslosung der 16 Pro-Tour-Qualifikanten gegen die Top 16 Seeds und Preisgelder entsprechen 1:1 dem offiziellen PDC-Regelwerk.
 * **Verifizierte Quellen:**
@@ -293,6 +298,7 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
 | **Letzte 32 (R1-Verlierer)** | `L32`    | 16             | £7.500                |
 
   * Alle 32 Teilnehmer erhalten bei regulärer Teilnahme mindestens £7.500 voll für die Order of Merit angerechnet.
+  * *TODO:* Ranglisten-Zuordnung der Preisgelder (`OOM`) mit Quelle verifizieren und hier ergänzen.
 * **App-Vereinfachung vs. reale PDC-Regeln:**
   * Keine App-Vereinfachung nötig; Teilnehmerfeld und Preisgelder entsprechen 1:1 dem offiziellen PDC-Regelwerk.
 * **Verifizierte Quellen:**
@@ -323,6 +329,7 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
 | **Letzte 32 (R1-Verlierer)** | `L32`    | 16             | £7.500                |
 
   * Alle 32 Teilnehmer erhalten bei regulärer Teilnahme mindestens £7.500 voll für die Order of Merit angerechnet.
+  * *TODO:* Ranglisten-Zuordnung der Preisgelder (`OOM`) mit Quelle verifizieren und hier ergänzen.
 * **App-Vereinfachung vs. reale PDC-Regeln:**
   * **Hinweis zu 2027er-Reformen:** Die angekündigte Erweiterung auf 48 Spieler und £1.000.000 Preisgeld wartet noch auf Detailregeln der PDC (siehe [PDC-Regel-Update-Checkliste](PDC_REGEL_UPDATE_CHECKLISTE.md)); bis dahin gilt das verifizierte 32er-Schema.
 * **Verifizierte Quellen:**
@@ -337,9 +344,39 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
   * **Teilnehmer (Hauptfeld):** 48 Spieler (Offizielles PDC-Format ab 2026).
   * **Modus:** Gruppenphase (16 Gruppen A–P zu je 3 Spielern, Best-of 9 Legs) + K.o.-Phase ab Achtelfinale (`L16`, Legs).
 * **Teilnehmer & Qualifikation:**
-  * *TODO:* Exakte offizielle PDC-Qualifikationskriterien und Reihenfolge der 48 Startplätze (inkl. `QUALIFIER_GRAND_SLAM`, siehe Abschnitt 2.3) verifizieren und hier festhalten.
+  Das 48-köpfige Teilnehmerfeld setzt sich in exakt dieser Prioritätsreihenfolge zusammen (bereits qualifizierte Spieler werden übersprungen):
+  1. **PDC Televised Main Tournaments (bis zu 24 Plätze):** Sieger und Finalisten der letzten 12 Monate (zuerst alle Sieger, dann alle Finalisten) in der Reihenfolge: 
+     * World Championship
+     * Grand Slam of Darts
+     * Premier League (Siehe **App-Vereinfachung vs. reale PDC-Regeln:**)
+     * World Matchplay
+     * World Grand Prix
+     * World Masters (Siehe **App-Vereinfachung vs. reale PDC-Regeln:**)
+     * UK Open
+     * European Championship
+     * Players Championship Finals
+     * World Series of Darts Finals (Siehe **App-Vereinfachung vs. reale PDC-Regeln:**)
+     * World Cup of Darts (Siehe **App-Vereinfachung vs. reale PDC-Regeln:**)
+  2. **Additional Qualifiers (bis zu 12 Plätze):** 
+     * World Youth Championship (Sieger & Finalist)
+     * Development Tour OOM (#1)
+     * Challenge Tour OOM (#1)
+     * Women's World Matchplay (Siegerin)
+     * Women's Series OOM (#1)
+     * Asian Championship* (Sieger)
+     * North American Championship (Sieger)
+     * Nordic & Baltic Championship (Sieger)
+     * ANZ Premier League* (Sieger)
+  3. **Auffüllen auf 40 Spieler (Reserve List 1 & 2):**
+     * Zuerst alle *European Tour*-Sieger der laufenden Saison (sortiert nach Anzahl ET-Siege, bei Gleichstand nach **PDC Order of Merit**).
+     * Danach alle *Players Championship*-Sieger der laufenden Saison (sortiert nach Anzahl PC-Siege, bei Gleichstand nach **PDC Order of Merit**), bis 40 Spieler erreicht sind.
+  4. **Tour Card Holder Qualifier (`QUALIFIER_GRAND_SLAM`, mindestens 8 Plätze):** Die restlichen Plätze bis 48 werden über den TCH-Qualifier ausgespielt (siehe Abschnitt 2.3; werden über Punkt 1–3 weniger als 40 Spieler erreicht, erhöht sich die Anzahl der Plätze im TCH-Qualifier entsprechend).
+  5. **Sonder-Fallback:** Sollten selbst alle ET- und PC-Sieger nicht ausreichen, rücken die höchstplatzierten noch nicht qualifizierten Spieler der **PDC Order of Merit** nach.
 * **Setzliste & Auslosung:**
-  * *TODO:* Offizielle Bildung der 3 Lostöpfe (16 Gruppenköpfe A–P, Topf 2, Topf 3) und Zuordnung zu den Gruppen A–P verifizieren und hier festhalten.
+  * Nach Abschluss des Qualifiers werden **alle 48 qualifizierten Spieler** nach der aktuellen **PDC Order of Merit** sortiert und in drei Lostöpfe zu je 16 Spielern aufgeteilt:
+    * **Topf 1 (Seeds 1–16 der Qualifikanten):** Feste Gruppenköpfe für die Gruppen A bis P nach dem offiziellen 16er-Turnierbaum (`BRACKET_SEED_ORDER_16`).
+    * **Topf 2 (Plätze 17–32 der Qualifikanten):** Werden frei den Gruppen A–P zugelost (je 1 Spieler pro Gruppe).
+    * **Topf 3 (Plätze 33–48 der Qualifikanten):** Werden frei den Gruppen A–P zugelost (je 1 Spieler pro Gruppe).
 * **Turnierverlauf & Paarungslogik:**
   * **Vorgeschalteter Qualifier:** Vor dem Grand Slam findet der `QUALIFIER_GRAND_SLAM` statt (`K = 8` Boards, 8 Sieger; Details siehe Abschnitt 2.3).
   * **Gruppenphase (Dreiergruppen):**
@@ -349,7 +386,15 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
     * **Aufstieg:** Nur der **Gruppenerste** jeder Gruppe (16 Spieler) zieht ins Achtelfinale (`L16`) ein.
   * **K.o.-Phase ab `L16`:** Fester Turnierbaum paarweise nach Gruppen: Sieger A vs. Sieger B, Sieger C vs. Sieger D, …, Sieger O vs. Sieger P (`L16` → `QF` → `SF` → `F`).
 * **Tabellen-Sortierung (Tie-Breaker in der Gruppenphase):**
-  * *TODO:* Offizielle PDC-Tie-Breaker-Reihenfolge (Punkte, Leg-Differenz, gewonnene Legs, Legs gegen den Wurf, Turnier-Average, etc.) dokumentieren und abgleichen, welche davon in der App (`CalculateGroupStandingsUseCase`) abgebildet werden.
+  Bei Punktgleichheit (2 Punkte pro Sieg, 0 Punkte bei Niederlage) gilt folgende Reihenfolge:
+  1. **Punkte**
+  2. **Leg-Differenz** (`Total Leg Difference`)
+  3. **Gewonnene Legs** (`Total Legs Won`)
+  4. **Legs gegen den Anwurf** (`Total Legs Won Against Throw`)
+  5. **Höchster Turnier-Average** (auf 2 Nachkommastellen)
+  6. **Höchster Sieg-Average** (auf 2 Nachkommastellen)
+  7. **9-Dart-Shootout** (Stechen)
+  * *TODO (App-Implementierung):* In `CalculateGroupStandingsUseCase` sind aktuell Kriterien **1 bis 3** (danach `playerId`) umgesetzt. Kriterien **4 bis 6** (Legs gegen Anwurf, Averages) ergänzen, sobald die Live-Match-Engine Wurf-Statistiken erfasst.
 * **Preisgeld & Ranglisten-Ausnahmen (Gesamt: £1.000.000):**
 
 | Platzierung / Runde                | Enum-Key    | Anzahl Spieler | Preisgeld pro Spieler |
@@ -362,12 +407,18 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
 | **Gruppenzweiter (Aus in Gruppe)** | `GROUP_2ND` | 16             | £12.500               |
 | **Gruppendritter (Aus in Gruppe)** | `GROUP_3RD` | 16             | £5.000                |
 
-  * Alle Preisgelder zählen voll für die Order of Merit.
+  * **Ranglisten-Zuordnung:** Das Preisgeld fließt voll in die **PDC Order of Merit (`OOM`)** ein (nicht in `PT OOM`, `PC OOM` oder `ET OOM`).
 * **App-Vereinfachung vs. reale PDC-Regeln:**
-  * *TODO:* Nach Verifizierung der realen Qualifikationsliste genau festhalten, wie nicht-simulierte Touren (Women's Series, World Youth, Challenge/Development Tour, World Series, World Cup) in der App kompensiert werden.
+  * Da Non-Ranking-Events (*Premier League, World Masters, World Series, World Cup*) sowie Secondary/Regional Tours (*World Youth, Challenge Tour, Development Tour, Women's Series, Asian/North American/Nordic & Baltic/ANZ*) in der App nicht simuliert werden, ergeben sich für die App Ffolgende Änderungen:
+    1. Sieger und Finalisten der Premier League, World Masters, World Series, World Cup werden nicht berücksichtigt (Turniere nicht in App Abgebildet)
+    2. **12 zufällige Nicht-Tourcard-Holder (`tour_card_year == 0`, `.shuffled()`)** als Stellvertreter für die Additional Qualifiers aus Youth/Women's/Secondary/Affiliate Tours.
 * **Verifizierte Quellen:**
-  * [Sky Sports – Grand Slam of Darts 2026](https://www.skysports.com/darts/news/13610214/grand-slam-of-darts-2026-schedule-new-format-players-prize-money-past-winners-as-luke-littler-looks-to-retain-title)
-  * *TODO:* Offizielle Quellen für Qualifikation und OOM-Töpfe des 48er-Formats direkt hier verlinken.
+  * [PDC News – 2026 Grand Slam of Darts qualification latest](https://www.pdc.tv/news/2026/october/07/2026-mr-vegas-grand-slam-of-darts-qualification-latest/)
+  * [PDC News – Clayton & Ashton confirm Grand Slam qualification](https://www.pdc.tv/news/2026/october/12/clayton-ashton-confirm-grand-slam-qualification/)
+  * [Sky Sports – Grand Slam of Darts 2026: Schedule, results, format, players, prize money](https://www.skysports.com/darts/news/13610214/grand-slam-of-darts-2026-schedule-new-format-players-prize-money-past-winners-as-luke-littler-looks-to-retain-title)
+  * [Sky Sports – Grand Slam of Darts tables and permutations (Tie-Breakers & Bracket)](https://www.skysports.com/darts/news/13612459/grand-slam-of-darts-tables-and-permutations-what-luke-littler-luke-humphries-and-more-need-to-progress-to-last-16)
+  * [BBC Sport – Grand Slam of Darts: Schedule, results & prize money](https://www.bbc.com/sport/darts/articles/cmwyqy57ejy6o)
+  * [Wikipedia – 2026 Grand Slam of Darts](https://en.wikipedia.org/wiki/2026_Grand_Slam_of_Darts)
 
 ---
 
@@ -395,6 +446,7 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
 | **Letzte 64 (R1-Verlierer)** | `L64`    | 32             | £4.000                |
 
   * Alle 64 Teilnehmer erhalten bei regulärer Teilnahme mindestens £4.000 voll für die Order of Merit angerechnet.
+  * *TODO:* Ranglisten-Zuordnung der Preisgelder (`OOM`) mit Quelle verifizieren und hier ergänzen.
 * **App-Vereinfachung vs. reale PDC-Regeln:**
   * **Hinweis zu 2027er-Reformen:** Die angekündigte Erweiterung auf 128 Spieler im Mehrbrett-Modus wartet noch auf Detailregeln der PDC (siehe [PDC-Regel-Update-Checkliste](PDC_REGEL_UPDATE_CHECKLISTE.md)); bis dahin gilt das verifizierte 64er-Schema.
 * **Verifizierte Quellen:**
@@ -436,6 +488,7 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
 | **Letzte 128 (R1-Verlierer)** | `L128`   | 64             | £15.000               |
 
   * Verliert ein gesetzter Spieler in Runde 1 (`L128`), erhält er die £15.000 dennoch voll für die Order of Merit angerechnet. *(Optionaler Sonderbonus: Ein 9-Darter bei der WM wird oft mit £60.000 gesponsert, zählt aber **nicht** zur Order of Merit).*
+  * *TODO:* Ranglisten-Zuordnung der Preisgelder (`OOM`) mit Quelle verifizieren und hier ergänzen.
 * **App-Vereinfachung vs. reale PDC-Regeln:**
   * *Reale PDC:* Die 44 internationalen Nicht-Tourcard-Plätze setzen sich aus festen Kontingenten zusammen, darunter **Women's Series** (mindestens 4 Plätze inkl. Women's World Matchplay), **Development Tour** (Top 3 + World Youth Champion), **Challenge Tour** (Top 3), regionale Touren (**Asian Tour**, **Nordic & Baltic**, **CDC Nordamerika**, **ANZ/Australien**, **Afrika**) sowie regionale Super Leagues (z. B. **DACH Super League**). In der App werden diese Plätze als einheitlicher Pool freier Nicht-Tourcard-Qualifier abgebildet.
 * **Verifizierte Quellen:**
@@ -457,7 +510,7 @@ Der Stammdatenwert `players.prizeMoney` wird aktuell nicht verwendet (kann in ei
 2. **Pro Tour Order of Merit:** Kürzel: "PT OOM". Preisgeld aus `PLAYERS_CHAMPIONSHIP` und `EUROPEAN_TOUR`. Nur die jüngsten Austragungen jedes Turniers werden berücksichtigt (saisonübergreifend).
 3. **Players Championship Order of Merit:** Kürzel: "PC OOM". Ausschließlich Preisgelder aus `PLAYERS_CHAMPIONSHIP` der aktuellen Saison.
 4. **European Tour Order of Merit:** Kürzel: "ET OOM". Ausschließlich Preisgelder aus `EUROPEAN_TOUR` der aktuellen Saison.
-*TODO:* Quellen
+* *TODO:* Quellen
 
 ### 3.2 Turnierübergreifende Ausnahmeregelungen (Wann gibt es £0 Preisgeld / Ranglistenpunkte?)
 
@@ -470,7 +523,7 @@ Ergänzend zu den jeweiligen Turnierregeln in Abschnitt 2 gelten für die Simula
    * *Gegenausnahme:* Kommt das Freilos zustande, weil der geplante Gegner kurzfristig zurückgezogen hat (Walkover), gilt das Match als gewonnen und das Preisgeld der erreichten Runde wird regulär gewertet.
 3. **Nachrücker in spätere Runden (Late Replacement, Regel 3.7):**
    * Rückt ein Ersatzspieler für einen ausgefallenen Spieler direkt in eine spätere Runde nach (z. B. Runde 2 bei ET oder Runde 3 bei UK Open) und verliert dort sofort sein erstes Match, erhält er nur das Preisgeld der allerersten Turnierrunde (bei UK Open also **£0**, bei ET **£2.000**). Gewinnt er sein Auftaktmatch, greift ab der nächsten Runde das reguläre Preisgeld.
-*TODO:* Quellen
+* *TODO:* Quellen
 
 ### 3.3 Spielformate & Sonderregeln (Zentrale Definition)
 Alle konkreten Runden-Distanzen (Best-of-Legs/Sets) aller Turniere sind zentral in `app/src/main/assets/season_calendar_2027.json` (`events.<EVENT>.distances`) definiert. Für die Spiel-Engine gelten folgende zentrale Formatregeln:
