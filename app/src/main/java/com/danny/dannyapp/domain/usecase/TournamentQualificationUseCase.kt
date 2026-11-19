@@ -888,14 +888,17 @@ class TournamentQualificationUseCase(
         roundKey: String,
         allMatches: List<TournamentMatch>,
         event: TournamentEvent,
-        currentCareerId: Long
+        currentCareerId: Long,
+        preloadedParticipants: List<TournamentParticipant>? = null,
+        preloadedPlayers: List<Player>? = null,
+        preloadedOomEntries: List<OrderOfMeritEntry>? = null
     ): List<EntrantGroupDomainData> = withContext(Dispatchers.IO) {
-        val storedParticipants = tournamentParticipantDao.getParticipantsForTournament(tournamentId)
+        val storedParticipants = preloadedParticipants ?: tournamentParticipantDao.getParticipantsForTournament(tournamentId)
         val stored65To96 = storedParticipants.filter { it.qualificationType == "OOM_65_96" }.sortedBy { it.seedNumber ?: Int.MAX_VALUE }.map { it.playerId }
         val stored33To64 = storedParticipants.filter { it.qualificationType == "OOM_33_64" }.sortedBy { it.seedNumber ?: Int.MAX_VALUE }.map { it.playerId }
         val storedTop32 = storedParticipants.filter { it.qualificationType == "OOM_TOP_32" }.sortedBy { it.seedNumber ?: Int.MAX_VALUE }.map { it.playerId }
 
-        val allPlayers = playerDao.getAllPlayersList()
+        val allPlayers = preloadedPlayers ?: playerDao.getAllPlayersList()
         val allPlayersMap = allPlayers.associateBy { it.id }
 
         val careerWithProfile = careerDao.getCareerById(currentCareerId)
@@ -918,7 +921,7 @@ class TournamentQualificationUseCase(
 
         val groups = mutableListOf<EntrantGroupDomainData>()
 
-        val oomEntries = getOrderOfMeritUseCase(careerId, OrderOfMeritType.OOM)
+        val oomEntries = preloadedOomEntries ?: getOrderOfMeritUseCase(careerId, OrderOfMeritType.OOM)
         val allPlayerIds = (listOf(USER_ID) + allPlayers.map { it.id }).distinct()
         val sortedPlayerIds = sortPlayerIdsByOom(allPlayerIds, oomEntries, allPlayers)
 

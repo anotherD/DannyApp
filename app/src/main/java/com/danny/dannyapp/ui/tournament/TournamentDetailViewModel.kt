@@ -12,15 +12,19 @@ import com.danny.dannyapp.data.db.Tournament
 import com.danny.dannyapp.data.db.TournamentMatch
 import com.danny.dannyapp.data.db.USER_ID
 import com.danny.dannyapp.domain.config.TournamentConfigLoader
+import com.danny.dannyapp.domain.enums.OrderOfMeritType
 import com.danny.dannyapp.domain.enums.SkillLevel
 import com.danny.dannyapp.domain.enums.TournamentEvent
 import com.danny.dannyapp.domain.enums.TournamentRound
 import com.danny.dannyapp.domain.model.Country
+import com.danny.dannyapp.domain.model.OrderOfMeritEntry
 import com.danny.dannyapp.domain.model.TournamentRoundPhase
+import com.danny.dannyapp.data.db.TournamentParticipant
 import com.danny.dannyapp.domain.usecase.AdvanceTournamentRoundUseCase
 import com.danny.dannyapp.domain.usecase.CalculateGroupStandingsUseCase
 import com.danny.dannyapp.domain.usecase.CompleteMatchUseCase
 import com.danny.dannyapp.domain.usecase.GenerateBracketUseCase
+import com.danny.dannyapp.domain.usecase.GetOrderOfMeritUseCase
 import com.danny.dannyapp.domain.usecase.GetTournamentSummaryUseCase
 import com.danny.dannyapp.domain.usecase.TournamentProgressionUseCase
 import com.danny.dannyapp.domain.usecase.TournamentQualificationUseCase
@@ -124,6 +128,8 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
     private val tournamentPlacementDao = db.tournamentPlacementDao()
     private val playerDao = db.playerDao()
     private val seasonDao = db.seasonDao()
+    private val tournamentParticipantDao = db.tournamentParticipantDao()
+    private val getOrderOfMeritUseCase = GetOrderOfMeritUseCase(application)
     private val careerRepository = CareerRepository(application)
 
     private val generateBracketUseCase = GenerateBracketUseCase(application)
@@ -290,9 +296,42 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         val season = seasonDao.getSeasonById(tournament.seasonId)
         val careerId = season?.careerId ?: currentCareerId
 
+        val isOpenDrawEvent = (event == TournamentEvent.UK_OPEN || event == TournamentEvent.EUROPEAN_OPEN)
+        val preloadedParticipants = if (isOpenDrawEvent) tournamentParticipantDao.getParticipantsForTournament(currentTournamentId) else null
+        val preloadedPlayers = if (isOpenDrawEvent) playerDao.getAllPlayersList() else null
+        val preloadedOomEntries = if (isOpenDrawEvent) getOrderOfMeritUseCase(careerId, OrderOfMeritType.OOM) else null
+
+        val openDrawInfoMap = mutableMapOf<Int, Pair<String, List<EntrantGroupInfo>>>()
+        for ((roundIndex, roundKey) in availableRounds.withIndex()) {
+            val matchesInRound = allMatches.filter { it.round == roundKey }
+            if (isOpenDrawRoundPending(event, roundKey, matchesInRound)) {
+                val prevName = availableRoundDisplayNames.getOrNull(roundIndex - 1) ?: ""
+                val groups = getUkOpenEntrantGroups(
+                    tournamentId = currentTournamentId,
+                    careerId = careerId,
+                    roundKey = roundKey,
+                    allMatches = allMatches,
+                    event = event,
+                    preloadedParticipants = preloadedParticipants,
+                    preloadedPlayers = preloadedPlayers,
+                    preloadedOomEntries = preloadedOomEntries
+                )
+                openDrawInfoMap[roundIndex] = prevName to groups
+            }
+        }
+
         val isOpenDrawInfoVisible = isUkOpenUngenerated
         val openEntrantsGroups = if (isOpenDrawInfoVisible) {
-            getUkOpenEntrantGroups(currentTournamentId, careerId, currentRoundKey, allMatches, event)
+            openDrawInfoMap[selectedRoundIndexFlow.value]?.second ?: getUkOpenEntrantGroups(
+                tournamentId = currentTournamentId,
+                careerId = careerId,
+                roundKey = currentRoundKey,
+                allMatches = allMatches,
+                event = event,
+                preloadedParticipants = preloadedParticipants,
+                preloadedPlayers = preloadedPlayers,
+                preloadedOomEntries = preloadedOomEntries
+            )
         } else emptyList()
 
         val isGrandSlamGroup = (event == TournamentEvent.GRAND_SLAM_OF_DARTS && currentRoundKey == TournamentRound.GROUP.name)
@@ -306,7 +345,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             dbMatchesForRound.filter { it.groupName == availableGroups[selectedGroupIndexFlow.value] }
         } else dbMatchesForRound
 
-        val allPlayersMap = playerDao.getAllPlayersList().associateBy { it.id }
+        val allPlayersMap = (preloadedPlayers ?: playerDao.getAllPlayersList()).associateBy { it.id }
         val seededPlayerMap = getSeededPlayerMap(event, tournament.seasonId, tournament.id)
         val qualifierBoardCount = TournamentDetailUiHelper.getQualifierBoardCount(event)
         val qualR1Matches = allMatches.filter { it.round == TournamentRound.QUAL_R1.name }
@@ -343,16 +382,6 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         val grandSlamGroupStandings = if (event == TournamentEvent.GRAND_SLAM_OF_DARTS) {
             calculateGrandSlamGroupStandings(allMatches, userContext.userName, userContext.userCountryCode, allPlayersMap, tournament.seasonId, tournament.id)
         } else emptyMap()
-
-        val openDrawInfoMap = mutableMapOf<Int, Pair<String, List<EntrantGroupInfo>>>()
-        for ((roundIndex, roundKey) in availableRounds.withIndex()) {
-            val matchesInRound = allMatches.filter { it.round == roundKey }
-            if (isOpenDrawRoundPending(event, roundKey, matchesInRound)) {
-                val prevName = availableRoundDisplayNames.getOrNull(roundIndex - 1) ?: ""
-                val groups = getUkOpenEntrantGroups(currentTournamentId, careerId, roundKey, allMatches, event)
-                openDrawInfoMap[roundIndex] = prevName to groups
-            }
-        }
 
         _uiState.value = TournamentDetailState.Active(
             tournament = tournament,
@@ -699,7 +728,10 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         careerId: Long,
         roundKey: String,
         allMatches: List<TournamentMatch>,
-        event: TournamentEvent
+        event: TournamentEvent,
+        preloadedParticipants: List<TournamentParticipant>? = null,
+        preloadedPlayers: List<Player>? = null,
+        preloadedOomEntries: List<OrderOfMeritEntry>? = null
     ): List<EntrantGroupInfo> {
         val domainGroups = tournamentQualificationUseCase.getUkOpenEntrantGroups(
             tournamentId = tournamentId,
@@ -707,7 +739,10 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             roundKey = roundKey,
             allMatches = allMatches,
             event = event,
-            currentCareerId = currentCareerId
+            currentCareerId = currentCareerId,
+            preloadedParticipants = preloadedParticipants,
+            preloadedPlayers = preloadedPlayers,
+            preloadedOomEntries = preloadedOomEntries
         )
         return TournamentDetailUiHelper.mapEntrantGroupsToUi(getApplication(), domainGroups)
     }
