@@ -496,24 +496,24 @@ Da regionale Touren und Amateur-Qualifier nicht als eigene Turniere simuliert we
 
 #### 2.4.8 World Championship
 * **Rahmendaten:**
-  * **Gastgeberland & Austragungsort:** Aktuelle und verbindliche Informationen siehe [season_calendar_2027.json](../app/src/main/assets/season_calendar_2027.json).
+  * **Gastgeberland & Austragungsort:** Aktuelle und verbindliche Informationen siehe [season_calendar_2027.json](../app/src/main/assets/season_calendar_2027.json) (Alexandra Palace – Great Hall, London, England).
   * **Teilnehmer (Hauptfeld):** 128 Spieler.
   * **Modus:** K.o.-System, Sets (jedes Set: Best-of 5 Legs) mit **„Two-Clear-Legs Rule“** im Entscheidungssatz (Details siehe Abschnitt 3.3).
 * **Teilnehmer & Qualifikation:**
-  1. Top 40 der Order of Merit (80 vorqualifizierte TC-Spieler zusammen mit Punkt 2)
-  2. Top 40 der Pro Tour Order of Merit, die nicht bereits durch Punkt 1 qualifiziert sind
-  3. 48 Qualifier-Plätze:
-     * **4 Sieger des World Championship Tour Card Holder Qualifiers (`QUALIFIER_WM`, siehe Abschnitt 2.3)**
-     * **44 internationale Nicht-Tourcard-Qualifier** (`tour_card_year == 0`) der aktuellen Saison
+  1. Top 40 der **PDC Order of Merit (`OOM`)** (80 vorqualifizierte Tour-Card-Spieler zusammen mit Punkt 2).
+  2. Top 40 der **Pro Tour Order of Merit (`PT OOM`)**, die nicht bereits durch Punkt 1 qualifiziert sind.
+  3. **48 Qualifier-Plätze:**
+     * **2 Sieger des World Championship Tour Card Holder Qualifiers (`QUALIFIER_WM`, `K = 2` Boards; Details siehe Abschnitt 2.3)**.
+     * **46 internationale Nicht-Tourcard-Qualifier** (`tour_card_year == 0`) gemäß zentraler Qualifier-Regel (Abschnitt 2.0, sortiert nach `OOM` DESC, bei Gleichstand nach `skill` DESC).
 * **Setzliste & Auslosung:**
-  1. Die qualifizierten Spieler werden nach ihrer Position in der Order of Merit sortiert.
-  2. Platz 1–32 aus dieser Liste sind auf die Setzlistenplätze 1–32 im Standard-Setzbaum (`buildStandardSeedOrder(32)`) gesetzt.
-  3. Platz 33–64 aus dieser Liste werden zufällig den Setzlistenplätzen 33–64 zugelost.
-  4. Die restlichen 64 Spieler (inkl. der 48 Qualifier-Sieger) werden zufällig auf die freien Plätze 65–128 zugelost.
-  * *TODO:* Offizielle PDC-Setzlistenregel für das 128er-WM-Feld gegenprüfen (sind wirklich Plätze 33–64 OOM auf eigene Slots gelost oder sind alle 96 ungesetzten Spieler frei gegen die Top 32 Seeds gelost?).
+  * Alle 128 Spieler starten gemeinsam in **Runde 1 (`L128`)**:
+    1. Die qualifizierten Spieler werden nach ihrer Position in der **PDC Order of Merit (`OOM`)** sortiert.
+    2. **Plätze 1–32 der `OOM` (Top 32 Seeds):** Sind auf festen Positionen im offiziellen 32er-Standard-Setzbaum (`buildStandardSeedOrder(32)`) auf der linken Seite der Erstrunden-Paarungen gesetzt, sodass `(1)` und `(2)` frühestens im Finale aufeinandertreffen.
+    3. **Plätze 33–64 der `OOM`:** Werden zufällig auf die übrigen 32 linken Baumpositionen (den Setzlistenplätzen 33–64) zugelost (treffen somit in Runde 1 nicht auf die Top 32 oder aufeinander).
+    4. **Plätze 65–128 (inkl. aller 48 Qualifier):** Werden frei auf die 64 rechten Baumpositionen zugelost und treten in Runde 1 gegen die Top 64 der `OOM` an.
 * **Turnierverlauf & Paarungslogik:**
-  * **Vorgeschalteter Qualifier:** Unmittelbar vor der WM findet der `QUALIFIER_WM` statt (`K = 4` Boards, 4 Sieger; Details siehe Abschnitt 2.3).
-  * **Hauptfeld:** Fester K.o.-Turnierbaum ab `L128` → `L64` → `L32` → `L16` → `QF` → `SF` → `F`.
+  * **Vorgeschalteter Qualifier:** Unmittelbar vor der WM findet der `QUALIFIER_WM` statt (`K = 2` Boards, 2 Sieger; Details siehe Abschnitt 2.3).
+  * **Hauptfeld:** Fester K.o.-Turnierbaum ab `L128` → `L64` → `L32` → `L16` → `QF` → `SF` → `F` ohne erneutes Mischen.
 * **Preisgeld & Ranglisten-Ausnahmen (Gesamt: £5.000.000):**
 
 | Platzierung / Runde           | Enum-Key | Anzahl Spieler | Preisgeld pro Spieler |
@@ -527,13 +527,16 @@ Da regionale Touren und Amateur-Qualifier nicht als eigene Turniere simuliert we
 | **Letzte 64 (R2)**            | `L64`    | 32             | £25.000               |
 | **Letzte 128 (R1-Verlierer)** | `L128`   | 64             | £15.000               |
 
-  * Verliert ein gesetzter Spieler in Runde 1 (`L128`), erhält er die £15.000 dennoch voll für die Order of Merit angerechnet. *(Optionaler Sonderbonus: Ein 9-Darter bei der WM wird oft mit £60.000 gesponsert, zählt aber **nicht** zur Order of Merit).*
-  * *TODO:* Ranglisten-Zuordnung der Preisgelder (`OOM`) mit Quelle verifizieren und hier ergänzen.
+  * **Ranglisten-Zuordnung:** Das Preisgeld fließt voll in die **PDC Order of Merit (`OOM`)** ein (nicht in `PT OOM`, `PC OOM` oder `ET OOM`).
+  * Verliert ein gesetzter Spieler in Runde 1 (`L128`), erhält er die £15.000 dennoch voll für die `OOM` angerechnet.
 * **App-Vereinfachung vs. reale PDC-Regeln:**
-  * *Reale PDC:* Die 44 internationalen Nicht-Tourcard-Plätze setzen sich aus festen Kontingenten zusammen, darunter **Women's Series** (mindestens 4 Plätze inkl. Women's World Matchplay), **Development Tour** (Top 3 + World Youth Champion), **Challenge Tour** (Top 3), regionale Touren (**Asian Tour**, **Nordic & Baltic**, **CDC Nordamerika**, **ANZ/Australien**, **Afrika**) sowie regionale Super Leagues (z. B. **DACH Super League**). In der App werden diese Plätze als einheitlicher Pool freier Nicht-Tourcard-Qualifier abgebildet.
+  * *Reale PDC:* Die 46 internationalen Nicht-Tourcard-Plätze setzen sich aus festen Kontingenten zusammen, darunter **Women's Series / Women's World Matchplay** (mindestens 4 Plätze), **Development Tour & World Youth Championship**, **Challenge Tour**, regionale Touren (**Asian Tour**, **Nordic & Baltic**, **CDC Nordamerika**, **ANZ/Australien**, **Afrika**) sowie regionale Super Leagues (z. B. **DACH Super League**).
+  * *App-Vereinfachung:* Da diese Touren nicht simuliert werden, wählt die App 46 Nicht-Tourcard-Spieler (`tour_card_year == 0`) gemäß der zentralen Qualifier-Regel in Abschnitt 2.0 aus.
 * **Verifizierte Quellen:**
+  * [PDC News – 2025/26 Paddy Power World Darts Championship field confirmed](https://www.pdc.tv/news/2025/11/23/202526-paddy-power-world-darts-championship-field-confirmed)
+  * [PDC News – 2026/27 Paddy Power World Championship International Qualifying structure confirmed](https://pdc.tv)
+  * [Sky Sports – World Darts Championship: Schedule, format, previous winners and nine darters at Alexandra Palace](https://www.skysports.com/darts/news/13611967/world-darts-championship-schedule-format-previous-winners-and-nine-darters-at-alexandra-palace)
   * [Wikipedia – 2027 PDC World Darts Championship](https://en.wikipedia.org/wiki/2027_PDC_World_Darts_Championship)
-  * *TODO:* Weitere offizielle PDC-Quellen für Qualifikation, Setzbaum und Two-Clear-Legs-Regel ergänzen.
 
 ---
 
