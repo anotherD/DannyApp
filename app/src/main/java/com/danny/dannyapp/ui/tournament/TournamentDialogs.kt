@@ -35,7 +35,8 @@ object TournamentDialogs {
     fun showPrizeMoneyDialog(
         context: Context,
         prizeMoneyItems: List<PrizeMoneyItem>,
-        event: TournamentEvent?
+        event: TournamentEvent?,
+        participantCount: Int = 0
     ) {
         if (prizeMoneyItems.isEmpty()) return
         val totalPrize = if (event != null && event.effectiveTotalPrizeFund > 0) {
@@ -57,6 +58,34 @@ object TournamentDialogs {
             setPadding(0, 0, 0, 16)
         }
         layout.addView(tvHeader)
+
+        if (participantCount > 0) {
+            val tvParticipants = TextView(context).apply {
+                text = context.getString(R.string.tournament_info_participants_count, participantCount)
+                textSize = 13f
+                setTextColor(ContextCompat.getColor(context, R.color.grau_text_gedaempft))
+                setPadding(0, 0, 0, 8)
+            }
+            layout.addView(tvParticipants)
+        }
+
+        if (event == TournamentEvent.EUROPEAN_TOUR) {
+            val tvExceptionEt = TextView(context).apply {
+                text = context.getString(R.string.tournament_info_exception_et)
+                textSize = 12f
+                setTextColor(ContextCompat.getColor(context, R.color.rot_hell))
+                setPadding(0, 0, 0, 8)
+            }
+            layout.addView(tvExceptionEt)
+        } else if (event in listOf(TournamentEvent.PLAYERS_CHAMPIONSHIP, TournamentEvent.UK_OPEN, TournamentEvent.EUROPEAN_OPEN)) {
+            val tvExceptionPcUk = TextView(context).apply {
+                text = context.getString(R.string.tournament_info_exception_pc_uk)
+                textSize = 12f
+                setTextColor(ContextCompat.getColor(context, R.color.rot_hell))
+                setPadding(0, 0, 0, 8)
+            }
+            layout.addView(tvExceptionPcUk)
+        }
 
         val rv = RecyclerView(context).apply {
             layoutManager = LinearLayoutManager(context)

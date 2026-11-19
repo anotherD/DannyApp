@@ -198,4 +198,7 @@
     <string name="error_unknown">Unbekannter Fehler</string>
     <string name="error_empty_name">Name darf nicht leer sein</string>
     <string name="error_save_career">Fehler beim Speichern der Karriere</string>
+    <string name="tournament_info_exception_et">Hinweis: Vorqualifizierte Top-32-Spieler erhalten bei einer Auftaktniederlage £0 für alle Ranglisten.</string>
+    <string name="tournament_info_exception_pc_uk">Hinweis: Verlierer der 1. Runde erhalten £0 Preisgeld.</string>
+    <string name="tournament_info_participants_count">Teilnehmer im Feld: %1$d</string>
 </resources>

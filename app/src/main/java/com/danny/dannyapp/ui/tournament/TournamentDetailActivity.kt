@@ -19,6 +19,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
+import com.danny.dannyapp.data.db.USER_ID
 import com.danny.dannyapp.domain.enums.TournamentEvent
 import com.danny.dannyapp.domain.usecase.TournamentQualificationUseCase
 import com.danny.dannyapp.ui.BaseActivity
@@ -560,7 +561,25 @@ class TournamentDetailActivity : BaseActivity() {
     }
 
     private fun showPrizeMoneyDialog() {
-        TournamentDialogs.showPrizeMoneyDialog(this, currentPrizeMoneyItems, currentEvent)
+        val state = viewModel.uiState.value
+        val participantCount = when (state) {
+            is TournamentDetailState.Active -> {
+                state.allRoundsMatches.flatten()
+                    .flatMap { listOf(it.player1.id, it.player2.id) }
+                    .filter { it > 0L || it == USER_ID }
+                    .distinct()
+                    .size
+            }
+            is TournamentDetailState.Review -> {
+                state.allRoundsMatches.flatten()
+                    .flatMap { listOf(it.player1.id, it.player2.id) }
+                    .filter { it > 0L || it == USER_ID }
+                    .distinct()
+                    .size
+            }
+            else -> 0
+        }
+        TournamentDialogs.showPrizeMoneyDialog(this, currentPrizeMoneyItems, currentEvent, participantCount)
     }
 
     private fun showUserMatchOptionsDialog(matchModel: MatchUiModel) {
