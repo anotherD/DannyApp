@@ -65,10 +65,11 @@ Wenn du `players.csv` in den Assets bearbeitest:
 * **`GetPlayersUseCase`**: Reaktiver Zugriff auf sortierte Spielerlisten für die Spielerkonfiguration (`ConfigPlayersActivity`).
 
 ### 4.2 UI-Paketstruktur & Helper (`ui/`)
+* **`ui/UIHelper.kt`**: Zentrale Helper für Flaggen-Rendering (`formatFlagAndText`), dynamische Namenskürzungen (`bindSmartPlayerName`) und Match-Kachel-Stile.
 * **`ui/career/`**: Karrieren-Übersicht, Detailansicht und Pager.
 * **`ui/profile/`**: Profilverwaltung und -auswahl.
 * **`ui/oom/`**: Order of Merit Container, Fragmente und Adapter.
-* **`ui/tournament/`**: Turnierkalender, Turnierdetails, ViewModel, Mapper, Bracket-View und UI-Helper (`TournamentDetailUiHelper`, `TournamentBracketCardBuilder`).
+* **`ui/tournament/`**: Turnierkalender, Turnierdetails, ViewModel, Mapper, Bracket-View und UI-Helper (`TournamentUiHelper`, `TournamentDetailUiHelper`, `TournamentBracketCardBuilder`).
 
 ---
 
