@@ -195,16 +195,16 @@ Da regionale Touren und Amateur-Qualifier nicht als eigene Turniere simuliert we
   * **Modus:** K.o.-System, Legs.
 * **Teilnehmer & Qualifikation:**
   1. Alle 128 Tour-Card-Inhaber der aktuellen Saison.
-  2. 32 Qualifikanten ohne Tourcard (`tour_card_year == 0`), sortiert nach `skill DESC` aus der `players`-Tabelle.
+  2. 32 Nicht-Tourcard-Qualifikanten (`tour_card_year == 0`) gemäß zentraler Qualifier-Regel (Abschnitt 2.0).
 * **Setzliste & Auslosung:**
-  * Ohne feste Setzliste. Runden 1–4 gestaffelt nach Ranglistenplatzierung (OOM):
-    * Runde 1 (`R1_160`): Plätze 97–128 der OOM + alle 32 Qualifikanten (32 Matches → 32 Verlierer scheiden aus).
-    * Runde 2 (`R2_128`): Die 32 Sieger aus Runde 1 treffen auf die Plätze 65–96 der OOM (32 Matches).
-    * Runde 3 (`R3_96`): Die 32 Sieger aus Runde 2 treffen auf die Plätze 33–64 der OOM (32 Matches).
-    * Runde 4 (`L64`): Die 32 Sieger aus Runde 3 treffen auf die Top 32 der OOM (32 Matches).
-  * *TODO:* Prüfen und dokumentieren, ob ab Runde 4 (`L64`) ebenfalls nach jeder Runde neu gelost wird (wie in der App implementiert: `isOpenDrawRound` bis `F`).
+  * Ohne Setzliste („FA Cup of Darts“). Runden 1–4 erfolgen als gestaffelter Einstieg nach der **PDC Order of Merit (`OOM`)**:
+    * **Runde 1 (`R1_160`):** Plätze 97–128 der `OOM` + alle 32 Qualifikanten (32 Matches → 32 Verlierer scheiden aus).
+    * **Runde 2 (`R2_128`):** Die 32 Sieger aus Runde 1 treffen auf die Plätze 65–96 der `OOM` (32 Matches).
+    * **Runde 3 (`R3_96`):** Die 32 Sieger aus Runde 2 treffen auf die Plätze 33–64 der `OOM` (32 Matches).
+    * **Runde 4 (`L64`):** Die 32 Sieger aus Runde 3 treffen auf die Top 32 der `OOM` (32 Matches).
+  * **Offene Auslosung:** Die Runden 1–3 werden vorab frei gelost; **ab Runde 4 (`L64`) bis einschließlich zum Halbfinale (`SF`) wird nach jeder abgeschlossenen Runde komplett neu und ohne Setzliste gelost** (`isOpenDrawRound` bis `F`).
 * **Turnierverlauf & Paarungslogik:**
-  * Offene Runden-Auslosung ab Runde 2 (`R2_128` bis `F`).
+  * Gestaffelte Einstiegsrunden (`R1_160` bis `L64`) mit freier Runden-Auslosung in jeder Runde (`R1_160` → `R2_128` → `R3_96` → `L64` → `L32` → `L16` → `QF` → `SF` → `F`).
 * **Preisgeld & Ranglisten-Ausnahmen (Gesamt: £750.000):**
 
 | Platzierung / Runde           | Enum-Key | Anzahl Spieler | Preisgeld pro Spieler     |
@@ -220,14 +220,17 @@ Da regionale Touren und Amateur-Qualifier nicht als eigene Turniere simuliert we
 | **Letzte 128 (R2)**           | `R2_128` | 32             | £1.250                    |
 | **Letzte 160 (R1-Verlierer)** | `R1_160` | 32             | **£0** *(kein Preisgeld)* |
 
+  * **Ranglisten-Zuordnung:** Das Preisgeld fließt voll in die **PDC Order of Merit (`OOM`)** ein (nicht in `PT OOM`, `PC OOM` oder `ET OOM`).
   * **Runde-1-Verlierer (`R1_160`):** Alle Verlierer der 1. Runde (Qualifikanten sowie OOM-Plätze 97–128) erhalten **£0**.
-  * **Einstieg in spätere Runden (Top 96):** Spieler, die erst in `R2_128`, `R3_96` oder `L64` einsteigen und dort sofort verlieren, erhalten regulär das Preisgeld dieser Runde (£1.250, £2.000 bzw. £3.000) voll für die OOM angerechnet (keine Nullrunde).
-  * *TODO:* Ranglisten-Zuordnung der Preisgelder (`OOM`) mit Quelle verifizieren und hier ergänzen.
+  * **Einstieg in spätere Runden (Top 96):** Spieler, die erst in `R2_128`, `R3_96` oder `L64` einsteigen und dort sofort verlieren, erhalten regulär das Preisgeld dieser Runde (£1.250, £2.000 bzw. £3.000) voll für die `OOM` angerechnet (keine Nullrunde).
 * **App-Vereinfachung vs. reale PDC-Regeln:**
-  * *Reale PDC:* Die 32 Nicht-Tourcard-Plätze setzen sich zusammen aus den **Top 8 der Challenge Tour OOM**, den **Top 8 der Development Tour OOM** (jeweils des Vorjahres, sofern keine Tour Card gewonnen wurde) sowie **16 Amateur-Qualifikanten** (8x Rileys Amateur Qualifiers + 8x PDC in the Community Qualifiers). In der App wird dies vereinfacht über die Top 32 Nicht-Tourcard-Spieler nach `skill DESC` abgebildet.
+  * *Reale PDC:* Die 32 Nicht-Tourcard-Plätze setzen sich zusammen aus den **Top 8 der Challenge Tour OOM**, den **Top 8 der Development Tour OOM** (jeweils des Vorjahres, sofern keine Tour Card gewonnen wurde) sowie **16 Amateur-Qualifikanten** (8x Rileys Amateur Qualifiers + 8x PDC in the Community Qualifiers).
+  * *App-Vereinfachung:* Da Secondary Tours und Amateur-Qualifier nicht simuliert werden, wählt die App 32 Nicht-Tourcard-Spieler (`tour_card_year == 0`) gemäß der zentralen Qualifier-Regel in Abschnitt 2.0 aus.
 * **Verifizierte Quellen:**
+  * [PDC Tournaments – Ladbrokes UK Open](https://www.pdc.tv/tournaments/ladbrokes-uk-open)
+  * [PDC News – 2026 Ladbrokes UK Open preview](https://www.pdc.tv/news/2026/march/05/2026-ladbrokes-uk-open-preview/)
+  * [PDC Rankings Rules (Section 2 & 4)](https://pdc.tv)
   * [Wikipedia – 2026 UK Open](https://en.wikipedia.org/wiki/2026_UK_Open)
-  * *TODO:* Weitere offizielle PDC-Quellen für Qualifikation, Runden-Auslosung und Preisgeld-Split 2026/2027 gegenprüfen.
 
 ---
 
