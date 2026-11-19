@@ -64,6 +64,8 @@ Wenn du `players.csv` in den Assets bearbeitest:
 * **`TournamentQualificationUseCase`**: Zentrale Logik für Qualifikationspools, Setzlisten, OOM-Sortierung, Qualifier-Board-Zuordnung und Vorschau-Paarungen.
 * **`GetPlayersUseCase`**: Reaktiver Zugriff auf sortierte Spielerlisten für die Spielerkonfiguration (`ConfigPlayersActivity`).
 * **`ResolveNonSimulatedQualifiersUseCase`**: Zentrale Ermittlung nicht-simulierter regionaler und internationaler Qualifier-Pools (ISO-3-Regionen nach OOM sowie Sekundärtouren/Damen/Youth).
+* **`PreQualifyMainTournamentUseCase`**: Ermittelt die 1:1-Zuordnung zwischen vorgeschaltetem Qualifier und Hauptturnier (`QUALIFIER_ET` ↔ `EUROPEAN_TOUR`, `QUALIFIER_GRAND_SLAM` ↔ `GRAND_SLAM_OF_DARTS`, `QUALIFIER_WM` ↔ `WORLD_CHAMPIONSHIP`) und friert alle vorqualifizierten Hauptfeld-Teilnehmer bereits beim Qualifier-Start idempotent in `tournament_participants` ein.
+* **`GrandSlamQualificationResolver`**: Kapselt die Prioritäts-Qualifikation des Grand Slam of Darts (Majors, Additional Qualifiers, ET-/PC-Saisonsieger vor dem Qualifier sowie Auffüllen mit Qualifier-Siegern und Topf-1–3-Setzliste beim Hauptturnier-Start).
 
 ### 4.2 UI-Paketstruktur & Helper (`ui/`)
 * **`ui/UIHelper.kt`**: Zentrale Helper für Flaggen-Rendering (`formatFlagAndText`), dynamische Namenskürzungen (`bindSmartPlayerName`) und Match-Kachel-Stile.

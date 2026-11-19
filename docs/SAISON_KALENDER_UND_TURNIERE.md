@@ -202,6 +202,7 @@ Für Qualifikationswege ohne Länderbindung, die über Geschlecht, Alter oder Q-
     * `QUALIFIER_GRAND_SLAM` (`K = 8`): `QUAL_PRELIM` (falls `N > 64`) → `QUAL_R1` (32 Matches) → `QUAL_R2` (16 Matches) → `QUAL_FINAL` (8 Matches → 8 Sieger).
     * `QUALIFIER_WM` (`K = 2`): `QUAL_PRELIM` (falls `N > 16`) → `QUAL_R1` (8 Matches) → `QUAL_R2` (4 Matches) → `QUAL_FINAL` (2 Matches → 2 Sieger).
   * Ab `QUAL_R1` läuft jedes Board als fester K.o.-Baum ohne erneutes Mischen.
+* **Vorab-Einfrieren des Hauptfelds:** Unmittelbar beim Start eines Qualifiers (`PreQualifyMainTournamentUseCase`) werden alle vorqualifizierten Teilnehmer des zugehörigen Hauptturniers (inkl. gesetzter Tour-Card-Inhaber, regionaler/internationaler Nicht-Tourcard-Qualifier sowie beim Grand Slam der Major- und ET-/PC-Saisonsieger) zum aktuellen Stand ermittelt und in `tournament_participants` des Hauptturniers eingefroren. Zwischen Qualifier und Hauptturnier stattfindende Events können dieses Teilnehmerfeld nicht mehr verschieben; beim Start des Hauptturniers werden nur noch die Sieger des zugehörigen Qualifiers ergänzt.
 * **Preisgeld & Ranglisten-Ausnahmen (Gesamt: £0):**
   * **£0 Preisgeld:** Qualifier-Turniere schütten kein Preisgeld aus und fließen nicht in die Ranglisten (`OOM`, `PT OOM`, `PC OOM`, `ET OOM`) ein.
 * **App-Vereinfachung vs. reale PDC-Regeln:**
@@ -637,6 +638,7 @@ Um das MVVM-Muster sauber einzuhalten, ist die komplexe Geschäfts- und Berechnu
 * **`AdvanceTournamentRoundUseCase`**: Zentrale Zustandsmaschine für den Turnierfortschritt; führt nach jedem Matchgewinn eine sofortige Gewinner-Hochstufung auf das Preisgeld der erreichten Folgerunde durch (z. B. automatischer Aufstieg vorqualifizierter ET-Seeds nach ihrem ersten Sieg), steuert den Rundenfortschritt und beendet Qualifier-Turniere (`QUALIFIER_ET` = 10, `QUALIFIER_GRAND_SLAM` = 8, `QUALIFIER_WM` = 4), sobald die Zielanzahl an Siegern feststeht.
 * **`TournamentProgressionUseCase`**: Verwaltet den Gesamtfortschritt eines Turniers und steuert über `simulateCompleteTournament(...)` die komplette Turniersimulation zentral von der Bracket-Erstellung über realistische CPU- und User-Matches bis zum Turnierabschluss.
 * **`GetOrderOfMeritUseCase`**: Berechnet und liefert die 4 dynamischen Ranglisten (`OOM`, `PT OOM`, `PC OOM`, `ET OOM`).
+* **`PreQualifyMainTournamentUseCase` & `GrandSlamQualificationResolver`**: Ausgelagerte Domain-Komponenten für das Vorab-Einfrieren vorqualifizierter Hauptfeld-Teilnehmer beim Qualifier-Start sowie die Grand-Slam-Prioritäts- und Topflogik.
 
 ---
 
