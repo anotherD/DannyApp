@@ -549,11 +549,14 @@ Das System führt getrennte, dynamische Ranglisten, basierend auf den kumulierte
 Alle Ranglisten errechnen sich aus den Preisgeldern (`TournamentPlacement.prize_money`) der in dieser Karriere gespielten Turniere.
 Der Stammdatenwert `players.prizeMoney` wird aktuell nicht verwendet (kann in einer späteren Ausbaustufe optional als historischer Startwert vor Karrierebeginn dienen).
 
-1. **Order of Merit:** Kürzel: "OOM". Preisgelder aller Turniere der letzten zwei Jahre. Das heißt, die jüngsten zwei Austragungen jedes Turniers werden berücksichtigt (saisonübergreifend).
-2. **Pro Tour Order of Merit:** Kürzel: "PT OOM". Preisgeld aus `PLAYERS_CHAMPIONSHIP` und `EUROPEAN_TOUR`. Nur die jüngsten Austragungen jedes Turniers werden berücksichtigt (saisonübergreifend).
+1. **Order of Merit:** Kürzel: "OOM". Preisgelder aller Ranking-Turniere der letzten zwei Jahre. Das heißt, die jüngsten zwei Austragungen jedes Turniers werden berücksichtigt (saisonübergreifend).
+2. **Pro Tour Order of Merit:** Kürzel: "PT OOM". Preisgeld aus `PLAYERS_CHAMPIONSHIP` und `EUROPEAN_TOUR`. Nur die jüngsten Austragungen jedes Turniers werden berücksichtigt (saisonübergreifend, 1-Jahres-Fenster).
 3. **Players Championship Order of Merit:** Kürzel: "PC OOM". Ausschließlich Preisgelder aus `PLAYERS_CHAMPIONSHIP` der aktuellen Saison.
 4. **European Tour Order of Merit:** Kürzel: "ET OOM". Ausschließlich Preisgelder aus `EUROPEAN_TOUR` der aktuellen Saison.
-* *TODO:* Quellen
+
+* **Verifizierte Quellen (Abschnitt 3.1):**
+  * [PDC Rankings Rules (Section 2 – PDC Order of Merit & ProTour Order of Merit)](https://pdc.tv)
+  * [PDC Rankings – Live Orders of Merit](https://pdc.tv)
 
 ### 3.2 Turnierübergreifende Ausnahmeregelungen (Wann gibt es £0 Preisgeld / Ranglistenpunkte?)
 
@@ -566,7 +569,9 @@ Ergänzend zu den jeweiligen Turnierregeln in Abschnitt 2 gelten für die Simula
    * *Gegenausnahme:* Kommt das Freilos zustande, weil der geplante Gegner kurzfristig zurückgezogen hat (Walkover), gilt das Match als gewonnen und das Preisgeld der erreichten Runde wird regulär gewertet.
 3. **Nachrücker in spätere Runden (Late Replacement, Regel 3.7):**
    * Rückt ein Ersatzspieler für einen ausgefallenen Spieler direkt in eine spätere Runde nach (z. B. Runde 2 bei ET oder Runde 3 bei UK Open) und verliert dort sofort sein erstes Match, erhält er nur das Preisgeld der allerersten Turnierrunde (bei UK Open also **£0**, bei ET **£2.000**). Gewinnt er sein Auftaktmatch, greift ab der nächsten Runde das reguläre Preisgeld.
-* *TODO:* Quellen
+
+* **Verifizierte Quellen (Abschnitt 3.2):**
+  * [PDC Rankings Rules (Section 3.7 – Late Replacements & Section 4.17 – Seeded Losers / Byes / Withdrawals)](https://pdc.tv)
 
 ### 3.3 Spielformate & Sonderregeln (Zentrale Definition)
 Alle konkreten Runden-Distanzen (Best-of-Legs/Sets) aller Turniere sind zentral in `app/src/main/assets/season_calendar_2027.json` (`events.<EVENT>.distances`) definiert. Für die Spiel-Engine gelten folgende zentrale Formatregeln:
@@ -576,7 +581,11 @@ Alle konkreten Runden-Distanzen (Best-of-Legs/Sets) aller Turniere sind zentral 
   * *Leg-Format (World Matchplay):* Das Spiel muss mit mindestens 2 Legs Vorsprung gewonnen werden. Steht es nach 3 zusätzlichen Legs über der regulären Zieldistanz immer noch unentschieden (z. B. 12:12 bei First to 10), entscheidet das nächste Leg als Sudden-Death-Leg (13:12).
   * *Set-Format (World Grand Prix & World Championship):* Greift erst im entscheidenden letzten Satz, wenn beide Spieler nur noch ein Set zum Sieg benötigen. Dieser Satz muss mit 2 Legs Vorsprung gewonnen werden; bei 5:5 entscheidet das 11. Leg als Sudden-Death-Leg (6:5).
 * **Double-In / Double-Out (World Grand Prix):** Das Leg wird mathematisch erst heruntergezählt, sobald der erste Pfeil des Spielers in einem äußeren Doppelring oder im Double-Bull landet, und muss auf einem Doppel beendet werden.
-* *TODO:* Quellen
+
+* **Verifizierte Quellen (Abschnitt 3.3):**
+  * [Darts Regulation Authority (DRA) Rule Book](https://thedra.co.uk)
+  * [PDC News – Two-clear-legs tie-break rule explained (World Matchplay & World Championship)](https://pdc.tv)
+  * [Sky Sports – World Grand Prix Darts: Double-In / Double-Out & Two-Clear-Legs format](https://skysports.com)
 
 ---
 
