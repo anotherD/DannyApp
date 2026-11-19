@@ -260,7 +260,8 @@ class GrandSlamQualificationResolver(
         tourCardPlayerIds: List<Long>,
         allPlayerIds: List<Long>,
         oomEntries: List<OrderOfMeritEntry>,
-        allPlayers: List<Player>
+        allPlayers: List<Player>,
+        persistToDb: Boolean = true
     ): TournamentQualificationResult = withContext(Dispatchers.IO) {
         val existingPlayerIds = storedParticipants.map { it.playerId }.toSet()
         val neededQualifierCount = (48 - storedParticipants.size).coerceAtLeast(0)
@@ -269,13 +270,17 @@ class GrandSlamQualificationResolver(
         if (tchqWinners.size > neededQualifierCount) {
             tchqWinners = tchqWinners.take(neededQualifierCount)
         }
-        if (tchqWinners.size < neededQualifierCount) {
+        if (persistToDb && tchqWinners.size < neededQualifierCount) {
             val nonPreqTc = tourCardPlayerIds.filterNot { it in existingPlayerIds || it in tchqWinners }
             tchqWinners = fillToTargetCount(tchqWinners, neededQualifierCount, nonPreqTc, oomEntries)
         }
 
         val qualified48Ids = (storedParticipants.map { it.playerId } + tchqWinners).distinct()
-        val final48Ids = fillToTargetCount(qualified48Ids, 48, allPlayerIds, oomEntries)
+        val final48Ids = if (persistToDb) {
+            fillToTargetCount(qualified48Ids, 48, allPlayerIds, oomEntries)
+        } else {
+            qualified48Ids
+        }
 
         val sorted48 = sortPlayerIdsByOom(final48Ids, oomEntries, allPlayers)
         val pot1 = sorted48.take(16)
@@ -305,7 +310,9 @@ class GrandSlamQualificationResolver(
             )
         }
 
-        tournamentParticipantDao.insertParticipants(finalParticipants)
+        if (persistToDb) {
+            tournamentParticipantDao.insertParticipants(finalParticipants)
+        }
 
         TournamentQualificationResult(
             oomSortedIds = pot1,

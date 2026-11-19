@@ -122,7 +122,8 @@ class PreQualifyMainTournamentUseCase(
     suspend fun freezePreQualifiedParticipantsForMainTournament(
         qualifierTournament: Tournament,
         seasonId: Long,
-        careerId: Long
+        careerId: Long,
+        persistToDb: Boolean = true
     ): List<TournamentParticipant> = withContext(Dispatchers.IO) {
         val seasonTournaments = tournamentDao.getTournamentsListForSeason(seasonId)
         val mainTournament = findMainTournamentForQualifier(qualifierTournament, seasonTournaments)
@@ -322,7 +323,9 @@ class PreQualifyMainTournamentUseCase(
             }
         }
 
-        tournamentParticipantDao.insertParticipants(participants)
+        if (persistToDb) {
+            tournamentParticipantDao.insertParticipants(participants)
+        }
         participants
     }
 }
