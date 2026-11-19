@@ -461,15 +461,15 @@ Da regionale Touren und Amateur-Qualifier nicht als eigene Turniere simuliert we
 
 #### 2.4.7 Players Championship Finals
 * **Rahmendaten:**
-  * **Gastgeberland & Austragungsort:** Aktuelle und verbindliche Informationen siehe [season_calendar_2027.json](../app/src/main/assets/season_calendar_2027.json).
-  * **Teilnehmer:** 64 Spieler (*TODO:* vorerst verifiziertes 64er-Schema; 2027er-Erweiterung auf 128 Spieler noch ohne Detailregeln).
+  * **Gastgeberland & Austragungsort:** Aktuelle und verbindliche Informationen siehe [season_calendar_2027.json](../app/src/main/assets/season_calendar_2027.json) (Butlin's Minehead Resort, Minehead, England).
+  * **Teilnehmer:** 64 Spieler (*TODO:* vorerst verifiziertes 64er-Schema; 2027er-Erweiterung auf 128 Spieler noch ohne offizielle Detailregeln).
   * **Modus:** K.o.-System, Legs.
 * **Teilnehmer & Qualifikation:**
-  1. Top 64 der Players Championship Order of Merit der laufenden Saison.
+  1. Top 64 der **Players Championship Order of Merit (`PC OOM`)** der laufenden Saison.
 * **Setzliste & Auslosung:**
-  * Alle 64 Teilnehmer sind nach der *Players Championship Order of Merit* gesetzt (`(1)` bis `(64)`) und spielen nach dem 64er-Standard-Setzbaum (`seedOrder64[i]` vs. `63 - seedOrder64[i]`), sodass `(1)` und `(2)` frühestens im Finale aufeinandertreffen.
+  * Alle 64 Teilnehmer sind nach der `PC OOM` gesetzt (`(1)` bis `(64)`) und spielen nach dem 64er-Standard-Setzbaum (`seedOrder64[i]` vs. `63 - seedOrder64[i]`), sodass `(1)` und `(2)` frühestens im Finale aufeinandertreffen.
 * **Turnierverlauf & Paarungslogik:**
-  * Fester K.o.-Turnierbaum ab `L64` → `L32` → `L16` → `QF` → `SF` → `F`.
+  * Fester K.o.-Turnierbaum ab `L64` → `L32` → `L16` → `QF` → `SF` → `F` ohne erneutes Mischen.
 * **Preisgeld & Ranglisten-Ausnahmen (Gesamt: £750.000):**
 
 | Platzierung / Runde          | Enum-Key | Anzahl Spieler | Preisgeld pro Spieler |
@@ -482,12 +482,15 @@ Da regionale Touren und Amateur-Qualifier nicht als eigene Turniere simuliert we
 | **Letzte 32 (R2)**           | `L32`    | 16             | £7.000                |
 | **Letzte 64 (R1-Verlierer)** | `L64`    | 32             | £4.000                |
 
-  * Alle 64 Teilnehmer erhalten bei regulärer Teilnahme mindestens £4.000 voll für die Order of Merit angerechnet.
-  * *TODO:* Ranglisten-Zuordnung der Preisgelder (`OOM`) mit Quelle verifizieren und hier ergänzen.
+  * **Ranglisten-Zuordnung:** Das Preisgeld fließt voll in die **PDC Order of Merit (`OOM`)** ein (nicht in `PT OOM`, `PC OOM` oder `ET OOM`).
+  * Alle 64 Teilnehmer (auch Erstrundenverlierer) erhalten bei regulärer Teilnahme mindestens £4.000 voll für die `OOM` angerechnet.
 * **App-Vereinfachung vs. reale PDC-Regeln:**
-  * **Hinweis zu 2027er-Reformen:** Die angekündigte Erweiterung auf 128 Spieler im Mehrbrett-Modus wartet noch auf Detailregeln der PDC (siehe [PDC-Regel-Update-Checkliste](PDC_REGEL_UPDATE_CHECKLISTE.md)); bis dahin gilt das verifizierte 64er-Schema.
+  * **Hinweis zu 2027er-Reformen:** Die angekündigte Erweiterung auf 128 Spieler (Top 128 `PT OOM`) im Mehrbrett-Modus wartet noch auf offizielle Detailregeln der PDC (siehe [PDC-Regel-Update-Checkliste](PDC_REGEL_UPDATE_CHECKLISTE.md)); bis dahin gilt das verifizierte 64er-Schema.
 * **Verifizierte Quellen:**
-  * *TODO:* Turnierspezifische Links für Qualifikation, Setzbaum, Preisgeld-Split sowie PDC-Ankündigung 2027 direkt hier ergänzen.
+  * [Dartsnews.de – Players Championship Finals stehen ab 2027 vor einer großen Veränderung](https://dartsnews.de/pdc/players-championship-finals-stehen-ab-2027-vor-einer-grossen-veranderung)
+  * [PDC Tournaments – Players Championship](https://www.pdc.tv/tournaments/pdc-protour/players-championship)
+  * [Wikipedia – 2026 Players Championship Finals](https://en.wikipedia.org/wiki/2026_Players_Championship_Finals)
+  * [Mastercaller – Players Championship Finals 2026](https://mastercaller.com/tournaments/players-championship-finals/2026)
 
 ---
 
