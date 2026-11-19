@@ -240,20 +240,29 @@ Da regionale Touren und Amateur-Qualifier nicht als eigene Turniere simuliert we
   * **Teilnehmer:** 160 Spieler.
   * **Modus:** K.o.-System, Legs.
 * **Teilnehmer & Qualifikation:**
-  * Identisch zu den UK Open (128 Tour-Card-Inhaber + 32 Qualifikanten ohne Tourcard).
-  * *TODO:* Offizielle PDC-Detailregeln (Preisgeld-Split, Qualifikationsschlüssel, Auslosungsmodus) für die Premiere 2027 gegenprüfen, sobald veröffentlicht.
+  1. Alle 128 Tour-Card-Inhaber der aktuellen Saison.
+  2. 32 Nicht-Tourcard-Qualifikanten (`tour_card_year == 0`) gemäß zentraler Qualifier-Regel (Abschnitt 2.0, sortiert nach `OOM` DESC, bei Gleichstand nach `skill` DESC).
 * **Setzliste & Auslosung:**
-  * Identisch zu den UK Open (gestaffelter Einstieg nach OOM in Runden 1–4, offene Auslosung).
+  * Analog zu den UK Open ohne Setzliste mit gestaffeltem Einstieg nach der **PDC Order of Merit (`OOM`)** in Runden 1–4:
+    * **Runde 1 (`R1_160`):** Plätze 97–128 der `OOM` + alle 32 Qualifikanten (32 Matches → 32 Verlierer scheiden aus).
+    * **Runde 2 (`R2_128`):** Die 32 Sieger aus Runde 1 treffen auf die Plätze 65–96 der `OOM` (32 Matches).
+    * **Runde 3 (`R3_96`):** Die 32 Sieger aus Runde 2 treffen auf die Plätze 33–64 der `OOM` (32 Matches).
+    * **Runde 4 (`L64`):** Die 32 Sieger aus Runde 3 treffen auf die Top 32 der `OOM` (32 Matches).
+  * **Offene Auslosung:** Offene Runden-Auslosung ab Runde 2 (`R2_128` bis `F`).
 * **Turnierverlauf & Paarungslogik:**
-  * Identisch zu den UK Open (`R1_160` bis `F`).
+  * Gestaffelte Einstiegsrunden (`R1_160` bis `L64`) mit freier Runden-Auslosung in jeder Runde (`R1_160` → `R2_128` → `R3_96` → `L64` → `L32` → `L16` → `QF` → `SF` → `F`).
 * **Preisgeld & Ranglisten-Ausnahmen (Gesamt: £750.000):**
-  * Identisch zu den UK Open (Gesamtpreisgeld **£750.000**, `R1_160` = £0).
-  * *TODO:* Ranglisten-Zuordnung der Preisgelder (`OOM`) mit Quelle verifizieren und hier ergänzen.
+  * Identische Runden-Verteilung wie bei den UK Open (`WINNER`: £120.000, `F`: £60.000, `SF`: £35.000, `QF`: £20.000, `L16`: £12.500, `L32`: £7.500, `L64`: £3.000, `R3_96`: £2.000, `R2_128`: £1.250, `R1_160`: **£0**).
+  * **Ranglisten-Zuordnung:** Das Preisgeld fließt voll in die **PDC Order of Merit (`OOM`)** ein (nicht in `PT OOM`, `PC OOM` oder `ET OOM`).
+  * **Runde-1-Verlierer (`R1_160`):** Alle Verlierer der 1. Runde erhalten **£0**. Spieler mit Einstieg ab `R2_128`, `R3_96` oder `L64` erhalten das Preisgeld ihrer Einstiegsrunde bei sofortigem Ausscheiden regulär für die `OOM` angerechnet.
 * **App-Vereinfachung vs. reale PDC-Regeln:**
-  * *Reale PDC:* Bei der Premiere ab 2027 in Salzburg teilen sich die 32 Nicht-Tourcard-Plätze auf in **Top 4 Challenge Tour**, **Top 4 Development Tour**, **8 PDC Europe Next Gen / START Qualifier** sowie **16 internationale Qualifikanten**. In der App wird dies wie bei den UK Open über die Top 32 Nicht-Tourcard-Spieler nach `skill DESC` abgebildet.
+  * *Reale PDC:* Die 32 Nicht-Tourcard-Plätze setzen sich zusammen aus den **Top 4 der Challenge Tour OOM**, den **Top 4 der Development Tour OOM**, **8 Qualifikanten aus PDC Europe Next Gen & PDCE Start** sowie **16 internationalen Qualifikanten**.
+  * *App-Vereinfachung:* Da Secondary Tours und regionale Amateur-Qualifier nicht simuliert werden, wählt die App 32 Nicht-Tourcard-Spieler (`tour_card_year == 0`) gemäß der zentralen Qualifier-Regel in Abschnitt 2.0 aus.
 * **Verifizierte Quellen:**
-  * [PDC News: Major expansion announced for PDC European events in 2027](https://www.pdc.tv/news/2026/september/25/major-expansion-announced-for-pdc-european-events-in-2027)
-  * [PDC News: European Open & historic French event headline 2027 PDC calendar](https://www.pdc.tv/news/2026/september/25/european-open-historic-french-event-headline-2027-pdc-calendar/)
+  * [PDC News – 160-player field confirmed for inaugural European Open at Salzburgarena](https://www.pdc.tv/news/2026/october/14/160-player-field-confirmed-for-inaugural-european-open-at-salzburgarena/)
+  * [PDC Europe – PDC Europe präsentiert neues Major-Turnier: European Open feiert 2027 Premiere in Salzburg mit 160 Spielern](https://www.pdc-europe.tv/news/pdc-europe-prasentiert-neues-major-turnier-european-open-feiert-2027-premiere-in-salzburg-mit-160-spielern)
+  * [PDC News – Major expansion announced for PDC European events in 2027](https://www.pdc.tv/news/2026/september/25/major-expansion-announced-for-pdc-european-events-in-2027)
+  * [Wikipedia – European Open 2027 (Darts)](https://de.wikipedia.org/wiki/European_Open_2027_(Darts))
 
 ---
 
