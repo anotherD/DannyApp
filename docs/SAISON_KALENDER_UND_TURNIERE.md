@@ -340,15 +340,15 @@ Da regionale Touren und Amateur-Qualifier nicht als eigene Turniere simuliert we
 
 #### 2.4.5 European Championship
 * **Rahmendaten:**
-  * **Gastgeberland & Austragungsort:** Aktuelle und verbindliche Informationen siehe [season_calendar_2027.json](../app/src/main/assets/season_calendar_2027.json).
-  * **Teilnehmer:** 32 Spieler (*TODO:* vorerst verifiziertes 32er-Schema; 2027er-Erweiterung auf 48 Spieler noch ohne Detailregeln).
+  * **Gastgeberland & Austragungsort:** Aktuelle und verbindliche Informationen siehe [season_calendar_2027.json](../app/src/main/assets/season_calendar_2027.json) (Westfalenhalle, Dortmund, Deutschland).
+  * **Teilnehmer:** 32 Spieler (*TODO:* vorerst verifiziertes 32er-Schema; 2027er-Erweiterung auf 48 Spieler noch ohne offizielle Detailregeln).
   * **Modus:** K.o.-System, Legs.
 * **Teilnehmer & Qualifikation:**
-  1. Top 32 der European Tour Order of Merit der laufenden Saison.
+  1. Top 32 der **European Tour Order of Merit (`ET OOM`)** der laufenden Saison.
 * **Setzliste & Auslosung:**
-  * Alle 32 Teilnehmer sind nach der *European Tour Order of Merit* gesetzt (`(1)` bis `(32)`) und spielen nach dem 32er-Standard-Setzbaum (`seedOrder32[i]` vs. `31 - seedOrder32[i]`), sodass `(1)` und `(2)` frühestens im Finale aufeinandertreffen.
+  * Alle 32 Teilnehmer sind nach der `ET OOM` gesetzt (`(1)` bis `(32)`) und spielen nach dem 32er-Standard-Setzbaum (`seedOrder32[i]` vs. `31 - seedOrder32[i]`), sodass `(1)` und `(2)` frühestens im Finale aufeinandertreffen.
 * **Turnierverlauf & Paarungslogik:**
-  * Fester K.o.-Turnierbaum ab `L32` → `L16` → `QF` → `SF` → `F`.
+  * Fester K.o.-Turnierbaum ab `L32` → `L16` → `QF` → `SF` → `F` ohne erneutes Mischen.
 * **Preisgeld & Ranglisten-Ausnahmen (Gesamt: £750.000):**
 
 | Platzierung / Runde          | Enum-Key | Anzahl Spieler | Preisgeld pro Spieler |
@@ -360,11 +360,16 @@ Da regionale Touren und Amateur-Qualifier nicht als eigene Turniere simuliert we
 | **Achtelfinale (L16 / R2)**  | `L16`    | 8              | £20.000               |
 | **Letzte 32 (R1-Verlierer)** | `L32`    | 16             | £7.500                |
 
-  * Alle 32 Teilnehmer erhalten bei regulärer Teilnahme mindestens £7.500 voll für die Order of Merit angerechnet.
-  * *TODO:* Ranglisten-Zuordnung der Preisgelder (`OOM`) mit Quelle verifizieren und hier ergänzen.
+  * **Ranglisten-Zuordnung:** Das Preisgeld fließt voll in die **PDC Order of Merit (`OOM`)** ein (nicht in `PT OOM`, `PC OOM` oder `ET OOM`).
+  * Alle 32 Teilnehmer (auch Erstrundenverlierer) erhalten bei regulärer Teilnahme mindestens £7.500 voll für die `OOM` angerechnet.
 * **App-Vereinfachung vs. reale PDC-Regeln:**
-  * **Hinweis zu 2027er-Reformen:** Die angekündigte Erweiterung auf 48 Spieler und £1.000.000 Preisgeld wartet noch auf Detailregeln der PDC (siehe [PDC-Regel-Update-Checkliste](PDC_REGEL_UPDATE_CHECKLISTE.md)); bis dahin gilt das verifizierte 32er-Schema.
+  * **Hinweis zu 2027er-Reformen:** Die angekündigte Erweiterung auf 48 Spieler, 6 Turniertage und £1.000.000 Preisgeld wartet noch auf Detailregeln der PDC (siehe [PDC-Regel-Update-Checkliste](PDC_REGEL_UPDATE_CHECKLISTE.md)); bis dahin gilt das verifizierte 32er-Schema.
 * **Verifizierte Quellen:**
+  * [PDC News – Major expansion announced for PDC European events in 2027](https://www.pdc.tv/news/2026/september/25/major-expansion-announced-for-pdc-european-events-in-2027/)
+  * [PDC Europe – PDC und PDC Europe bauen europäische Turnierserie 2027 aus](https://www.pdc-europe.tv/news/pdc-und-pdc-europe-bauen-europaische-turnierserie-2027-aus)
+  * [Sporting News – 2026 European Darts Championship: Draw, schedule, prize money and format](https://www.sportingnews.com/us/darts/news/2026-european-darts-championship-draw-schedule-prize-money-format/54da7e3c71b21e04a355af17)
+  * [Wikipedia – European Darts Championship 2026](https://de.wikipedia.org/wiki/European_Darts_Championship_2026)
+
   * [PDC News: Major expansion announced for PDC European events in 2027](https://www.pdc.tv/news/2026/september/25/major-expansion-announced-for-pdc-european-events-in-2027)
   * *TODO:* Turnierspezifische Links für Qualifikation, Setzbaum und Preisgeld-Split 2026/2027 ergänzen.
 
