@@ -10,6 +10,7 @@ import com.danny.dannyapp.data.db.CareerRepository
 import com.danny.dannyapp.data.db.Player
 import com.danny.dannyapp.data.db.Tournament
 import com.danny.dannyapp.data.db.TournamentMatch
+import com.danny.dannyapp.data.db.TournamentParticipant
 import com.danny.dannyapp.data.db.USER_ID
 import com.danny.dannyapp.domain.config.TournamentConfigLoader
 import com.danny.dannyapp.domain.enums.OrderOfMeritType
@@ -19,7 +20,6 @@ import com.danny.dannyapp.domain.enums.TournamentRound
 import com.danny.dannyapp.domain.model.Country
 import com.danny.dannyapp.domain.model.OrderOfMeritEntry
 import com.danny.dannyapp.domain.model.TournamentRoundPhase
-import com.danny.dannyapp.data.db.TournamentParticipant
 import com.danny.dannyapp.domain.usecase.AdvanceTournamentRoundUseCase
 import com.danny.dannyapp.domain.usecase.CalculateGroupStandingsUseCase
 import com.danny.dannyapp.domain.usecase.CompleteMatchUseCase
@@ -55,7 +55,10 @@ sealed interface TournamentDetailState {
         val prizeMoneyItems: List<PrizeMoneyItem>,
         val isNextPlanned: Boolean,
         val careerName: String,
-        val seasonNumber: Int
+        val seasonNumber: Int,
+        val participantGroups: List<EntrantGroupInfo> = emptyList(),
+        val isParticipantsFrozen: Boolean = false,
+        val openQualifierSlotsText: String? = null
     ) : TournamentDetailState
 
     data class Active(
@@ -87,7 +90,10 @@ sealed interface TournamentDetailState {
         val grandSlamGroupStandings: Map<String, List<GrandSlamGroupItem>> = emptyMap(),
         val hasOpenCpuMatchesInActiveRound: Boolean = false,
         val openDrawInfoMap: Map<Int, Pair<String, List<EntrantGroupInfo>>> = emptyMap(),
-        val isFinalRound: Boolean = false
+        val isFinalRound: Boolean = false,
+        val participantGroups: List<EntrantGroupInfo> = emptyList(),
+        val isParticipantsFrozen: Boolean = false,
+        val openQualifierSlotsText: String? = null
     ) : TournamentDetailState
 
     data class Review(
@@ -110,7 +116,10 @@ sealed interface TournamentDetailState {
         val isQualifier: Boolean = false,
         val qualifierWinners: List<PlayerUiInfo>? = emptyList(),
         val seasonNumber: Int,
-        val grandSlamGroupStandings: Map<String, List<GrandSlamGroupItem>> = emptyMap()
+        val grandSlamGroupStandings: Map<String, List<GrandSlamGroupItem>> = emptyMap(),
+        val participantGroups: List<EntrantGroupInfo> = emptyList(),
+        val isParticipantsFrozen: Boolean = false,
+        val openQualifierSlotsText: String? = null
     ) : TournamentDetailState
 
     data class Error(val message: String) : TournamentDetailState
@@ -230,6 +239,8 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             activeRoundsByTournament = emptyMap()
         )
         val isNextPlanned = summaries.find { it.tournament.id == tournament.id }?.isNextPlanned ?: false
+        val allPlayersMap = playerDao.getAllPlayersList().associateBy { it.id }
+        val participantData = buildParticipantPreviewUiData(tournament, event, allPlayersMap)
 
         _uiState.value = TournamentDetailState.Preview(
             tournament = tournament,
@@ -240,7 +251,10 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             prizeMoneyItems = getPrizeMoneyItems(event),
             isNextPlanned = isNextPlanned,
             careerName = careerName,
-            seasonNumber = seasonNumber
+            seasonNumber = seasonNumber,
+            participantGroups = participantData.participantGroups,
+            isParticipantsFrozen = participantData.isParticipantsFrozen,
+            openQualifierSlotsText = participantData.openQualifierSlotsText
         )
     }
 
@@ -388,6 +402,8 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             calculateGrandSlamGroupStandings(allMatches, userContext.userName, userContext.userCountryCode, allPlayersMap, tournament.seasonId, tournament.id)
         } else emptyMap()
 
+        val participantData = buildParticipantPreviewUiData(tournament, event, allPlayersMap)
+
         _uiState.value = TournamentDetailState.Active(
             tournament = tournament,
             event = event,
@@ -417,7 +433,10 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             grandSlamGroupStandings = grandSlamGroupStandings,
             hasOpenCpuMatchesInActiveRound = hasOpenCpuMatchesInActiveRound,
             openDrawInfoMap = openDrawInfoMap,
-            isFinalRound = isFinalRound
+            isFinalRound = isFinalRound,
+            participantGroups = participantData.participantGroups,
+            isParticipantsFrozen = participantData.isParticipantsFrozen,
+            openQualifierSlotsText = participantData.openQualifierSlotsText
         )
     }
 
@@ -521,6 +540,8 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             calculateGrandSlamGroupStandings(allMatches, userContext.userName, userContext.userCountryCode, allPlayersMap, tournament.seasonId, tournament.id)
         } else emptyMap()
 
+        val participantData = buildParticipantPreviewUiData(tournament, event, allPlayersMap)
+
         _uiState.value = TournamentDetailState.Review(
             tournament = tournament,
             event = event,
@@ -541,8 +562,104 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             isQualifier = isQualifier,
             qualifierWinners = qualifierWinners,
             seasonNumber = seasonNumber,
-            grandSlamGroupStandings = grandSlamGroupStandings
+            grandSlamGroupStandings = grandSlamGroupStandings,
+            participantGroups = participantData.participantGroups,
+            isParticipantsFrozen = participantData.isParticipantsFrozen,
+            openQualifierSlotsText = participantData.openQualifierSlotsText
         )
+    }
+
+    private data class ParticipantPreviewUiData(
+        val participantGroups: List<EntrantGroupInfo>,
+        val isParticipantsFrozen: Boolean,
+        val openQualifierSlotsText: String?
+    )
+
+    private suspend fun buildParticipantPreviewUiData(
+        tournament: Tournament,
+        event: TournamentEvent,
+        allPlayersMap: Map<Long, Player>
+    ): ParticipantPreviewUiData {
+        val previewResult = tournamentQualificationUseCase.getPreviewParticipants(
+            tournament = tournament,
+            seasonId = tournament.seasonId,
+            careerId = currentCareerId
+        )
+        val userContext = resolveUserDisplayContext()
+
+        val groupedParticipants = previewResult.participants.groupBy { it.qualificationType ?: "QUALIFIER" }
+        val participantGroups = groupedParticipants.map { (qualType, participants) ->
+            val title = getQualificationGroupTitle(qualType)
+            val playerUiInfos = participants.map { participant ->
+                if (participant.playerId == USER_ID) {
+                    PlayerUiInfo(
+                        id = USER_ID,
+                        name = userContext.userName,
+                        countryCode = userContext.userCountryCode,
+                        seed = participant.seedNumber,
+                        skill = 5
+                    )
+                } else {
+                    val player = allPlayersMap[participant.playerId]
+                    PlayerUiInfo(
+                        id = participant.playerId,
+                        name = player?.name ?: getApplication<Application>().getString(R.string.player_name_unknown),
+                        countryCode = player?.countryCode ?: Country.DEFAULT_CODE,
+                        seed = participant.seedNumber,
+                        skill = player?.skill ?: SkillLevel.DEFAULT.value
+                    )
+                }
+            }.sortedWith(compareBy<PlayerUiInfo> { it.seed ?: Int.MAX_VALUE }.thenBy { it.name })
+
+            EntrantGroupInfo(title = title, players = playerUiInfos)
+        }
+
+        val targetCount = event.targetParticipantCount
+        val missingSlots = targetCount - previewResult.participants.size
+        val openQualifierSlotsText = if (missingSlots > 0 && event.qualifierEventForMain != null) {
+            val qualifierName = when (event.qualifierEventForMain) {
+                TournamentEvent.QUALIFIER_ET -> getApplication<Application>().getString(R.string.qualifier_name_et)
+                TournamentEvent.QUALIFIER_GRAND_SLAM -> getApplication<Application>().getString(R.string.qualifier_name_grand_slam)
+                TournamentEvent.QUALIFIER_WM -> getApplication<Application>().getString(R.string.qualifier_name_wm)
+                else -> null
+            }
+            if (qualifierName != null) {
+                if (missingSlots == 1) {
+                    getApplication<Application>().getString(R.string.tournament_info_open_qualifier_slot_single, qualifierName)
+                } else {
+                    getApplication<Application>().getString(R.string.tournament_info_open_qualifier_slots, missingSlots, qualifierName)
+                }
+            } else null
+        } else null
+
+        return ParticipantPreviewUiData(
+            participantGroups = participantGroups,
+            isParticipantsFrozen = previewResult.isFrozen,
+            openQualifierSlotsText = openQualifierSlotsText
+        )
+    }
+
+    private fun getQualificationGroupTitle(qualificationType: String): String {
+        val resId = when (qualificationType) {
+            "OOM" -> R.string.qualification_group_oom
+            "PT_OOM" -> R.string.qualification_group_pt_oom
+            "PC_OOM" -> R.string.qualification_group_pc_oom
+            "ET_OOM" -> R.string.qualification_group_et_oom
+            "HOST_NATION" -> R.string.qualification_group_host_nation
+            "QUALIFIER" -> R.string.qualification_group_qualifier
+            "TOUR_CARD" -> R.string.qualification_group_tour_card
+            "OOM_TOP_32" -> R.string.qualification_group_oom_top_32
+            "OOM_33_64" -> R.string.qualification_group_oom_33_64
+            "OOM_65_96" -> R.string.qualification_group_oom_65_96
+            "OOM_97_128" -> R.string.qualification_group_oom_97_128
+            "MAJOR" -> R.string.qualification_group_major
+            "ADDITIONAL" -> R.string.qualification_group_additional
+            "PRO_TOUR_WINNER" -> R.string.qualification_group_pro_tour_winner
+            "POT_2" -> R.string.qualification_group_pot_2
+            "POT_3" -> R.string.qualification_group_pot_3
+            else -> R.string.qualification_group_qualifier
+        }
+        return getApplication<Application>().getString(resId)
     }
 
     private data class UserDisplayContext(

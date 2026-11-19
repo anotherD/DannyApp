@@ -19,7 +19,6 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
-import com.danny.dannyapp.data.db.USER_ID
 import com.danny.dannyapp.domain.enums.TournamentEvent
 import com.danny.dannyapp.domain.usecase.TournamentQualificationUseCase
 import com.danny.dannyapp.ui.BaseActivity
@@ -562,24 +561,20 @@ class TournamentDetailActivity : BaseActivity() {
 
     private fun showPrizeMoneyDialog() {
         val state = viewModel.uiState.value
-        val participantCount = when (state) {
-            is TournamentDetailState.Active -> {
-                state.allRoundsMatches.flatten()
-                    .flatMap { listOf(it.player1.id, it.player2.id) }
-                    .filter { it > 0L || it == USER_ID }
-                    .distinct()
-                    .size
-            }
-            is TournamentDetailState.Review -> {
-                state.allRoundsMatches.flatten()
-                    .flatMap { listOf(it.player1.id, it.player2.id) }
-                    .filter { it > 0L || it == USER_ID }
-                    .distinct()
-                    .size
-            }
-            else -> 0
+        val (participantGroups, isParticipantsFrozen, openQualifierSlotsText) = when (state) {
+            is TournamentDetailState.Preview -> Triple(state.participantGroups, state.isParticipantsFrozen, state.openQualifierSlotsText)
+            is TournamentDetailState.Active -> Triple(state.participantGroups, state.isParticipantsFrozen, state.openQualifierSlotsText)
+            is TournamentDetailState.Review -> Triple(state.participantGroups, state.isParticipantsFrozen, state.openQualifierSlotsText)
+            else -> Triple(emptyList(), false, null)
         }
-        TournamentDialogs.showPrizeMoneyDialog(this, currentPrizeMoneyItems, currentEvent, participantCount)
+        TournamentDialogs.showPrizeMoneyDialog(
+            context = this,
+            prizeMoneyItems = currentPrizeMoneyItems,
+            event = currentEvent,
+            participantGroups = participantGroups,
+            isParticipantsFrozen = isParticipantsFrozen,
+            openQualifierSlotsText = openQualifierSlotsText
+        )
     }
 
     private fun showUserMatchOptionsDialog(matchModel: MatchUiModel) {

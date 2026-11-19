@@ -201,4 +201,49 @@
     <string name="tournament_info_exception_et">Hinweis: Vorqualifizierte Top-32-Spieler erhalten bei einer Auftaktniederlage £0 für alle Ranglisten.</string>
     <string name="tournament_info_exception_pc_uk">Hinweis: Verlierer der 1. Runde erhalten £0 Preisgeld.</string>
     <string name="tournament_info_participants_count">Teilnehmer im Feld: %1$d</string>
+
+    <!-- Turnier-Info Dialog: Tabs & Teilnehmer-Vorschau -->
+    <string name="tournament_info_tab_prizes">Preisgelder &amp; Distanzen</string>
+    <string name="tournament_info_tab_participants">Teilnehmer</string>
+    <string name="tournament_info_participants_preliminary">Teilnehmerfeld nach aktuellem Stand (nicht fix)</string>
+    <string name="tournament_info_open_qualifier_slots">+ %1$d Plätze über %2$s</string>
+    <string name="tournament_info_open_qualifier_slot_single">+ 1 Platz über %1$s</string>
+
+    <!-- Qualifier-Namen -->
+    <string name="qualifier_name_et">ET-Qualifier</string>
+    <string name="qualifier_name_grand_slam">Grand Slam Qualifier</string>
+    <string name="qualifier_name_wm">WM-Qualifier</string>
+
+    <!-- Turnierevent Qualifikations-Regeln -->
+    <string name="tournament_rules_players_championship">Qualifiziert sind alle 128 PDC Tour Card Holder der aktuellen Saison.</string>
+    <string name="tournament_rules_european_tour">48 Teilnehmer: Top 16 Order of Merit, Top 16 Pro Tour Order of Merit, 1 Host Nation Qualifier &amp; 15 Plätze über ET-Qualifier.</string>
+    <string name="tournament_rules_uk_open">160 Teilnehmer: 128 Tour Card Holder &amp; 32 Qualifier. Die Top 32 der Order of Merit steigen erst in Runde 4 ein.</string>
+    <string name="tournament_rules_european_open">160 Teilnehmer: 128 Tour Card Holder &amp; 32 Qualifier. Die Top 32 der Order of Merit steigen erst in Runde 4 ein.</string>
+    <string name="tournament_rules_world_matchplay">32 Teilnehmer: Top 16 der Order of Merit &amp; Top 16 der Pro Tour Order of Merit.</string>
+    <string name="tournament_rules_world_grand_prix">32 Teilnehmer: Top 16 der Order of Merit &amp; Top 16 der Pro Tour Order of Merit (Double-In/Double-Out Format).</string>
+    <string name="tournament_rules_european_championship">32 Teilnehmer: Die Top 32 der European Tour Order of Merit am Ende der Saison.</string>
+    <string name="tournament_rules_grand_slam">48 Teilnehmer: Major-Sieger &amp; Finalisten, ET-/PC-Saisonsieger, Qualifier-Sieger sowie die Top-Spieler der Order of Merit.</string>
+    <string name="tournament_rules_players_championship_finals">64 Teilnehmer: Die Top 64 der Players Championship Order of Merit am Ende der Saison.</string>
+    <string name="tournament_rules_world_championship">128 Teilnehmer: Top 32 Order of Merit (ab R2), Top 32 Pro Tour Order of Merit (ab R1) &amp; 64 internationale &amp; Qualifier-Sieger.</string>
+    <string name="tournament_rules_qualifier_et">Qualifikations-Turnier für die European Tour für Tour Card Holder ohne Vorqualifikation.</string>
+    <string name="tournament_rules_qualifier_grand_slam">Qualifikations-Turnier für den Grand Slam of Darts für Tour Card Holder ohne Vorqualifikation.</string>
+    <string name="tournament_rules_qualifier_wm">Qualifikations-Turnier für die PDC World Championship für Tour Card Holder ohne Vorqualifikation.</string>
+
+    <!-- Qualifikationstypen Gruppen-Überschriften -->
+    <string name="qualification_group_oom">Order of Merit</string>
+    <string name="qualification_group_pt_oom">Pro Tour Order of Merit</string>
+    <string name="qualification_group_pc_oom">Players Championship Order of Merit</string>
+    <string name="qualification_group_et_oom">European Tour Order of Merit</string>
+    <string name="qualification_group_host_nation">Host Nation Qualifier</string>
+    <string name="qualification_group_qualifier">Qualifier</string>
+    <string name="qualification_group_tour_card">Tour Card Holder</string>
+    <string name="qualification_group_oom_top_32">Top 32 Order of Merit (ab Runde 4)</string>
+    <string name="qualification_group_oom_33_64">Order of Merit Plätze 33–64 (ab Runde 3)</string>
+    <string name="qualification_group_oom_65_96">Order of Merit Plätze 65–96 (ab Runde 2)</string>
+    <string name="qualification_group_oom_97_128">Order of Merit Plätze 97–128 (ab Runde 1)</string>
+    <string name="qualification_group_major">Major-Sieger &amp; Finalisten</string>
+    <string name="qualification_group_additional">Internationale &amp; Sekundärtour-Qualifier</string>
+    <string name="qualification_group_pro_tour_winner">ET- &amp; PC-Saisonsieger</string>
+    <string name="qualification_group_pot_2">Topf 2 (OOM Plätze 17–32)</string>
+    <string name="qualification_group_pot_3">Topf 3 (OOM Plätze 33–48)</string>
 </resources>

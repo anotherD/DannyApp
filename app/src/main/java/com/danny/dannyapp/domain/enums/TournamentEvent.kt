@@ -33,6 +33,19 @@ enum class TournamentEvent(val totalPrizeFund: Double) {
             else -> null
         }
 
+    /** Liefert die Soll-Teilnehmerzahl für dieses Turnier-Event. */
+    val targetParticipantCount: Int
+        get() = when (this) {
+            PLAYERS_CHAMPIONSHIP -> 128
+            EUROPEAN_TOUR -> 48
+            UK_OPEN, EUROPEAN_OPEN -> 160
+            WORLD_MATCHPLAY, WORLD_GRAND_PRIX, EUROPEAN_CHAMPIONSHIP -> 32
+            GRAND_SLAM_OF_DARTS -> 48
+            PLAYERS_CHAMPIONSHIP_FINALS -> 64
+            WORLD_CHAMPIONSHIP -> 128
+            QUALIFIER_ET, QUALIFIER_GRAND_SLAM, QUALIFIER_WM -> 128
+        }
+
     /** Liefert den zugehörigen Qualifier, falls es sich um ein Hauptturnier mit Qualifier handelt, sonst null. */
     val qualifierEventForMain: TournamentEvent?
         get() = when (this) {
