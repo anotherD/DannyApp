@@ -54,6 +54,17 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
 
 ---
 
+### 2.0 Zentrale Regeln für nicht-simulierte Qualifier (Regional & International)
+
+Da regionale Touren und Amateur-Qualifier nicht als eigene Turniere simuliert werden, wählt das System die betreffenden Nicht-Tourcard-Spieler (`tour_card_year == 0` der aktuellen Saison, die noch nicht für das Turnier qualifiziert sind) zentral nach der **PDC Order of Merit (`OOM` DESC)** aus (bei Gleichstand nach `skill DESC`):
+
+* **Host Nation Qualifier (`host_country`):** Nicht-Tourcard-Spieler mit Nationalität `host_country` des Turniers (sortiert nach `OOM` DESC). Reichen die nationalen Spieler in der Datenbank nicht aus, wird aus dem internationalen Pool der übrigen Nicht-Tourcard-Spieler (ebenfalls nach `OOM` DESC) aufgefüllt.
+* **Nordic & Baltic Qualifier:** Nicht-Tourcard-Spieler aus den Ländern `SWE`, `FIN`, `DNK`, `NOR`, `ISL`, `EST`, `LVA`, `LTU` (sortiert nach `OOM` DESC, mit internationalem Fallback).
+* **East Europe Qualifier:** Nicht-Tourcard-Spieler aus den Ländern `POL`, `HUN`, `CZE`, `SVK`, `HRV`, `SVN`, `ROU`, `BGR`, `UKR` (sortiert nach `OOM` DESC, mit internationalem Fallback).
+* **Weitere regionale & Tour-Qualifier (für WM / Grand Slam):** Werden beim jeweiligen Turnier definiert und greifen ebenfalls auf `tour_card_year == 0` (sortiert nach `OOM` DESC) zu.
+
+---
+
 ### 2.1 Players Championship (PC)
 * **Rahmendaten:**
   * **Gastgeberland & Austragungsort:** Aktuelle und verbindliche Informationen siehe [season_calendar_2027.json](../app/src/main/assets/season_calendar_2027.json).
@@ -99,21 +110,21 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
   * **Teilnehmer (Hauptfeld):** 48 Spieler.
   * **Modus:** K.o.-System, Legs.
 * **Teilnehmer & Qualifikation:**
-  1. Top 16 der Order of Merit
-  2. Top 16 der Pro Tour Order of Merit, die nicht bereits über Punkt 1 qualifiziert sind
-  3. 10 Gewinner des ET Tour Card Holder Qualifiers (`QUALIFIER_ET`)
-  4. 4 Gewinner des Host Nation Qualifiers: Plätze für Nicht-Tourcard-Spieler (`tour_card_year == 0`) der aktuellen Saison (primär aus `host_country`, bei Bedarf international aufgefüllt)
-  5. 2 Gewinner anderer Qualifier: Plätze für Nicht-Tourcard-Spieler (`tour_card_year == 0`) der aktuellen Saison, die nicht bereits qualifiziert sind
+  1. Top 16 der **PDC Order of Merit (`OOM`)** (steigen in Runde 2 / `L32` ein).
+  2. Top 16 der **Pro Tour Order of Merit (`PT OOM`)**, die nicht bereits über Punkt 1 qualifiziert sind (steigen in Runde 1 / `L48` als gesetzte Spieler ein).
+  3. **10 Gewinner des ET Tour Card Holder Qualifiers (`QUALIFIER_ET`)** (siehe Abschnitt 2.3).
+  4. **4 Gewinner des Host Nation Qualifiers:** Nicht-Tourcard-Spieler (`tour_card_year == 0`) aus `host_country` gemäß zentraler Qualifier-Regel (Abschnitt 2.0).
+  5. **2 regionale Nicht-Tourcard-Qualifier:** **1 Nordic & Baltic Qualifier** + **1 East Europe Qualifier** gemäß zentraler Qualifier-Regel (Abschnitt 2.0).
 * **Setzliste & Auslosung:**
-  * Runde 1 (`L48`) spielen die 32 Qualifikanten (16 Pro Tour Seeds gegen 16 zugeloste Qualifier = 16 Matches).
-  * In Runde 2 (`L32`) steigen die 16 gesetzten OOM-Spieler ein. Die Zuordnung in Runde 2 folgt einem festen mathematischen Schlüssel (Kreuzvergleich):
+  * **Runde 1 (`L48`):** Die 32 Qualifikanten treten gegeneinander an (16 Pro-Tour-Seeds gegen 16 zugeloste Qualifier = 16 Matches).
+  * **Runde 2 (`L32`):** Die 16 gesetzten Top-OOM-Spieler steigen ein und werden nach dem offiziellen 16er-Standard-Setzbaum (`BRACKET_SEED_ORDER_16`) über die 16 Zweitrunden-Matches verteilt, sodass `(1)` und `(2)` frühestens im Finale aufeinandertreffen.
+  * Die Zuordnung in `L32` folgt einem festen mathematischen Kreuzvergleich:
     * OOM Nr. 1 spielt gegen den Sieger der Partie von Pro Tour Seed Nr. 16 (vs. ungesetzter Qualifikant).
     * OOM Nr. 2 spielt gegen den Sieger der Partie von Pro Tour Seed Nr. 15 (vs. ungesetzter Qualifikant).
     * ... bis OOM Nr. 16 gegen den Sieger von Pro Tour Seed Nr. 1.
-  * *TODO:* Prüfen und dokumentieren, ob die 16 OOM-Seeds in `L32` nach dem Standard-Setzbaum (`BRACKET_SEED_ORDER_16`) im Turnierbaum verteilt werden, sodass `(1)` und `(2)` frühestens im Finale aufeinandertreffen.
 * **Turnierverlauf & Paarungslogik:**
-  * **Vorgeschalteter Qualifier:** Vor jedem ET-Event findet ein `QUALIFIER_ET` statt (Details siehe Abschnitt 2.3).
-  * **Hauptfeld:** Fester K.o.-Baum ab `L48` → `L32` → `L16` → `QF` → `SF` → `F`.
+  * **Vorgeschalteter Qualifier:** Vor jedem ET-Event findet ein `QUALIFIER_ET` statt (`K = 10` Boards, 10 Sieger; Details siehe Abschnitt 2.3).
+  * **Hauptfeld:** Fester K.o.-Baum ab `L48` → `L32` → `L16` → `QF` → `SF` → `F` ohne erneutes Mischen.
 * **Preisgeld & Ranglisten-Ausnahmen (Gesamt: £230.000 pro Event):**
 
 | Platzierung / Runde          | Enum-Key | Anzahl Spieler | Preisgeld pro Spieler |
@@ -126,15 +137,16 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
 | **Letzte 32 (R2)**           | `L32`    | 16             | £3.500\*              |
 | **Letzte 48 (R1-Verlierer)** | `L48`    | 16             | £2.000\*              |
 
-  * **\*Auftaktniederlage gesetzter/vorqualifizierter Spieler:** Alle 32 vorqualifizierten Spieler (Top 16 OOM in `L32` sowie Top 16 Pro Tour in `L48`) erhalten ihr Preisgeld real ausgezahlt, aber **£0 für die Ranglisten (OOM, PT OOM, ET OOM)**, wenn sie ihr **erstes Match** im Turnier verlieren (`TournamentPlacement.prize_money = 0.0`).
+  * **Ranglisten-Zuordnung:** Das gewertete Preisgeld fließt gleichzeitig in **drei Ranglisten** ein: **PDC Order of Merit (`OOM`)**, **Pro Tour Order of Merit (`PT OOM`)** sowie **European Tour Order of Merit (`ET OOM`)** (nicht in `PC OOM`).
+  * **\*Auftaktniederlage gesetzter/vorqualifizierter Spieler (PDC Rankings Rules Section 4.17):** Alle 32 vorqualifizierten Spieler (Top 16 `OOM` in `L32` sowie Top 16 `PT OOM` in `L48`) erhalten ihr Preisgeld real ausgezahlt, aber **£0 für alle Ranglisten (`OOM`, `PT OOM`, `ET OOM`)**, wenn sie ihr **erstes Match** im Turnier verlieren (`TournamentPlacement.prize_money = 0.0`).
   * Qualifikanten (die 16 Spieler aus den Qualifiern) erhalten ihr Preisgeld auch bei einer Auftaktniederlage in Runde 1 (£2.000) voll für alle Ranglisten angerechnet.
-  * *TODO:* Ranglisten-Zuordnung der Preisgelder (`OOM`, `PT OOM`, `ET OOM`) mit Quelle verifizieren und hier ergänzen.
 * **App-Vereinfachung vs. reale PDC-Regeln:**
-  * *Reale PDC:* Die 6 Nicht-Tourcard-Plätze (Punkte 4 & 5) teilen sich in der Realität auf in **4 Host Nation Qualifier**, **1 Nordic & Baltic Qualifier** sowie **1 East Europe Qualifier**. In der App sind die beiden regionalen Tour-Qualifier aktuell zu „2 Gewinner anderer Qualifier“ ohne Nationsbindung zusammengefasst. *TODO:* Regionale Qualifier abbilden (oder zumindest bei der Spielerauswahl nach Ländern filtern).
+  * Da die Host-Nation-, Nordic-&-Baltic- und East-Europe-Qualifier nicht als eigene Turniere ausgespielt werden, bestimmt die App die jeweiligen Nicht-Tourcard-Teilnehmer direkt über die Ländercodes und die aktuelle `OOM` (siehe Abschnitt 2.0).
 * **Verifizierte Quellen:**
-  * [PDC News: Major expansion announced for PDC European events in 2027](https://www.pdc.tv/news/2026/september/25/major-expansion-announced-for-pdc-european-events-in-2027)
-  * [European Darts Tour 2027 (Wikipedia)](https://de.wikipedia.org/wiki/European_Darts_Tour_2027)
-  * *TODO:* Offizielle Quellen für Setzbaum und £0-Regel (PDC Rankings Rules) direkt hier verlinken.
+  * [PDC News: Major expansion announced for PDC European events in 2027](https://pdc.tv)
+  * [PDC Rankings Rules (Section 4.17 – Seeded Losers Rule)](https://pdc.tv)
+  * [European Darts Tour 2027 (Wikipedia)](https://wikipedia.org)
+  * [Qualifikationsturniere für die European Darts Tour 2027 (Wikipedia)](https://wikipedia.org)
 
 ---
 
