@@ -156,8 +156,8 @@ Da regionale Touren und Amateur-Qualifier nicht als eigene Turniere simuliert we
   * **Teilnehmer:** Alle nicht für das jeweilige Hauptturnier vorqualifizierten Tour-Card-Inhaber (inkl. `USER_ID = -1L`).
   * **Modus:** K.o.-System auf `K` parallelen Boards (Best-of 11 Legs, £0 Preisgeld), bis exakt `K` Qualifikanten feststehen:
     * `QUALIFIER_ET`: `K = 10` Boards → 10 Sieger
-    * `QUALIFIER_GRAND_SLAM`: `K = 8` Boards → 8 Sieger
-    * `QUALIFIER_WM`: `K = 4` Boards → 4 Sieger
+    * `QUALIFIER_GRAND_SLAM`: `K = 8` Boards (regulär mindestens 8 Sieger; erhöht sich dynamisch, falls über die vorherigen Qualifikationswege weniger als 40 Spieler feststehen)
+    * `QUALIFIER_WM`: `K = 2` Boards (regulär mindestens 2 Sieger; erhöht sich dynamisch bei offenen internationalen Plätzen)
 * **Teilnehmer & Qualifikation:**
   * Alle Tour-Card-Inhaber der aktuellen Saison (`tour_cards`), die nicht bereits über die Vorqualifikationslisten des jeweiligen Hauptturniers (z. B. Top 16 OOM + Top 16 PT OOM bei ET; Top 40 OOM + Top 40 PT OOM bei WM) qualifiziert sind.
 * **Setzliste & Auslosung:**
@@ -170,15 +170,17 @@ Da regionale Touren und Amateur-Qualifier nicht als eigene Turniere simuliert we
   * Hauptrunden pro Board:
     * `QUALIFIER_ET` (`K = 10`): `QUAL_PRELIM` (falls `N > 80`) → `QUAL_R1` (40 Matches) → `QUAL_R2` (20 Matches) → `QUAL_FINAL` (10 Matches → 10 Sieger).
     * `QUALIFIER_GRAND_SLAM` (`K = 8`): `QUAL_PRELIM` (falls `N > 64`) → `QUAL_R1` (32 Matches) → `QUAL_R2` (16 Matches) → `QUAL_FINAL` (8 Matches → 8 Sieger).
-    * `QUALIFIER_WM` (`K = 4`): `QUAL_PRELIM` (falls `N > 32`) → `QUAL_R1` (16 Matches) → `QUAL_R2` (8 Matches) → `QUAL_FINAL` (4 Matches → 4 Sieger).
+    * `QUALIFIER_WM` (`K = 2`): `QUAL_PRELIM` (falls `N > 16`) → `QUAL_R1` (8 Matches) → `QUAL_R2` (4 Matches) → `QUAL_FINAL` (2 Matches → 2 Sieger).
   * Ab `QUAL_R1` läuft jedes Board als fester K.o.-Baum ohne erneutes Mischen.
 * **Preisgeld & Ranglisten-Ausnahmen (Gesamt: £0):**
-  * **£0 Preisgeld:** Qualifier-Turniere schütten kein Preisgeld aus und fließen nicht in die Ranglisten ein.
+  * **£0 Preisgeld:** Qualifier-Turniere schütten kein Preisgeld aus und fließen nicht in die Ranglisten (`OOM`, `PT OOM`, `PC OOM`, `ET OOM`) ein.
 * **App-Vereinfachung vs. reale PDC-Regeln:**
   * In der App nehmen alle nicht-vorqualifizierten Tour-Card-Inhaber geschlossen teil; freiwillige Nichtmeldungen einzelner Profis werden aktuell nicht simuliert.
 * **Verifizierte Quellen:**
+  * [PDC News – 2026 ET3-4 Seeds & Tour Card Holder qualifier entries confirmed](https://www.pdc.tv/news/2026/february/12/2026-et3-4-seeds---tour-card-holder-qualifier-entries-confirmed/)
+  * [PDC News – Grand Slam of Darts Tour Card Holder Qualifier entries confirmed](https://www.pdc.tv/news/2026/november/05/grand-slam-of-darts-tour-card-holder-qualifier-entries-confirmed/)
+  * [PDC News – 2026/27 Paddy Power World Championship International Qualifying structure confirmed](https://www.pdc.tv/news/2026/february/24/2026-27-paddy-power-world-championship-international-qualifying-structure-confirmed/)
   * [Qualifikationsturniere für die European Darts Tour 2027 (Wikipedia)](https://de.wikipedia.org/wiki/Qualifikationsturniere_f%C3%BCr_die_European_Darts_Tour_2027)
-  * *TODO:* Offizielle PDC-Quellen für `QUALIFIER_GRAND_SLAM` und `QUALIFIER_WM` sowie das Board-Setzsystem ergänzen.
 
 ---
 
