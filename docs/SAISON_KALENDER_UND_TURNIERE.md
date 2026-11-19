@@ -255,7 +255,7 @@ Für Qualifikationswege ohne Länderbindung, die über Geschlecht, Alter oder Q-
   * **Einstieg in spätere Runden (Top 96):** Spieler, die erst in `R2_128`, `R3_96` oder `L64` einsteigen und dort sofort verlieren, erhalten regulär das Preisgeld dieser Runde (£1.250, £2.000 bzw. £3.000) voll für die `OOM` angerechnet (keine Nullrunde).
 * **App-Vereinfachung vs. reale PDC-Regeln:**
   * *Reale PDC:* Die 32 Nicht-Tourcard-Plätze setzen sich zusammen aus den **Top 8 der Challenge Tour OOM**, den **Top 8 der Development Tour OOM** (jeweils des Vorjahres, sofern keine Tour Card gewonnen wurde) sowie **16 Amateur-Qualifikanten** (8x Rileys Amateur Qualifiers + 8x PDC in the Community Qualifiers).
-  * *App-Vereinfachung:* Da Secondary Tours und Amateur-Qualifier nicht simuliert werden, wählt die App 32 Nicht-Tourcard-Spieler (`tour_card_year == 0`) gemäß der zentralen Qualifier-Regel in Abschnitt 2.0 aus.
+  * *App-Vereinfachung:* Da Secondary Tours und Amateur-Qualifier nicht simuliert werden, wählt die App 32 Nicht-Tourcard-Spieler (`tour_card_year == 0`) gemäß **Abschnitt 2.0 B** (`.shuffled()`) aus.
 * **Verifizierte Quellen:**
   * [PDC Tournaments – Ladbrokes UK Open](https://www.pdc.tv/tournaments/ladbrokes-uk-open)
   * [PDC News – 2026 Ladbrokes UK Open preview](https://www.pdc.tv/news/2026/march/05/2026-ladbrokes-uk-open-preview/)
@@ -287,7 +287,7 @@ Für Qualifikationswege ohne Länderbindung, die über Geschlecht, Alter oder Q-
   * **Runde-1-Verlierer (`R1_160`):** Alle Verlierer der 1. Runde erhalten **£0**. Spieler mit Einstieg ab `R2_128`, `R3_96` oder `L64` erhalten das Preisgeld ihrer Einstiegsrunde bei sofortigem Ausscheiden regulär für die `OOM` angerechnet.
 * **App-Vereinfachung vs. reale PDC-Regeln:**
   * *Reale PDC:* Die 32 Nicht-Tourcard-Plätze setzen sich zusammen aus den **Top 4 der Challenge Tour OOM**, den **Top 4 der Development Tour OOM**, **8 Qualifikanten aus PDC Europe Next Gen & PDCE Start** sowie **16 internationalen Qualifikanten**.
-  * *App-Vereinfachung:* Da Secondary Tours und regionale Amateur-Qualifier nicht simuliert werden, wählt die App 32 Nicht-Tourcard-Spieler (`tour_card_year == 0`) gemäß der zentralen Qualifier-Regel in Abschnitt 2.0 aus.
+  * *App-Vereinfachung:* Da Secondary Tours und regionale Amateur-Qualifier nicht simuliert werden, wählt die App 16 regionale Nicht-Tourcard-Spieler gemäß **Abschnitt 2.0 A** (`OOM DESC`) sowie 16 Nicht-Tourcard-Spieler für Challenge/Development Tour und Next Gen/START gemäß **Abschnitt 2.0 B** (`.shuffled()`) aus.
 * **Verifizierte Quellen:**
   * [PDC News – 160-player field confirmed for inaugural European Open at Salzburgarena](https://www.pdc.tv/news/2026/october/14/160-player-field-confirmed-for-inaugural-european-open-at-salzburgarena/)
   * [PDC Europe – PDC Europe präsentiert neues Major-Turnier: European Open feiert 2027 Premiere in Salzburg mit 160 Spielern](https://www.pdc-europe.tv/news/pdc-europe-prasentiert-neues-major-turnier-european-open-feiert-2027-premiere-in-salzburg-mit-160-spielern)
@@ -476,9 +476,9 @@ Für Qualifikationswege ohne Länderbindung, die über Geschlecht, Alter oder Q-
 
   * **Ranglisten-Zuordnung:** Das Preisgeld fließt voll in die **PDC Order of Merit (`OOM`)** ein (nicht in `PT OOM`, `PC OOM` oder `ET OOM`).
 * **App-Vereinfachung vs. reale PDC-Regeln:**
-  * Da Non-Ranking-Events (*Premier League, World Masters, World Series, World Cup*) sowie Secondary/Regional Tours (*World Youth, Challenge Tour, Development Tour, Women's Series, Asian/North American/Nordic & Baltic/ANZ*) in der App nicht simuliert werden, ergeben sich für die App Ffolgende Änderungen:
-    1. Sieger und Finalisten der Premier League, World Masters, World Series, World Cup werden nicht berücksichtigt (Turniere nicht in App Abgebildet)
-    2. **12 zufällige Nicht-Tourcard-Holder (`tour_card_year == 0`, `.shuffled()`)** als Stellvertreter für die Additional Qualifiers aus Youth/Women's/Secondary/Affiliate Tours.
+  * Da Non-Ranking-Events (*Premier League, World Masters, World Series, World Cup*) sowie Secondary/Regional Tours (*World Youth, Challenge Tour, Development Tour, Women's Series, Asian/North American/Nordic & Baltic/ANZ*) in der App nicht simuliert werden, ergeben sich für die App folgende Änderungen:
+    1. Sieger und Finalisten der Premier League, World Masters, World Series und World Cup werden nicht berücksichtigt (Turniere nicht in App abgebildet).
+    2. **12 Nicht-Tourcard-Qualifier (`tour_card_year == 0`)** als Stellvertreter für die Additional Qualifiers: **4 regionale Champions** (*Asian Championship*, *North American Championship*, *Nordic & Baltic Championship*, *ANZ Premier League*) gemäß **Abschnitt 2.0 A** (`OOM DESC`) sowie **8 Tour-/Damen-/Youth-Qualifier** (*World Youth* 2x, *Development Tour*, *Challenge Tour*, *Women's World Matchplay*, *Women's Series*, plus 2 Reserve-Plätze) gemäß **Abschnitt 2.0 B** (`.shuffled()`).
 * **Verifizierte Quellen:**
   * [PDC News – 2026 Grand Slam of Darts qualification latest](https://www.pdc.tv/news/2026/october/07/2026-mr-vegas-grand-slam-of-darts-qualification-latest/)
   * [PDC News – Clayton & Ashton confirm Grand Slam qualification](https://www.pdc.tv/news/2026/october/12/clayton-ashton-confirm-grand-slam-qualification/)
@@ -561,7 +561,7 @@ Für Qualifikationswege ohne Länderbindung, die über Geschlecht, Alter oder Q-
   * Verliert ein gesetzter Spieler in Runde 1 (`L128`), erhält er die £15.000 dennoch voll für die `OOM` angerechnet.
 * **App-Vereinfachung vs. reale PDC-Regeln:**
   * *Reale PDC:* Die 46 internationalen Nicht-Tourcard-Plätze setzen sich aus festen Kontingenten zusammen, darunter **Women's Series / Women's World Matchplay** (mindestens 4 Plätze), **Development Tour & World Youth Championship**, **Challenge Tour**, regionale Touren (**Asian Tour**, **Nordic & Baltic**, **CDC Nordamerika**, **ANZ/Australien**, **Afrika**) sowie regionale Super Leagues (z. B. **DACH Super League**).
-  * *App-Vereinfachung:* Da diese Touren nicht simuliert werden, wählt die App 46 Nicht-Tourcard-Spieler (`tour_card_year == 0`) gemäß der zentralen Qualifier-Regel in Abschnitt 2.0 aus.
+  * *App-Vereinfachung:* Die 46 internationalen Nicht-Tourcard-Plätze werden gemäß **Abschnitt 2.0** besetzt: Die regionalen Kontingente (u. a. *DACH Super League*, *Nordic & Baltic*, *East/South-East Europe*, *Asian Tour*, *CDC*, *ANZ/DPA/DPNZ*, *Afrika*) werden nach Ländercodes und `OOM DESC` (**Abschnitt 2.0 A**) vergeben; die nicht-regionalen Kontingente (*Women's Series / Women's World Matchplay*, *Development Tour / World Youth*, *Challenge Tour*, *Associate Member Qualifier*) werden über zufällige Nicht-Tourcard-Spieler (**Abschnitt 2.0 B**, `.shuffled()`) abgebildet.
 * **Verifizierte Quellen:**
   * [PDC News – 2025/26 Paddy Power World Darts Championship field confirmed](https://www.pdc.tv/news/2025/11/23/202526-paddy-power-world-darts-championship-field-confirmed)
   * [PDC News – 2026/27 Paddy Power World Championship International Qualifying structure confirmed](https://pdc.tv)
