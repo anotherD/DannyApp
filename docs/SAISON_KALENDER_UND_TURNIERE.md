@@ -60,10 +60,10 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
   * **Teilnehmer:** 128 Spieler.
   * **Modus:** K.o.-System, Legs.
 * **Teilnehmer & Qualifikation:**
-  1. Alle 128 Tour-Card-Inhaber (inklusive User mit ID `-1L`).
-  * *TODO:* Auffüll-Logik bei unter 128 Tour-Card-Inhabern prüfen (Nachrücker-Sortierung).
+  1. Alle 128 Tour-Card-Inhaber der aktuellen Saison (inklusive User mit ID `-1L`).
+  2. **Auffüll-Logik bei unter 128 Tour-Card-Inhabern:** Sagen Tour-Card-Inhaber ab oder sind weniger als 128 Tour Cards vergeben, wird das Feld auf 128 Spieler aufgefüllt (siehe **App-Vereinfachung vs. reale PDC-Regeln**).
 * **Setzliste & Auslosung:**
-  * Die Top 32 der *Pro Tour Order of Merit* sind nach dem offiziellen Standard-Setzbaum (`buildStandardSeedOrder(32)`) über alle 16 Boards (64 Erstrunden-Matches) verteilt (Seed `seedOrder32[i]` auf Match `2 * i`, dazwischen ungesetzte Partien auf Match `2 * i + 1`), sodass `(1)` und `(2)` frühestens im Finale aufeinandertreffen.
+  * Die Top 32 der *Pro Tour Order of Merit* (`PT OOM`) sind nach dem offiziellen Standard-Setzbaum (`buildStandardSeedOrder(32)`) über alle 16 Boards (64 Erstrunden-Matches) verteilt (Seed `seedOrder32[i]` auf Match `2 * i`, dazwischen ungesetzte Partien auf Match `2 * i + 1`), sodass `(1)` und `(2)` frühestens im Finale aufeinandertreffen.
   * Die restlichen 96 Spieler werden frei zugelost.
 * **Turnierverlauf & Paarungslogik:**
   * Fester K.o.-Turnierbaum ab Runde 1 (`L128` → `L64` → `L32` → `L16` → `QF` → `SF` → `F`).
@@ -80,13 +80,16 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
 | **Letzte 64 (R2)**            | `L64`    | 32             | £1.250                    |
 | **Letzte 128 (R1-Verlierer)** | `L128`   | 64             | **£0** *(kein Preisgeld)* |
 
-  * **Runde-1-Verlierer:** Wer in der 1. Runde (`L128`) ausscheidet, erhält **£0** (siehe auch turnierübergreifende Freilos-Regel in Abschnitt 3.2).
-  * *TODO:* Ranglisten-Zuordnung der Preisgelder (`OOM`, `PT OOM`, `PC OOM`) mit Quelle verifizieren und hier ergänzen.
+  * **Ranglisten-Zuordnung:** Das Preisgeld fließt gleichzeitig in **drei Ranglisten** ein: **PDC Order of Merit (`OOM`)**, **Pro Tour Order of Merit (`PT OOM`)** sowie **Players Championship Order of Merit (`PC OOM`)** (nicht in `ET OOM`).
+  * **Runde-1-Verlierer (`L128`):** Wer in der 1. Runde (`L128`) ausscheidet, erhält **£0** (siehe auch turnierübergreifende Freilos-Regel in Abschnitt 3.2).
 * **App-Vereinfachung vs. reale PDC-Regeln:**
-  * *Reale PDC:* Sagen Tour-Card-Inhaber für ein PC-Event ab, rücken Spieler aus der *Challenge Tour Order of Merit* (und bei Bedarf *Development Tour*) nach, um das 128er-Feld aufzufüllen. Da diese Secondary Tours aktuell nicht simuliert werden, wird das Feld ggf. aus Nicht-Tourcard-Spielern (`tour_card_year == 0`) aufgefüllt oder mit Byes gearbeitet.
+  * *Reale PDC:* Sagen Tour-Card-Inhaber für ein PC-Event ab, rücken Spieler aus der *Challenge Tour Order of Merit* (und bei Bedarf *Development Tour Order of Merit*) nach, um das 128er-Feld aufzufüllen.
+  * *App-Vereinfachung:* Da diese Secondary Tours nicht simuliert werden, wird das Feld bei unter 128 Tour-Card-Inhabern mit **zufälligen Nicht-Tourcard-Spielern** (`tour_card_year == 0`, `.shuffled()`, ohne Sortierung nach `skill` oder OOM) aufgefüllt; reichen auch diese nicht aus, greifen Erstrunden-Freilose (`Byes`).
 * **Verifizierte Quellen:**
-  * [Wikipedia – 2026 PDC Players Championship series](https://en.wikipedia.org/wiki/2026_PDC_Players_Championship_series)
-  * *TODO:* Weitere offizielle PDC-Quellen für Qualifikation, Setzbaum und Preisgeld-Split 2026/2027 gegenprüfen.
+  * [PDC Tournaments – Players Championship](https://pdc.tv)
+  * [PDC News – Biggest prize money increase in PDC history confirmed](https://pdc.tv)
+  * [PDC Rankings Rules](https://pdc.tv)
+  * [Wikipedia – 2026 PDC Players Championship series](https://wikipedia.org)
 
 ---
 
