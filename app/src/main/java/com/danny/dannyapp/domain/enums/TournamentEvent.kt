@@ -32,7 +32,7 @@ enum class TournamentEvent(val totalPrizeFund: Double) {
         get() = when (this) {
             QUALIFIER_ET -> 10
             QUALIFIER_GRAND_SLAM -> 8
-            QUALIFIER_WM -> 4
+            QUALIFIER_WM -> 2
             else -> 0
         }
 
@@ -131,12 +131,12 @@ enum class TournamentEvent(val totalPrizeFund: Double) {
                 else -> MatchDistance(19, MatchFormatType.LEGS, 1, twoClearLegsRule = true)
             }
             WORLD_GRAND_PRIX -> when (round) {
-                TournamentRound.L32 -> MatchDistance(3, MatchFormatType.SETS_DOUBLE_IN_OUT, 3, twoClearLegsRule = true)
+                TournamentRound.L32 -> MatchDistance(3, MatchFormatType.SETS_DOUBLE_IN_OUT, 5, twoClearLegsRule = true)
                 TournamentRound.L16,
-                TournamentRound.QF -> MatchDistance(5, MatchFormatType.SETS_DOUBLE_IN_OUT, 3, twoClearLegsRule = true)
-                TournamentRound.SF -> MatchDistance(9, MatchFormatType.SETS_DOUBLE_IN_OUT, 3, twoClearLegsRule = true)
-                TournamentRound.F -> MatchDistance(11, MatchFormatType.SETS_DOUBLE_IN_OUT, 3, twoClearLegsRule = true)
-                else -> MatchDistance(3, MatchFormatType.SETS_DOUBLE_IN_OUT, 3, twoClearLegsRule = true)
+                TournamentRound.QF -> MatchDistance(5, MatchFormatType.SETS_DOUBLE_IN_OUT, 5, twoClearLegsRule = true)
+                TournamentRound.SF -> MatchDistance(9, MatchFormatType.SETS_DOUBLE_IN_OUT, 5, twoClearLegsRule = true)
+                TournamentRound.F -> MatchDistance(11, MatchFormatType.SETS_DOUBLE_IN_OUT, 5, twoClearLegsRule = true)
+                else -> MatchDistance(3, MatchFormatType.SETS_DOUBLE_IN_OUT, 5, twoClearLegsRule = true)
             }
             EUROPEAN_CHAMPIONSHIP, PLAYERS_CHAMPIONSHIP_FINALS -> when (round) {
                 TournamentRound.L64,

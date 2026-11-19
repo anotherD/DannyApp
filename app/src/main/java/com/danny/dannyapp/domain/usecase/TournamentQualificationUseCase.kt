@@ -91,6 +91,8 @@ class TournamentQualificationUseCase(
         GetOrderOfMeritUseCase(context)
     )
 
+    private val resolveNonSimulatedQualifiersUseCase = ResolveNonSimulatedQualifiersUseCase()
+
     /**
      * Determines the sequence of rounds for a given [TournamentEvent].
      * If [allMatches] is provided and non-empty, truncates the sequence to start from the earliest round present in matches.
@@ -291,6 +293,7 @@ class TournamentQualificationUseCase(
             TournamentEvent.UK_OPEN,
             TournamentEvent.EUROPEAN_OPEN -> resolveUkOrEuropeanOpenQualification(
                 tournamentId = tournamentId,
+                event = event,
                 tourCardPlayerIds = tourCardPlayerIds,
                 allPlayerIds = allPlayerIds,
                 oomEntries = oomEntries,
@@ -356,7 +359,14 @@ class TournamentQualificationUseCase(
         ptOomEntries: List<OrderOfMeritEntry>,
         allPlayers: List<Player>
     ): TournamentQualificationResult {
-        val tcIds = fillToTargetCount(tourCardPlayerIds, 128, allPlayerIds, oomEntries)
+        val tcIds = if (tourCardPlayerIds.size >= 128) {
+            tourCardPlayerIds.take(128)
+        } else {
+            val needed = 128 - tourCardPlayerIds.size
+            val excluded = tourCardPlayerIds.toSet() + USER_ID
+            val unrankedFill = resolveNonSimulatedQualifiersUseCase.resolveUnrankedPool(needed, excluded, allPlayers)
+            tourCardPlayerIds + unrankedFill
+        }
         val sortedByPt = sortPlayerIdsByOom(tcIds, ptOomEntries, allPlayers)
         val top32 = sortedByPt.take(32)
         val remaining96 = sortedByPt.drop(32)
@@ -455,15 +465,23 @@ class TournamentQualificationUseCase(
             tcQualifiers = fillToTargetCount(tcQualifiers, 10, nonPreqEtTc, oomEntries)
         }
 
-        val nonTcPlayerIds = allPlayerIds.filterNot { it in tourCardPlayerIds }
         val effectiveHostCountry = hostCountry ?: Country.DEFAULT_CODE
-        val hostCountryNonTc = nonTcPlayerIds.filter { id ->
-            val player = allPlayers.find { it.id == id }
-            player?.countryCode == effectiveHostCountry && player.tourCardYear == 0
-        }
-        val hostQualifiers = fillToTargetCount(hostCountryNonTc, 4, nonTcPlayerIds, oomEntries).take(4)
-        val remainingNonTc = nonTcPlayerIds.filterNot { it in hostQualifiers }
-        val otherQualifiers = sortPlayerIdsByOom(remainingNonTc, oomEntries, allPlayers).take(2)
+        val excludedBase = tourCardPlayerIds.toSet() + etPreQualified + tcQualifiers.toSet() + USER_ID
+
+        val hostQualifiers = resolveNonSimulatedQualifiersUseCase.resolveRegional(
+            setOf(effectiveHostCountry), 4, excludedBase, allPlayers, oomEntries
+        )
+        val excludedAfterHost = excludedBase + hostQualifiers.toSet()
+
+        val nordicBalticQualifiers = resolveNonSimulatedQualifiersUseCase.resolveRegional(
+            ResolveNonSimulatedQualifiersUseCase.NORDIC_BALTIC, 1, excludedAfterHost, allPlayers, oomEntries
+        )
+        val excludedAfterNb = excludedAfterHost + nordicBalticQualifiers.toSet()
+
+        val eastEuropeQualifiers = resolveNonSimulatedQualifiersUseCase.resolveRegional(
+            ResolveNonSimulatedQualifiersUseCase.EAST_SOUTH_EAST_EUROPE, 1, excludedAfterNb, allPlayers, oomEntries
+        )
+        val otherQualifiers = nordicBalticQualifiers + eastEuropeQualifiers
 
         var qualifiersPool = tcQualifiers + hostQualifiers + otherQualifiers
         if (qualifiersPool.size < 16) {
@@ -548,6 +566,7 @@ class TournamentQualificationUseCase(
      */
     private fun resolveUkOrEuropeanOpenQualification(
         tournamentId: Long,
+        event: TournamentEvent,
         tourCardPlayerIds: List<Long>,
         allPlayerIds: List<Long>,
         oomEntries: List<OrderOfMeritEntry>,
@@ -556,9 +575,23 @@ class TournamentQualificationUseCase(
         val tcIds = fillToTargetCount(tourCardPlayerIds, 128, allPlayerIds, oomEntries)
         val sortedTcOom = sortPlayerIdsByOom(tcIds, oomEntries, allPlayers)
 
-        val nonTcPlayerIds = allPlayerIds.filterNot { it in tcIds }
-        val nonTcQualifiers = sortPlayerIdsByOom(nonTcPlayerIds, oomEntries, allPlayers).take(32)
-        val final32Qualifiers = fillToTargetCount(nonTcQualifiers, 32, allPlayerIds.filterNot { it in tcIds }, oomEntries)
+        val excludedForNonTc = tcIds.toSet() + USER_ID
+        val final32Qualifiers = if (event == TournamentEvent.UK_OPEN) {
+            resolveNonSimulatedQualifiersUseCase.resolveUnrankedPool(32, excludedForNonTc, allPlayers)
+        } else {
+            val regionalSet = ResolveNonSimulatedQualifiersUseCase.DACH +
+                ResolveNonSimulatedQualifiersUseCase.NLD_BEL +
+                ResolveNonSimulatedQualifiersUseCase.NORDIC_BALTIC +
+                ResolveNonSimulatedQualifiersUseCase.EAST_SOUTH_EAST_EUROPE +
+                ResolveNonSimulatedQualifiersUseCase.MEDITERRANEAN
+            val regional16 = resolveNonSimulatedQualifiersUseCase.resolveRegional(
+                regionalSet, 16, excludedForNonTc, allPlayers, oomEntries
+            )
+            val excludedForUnranked = excludedForNonTc + regional16.toSet()
+            val unranked16 = resolveNonSimulatedQualifiersUseCase.resolveUnrankedPool(16, excludedForUnranked, allPlayers)
+            regional16 + unranked16
+        }
+        val final32QualifiersFull = fillToTargetCount(final32Qualifiers, 32, allPlayerIds.filterNot { it in tcIds }, oomEntries)
 
         val participants = sortedTcOom.take(32).mapIndexed { index, playerId ->
             TournamentParticipant(
@@ -588,7 +621,7 @@ class TournamentQualificationUseCase(
                 seedNumber = null,
                 qualificationType = "OOM_97_128"
             )
-        } + final32Qualifiers.map { playerId ->
+        } + final32QualifiersFull.map { playerId ->
             TournamentParticipant(
                 tournamentId = tournamentId,
                 playerId = playerId,
@@ -600,7 +633,7 @@ class TournamentQualificationUseCase(
         return TournamentQualificationResult(
             oomSortedIds = sortedTcOom,
             proTourSortedIds = emptyList(),
-            qualifierIds = final32Qualifiers,
+            qualifierIds = final32QualifiersFull,
             participants = participants
         )
     }
@@ -772,21 +805,52 @@ class TournamentQualificationUseCase(
         val remaining16 = sortedTc80ByOom.drop(64)
 
         val nonPreqWmTc = tourCardPlayerIds.filterNot { it in tc80 }
-        var wmTchqWinners = if (precedingQualifierWinners.size >= 4) {
-            precedingQualifierWinners.take(4)
+        var wmTchqWinners = if (precedingQualifierWinners.size >= 2) {
+            precedingQualifierWinners.take(2)
         } else {
             precedingQualifierWinners
         }
-        if (wmTchqWinners.size < 4) {
-            wmTchqWinners = fillToTargetCount(wmTchqWinners, 4, nonPreqWmTc, oomEntries)
+        if (wmTchqWinners.size < 2) {
+            wmTchqWinners = fillToTargetCount(wmTchqWinners, 2, nonPreqWmTc, oomEntries)
         }
 
-        val nonTcPlayerIds = allPlayerIds.filterNot { it in tourCardPlayerIds || it in tc80 }
-        val nonTc44 = sortPlayerIdsByOom(nonTcPlayerIds, oomEntries, allPlayers).take(44)
-        val nonTc44Full = fillToTargetCount(nonTc44, 44, nonTcPlayerIds, oomEntries)
+        val excludedBase = tourCardPlayerIds.toSet() + tc80.toSet() + wmTchqWinners.toSet() + USER_ID
+        val currentExcluded = excludedBase.toMutableSet()
+
+        val wmQualifiers = mutableListOf<Long>()
+        fun addRegional(countries: Set<String>, count: Int) {
+            val resolved = resolveNonSimulatedQualifiersUseCase.resolveRegional(
+                countries, count, currentExcluded, allPlayers, oomEntries
+            )
+            wmQualifiers.addAll(resolved)
+            currentExcluded.addAll(resolved)
+        }
+
+        addRegional(ResolveNonSimulatedQualifiersUseCase.DACH, 2)
+        addRegional(ResolveNonSimulatedQualifiersUseCase.NORDIC_BALTIC, 2)
+        addRegional(ResolveNonSimulatedQualifiersUseCase.EAST_SOUTH_EAST_EUROPE, 2)
+        addRegional(setOf("CZE"), 1)
+        addRegional(setOf("POL"), 1)
+        addRegional(setOf("HUN"), 1)
+        addRegional(ResolveNonSimulatedQualifiersUseCase.MEDITERRANEAN, 1)
+        addRegional(ResolveNonSimulatedQualifiersUseCase.NLD_BEL, 2)
+        addRegional(ResolveNonSimulatedQualifiersUseCase.ASIAN_TOUR, 4)
+        addRegional(setOf("CHN"), 1)
+        addRegional(setOf("JPN"), 1)
+        addRegional(setOf("IND"), 1)
+        addRegional(ResolveNonSimulatedQualifiersUseCase.CDC_NORTH_AMERICA, 2)
+        addRegional(ResolveNonSimulatedQualifiersUseCase.CDLC_LATIN_AMERICA, 1)
+        addRegional(ResolveNonSimulatedQualifiersUseCase.OCEANIA, 2)
+        addRegional(ResolveNonSimulatedQualifiersUseCase.AFRICA, 2)
+
+        val unranked20 = resolveNonSimulatedQualifiersUseCase.resolveUnrankedPool(
+            20, currentExcluded, allPlayers
+        )
+        wmQualifiers.addAll(unranked20)
+        currentExcluded.addAll(unranked20)
 
         val remaining64Pool = fillToTargetCount(
-            remaining16 + wmTchqWinners + nonTc44Full,
+            remaining16 + wmTchqWinners + wmQualifiers,
             64,
             allPlayerIds.filterNot { it in top32Oom || it in ranks33To64 },
             oomEntries

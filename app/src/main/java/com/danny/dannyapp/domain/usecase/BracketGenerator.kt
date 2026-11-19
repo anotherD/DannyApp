@@ -201,7 +201,7 @@ object BracketGenerator {
         ranks9To16Oom: List<Long>,
         proTourUnseeded: List<Long>
     ): List<MatchPairing> {
-        val all16Seeds = top8Oom + ranks9To16Oom.shuffled()
+        val all16Seeds = top8Oom + ranks9To16Oom
         val unseeded = proTourUnseeded.shuffled()
         return BRACKET_SEED_ORDER_16.mapIndexed { matchIdx, seedIndex ->
             MatchPairing(
