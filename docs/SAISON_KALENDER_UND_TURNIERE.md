@@ -560,7 +560,7 @@ Ergänzend zu den jeweiligen Turnierregeln in Abschnitt 2 gelten für die Simula
 ### 3.3 Spielformate & Sonderregeln (Zentrale Definition)
 Alle konkreten Runden-Distanzen (Best-of-Legs/Sets) aller Turniere sind zentral in `app/src/main/assets/season_calendar_2027.json` (`events.<EVENT>.distances`) definiert. Für die Spiel-Engine gelten folgende zentrale Formatregeln:
 
-* **Set-Format:** Standardmäßig besteht ein Set aus *Best-of 5 Legs* (First to 3 Legs). Ausnahmen: *World Grand Prix* (Best-of 3 Legs pro Set) sowie das optionale Non-Ranking-Event *World Masters* (Best-of 3 Legs pro Set).
+* **Set-Format:** Standardmäßig besteht ein Set aus *Best-of 5 Legs* (First to 3 Legs) – das gilt sowohl für die *World Championship* als auch für den *World Grand Prix*. (Ausnahme bei nicht-simulierten Non-Ranking-Events: *World Masters* mit Best-of 3 Legs pro Set).
 * **Two-Clear-Legs Rule:**
   * *Leg-Format (World Matchplay):* Das Spiel muss mit mindestens 2 Legs Vorsprung gewonnen werden. Steht es nach 3 zusätzlichen Legs über der regulären Zieldistanz immer noch unentschieden (z. B. 12:12 bei First to 10), entscheidet das nächste Leg als Sudden-Death-Leg (13:12).
   * *Set-Format (World Grand Prix & World Championship):* Greift erst im entscheidenden letzten Satz, wenn beide Spieler nur noch ein Set zum Sieg benötigen. Dieser Satz muss mit 2 Legs Vorsprung gewonnen werden; bei 5:5 entscheidet das 11. Leg als Sudden-Death-Leg (6:5).
