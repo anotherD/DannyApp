@@ -3,13 +3,10 @@ package com.danny.dannyapp.domain.usecase
 import android.content.Context
 import com.danny.dannyapp.data.db.AppDatabase
 import com.danny.dannyapp.data.db.PLACEHOLDER_PREVIOUS_WINNER_ID
-import com.danny.dannyapp.data.db.PlayerDao
 import com.danny.dannyapp.data.db.SeasonDao
-import com.danny.dannyapp.data.db.TourCardDao
 import com.danny.dannyapp.data.db.TournamentDao
 import com.danny.dannyapp.data.db.TournamentMatch
 import com.danny.dannyapp.data.db.TournamentMatchDao
-import com.danny.dannyapp.data.db.TournamentParticipantDao
 import com.danny.dannyapp.data.db.TournamentPlacement
 import com.danny.dannyapp.data.db.TournamentPlacementDao
 import com.danny.dannyapp.domain.enums.TournamentEvent
@@ -24,23 +21,15 @@ import kotlinx.coroutines.withContext
 class GenerateBracketUseCase(
     private val tournamentDao: TournamentDao,
     private val seasonDao: SeasonDao,
-    private val tourCardDao: TourCardDao,
-    private val playerDao: PlayerDao,
     private val tournamentMatchDao: TournamentMatchDao,
-    private val tournamentParticipantDao: TournamentParticipantDao,
     private val tournamentPlacementDao: TournamentPlacementDao,
-    private val getOrderOfMeritUseCase: GetOrderOfMeritUseCase,
     private val tournamentQualificationUseCase: TournamentQualificationUseCase
 ) {
     constructor(context: Context) : this(
         AppDatabase.getDatabase(context.applicationContext).tournamentDao(),
         AppDatabase.getDatabase(context.applicationContext).seasonDao(),
-        AppDatabase.getDatabase(context.applicationContext).tourCardDao(),
-        AppDatabase.getDatabase(context.applicationContext).playerDao(),
         AppDatabase.getDatabase(context.applicationContext).tournamentMatchDao(),
-        AppDatabase.getDatabase(context.applicationContext).tournamentParticipantDao(),
         AppDatabase.getDatabase(context.applicationContext).tournamentPlacementDao(),
-        GetOrderOfMeritUseCase(context),
         TournamentQualificationUseCase(context)
     )
 
@@ -300,7 +289,6 @@ class GenerateBracketUseCase(
 
         val participants = qualResult.participants
         val uniqueParticipants = participants.distinctBy { it.playerId }
-        tournamentParticipantDao.insertParticipants(uniqueParticipants)
 
         if (!event.isQualifier) {
             val initialPlacements = uniqueParticipants.map { participant ->
