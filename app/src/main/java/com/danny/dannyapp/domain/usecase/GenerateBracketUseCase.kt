@@ -60,9 +60,10 @@ class GenerateBracketUseCase(
 
         // Helfer zur Ermittlung vorheriger Qualifier-Sieger
         suspend fun getQualifierWinnersFromPreceding(targetCount: Int? = null): List<Long> {
-            val prevTournament = tournamentDao.getTournamentsListForSeason(season.id)
-                .find { it.order == tournament.order - 1 } ?: return emptyList()
-            val prevMatches = tournamentMatchDao.getMatchesListForTournament(prevTournament.id)
+            val seasonTournaments = tournamentDao.getTournamentsListForSeason(season.id)
+            val qualTournament = tournamentQualificationUseCase.findQualifierTournamentForMain(tournament, seasonTournaments)
+                ?: return emptyList()
+            val prevMatches = tournamentMatchDao.getMatchesListForTournament(qualTournament.id)
             if (prevMatches.isEmpty()) return emptyList()
 
             val rounds = prevMatches.map { it.round }.distinct()

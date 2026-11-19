@@ -24,9 +24,27 @@ enum class TournamentEvent(val totalPrizeFund: Double) {
     val isQualifier: Boolean
         get() = this == QUALIFIER_ET || this == QUALIFIER_GRAND_SLAM || this == QUALIFIER_WM
 
+    /** Liefert das zugehörige Hauptturnier, falls es sich um einen Qualifier handelt, sonst null. */
+    val mainEventForQualifier: TournamentEvent?
+        get() = when (this) {
+            QUALIFIER_ET -> EUROPEAN_TOUR
+            QUALIFIER_GRAND_SLAM -> GRAND_SLAM_OF_DARTS
+            QUALIFIER_WM -> WORLD_CHAMPIONSHIP
+            else -> null
+        }
+
+    /** Liefert den zugehörigen Qualifier, falls es sich um ein Hauptturnier mit Qualifier handelt, sonst null. */
+    val qualifierEventForMain: TournamentEvent?
+        get() = when (this) {
+            EUROPEAN_TOUR -> QUALIFIER_ET
+            GRAND_SLAM_OF_DARTS -> QUALIFIER_GRAND_SLAM
+            WORLD_CHAMPIONSHIP -> QUALIFIER_WM
+            else -> null
+        }
+
     /**
      * Liefert die Anzahl der Qualifier-Boards für dieses Event
-     * (QUALIFIER_ET → 10, QUALIFIER_GRAND_SLAM -> 8, QUALIFIER_WM -> 4, sonst 0).
+     * (QUALIFIER_ET → 10, QUALIFIER_GRAND_SLAM -> 8, QUALIFIER_WM -> 2, sonst 0).
      */
     val qualifierBoardCount: Int
         get() = when (this) {
