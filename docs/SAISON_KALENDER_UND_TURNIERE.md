@@ -56,12 +56,42 @@ Natürlich kann kein Spieler mehrfach an einem Turnier teilnehmen.
 
 ### 2.0 Zentrale Regeln für nicht-simulierte Qualifier (Regional & International)
 
-Da regionale Touren und Amateur-Qualifier nicht als eigene Turniere simuliert werden, wählt das System die betreffenden Nicht-Tourcard-Spieler (`tour_card_year == 0` der aktuellen Saison, die noch nicht für das Turnier qualifiziert sind) zentral nach der **PDC Order of Merit (`OOM` DESC)** aus (bei Gleichstand nach `skill DESC`):
+Da regionale Touren, Super Leagues, Sekundärtouren und Amateur-Qualifier nicht als eigene Turniere simuliert werden, bildet das System alle diese Qualifikationswege zentral über Nicht-Tourcard-Spieler der aktuellen Saison (`tour_card_year == 0`, die noch nicht für das jeweilige Turnier qualifiziert sind) ab.
 
-* **Host Nation Qualifier (`host_country`):** Nicht-Tourcard-Spieler mit Nationalität `host_country` des Turniers (sortiert nach `OOM` DESC). Reichen die nationalen Spieler in der Datenbank nicht aus, wird aus dem internationalen Pool der übrigen Nicht-Tourcard-Spieler (ebenfalls nach `OOM` DESC) aufgefüllt.
-* **Nordic & Baltic Qualifier:** Nicht-Tourcard-Spieler aus den Ländern `SWE`, `FIN`, `DNK`, `NOR`, `ISL`, `EST`, `LVA`, `LTU` (sortiert nach `OOM` DESC, mit internationalem Fallback).
-* **East Europe Qualifier:** Nicht-Tourcard-Spieler aus den Ländern `POL`, `HUN`, `CZE`, `SVK`, `HRV`, `SVN`, `ROU`, `BGR`, `UKR` (sortiert nach `OOM` DESC, mit internationalem Fallback).
-* **Weitere regionale & Tour-Qualifier (für WM / Grand Slam):** Werden beim jeweiligen Turnier definiert und greifen ebenfalls auf `tour_card_year == 0` (sortiert nach `OOM` DESC) zu.
+#### A. Regionale & Nationale Qualifier (Sortierung nach `OOM DESC`, bei Gleichstand `skill DESC`)
+Für geografisch gebundene Qualifier filtert das System zunächst nach den offiziellen ISO-3-Ländercodes der jeweiligen PDC-Region und sortiert nach der **PDC Order of Merit (`OOM` DESC)**. Reichen die Spieler in der Datenbank für eine Region nicht aus, erfolgt automatisch ein **Fallback auf den internationalen Pool** (`tour_card_year == 0`, sortiert nach `OOM` DESC):
+
+* **Host Nation Qualifier (`host_country`):** Nicht-Tourcard-Spieler mit Nationalität `host_country` des Turniers (mit internationalem Fallback).
+* **Nordic & Baltic Tour (`PDCNB`):** `SWE`, `FIN`, `DNK`, `NOR`, `ISL`, `EST`, `LVA`, `LTU`, `FRO`, `GRL`.
+* **East / South-East Europe & Sub-Regional Qualifier:**
+  * *East / South-East Europe:* `POL`, `HUN`, `CZE`, `SVK`, `HRV`, `SVN`, `ROU`, `BGR`, `UKR`, `SRB`, `BIH`, `MKD`, `MNE`, `ALB`.
+  * *Nationale / Sub-Regionale Qualifier (WM):* Tschechien (`CZE`), Polen (`POL`), Ungarn / *Hungarian Super League* (`HUN`), Südeuropa / *Mediterranean* (`ITA`, `ESP`, `PRT`, `GRC`, `CYP`, `MLT`, `TUR`, `AND`, `SMR`, `MCO`) sowie *Netherlands & Belgium Qualifier* (`NLD`, `BEL`).
+* **DACH Super League (`PDCE Super League`):** `DEU`, `AUT`, `CHE`, `LIE`, `LUX`.
+* **Asian Tour & Nationale Asien-Qualifier:**
+  * *Asian Tour:* `PHL`, `JPN`, `CHN`, `HKG`, `TWN`, `SGP`, `MYS`, `THA`, `IND`, `KOR`, `IDN`, `VNM`, `ARE`, `BHR`, `KAZ`, `MNG` (sowie weitere PDC-Asia-Verbände).
+  * *Nationale WM-Qualifier:* China (`CHN`), Japan (`JPN`), Indien (`IND`).
+* **CDC Nordamerika & CDLC Lateinamerika/Karibik:**
+  * *CDC (Nordamerika):* `USA`, `CAN`.
+  * *CDLC (Lateinamerika & Karibik):* `BRA`, `ARG`, `CHL`, `COL`, `CRI`, `MEX`, `PAN`, `BHS`, `BRB`, `GUY`, `JAM`, `TTO`.
+* **ANZ Premier League / DPA & DPNZ (Ozeanien):** `AUS`, `NZL`.
+* **Afrika (`African Darts Group` – Northern & Southern Africa):** `ZAF`, `KEN`, `UGA`, `NGA`, `GHA`, `EGY`, `MAR`, `TUN`, `NAM`, `BWA`, `ZWE`, `ZMB`.
+
+#### B. Nicht-regionale Sekundärtouren & Spezial-Qualifier (Aktueller Fallback: `.shuffled()`)
+Für Qualifikationswege ohne Länderbindung, die über Geschlecht, Alter oder Q-School-Status definiert sind, nutzt die App aktuell **zufällige Nicht-Tourcard-Spieler (`tour_card_year == 0`, `.shuffled()`)**:
+
+* **Women's Series & Women's World Matchplay:** Aktuell zufällige Nicht-Tourcard-Spieler (`.shuffled()`). *TODO:* Sobald `gender` in der `players`-Tabelle gepflegt ist, auf weibliche Nicht-Tourcard-Spieler eingrenzen.
+* **Development Tour & World Youth Championship:** Aktuell zufällige Nicht-Tourcard-Spieler (`.shuffled()`). *TODO:* Sobald `birthYear` in der `players`-Tabelle gepflegt ist, auf Nicht-Tourcard-Spieler bis 23 Jahre eingrenzen.
+* **Challenge Tour, UK/IRE Associate Member Qualifier & Amateur-Qualifier (Rileys, PDC START / Next Gen):** Aktuell zufällige Nicht-Tourcard-Spieler (`.shuffled()`).
+
+#### C. Verifizierte Quellen (Abschnitt 2.0)
+* [PDC News – 2026/27 Paddy Power World Darts Championship International Qualifying structure confirmed](https://www.pdc.tv/news/2026/february/24/2026-27-paddy-power-world-championship-international-qualifying-structure-confirmed/)
+* [PDC Europe – Turnierformate (START, Next Gen, Super League, Host Nation & East Europe Qualifier)](https://www.pdc-europe.tv/turnierformate)
+* [PDC Nordic & Baltic – Eligible Countries & European Tour Qualification](https://pdc-nordic.tv/frequently-asked-questions/)
+* [PDC Asia – Eligible Territories](https://www.pdc-asia.tv/index.php?a=Index&c=Index&m=category&mid=1&cid=288)
+* [Wikipedia – PDC Global Affiliate Tours 2026](https://de.wikipedia.org/wiki/PDC_Global_Affiliate_Tours_2026)
+* [Wikipedia – PDC Women's Series](https://de.wikipedia.org/wiki/PDC_Women%E2%80%99s_Series)
+
+---
 
 ---
 
