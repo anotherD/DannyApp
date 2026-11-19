@@ -329,7 +329,8 @@ object BracketGenerator {
         event: TournamentEvent,
         oomSortedIds: List<Long>
     ): List<MatchPairing> {
-        val boardCount = if (event.qualifierBoardCount > 0) event.qualifierBoardCount else 4
+        require(event.qualifierBoardCount > 0) { "Kein Qualifier-Event oder ungültiger boardCount: $event" }
+        val boardCount = event.qualifierBoardCount
 
         val participantCount = oomSortedIds.size
         if (participantCount == 0) return emptyList()

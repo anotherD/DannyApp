@@ -181,7 +181,12 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
                 if (isSimulatingBatch) null
                 else {
                     val updatedTournament = tournaments.find { it.id == tournamentId } ?: targetTournament
-                    val event = try { TournamentEvent.valueOf(updatedTournament.type) } catch (_: Exception) { TournamentEvent.PLAYERS_CHAMPIONSHIP }
+                    val event = try {
+                        TournamentEvent.valueOf(updatedTournament.type)
+                    } catch (_: Exception) {
+                        _uiState.value = TournamentDetailState.Error(getApplication<Application>().getString(R.string.tournament_not_found))
+                        return@combine null
+                    }
                     Triple(updatedTournament, event, matches)
                 }
             }.filterNotNull().collect { (tournament, event, matches) ->
