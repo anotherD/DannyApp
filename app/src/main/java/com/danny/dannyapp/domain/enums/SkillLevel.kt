@@ -15,12 +15,19 @@ enum class SkillLevel(val value: Int) {
     companion object {
         val DEFAULT = LEVEL_5
 
+        const val MIN_VALUE = 1
+        const val MAX_VALUE = 10
+
         /**
-         * Returns the corresponding [SkillLevel] for the given integer value,
-         * or [DEFAULT] if the value is outside the 1..10 range.
+         * Returns the corresponding [SkillLevel] for the given integer value.
+         * Throws [IllegalArgumentException] if the value is outside the [MIN_VALUE]..[MAX_VALUE] range.
+         *
+         * @param value The integer skill value (1..10).
+         * @return The matching [SkillLevel].
          */
         fun fromValue(value: Int): SkillLevel {
-            return entries.find { it.value == value } ?: DEFAULT
+            require(value in MIN_VALUE..MAX_VALUE) { "Ungültiges SkillLevel: $value" }
+            return entries.first { it.value == value }
         }
     }
 }

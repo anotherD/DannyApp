@@ -37,19 +37,20 @@ class TournamentProgressionUseCase(
 
     /**
      * Simulates an entire tournament from start to finish.
-     * Generates bracket if empty, simulates all CPU matches, realistically simulates user matches
-     * based on [userSkill], and advances rounds until the tournament is marked completed.
+     * Generates bracket if empty, simulates all CPU matches, realistically simulates user matches,
+     * and advances rounds until the tournament is marked completed.
      * Always executes round advancement in this batch mode to ensure the simulation loop completes.
      *
      * @param tournamentId The ID of the tournament to simulate completely.
-     * @param userSkill The skill level of the user (1..10).
      * @return `true` if the tournament completed successfully, `false` otherwise.
      */
-    suspend fun simulateCompleteTournament(tournamentId: Long, userSkill: Int): Boolean = withContext(Dispatchers.IO) {
-        val currentTournamentDao = safeTournamentDao ?: return@withContext false
-        val currentTournamentMatchDao = safeTournamentMatchDao ?: return@withContext false
+    suspend fun simulateCompleteTournament(tournamentId: Long): Boolean = withContext(Dispatchers.IO) {
+        val currentTournamentDao = checkNotNull(safeTournamentDao) { "TournamentDao nicht verfügbar" }
+        val currentTournamentMatchDao = checkNotNull(safeTournamentMatchDao) { "TournamentMatchDao nicht verfügbar" }
 
-        var tournament = currentTournamentDao.getTournamentById(tournamentId) ?: return@withContext false
+        var tournament = requireNotNull(currentTournamentDao.getTournamentById(tournamentId)) {
+            "Turnier mit ID $tournamentId nicht gefunden"
+        }
         if (tournament.isCompleted) return@withContext true
 
         val existingMatches = currentTournamentMatchDao.getMatchesListForTournament(tournamentId)
@@ -62,10 +63,14 @@ class TournamentProgressionUseCase(
 
         while (loopCount < maxLoopCount) {
             loopCount++
-            tournament = currentTournamentDao.getTournamentById(tournamentId) ?: return@withContext false
+            tournament = requireNotNull(currentTournamentDao.getTournamentById(tournamentId)) {
+                "Turnier mit ID $tournamentId nicht gefunden"
+            }
             if (tournament.isCompleted) return@withContext true
 
-            val state = advanceTournamentRoundUseCase.evaluateTournamentState(tournamentId) ?: return@withContext false
+            val state = checkNotNull(advanceTournamentRoundUseCase.evaluateTournamentState(tournamentId)) {
+                "Turnier-Status konnte für ID $tournamentId nicht ermittelt werden"
+            }
             val activeRound = state.activeRound ?: return@withContext tournament.isCompleted
 
             completeMatchUseCase.simulateAllOpenCpuMatches(tournamentId)
@@ -82,7 +87,7 @@ class TournamentProgressionUseCase(
                     continue
                 }
 
-                completeMatchUseCase.simulateMatch(match, userSkillOverride = userSkill)
+                completeMatchUseCase.simulateMatch(match, includeUserMatches = true)
             }
 
             val updatedState = advanceTournamentRoundUseCase.evaluateTournamentState(tournamentId)
@@ -93,7 +98,16 @@ class TournamentProgressionUseCase(
             }
         }
 
-        val finalTournament = currentTournamentDao.getTournamentById(tournamentId)
-        return@withContext finalTournament?.isCompleted == true
+        val finalTournament = requireNotNull(currentTournamentDao.getTournamentById(tournamentId)) {
+            "Turnier mit ID $tournamentId nicht gefunden"
+        }
+        return@withContext finalTournament.isCompleted
     }
+
+    /**
+     * Overload for backward compatibility with existing view models passing user skill.
+     */
+    @Deprecated("userSkill parameter is deprecated and ignored", ReplaceWith("simulateCompleteTournament(tournamentId)"))
+    suspend fun simulateCompleteTournament(tournamentId: Long, userSkill: Int): Boolean =
+        simulateCompleteTournament(tournamentId)
 }

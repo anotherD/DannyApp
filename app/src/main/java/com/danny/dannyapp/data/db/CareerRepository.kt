@@ -21,8 +21,16 @@ class CareerRepository(
         careerDao.getAllCareersList()
     }
 
-    suspend fun getCareerById(id: Long): CareerWithProfile? = withContext(Dispatchers.IO) {
-        careerDao.getCareerById(id)
+    /**
+     * Retrieves a career with profile by its ID.
+     * Throws [IllegalArgumentException] if ID is invalid or [IllegalStateException] if career is not found.
+     *
+     * @param id The career ID.
+     * @return The [CareerWithProfile] instance.
+     */
+    suspend fun getCareerById(id: Long): CareerWithProfile = withContext(Dispatchers.IO) {
+        require(id > 0L) { "Ungültige Karriere-ID: $id" }
+        requireNotNull(careerDao.getCareerById(id)) { "Karriere mit ID $id nicht gefunden" }
     }
 
     suspend fun getCareerCountForProfile(profileId: Long): Int = withContext(Dispatchers.IO) {

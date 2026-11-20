@@ -54,20 +54,12 @@ class CompleteMatchUseCase(
             return@withContext context.getString(R.string.match_already_completed)
         }
 
-        val tournament = tournamentDao.getTournamentById(match.tournamentId)
-            ?: return@withContext context.getString(R.string.tournament_not_found)
-
-        val event = try {
-            TournamentEvent.valueOf(tournament.type)
-        } catch (_: Exception) {
-            return@withContext context.getString(R.string.tournament_not_found)
+        val tournament = requireNotNull(tournamentDao.getTournamentById(match.tournamentId)) {
+            "Turnier mit ID ${match.tournamentId} nicht gefunden"
         }
 
-        val round = try {
-            TournamentRound.valueOf(match.round)
-        } catch (_: Exception) {
-            return@withContext context.getString(R.string.match_not_found)
-        }
+        val event = TournamentEvent.valueOf(tournament.type)
+        val round = TournamentRound.valueOf(match.round)
 
         val matchDistance = event.getMatchDistance(round)
         val validationError = MatchScoreValidator.validateMatchScore(
@@ -105,18 +97,11 @@ class CompleteMatchUseCase(
         val match = tournamentMatchDao.getMatchById(matchId) ?: return@withContext false
         if (match.isCompleted) return@withContext false
 
-        val tournament = tournamentDao.getTournamentById(match.tournamentId) ?: return@withContext false
-        val event = try {
-            TournamentEvent.valueOf(tournament.type)
-        } catch (_: Exception) {
-            return@withContext false
+        val tournament = requireNotNull(tournamentDao.getTournamentById(match.tournamentId)) {
+            "Turnier mit ID ${match.tournamentId} nicht gefunden"
         }
-
-        val round = try {
-            TournamentRound.valueOf(match.round)
-        } catch (_: Exception) {
-            return@withContext false
-        }
+        val event = TournamentEvent.valueOf(tournament.type)
+        val round = TournamentRound.valueOf(match.round)
 
         val matchDistance = event.getMatchDistance(round)
         val isPlayer1User = (match.player1Id == USER_ID)
@@ -145,32 +130,29 @@ class CompleteMatchUseCase(
      * Simulates a single match (legs or sets based on match format).
      *
      * @param match The [TournamentMatch] instance to simulate.
-     * @param userSkillOverride If provided (1..10), user matches involving [USER_ID] will be simulated
-     *                           using this skill level. If `null`, matches involving [USER_ID] are skipped.
+     * @param includeUserMatches Whether to include matches involving [USER_ID]. If `false`, user matches are skipped.
      * @return The updated and completed [TournamentMatch].
      */
-    suspend fun simulateMatch(match: TournamentMatch, userSkillOverride: Int? = null): TournamentMatch = withContext(Dispatchers.IO) {
+    suspend fun simulateMatch(match: TournamentMatch, includeUserMatches: Boolean = false): TournamentMatch = withContext(Dispatchers.IO) {
         if (match.isCompleted) {
             return@withContext match
         }
 
-        if (!hasRealPlayers(match)) {
+        if (!includeUserMatches && (match.player1Id == USER_ID || match.player2Id == USER_ID)) {
             return@withContext match
         }
 
-        // If userSkillOverride is null, skip matches involving the human user
-        if (userSkillOverride == null && (match.player1Id == USER_ID || match.player2Id == USER_ID)) {
-            return@withContext match
-        }
+        require(hasRealPlayers(match)) { "Match ${match.id} enthält unaufgelöste Platzhalter-IDs" }
 
-        val tournament = tournamentDao.getTournamentById(match.tournamentId)
-            ?: throw IllegalArgumentException("Tournament not found: ${match.tournamentId}")
+        val tournament = requireNotNull(tournamentDao.getTournamentById(match.tournamentId)) {
+            "Turnier mit ID ${match.tournamentId} nicht gefunden"
+        }
         val event = TournamentEvent.valueOf(tournament.type)
         val round = TournamentRound.valueOf(match.round)
         val matchDistance = event.getMatchDistance(round)
 
-        val skill1 = getPlayerSkill(match.player1Id, userSkillOverride)
-        val skill2 = getPlayerSkill(match.player2Id, userSkillOverride)
+        val skill1 = getPlayerSkill(match.player1Id)
+        val skill2 = getPlayerSkill(match.player2Id)
 
         val player1WinProbability = skill1.toDouble() / (skill1 + skill2)
 
@@ -203,8 +185,6 @@ class CompleteMatchUseCase(
         return@withContext updatedMatch
     }
 
-
-
     /**
      * Simulates all open CPU matches in the current active round for the given tournament.
      *
@@ -225,7 +205,7 @@ class CompleteMatchUseCase(
                 match.player2Id != USER_ID &&
                 hasRealPlayers(match)
             ) {
-                val simulatedMatch = simulateMatch(match, userSkillOverride = null)
+                val simulatedMatch = simulateMatch(match, includeUserMatches = false)
                 updatedList.add(simulatedMatch)
             } else {
                 updatedList.add(match)
@@ -234,12 +214,20 @@ class CompleteMatchUseCase(
         return@withContext updatedList
     }
 
-    private suspend fun getPlayerSkill(playerId: Long, userSkillOverride: Int?): Int {
+    /**
+     * Retrieves and validates the skill level for a given player ID.
+     *
+     * @param playerId The ID of the player.
+     * @return The validated skill integer value (1..10).
+     */
+    private suspend fun getPlayerSkill(playerId: Long): Int {
         if (playerId == USER_ID) {
-            return (userSkillOverride ?: SkillLevel.DEFAULT.value).coerceIn(1, 10)
+            return SkillLevel.DEFAULT.value
         }
-        val player = playerDao.getPlayerById(playerId)
-        return (player?.skill ?: SkillLevel.DEFAULT.value).coerceIn(1, 10)
+        val player = requireNotNull(playerDao.getPlayerById(playerId)) {
+            "CPU-Spieler mit ID $playerId nicht gefunden"
+        }
+        return SkillLevel.fromValue(player.skill).value
     }
 
     private fun hasRealPlayers(match: TournamentMatch): Boolean {

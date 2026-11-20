@@ -32,6 +32,10 @@ Die App folgt dem **Model-View-ViewModel (MVVM)** Muster mit **Kotlin Coroutines
     * `USER_ID = -1L`: Feste ID für den menschlichen Spieler in Tour Cards, Matches und Preisgeld-Platzierungen.
     * `SkillLevel`: Spielstärken von `1` bis `10` (Default: `5`).
     * `Country`: ISO-3-Ländercodes (inkl. Home Nations `ENG`, `SCO`, `WAL`, `NIR`; Fallback `XYZ`, User-Default `DEU`).
+* **Fail-Fast-Prinzip:** Interne Pflichtfelder (z. B. `Career.level`, Turnier-Runden, Setzlisten) und Domain-Übergänge verwenden keine stillen Fallbacks, sondern lösen bei Inkonsistenzen sofort eine `IllegalStateException` aus.
+* **Karriere-Level vs. Skill-Level (Schwierigkeits- & Simulationsmodell):**
+    * `Career.level` (`1..25`): Globaler Schwierigkeitsgrad der Karriere, der das Ziel-Average-Niveau aller CPU-Gegner festlegt (Basis-Durchschnitt: `22 + level * 3`, d. h. Level 1 ≈ 25 Avg bis Level 25 ≈ 97 Avg). Der menschliche User selbst spielt live ohne festen Skill-Wert (für Schnell-Simulationen wird der User bis zur finalen Game-Engine als neutraler Durchschnitt `SkillLevel.DEFAULT` gewertet.).
+    * `SkillLevel` (`1..10`, Default: `5`): Relatives Leistungsgefälle der CPU-Spieler untereinander innerhalb der durch das Karriere-Level vorgegebenen Average-Spanne (z. B. `Skill 10` wie Luke Littler am oberen Rand, `Skill 5` wie Rob Cross im Zentrum).
 
 ---
 
