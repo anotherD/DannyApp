@@ -68,7 +68,7 @@ class AdvanceTournamentRoundUseCase(
         val allMatches = tournamentMatchDao.getMatchesListForTournament(tournamentId)
         if (allMatches.isEmpty()) return@withContext null
 
-        val event = try { TournamentEvent.valueOf(tournament.type) } catch (_: Exception) { return@withContext null }
+        val event = TournamentEvent.valueOf(tournament.type)
         val fullSequence = event.getRoundSequence()
         val firstRoundInMatches = fullSequence.firstOrNull { round -> allMatches.any { it.round == round.name } } ?: fullSequence.first()
         val roundSequence = fullSequence.dropWhile { it != firstRoundInMatches }
@@ -125,7 +125,7 @@ class AdvanceTournamentRoundUseCase(
         val activeRound = state.activeRound ?: return@withContext false
 
         val tournament = tournamentDao.getTournamentById(tournamentId) ?: return@withContext false
-        val event = try { TournamentEvent.valueOf(tournament.type) } catch (_: Exception) { return@withContext false }
+        val event = TournamentEvent.valueOf(tournament.type)
         val allMatches = tournamentMatchDao.getMatchesListForTournament(tournamentId)
 
         if (state.isFinalRound) {
@@ -330,15 +330,15 @@ class AdvanceTournamentRoundUseCase(
      */
     suspend fun propagateWinnerOnMatchCompleted(match: TournamentMatch) = withContext(Dispatchers.IO) {
         val tournament = tournamentDao.getTournamentById(match.tournamentId) ?: return@withContext
-        val event = try { TournamentEvent.valueOf(tournament.type) } catch (_: Exception) { return@withContext }
+        val event = TournamentEvent.valueOf(tournament.type)
         if (event.isQualifier) {
             return@withContext
         }
         val winnerId = match.winnerId ?: return@withContext
         val roundSequence = event.getRoundSequence()
-        val currentRoundEnum = try { TournamentRound.valueOf(match.round) } catch (_: Exception) { null }
+        val currentRoundEnum = TournamentRound.valueOf(match.round)
 
-        if (currentRoundEnum != null && currentRoundEnum != TournamentRound.GROUP) {
+        if (currentRoundEnum != TournamentRound.GROUP) {
             val currentIdx = roundSequence.indexOf(currentRoundEnum)
             if (currentIdx >= 0) {
                 val reachedRound = if (currentRoundEnum == TournamentRound.F) {
@@ -400,7 +400,7 @@ class AdvanceTournamentRoundUseCase(
             return@withContext
         }
 
-        val currentRound = currentRoundEnum ?: return@withContext
+        val currentRound = currentRoundEnum
         val currentIdx = roundSequence.indexOf(currentRound)
         if (currentIdx < 0) return@withContext
         val nextRoundEnum = roundSequence.getOrNull(currentIdx + 1) ?: return@withContext

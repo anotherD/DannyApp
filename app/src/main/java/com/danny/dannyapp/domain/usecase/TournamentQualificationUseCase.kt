@@ -934,22 +934,32 @@ class TournamentQualificationUseCase(
         val allPlayers = preloadedPlayers ?: playerDao.getAllPlayersList()
         val allPlayersMap = allPlayers.associateBy { it.id }
 
-        val careerWithProfile = careerDao.getCareerById(currentCareerId)
-        val userName = careerWithProfile?.playerName?.ifBlank { null }
-            ?: careerWithProfile?.profileName
-            ?: careerWithProfile?.career?.name
+        val careerWithProfile = requireNotNull(careerDao.getCareerById(currentCareerId)) { "Karriere mit ID $currentCareerId nicht gefunden" }
+        val userName = careerWithProfile.playerName?.ifBlank { null }
+            ?: careerWithProfile.profileName
+            ?: careerWithProfile.career.name
             ?: "Du"
-        val userCountryCode = careerWithProfile?.countryCode ?: Country.DEFAULT_USER_CODE
+        val userCountryCode = careerWithProfile.countryCode ?: Country.DEFAULT_USER_CODE
 
         fun createEntrantPlayerDomainInfo(id: Long, rank: Int?): EntrantPlayerDomainInfo {
-            val name = if (id == USER_ID) userName else allPlayersMap[id]?.name ?: "CPU #$id"
-            val country = if (id == USER_ID) userCountryCode else allPlayersMap[id]?.countryCode ?: Country.DEFAULT_CODE
-            val skill = if (id == USER_ID) SkillLevel.DEFAULT.value else allPlayersMap[id]?.skill ?: SkillLevel.DEFAULT.value
+            val name: String
+            val country: String
+            val skill: Int
+            if (id == USER_ID) {
+                name = userName
+                country = userCountryCode
+                skill = SkillLevel.DEFAULT.value
+            } else {
+                val player = requireNotNull(allPlayersMap[id]) { "CPU-Spieler mit ID $id nicht gefunden" }
+                name = player.name
+                country = player.countryCode
+                skill = player.skill
+            }
             return EntrantPlayerDomainInfo(id = id, name = name, countryCode = country, seed = rank, skill = skill)
         }
 
         val sequence = getRoundSequence(event, allMatches)
-        val roundEnum = try { TournamentRound.valueOf(roundKey) } catch (_: Exception) { return@withContext emptyList() }
+        val roundEnum = TournamentRound.valueOf(roundKey)
         val roundIndex = sequence.indexOf(roundEnum)
 
         val groups = mutableListOf<EntrantGroupDomainData>()

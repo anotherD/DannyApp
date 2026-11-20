@@ -36,6 +36,7 @@ class GetOrderOfMeritUseCase(
     )
 
     suspend operator fun invoke(careerId: Long, type: OrderOfMeritType): List<OrderOfMeritEntry> = withContext(Dispatchers.IO) {
+        require(careerId > 0L) { "Ungültige Karriere-ID: $careerId" }
         val seasons = seasonDao.getSeasonsListForCareer(careerId)
         if (seasons.isEmpty()) return@withContext emptyList()
 
@@ -51,10 +52,10 @@ class GetOrderOfMeritUseCase(
         val allPlayers = playerDao.getAllPlayersList()
         val playerMap = allPlayers.associateBy { it.id }
 
-        val careerWithProfile = careerDao.getCareerById(careerId)
-        val userName = careerWithProfile?.playerName?.ifBlank { null } ?: careerWithProfile?.profileName ?: careerWithProfile?.career?.name ?: "Du"
-        val userCountryCode = careerWithProfile?.countryCode ?: Country.DEFAULT_USER_CODE
-        val userSkill = careerWithProfile?.career?.level ?: SkillLevel.DEFAULT.value
+        val careerWithProfile = requireNotNull(careerDao.getCareerById(careerId)) { "Karriere mit ID $careerId nicht gefunden" }
+        val userName = careerWithProfile.playerName?.ifBlank { null } ?: careerWithProfile.profileName ?: careerWithProfile.career.name ?: "Du"
+        val userCountryCode = careerWithProfile.countryCode ?: Country.DEFAULT_USER_CODE
+        val userSkill = SkillLevel.DEFAULT.value
 
         val seasonMap = seasons.associateBy { it.id }
 
@@ -124,10 +125,10 @@ class GetOrderOfMeritUseCase(
                 countryCode = userCountryCode
                 skill = userSkill
             } else {
-                val player = playerMap[playerId]
-                name = player?.name ?: "Unbekannt"
-                countryCode = player?.countryCode ?: Country.DEFAULT_CODE
-                skill = player?.skill ?: SkillLevel.DEFAULT.value
+                val player = requireNotNull(playerMap[playerId]) { "CPU-Spieler mit ID $playerId nicht gefunden" }
+                name = player.name
+                countryCode = player.countryCode
+                skill = player.skill
             }
 
             OrderOfMeritEntry(

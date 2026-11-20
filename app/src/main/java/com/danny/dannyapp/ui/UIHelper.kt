@@ -57,7 +57,7 @@ object UIHelper {
                 ?: careerWithProfile?.career?.name
                 ?: context.getString(R.string.player_name_you),
             countryCode = careerWithProfile?.countryCode ?: Country.DEFAULT_USER_CODE,
-            skill = careerWithProfile?.career?.level?.coerceIn(1, 10) ?: SkillLevel.DEFAULT.value,
+            skill = SkillLevel.DEFAULT.value,
             seed = seed
         )
     }
@@ -67,7 +67,8 @@ object UIHelper {
         player: Player?,
         seed: Int? = null
     ): PlayerUiInfo {
-        return createCpuPlayerUiInfo(context, player?.id ?: 0L, player, seed)
+        val cpuPlayer = requireNotNull(player) { "CPU-Spieler nicht gefunden" }
+        return createCpuPlayerUiInfo(context, cpuPlayer.id, cpuPlayer, seed)
     }
 
     fun createCpuPlayerUiInfo(
@@ -76,11 +77,12 @@ object UIHelper {
         player: Player?,
         seed: Int? = null
     ): PlayerUiInfo {
+        val cpuPlayer = requireNotNull(player) { "CPU-Spieler mit ID $playerId nicht gefunden" }
         return PlayerUiInfo(
-            id = player?.id ?: playerId,
-            name = player?.name ?: context.getString(R.string.player_name_unknown),
-            countryCode = player?.countryCode ?: Country.DEFAULT_CODE,
-            skill = player?.skill ?: SkillLevel.DEFAULT.value,
+            id = cpuPlayer.id,
+            name = cpuPlayer.name,
+            countryCode = cpuPlayer.countryCode,
+            skill = cpuPlayer.skill,
             seed = seed
         )
     }
