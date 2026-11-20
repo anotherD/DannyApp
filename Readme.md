@@ -49,16 +49,16 @@ Ausführliche Fachkonzepte, Forschungsberichte und Architekturbeschreibungen bef
     - [ ] Rudimentäre Q-School-Simulation (zufällige Auffüllung neuer Tour-Card-Inhaber).
 - [ ] **Karriere-Verwaltung & Übersicht ausbauen:**
     - [ ] Auf der Karrieren-Liste (`CareersActivity`) zusätzlich anzeigen, bei welchem Turnier und welcher Runde die Karriere aktuell steht.
-    - [ ] Karriere-Name nachträglich bearbeitbar machen.
+    - [x] Karriere-Name nachträglich bearbeitbar machen.
     - [ ] Karriere-Level hochsetzen ermöglichen (z. B. gezielt nach Saisonende, damit die Karriere bei steigendem eigenem Können spannend bleibt).
     - [ ] Karriere-Übersicht (`CareerOverviewFragment`) um zentrale Infos ergänzen:
         - [ ] Direktanzeige „Nächstes Match“ zum schnellen Losspielen (über Einstellungen ein-/ausschaltbar, um das Turnier-Feeling bei Bedarf zu erhalten).
-        - [ ] Aktuelle Saison sowie eigene Positionen in den Ranglisten (`OOM`, `PT OOM`, `PC OOM`, `ET OOM`).
+        - [x] Aktuelle Saison sowie eigene Positionen in den Ranglisten (`OOM`, `PT OOM`, `PC OOM`, `ET OOM`).
         - [ ] Turnier-Qualifikationsübersicht mit Ampelstatus (Grün = fix qualifiziert, Gelb = aktuell drin/unsicher, Rot = nicht qualifiziert) – mit Caching/Performance-Fokus.
         - [ ] Eigener 3-Dart-Average (sobald Spielstatistiken erfasst werden).
 - [ ] **Turnier-Details, Infos & Rückblick:**
     - [ ] Modifizierbare Match-Distanzen vor Karrierestart (z. B. 50 % / 75 % / 100 % Distanz für kürzere Spielzeiten).
-    - [ ] Turnier-Beschreibungen in der Vorschau um Qualifikations-Boni ergänzen (z. B. *„Sieger qualifiziert sich für Grand Slam of Darts“*).
+    - [x] Turnier-Beschreibungen in der Vorschau um Qualifikations-Boni ergänzen (z. B. *„Sieger qualifiziert sich für Grand Slam of Darts“*).
     - [X] Turnier-Info-Dialog erweitern:
         - [X] Teilnehmerliste mit Qualifikationsweg und Setzposition pro Spieler anzeigen (live aktualisiert für bereits fix qualifizierte Spieler + temporärer Stand).
         - [X] Bei den Runden-Preisgeldern die Ranglisten-Ausnahmen anzeigen (z. B. £0 bei Auftaktniederlage gesetzter Spieler auf der European Tour).
@@ -66,8 +66,8 @@ Ausführliche Fachkonzepte, Forschungsberichte und Architekturbeschreibungen bef
 - [ ] **UI-Polish, Navigation & Branding:**
     - [ ] Finaler App-Name, eigenes Launcher-Icon und überarbeitete, moderne Startseite (`MainActivity`).
     - [ ] Match-Nummer-Badge als echte integrierte Ausbeulung der Match-Kachel gestalten (statt darübergelagertem Badge).
-    - [ ] Eindeutige Match-Nummerierung einführen (entweder mit Runden-Präfix wie `#L64-1` oder fortlaufend durch das gesamte Turnier).
-    - [ ] Horizontales Ausfaden (`fadingEdge`) an den Bildschirmrändern links/rechts für horizontal scrollbare Elemente (Turnierbaum-Kacheln, Runden-Pills, Ranglisten-Pills).
+    - [x] Eindeutige Match-Nummerierung einführen (mit Runden-Präfix wie `#L64-1` inkl. Platzhalter-Verweisen).
+    - [x] Horizontales Ausfaden (`fadingEdge`) an den Bildschirmrändern links/rechts für horizontal scrollbare Elemente (Runden-Pills, Board-Pills, Gruppen-Pills, Ranglisten-Pills).
     - [ ] Einheitliches Chip-Auswahl-Verhalten angleichen: Runden-Chips (aktuell Rahmen = Auswahl, Hintergrund = Status) und Ranglisten-Chips (Hintergrund = Auswahl) auf einen konsistenten Android-Standard bringen.
     - [ ] Material 3 Expressive Motion: Taktilen Spring-/Jump-Effekt (`SpringAnimation` zentral in `UIHelper`) gezielt für primäre Buttons, FABs und Filter-Chips einbauen (nicht für scrollbare Listen-Kacheln).
     - [ ] Toasts durch einheitliche UI-Hinweise (z. B. Material `Snackbar` oder eigene Status-Banner) ersetzen.
