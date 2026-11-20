@@ -2,6 +2,7 @@ package com.danny.dannyapp.ui.tournament
 
 import android.content.Context
 import com.danny.dannyapp.R
+import com.danny.dannyapp.data.db.CareerWithProfile
 import com.danny.dannyapp.data.db.PLACEHOLDER_OPEN_DRAW_ID
 import com.danny.dannyapp.data.db.PLACEHOLDER_PREVIOUS_WINNER_ID
 import com.danny.dannyapp.data.db.Player
@@ -11,10 +12,10 @@ import com.danny.dannyapp.domain.enums.MatchFormatType
 import com.danny.dannyapp.domain.enums.SkillLevel
 import com.danny.dannyapp.domain.enums.TournamentEvent
 import com.danny.dannyapp.domain.enums.TournamentRound
-import com.danny.dannyapp.domain.model.Country
 import com.danny.dannyapp.domain.model.GroupStandingEntry
 import com.danny.dannyapp.domain.model.MatchDistance
 import com.danny.dannyapp.domain.usecase.BracketGenerator
+import com.danny.dannyapp.ui.UIHelper
 import com.danny.dannyapp.ui.model.GrandSlamGroupItem
 import com.danny.dannyapp.ui.model.MatchUiModel
 import com.danny.dannyapp.ui.model.PlayerUiInfo
@@ -79,9 +80,7 @@ object TournamentDetailMapper {
     fun createMatchUiModel(
         context: Context,
         match: TournamentMatch,
-        userName: String,
-        userCountryCode: String,
-        userLevel: Int,
+        careerWithProfile: CareerWithProfile?,
         allPlayersMap: Map<Long, Player>,
         roundKey: String,
         event: TournamentEvent,
@@ -92,60 +91,40 @@ object TournamentDetailMapper {
         val isUserMatch = isP1User || isP2User
 
         val p1Placeholder = resolvePlaceholderPlayerName(context, match.player1Id, match.matchIndex, true, event, roundKey)
-        val p1Name = when {
-            match.player1Id == USER_ID -> userName
-            p1Placeholder != null -> p1Placeholder
-            else -> {
-                val player = allPlayersMap[match.player1Id]
-                player?.name ?: "CPU #${match.player1Id}"
-            }
-        }
         val p1Seed = if (match.player1Id > 0L || match.player1Id == USER_ID) {
             seededPlayerMap[match.player1Id]
         } else {
             null
         }
-        val p1CountryCode = when {
-            match.player1Id == USER_ID -> userCountryCode
-            match.player1Id < 0L -> null
-            else -> allPlayersMap[match.player1Id]?.countryCode ?: Country.DEFAULT_CODE
+        val player1 = if (p1Placeholder != null) {
+            PlayerUiInfo(
+                id = match.player1Id,
+                name = p1Placeholder,
+                countryCode = null,
+                seed = p1Seed,
+                skill = SkillLevel.DEFAULT.value
+            )
+        } else {
+            UIHelper.resolvePlayerUiInfo(context, match.player1Id, allPlayersMap[match.player1Id], careerWithProfile, p1Seed)
         }
-        val p1Skill = if (isP1User) userLevel else allPlayersMap[match.player1Id]?.skill ?: SkillLevel.DEFAULT.value
-        val player1 = PlayerUiInfo(
-            id = match.player1Id,
-            name = p1Name,
-            countryCode = p1CountryCode,
-            seed = p1Seed,
-            skill = p1Skill
-        )
 
         val p2Placeholder = resolvePlaceholderPlayerName(context, match.player2Id, match.matchIndex, false, event, roundKey)
-        val p2Name = when {
-            match.player2Id == USER_ID -> userName
-            p2Placeholder != null -> p2Placeholder
-            else -> {
-                val player = allPlayersMap[match.player2Id]
-                player?.name ?: "CPU #${match.player2Id}"
-            }
-        }
         val p2Seed = if (match.player2Id > 0L || match.player2Id == USER_ID) {
             seededPlayerMap[match.player2Id]
         } else {
             null
         }
-        val p2CountryCode = when {
-            match.player2Id == USER_ID -> userCountryCode
-            match.player2Id < 0L -> null
-            else -> allPlayersMap[match.player2Id]?.countryCode ?: Country.DEFAULT_CODE
+        val player2 = if (p2Placeholder != null) {
+            PlayerUiInfo(
+                id = match.player2Id,
+                name = p2Placeholder,
+                countryCode = null,
+                seed = p2Seed,
+                skill = SkillLevel.DEFAULT.value
+            )
+        } else {
+            UIHelper.resolvePlayerUiInfo(context, match.player2Id, allPlayersMap[match.player2Id], careerWithProfile, p2Seed)
         }
-        val p2Skill = if (isP2User) userLevel else allPlayersMap[match.player2Id]?.skill ?: SkillLevel.DEFAULT.value
-        val player2 = PlayerUiInfo(
-            id = match.player2Id,
-            name = p2Name,
-            countryCode = p2CountryCode,
-            seed = p2Seed,
-            skill = p2Skill
-        )
 
         val scoreText = if (match.isCompleted) "${match.player1Score} : ${match.player2Score}" else "- : -"
         val roundDisplayName = TournamentUiHelper.getDisplayRoundName(roundKey, context)
@@ -211,9 +190,9 @@ object TournamentDetailMapper {
      * Maps domain group standings to [GrandSlamGroupItem] UI models.
      */
     fun mapGrandSlamGroupStandings(
+        context: Context,
         standingsByGroup: Map<String, List<GroupStandingEntry>>,
-        userName: String,
-        userCountryCode: String,
+        careerWithProfile: CareerWithProfile?,
         allPlayersMap: Map<Long, Player>,
         seededPlayerMap: Map<Long, Int>
     ): Map<String, List<GrandSlamGroupItem>> {
@@ -222,23 +201,13 @@ object TournamentDetailMapper {
             val entries = standingsByGroup[groupLetter] ?: return@mapNotNull null
             val items = entries.map { entry ->
                 val playerSeed = seededPlayerMap[entry.playerId]
-                val playerUiInfo = if (entry.playerId == USER_ID) {
-                    PlayerUiInfo(
-                        id = USER_ID,
-                        name = userName,
-                        countryCode = userCountryCode,
-                        seed = playerSeed
-                    )
-                } else {
-                    val dbPlayer = allPlayersMap[entry.playerId]
-                    PlayerUiInfo(
-                        id = entry.playerId,
-                        name = dbPlayer?.name ?: "CPU #${entry.playerId}",
-                        countryCode = dbPlayer?.countryCode ?: Country.DEFAULT_CODE,
-                        skill = dbPlayer?.skill ?: SkillLevel.DEFAULT.value,
-                        seed = playerSeed
-                    )
-                }
+                val playerUiInfo = UIHelper.resolvePlayerUiInfo(
+                    context = context,
+                    playerId = entry.playerId,
+                    player = allPlayersMap[entry.playerId],
+                    careerWithProfile = careerWithProfile,
+                    seed = playerSeed
+                )
                 GrandSlamGroupItem(
                     rank = entry.rank,
                     player = playerUiInfo,

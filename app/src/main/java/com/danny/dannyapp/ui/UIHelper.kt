@@ -1,5 +1,6 @@
 package com.danny.dannyapp.ui
 
+import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Typeface
@@ -15,6 +16,9 @@ import androidx.core.graphics.withSave
 import androidx.core.view.doOnPreDraw
 import com.danny.dannyapp.R
 import com.danny.dannyapp.data.SettingsManager
+import com.danny.dannyapp.data.db.CareerWithProfile
+import com.danny.dannyapp.data.db.Player
+import com.danny.dannyapp.data.db.USER_ID
 import com.danny.dannyapp.domain.enums.SkillLevel
 import com.danny.dannyapp.domain.model.Country
 import com.danny.dannyapp.ui.model.MatchUiModel
@@ -40,6 +44,60 @@ fun SkillLevel.toColorResId(): Int {
 }
 
 object UIHelper {
+
+    fun createUserPlayerUiInfo(
+        context: Context,
+        careerWithProfile: CareerWithProfile?,
+        seed: Int? = null
+    ): PlayerUiInfo {
+        return PlayerUiInfo(
+            id = USER_ID,
+            name = careerWithProfile?.playerName?.ifBlank { null }
+                ?: careerWithProfile?.profileName
+                ?: careerWithProfile?.career?.name
+                ?: context.getString(R.string.player_name_you),
+            countryCode = careerWithProfile?.countryCode ?: Country.DEFAULT_USER_CODE,
+            skill = careerWithProfile?.career?.level?.coerceIn(1, 10) ?: SkillLevel.DEFAULT.value,
+            seed = seed
+        )
+    }
+
+    fun createCpuPlayerUiInfo(
+        context: Context,
+        player: Player?,
+        seed: Int? = null
+    ): PlayerUiInfo {
+        return createCpuPlayerUiInfo(context, player?.id ?: 0L, player, seed)
+    }
+
+    fun createCpuPlayerUiInfo(
+        context: Context,
+        playerId: Long,
+        player: Player?,
+        seed: Int? = null
+    ): PlayerUiInfo {
+        return PlayerUiInfo(
+            id = player?.id ?: playerId,
+            name = player?.name ?: context.getString(R.string.player_name_unknown),
+            countryCode = player?.countryCode ?: Country.DEFAULT_CODE,
+            skill = player?.skill ?: SkillLevel.DEFAULT.value,
+            seed = seed
+        )
+    }
+
+    fun resolvePlayerUiInfo(
+        context: Context,
+        playerId: Long,
+        player: Player?,
+        careerWithProfile: CareerWithProfile?,
+        seed: Int? = null
+    ): PlayerUiInfo {
+        return if (playerId == USER_ID) {
+            createUserPlayerUiInfo(context, careerWithProfile, seed)
+        } else {
+            createCpuPlayerUiInfo(context, playerId, player, seed)
+        }
+    }
 
     class VerticalCenteredImageSpan(
         drawable: Drawable

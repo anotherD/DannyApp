@@ -7,6 +7,7 @@ import com.danny.dannyapp.R
 import com.danny.dannyapp.data.SettingsManager
 import com.danny.dannyapp.data.db.AppDatabase
 import com.danny.dannyapp.data.db.CareerRepository
+import com.danny.dannyapp.data.db.CareerWithProfile
 import com.danny.dannyapp.data.db.Player
 import com.danny.dannyapp.data.db.Tournament
 import com.danny.dannyapp.data.db.TournamentMatch
@@ -28,6 +29,7 @@ import com.danny.dannyapp.domain.usecase.GetOrderOfMeritUseCase
 import com.danny.dannyapp.domain.usecase.GetTournamentSummaryUseCase
 import com.danny.dannyapp.domain.usecase.TournamentProgressionUseCase
 import com.danny.dannyapp.domain.usecase.TournamentQualificationUseCase
+import com.danny.dannyapp.ui.UIHelper
 import com.danny.dannyapp.ui.enums.RoundStatus
 import com.danny.dannyapp.ui.model.EntrantGroupInfo
 import com.danny.dannyapp.ui.model.GrandSlamGroupItem
@@ -205,11 +207,11 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
                 val seasonNumber = careerWithProfile?.career?.season ?: 1
 
                 if (tournament.isCompleted) {
-                    buildReviewState(tournament, event, matches, careerName, seasonNumber)
+                    buildReviewState(tournament, event, matches, careerName, seasonNumber, careerWithProfile)
                 } else if (matches.isEmpty()) {
-                    buildPreviewState(tournament, event, allTournaments, careerName, seasonNumber)
+                    buildPreviewState(tournament, event, allTournaments, careerName, seasonNumber, careerWithProfile)
                 } else {
-                    buildActiveState(tournament, event, matches, careerName, seasonNumber)
+                    buildActiveState(tournament, event, matches, careerName, seasonNumber, careerWithProfile)
                 }
             }
         }
@@ -220,7 +222,8 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         event: TournamentEvent,
         allTournaments: List<Tournament>,
         careerName: String,
-        seasonNumber: Int
+        seasonNumber: Int,
+        careerWithProfile: CareerWithProfile?
     ) {
         val host = TournamentUiHelper.getTournamentCity(tournament.hostCountry, tournament.hostCity)
         val totalPrizeText = if (event.effectiveTotalPrizeFund > 0) {
@@ -240,7 +243,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         )
         val isNextPlanned = summaries.find { it.tournament.id == tournament.id }?.isNextPlanned ?: false
         val allPlayersMap = playerDao.getAllPlayersList().associateBy { it.id }
-        val participantData = buildParticipantPreviewUiData(tournament, event, allPlayersMap)
+        val participantData = buildParticipantPreviewUiData(tournament, event, allPlayersMap, careerWithProfile)
 
         _uiState.value = TournamentDetailState.Preview(
             tournament = tournament,
@@ -263,7 +266,8 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         event: TournamentEvent,
         allMatches: List<TournamentMatch>,
         careerName: String,
-        seasonNumber: Int
+        seasonNumber: Int,
+        careerWithProfile: CareerWithProfile?
     ) {
         val sequence = getRoundSequence(event, allMatches)
         val availableRounds = sequence.map { it.name }
@@ -339,8 +343,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             }
         }
 
-        val isOpenDrawInfoVisible = isUkOpenUngenerated
-        val openEntrantsGroups = if (isOpenDrawInfoVisible) {
+        val openEntrantsGroups = if (isUkOpenUngenerated) {
             openDrawInfoMap[selectedRoundIndexFlow.value]?.second ?: getUkOpenEntrantGroups(
                 tournamentId = currentTournamentId,
                 careerId = careerId,
@@ -368,13 +371,12 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         val seededPlayerMap = getSeededPlayerMap(event, tournament.seasonId, tournament.id)
         val qualifierBoardCount = TournamentDetailUiHelper.getQualifierBoardCountFromMatches(event, allMatches)
         val qualR1Matches = allMatches.filter { it.round == TournamentRound.QUAL_R1.name }
-        val userContext = resolveUserDisplayContext()
 
         val matchUiModels = buildRoundMatchUiModels(
             matches = filteredMatches,
             roundKey = currentRoundKey,
             event = event,
-            userContext = userContext,
+            careerWithProfile = careerWithProfile,
             allPlayersMap = allPlayersMap,
             seededPlayerMap = seededPlayerMap,
             qualR1Matches = qualR1Matches,
@@ -391,7 +393,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             availableRounds = availableRounds,
             allMatches = allMatches,
             event = event,
-            userContext = userContext,
+            careerWithProfile = careerWithProfile,
             allPlayersMap = allPlayersMap,
             seededPlayerMap = seededPlayerMap,
             qualR1Matches = qualR1Matches,
@@ -399,10 +401,10 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         )
 
         val grandSlamGroupStandings = if (event == TournamentEvent.GRAND_SLAM_OF_DARTS) {
-            calculateGrandSlamGroupStandings(allMatches, userContext.userName, userContext.userCountryCode, allPlayersMap, tournament.seasonId, tournament.id)
+            calculateGrandSlamGroupStandings(allMatches, careerWithProfile, allPlayersMap, tournament.seasonId, tournament.id)
         } else emptyMap()
 
-        val participantData = buildParticipantPreviewUiData(tournament, event, allPlayersMap)
+        val participantData = buildParticipantPreviewUiData(tournament, event, allPlayersMap, careerWithProfile)
 
         _uiState.value = TournamentDetailState.Active(
             tournament = tournament,
@@ -423,10 +425,10 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             isCurrentRoundCompleted = isCurrentRoundCompleted,
             isSelectedRoundPlayable = isSelectedRoundPlayable,
             canAdvanceRound = canAdvanceRound,
-            userLevel = userContext.userLevel,
+            userLevel = careerWithProfile?.career?.level?.coerceIn(1, 10) ?: SkillLevel.DEFAULT.value,
             careerName = careerName,
             seasonNumber = seasonNumber,
-            isOpenDrawInfoVisible = isOpenDrawInfoVisible,
+            isOpenDrawInfoVisible = isUkOpenUngenerated,
             prevRoundDisplayName = prevRoundDisplayName,
             openEntrantsGroups = openEntrantsGroups,
             roundStatuses = roundStatuses,
@@ -445,25 +447,20 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         event: TournamentEvent,
         allMatches: List<TournamentMatch>,
         careerName: String,
-        seasonNumber: Int
+        seasonNumber: Int,
+        careerWithProfile: CareerWithProfile?
     ) {
         val finalMatch = allMatches.find { it.round == TournamentRound.F.name } ?: allMatches.lastOrNull()
         val allPlayersMap = playerDao.getAllPlayersList().associateBy { it.id }
-        val userContext = resolveUserDisplayContext()
 
         val winnerId = finalMatch?.winnerId
         val winner = if (winnerId != null) {
-            if (winnerId == USER_ID) {
-                PlayerUiInfo(id = USER_ID, name = userContext.userName, countryCode = userContext.userCountryCode)
-            } else {
-                val player = allPlayersMap[winnerId]
-                PlayerUiInfo(
-                    id = winnerId,
-                    name = player?.name ?: getApplication<Application>().getString(R.string.player_name_unknown),
-                    countryCode = player?.countryCode ?: Country.DEFAULT_CODE,
-                    skill = player?.skill ?: SkillLevel.DEFAULT.value
-                )
-            }
+            UIHelper.resolvePlayerUiInfo(
+                context = getApplication(),
+                playerId = winnerId,
+                player = allPlayersMap[winnerId],
+                careerWithProfile = careerWithProfile
+            )
         } else PlayerUiInfo(id = 0L, name = getApplication<Application>().getString(R.string.player_name_unknown), countryCode = Country.DEFAULT_CODE)
 
         val userPlacement = tournamentPlacementDao.getPlacementsListForTournament(tournament.id).find { it.playerId == USER_ID }
@@ -501,11 +498,12 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         val qualifierWinners = if (isQualifier) {
             allMatches.filter { it.round == TournamentRound.QUAL_FINAL.name }.sortedBy { it.matchIndex }.mapNotNull { match ->
                 val wId = match.winnerId ?: return@mapNotNull null
-                if (wId == USER_ID) PlayerUiInfo(id = USER_ID, name = userContext.userName, countryCode = userContext.userCountryCode)
-                else {
-                    val player = allPlayersMap[wId]
-                    PlayerUiInfo(id = wId, name = player?.name ?: "CPU #$wId", countryCode = player?.countryCode ?: Country.DEFAULT_CODE, skill = player?.skill ?: SkillLevel.DEFAULT.value)
-                }
+                UIHelper.resolvePlayerUiInfo(
+                    context = getApplication(),
+                    playerId = wId,
+                    player = allPlayersMap[wId],
+                    careerWithProfile = careerWithProfile
+                )
             }
         } else null
 
@@ -517,7 +515,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             matches = filteredMatches,
             roundKey = currentRoundKey,
             event = event,
-            userContext = userContext,
+            careerWithProfile = careerWithProfile,
             allPlayersMap = allPlayersMap,
             seededPlayerMap = seededPlayerMap,
             qualR1Matches = qualR1Matches,
@@ -529,7 +527,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             availableRounds = availableRounds,
             allMatches = allMatches,
             event = event,
-            userContext = userContext,
+            careerWithProfile = careerWithProfile,
             allPlayersMap = allPlayersMap,
             seededPlayerMap = seededPlayerMap,
             qualR1Matches = qualR1Matches,
@@ -537,10 +535,10 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         )
 
         val grandSlamGroupStandings = if (event == TournamentEvent.GRAND_SLAM_OF_DARTS) {
-            calculateGrandSlamGroupStandings(allMatches, userContext.userName, userContext.userCountryCode, allPlayersMap, tournament.seasonId, tournament.id)
+            calculateGrandSlamGroupStandings(allMatches, careerWithProfile, allPlayersMap, tournament.seasonId, tournament.id)
         } else emptyMap()
 
-        val participantData = buildParticipantPreviewUiData(tournament, event, allPlayersMap)
+        val participantData = buildParticipantPreviewUiData(tournament, event, allPlayersMap, careerWithProfile)
 
         _uiState.value = TournamentDetailState.Review(
             tournament = tournament,
@@ -578,37 +576,26 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
     private suspend fun buildParticipantPreviewUiData(
         tournament: Tournament,
         event: TournamentEvent,
-        allPlayersMap: Map<Long, Player>
+        allPlayersMap: Map<Long, Player>,
+        careerWithProfile: CareerWithProfile?
     ): ParticipantPreviewUiData {
         val previewResult = tournamentQualificationUseCase.getPreviewParticipants(
             tournament = tournament,
             seasonId = tournament.seasonId,
             careerId = currentCareerId
         )
-        val userContext = resolveUserDisplayContext()
 
         val groupedParticipants = previewResult.participants.groupBy { it.qualificationType ?: "QUALIFIER" }
         val participantGroups = groupedParticipants.map { (qualType, participants) ->
             val title = getQualificationGroupTitle(qualType)
             val playerUiInfos = participants.map { participant ->
-                if (participant.playerId == USER_ID) {
-                    PlayerUiInfo(
-                        id = USER_ID,
-                        name = userContext.userName,
-                        countryCode = userContext.userCountryCode,
-                        seed = participant.seedNumber,
-                        skill = userContext.userLevel
-                    )
-                } else {
-                    val player = allPlayersMap[participant.playerId]
-                    PlayerUiInfo(
-                        id = participant.playerId,
-                        name = player?.name ?: getApplication<Application>().getString(R.string.player_name_unknown),
-                        countryCode = player?.countryCode ?: Country.DEFAULT_CODE,
-                        seed = participant.seedNumber,
-                        skill = player?.skill ?: SkillLevel.DEFAULT.value
-                    )
-                }
+                UIHelper.resolvePlayerUiInfo(
+                    context = getApplication(),
+                    playerId = participant.playerId,
+                    player = allPlayersMap[participant.playerId],
+                    careerWithProfile = careerWithProfile,
+                    seed = participant.seedNumber
+                )
             }.sortedWith(compareBy<PlayerUiInfo> { it.seed ?: Int.MAX_VALUE }.thenBy { it.name })
 
             EntrantGroupInfo(title = title, players = playerUiInfos)
@@ -662,26 +649,6 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         return getApplication<Application>().getString(resId)
     }
 
-    private data class UserDisplayContext(
-        val userLevel: Int,
-        val userName: String,
-        val userCountryCode: String
-    )
-
-    /**
-     * Ermittelt Anzeigename, Landescode und Spielstärke des Users für die aktuelle Karriere.
-     */
-    private suspend fun resolveUserDisplayContext(): UserDisplayContext {
-        val careerWithProfile = careerRepository.getCareerById(currentCareerId)
-        val userLevel = careerWithProfile?.career?.level?.coerceIn(1, 10) ?: SkillLevel.DEFAULT.value
-        val userName = careerWithProfile?.playerName?.ifBlank { null }
-            ?: careerWithProfile?.profileName
-            ?: careerWithProfile?.career?.name
-            ?: getApplication<Application>().getString(R.string.player_name_you)
-        val userCountryCode = careerWithProfile?.countryCode ?: Country.DEFAULT_USER_CODE
-        return UserDisplayContext(userLevel, userName, userCountryCode)
-    }
-
     /**
      * Wandelt die Datenbank-Matches einer Runde in UI-Modelle um und ergänzt bei Vorrunden-Matches das Ziel-Board.
      */
@@ -689,7 +656,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         matches: List<TournamentMatch>,
         roundKey: String,
         event: TournamentEvent,
-        userContext: UserDisplayContext,
+        careerWithProfile: CareerWithProfile?,
         allPlayersMap: Map<Long, Player>,
         seededPlayerMap: Map<Long, Int>,
         qualR1Matches: List<TournamentMatch>,
@@ -700,9 +667,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             TournamentDetailMapper.createMatchUiModel(
                 context = getApplication(),
                 match = match,
-                userName = userContext.userName,
-                userCountryCode = userContext.userCountryCode,
-                userLevel = userContext.userLevel,
+                careerWithProfile = careerWithProfile,
                 allPlayersMap = allPlayersMap,
                 roundKey = roundKey,
                 event = event,
@@ -734,7 +699,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         availableRounds: List<String>,
         allMatches: List<TournamentMatch>,
         event: TournamentEvent,
-        userContext: UserDisplayContext,
+        careerWithProfile: CareerWithProfile?,
         allPlayersMap: Map<Long, Player>,
         seededPlayerMap: Map<Long, Int>,
         qualR1Matches: List<TournamentMatch>,
@@ -745,7 +710,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
                 matches = allMatches.filter { it.round == roundKey },
                 roundKey = roundKey,
                 event = event,
-                userContext = userContext,
+                careerWithProfile = careerWithProfile,
                 allPlayersMap = allPlayersMap,
                 seededPlayerMap = seededPlayerMap,
                 qualR1Matches = qualR1Matches,
@@ -757,8 +722,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
 
     private suspend fun calculateGrandSlamGroupStandings(
         allMatches: List<TournamentMatch>,
-        userName: String,
-        userCountryCode: String,
+        careerWithProfile: CareerWithProfile?,
         allPlayersMap: Map<Long, Player>,
         seasonId: Long,
         tournamentId: Long
@@ -766,7 +730,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         if (allMatches.none { it.round == TournamentRound.GROUP.name }) return emptyMap()
         val seededPlayerMap = getSeededPlayerMap(TournamentEvent.GRAND_SLAM_OF_DARTS, seasonId, tournamentId)
         val standingsByGroup = calculateGroupStandingsUseCase(allMatches)
-        return TournamentDetailMapper.mapGrandSlamGroupStandings(standingsByGroup, userName, userCountryCode, allPlayersMap, seededPlayerMap)
+        return TournamentDetailMapper.mapGrandSlamGroupStandings(getApplication(), standingsByGroup, careerWithProfile, allPlayersMap, seededPlayerMap)
     }
 
     private fun getPrizeMoneyItems(event: TournamentEvent): List<PrizeMoneyItem> {

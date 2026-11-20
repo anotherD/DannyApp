@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.danny.dannyapp.R
 import com.danny.dannyapp.data.db.AppDatabase
 import com.danny.dannyapp.data.db.CareerRepository
+import com.danny.dannyapp.data.db.CareerWithProfile
 import com.danny.dannyapp.data.db.Season
 import com.danny.dannyapp.data.db.Tournament
 import com.danny.dannyapp.data.db.TournamentMatch
@@ -21,6 +22,7 @@ import com.danny.dannyapp.domain.usecase.GetTournamentSummaryUseCase
 import com.danny.dannyapp.domain.usecase.TournamentPhaseState
 import com.danny.dannyapp.domain.usecase.TournamentProgressionUseCase
 import com.danny.dannyapp.domain.usecase.TournamentSummary
+import com.danny.dannyapp.ui.UIHelper
 import com.danny.dannyapp.ui.enums.TournamentStatus
 import com.danny.dannyapp.ui.model.PlayerUiInfo
 import com.danny.dannyapp.ui.model.TournamentUiModel
@@ -77,7 +79,6 @@ class TournamentCalendarViewModel(application: Application) : AndroidViewModel(a
 
                 val allPlayers = playerDao.getAllPlayersList().associateBy { it.id }
                 val careerWithProfile = careerRepository.getCareerById(careerId)
-                val userCountryCode = careerWithProfile?.countryCode ?: Country.DEFAULT_USER_CODE
 
                 combine(
                     tournamentDao.getTournamentsForSeason(season.id),
@@ -85,7 +86,7 @@ class TournamentCalendarViewModel(application: Application) : AndroidViewModel(a
                     tournamentPlacementDao.getPlacementsFlowForSeasons(listOf(season.id)),
                     _simulatingTournamentId
                 ) { tournaments, matches, placements, simulatingId ->
-                    val uiModels = buildTournamentUiModels(tournaments, matches, placements, allPlayers, userCountryCode)
+                    val uiModels = buildTournamentUiModels(tournaments, matches, placements, allPlayers, careerWithProfile)
                     TournamentCalendarState.Success(season.id, uiModels, simulatingId)
                 }.collect { state ->
                     _uiState.value = state
@@ -101,7 +102,7 @@ class TournamentCalendarViewModel(application: Application) : AndroidViewModel(a
         matchesList: List<TournamentMatch>,
         placementsList: List<TournamentPlacement>,
         allPlayers: Map<Long, com.danny.dannyapp.data.db.Player>,
-        userCountryCode: String
+        careerWithProfile: CareerWithProfile?
     ): List<TournamentUiModel> {
         val matchesByTournament = matchesList.groupBy { it.tournamentId }
         val placementsByTournament = placementsList.groupBy { it.tournamentId }
@@ -132,17 +133,12 @@ class TournamentCalendarViewModel(application: Application) : AndroidViewModel(a
 
             val qualifierWinners: List<PlayerUiInfo>? = if (summary.qualifierWinnerIds.isNotEmpty()) {
                 summary.qualifierWinnerIds.map { winnerId ->
-                    if (winnerId == USER_ID) {
-                        PlayerUiInfo(id = USER_ID, name = getApplication<Application>().getString(R.string.player_name_you), countryCode = userCountryCode)
-                    } else {
-                        val dbPlayer = allPlayers[winnerId]
-                        PlayerUiInfo(
-                            id = winnerId,
-                            name = dbPlayer?.name ?: "${getApplication<Application>().getString(R.string.player_name_unknown)} #$winnerId",
-                            countryCode = dbPlayer?.countryCode ?: Country.DEFAULT_CODE,
-                            skill = dbPlayer?.skill ?: SkillLevel.DEFAULT.value
-                        )
-                    }
+                    UIHelper.resolvePlayerUiInfo(
+                        context = getApplication(),
+                        playerId = winnerId,
+                        player = allPlayers[winnerId],
+                        careerWithProfile = careerWithProfile
+                    )
                 }
             } else null
 
