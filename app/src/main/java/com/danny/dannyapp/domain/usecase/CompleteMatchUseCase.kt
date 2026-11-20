@@ -2,11 +2,9 @@ package com.danny.dannyapp.domain.usecase
 
 import android.content.Context
 import com.danny.dannyapp.R
-import com.danny.dannyapp.data.db.AppDatabase
-import com.danny.dannyapp.data.db.PlayerDao
-import com.danny.dannyapp.data.db.TournamentDao
+import com.danny.dannyapp.data.db.PlayerRepository
 import com.danny.dannyapp.data.db.TournamentMatch
-import com.danny.dannyapp.data.db.TournamentMatchDao
+import com.danny.dannyapp.data.db.TournamentRepository
 import com.danny.dannyapp.data.db.USER_ID
 import com.danny.dannyapp.domain.enums.MatchFormatType
 import com.danny.dannyapp.domain.enums.SkillLevel
@@ -24,16 +22,14 @@ import kotlin.random.Random
  */
 class CompleteMatchUseCase(
     private val context: Context,
-    private val tournamentMatchDao: TournamentMatchDao,
-    private val tournamentDao: TournamentDao,
-    private val playerDao: PlayerDao,
+    private val tournamentRepository: TournamentRepository,
+    private val playerRepository: PlayerRepository,
     private val advanceTournamentRoundUseCase: AdvanceTournamentRoundUseCase
 ) {
     constructor(context: Context) : this(
         context = context.applicationContext,
-        tournamentMatchDao = AppDatabase.getDatabase(context.applicationContext).tournamentMatchDao(),
-        tournamentDao = AppDatabase.getDatabase(context.applicationContext).tournamentDao(),
-        playerDao = AppDatabase.getDatabase(context.applicationContext).playerDao(),
+        tournamentRepository = TournamentRepository(context),
+        playerRepository = PlayerRepository(context),
         advanceTournamentRoundUseCase = AdvanceTournamentRoundUseCase(context)
     )
 
@@ -47,16 +43,14 @@ class CompleteMatchUseCase(
      * @return Error message string if invalid, or `null` if completed successfully.
      */
     suspend fun completeManualMatch(matchId: Long, player1Score: Int, player2Score: Int): String? = withContext(Dispatchers.IO) {
-        val match = tournamentMatchDao.getMatchById(matchId)
+        val match = tournamentRepository.getMatchById(matchId)
             ?: return@withContext context.getString(R.string.match_not_found)
 
         if (match.isCompleted) {
             return@withContext context.getString(R.string.match_already_completed)
         }
 
-        val tournament = requireNotNull(tournamentDao.getTournamentById(match.tournamentId)) {
-            "Turnier mit ID ${match.tournamentId} nicht gefunden"
-        }
+        val tournament = tournamentRepository.getTournamentById(match.tournamentId)
 
         val event = TournamentEvent.valueOf(tournament.type)
         val round = TournamentRound.valueOf(match.round)
@@ -81,7 +75,7 @@ class CompleteMatchUseCase(
             isCompleted = true
         )
 
-        tournamentMatchDao.updateMatch(updatedMatch)
+        tournamentRepository.updateMatch(updatedMatch)
         advanceTournamentRoundUseCase.propagateWinnerOnMatchCompleted(updatedMatch)
         return@withContext null
     }
@@ -94,12 +88,10 @@ class CompleteMatchUseCase(
      * @return `true` if the match was updated, `false` otherwise.
      */
     suspend fun completeWithPresetWinner(matchId: Long, userWins: Boolean): Boolean = withContext(Dispatchers.IO) {
-        val match = tournamentMatchDao.getMatchById(matchId) ?: return@withContext false
+        val match = tournamentRepository.getMatchById(matchId) ?: return@withContext false
         if (match.isCompleted) return@withContext false
 
-        val tournament = requireNotNull(tournamentDao.getTournamentById(match.tournamentId)) {
-            "Turnier mit ID ${match.tournamentId} nicht gefunden"
-        }
+        val tournament = tournamentRepository.getTournamentById(match.tournamentId)
         val event = TournamentEvent.valueOf(tournament.type)
         val round = TournamentRound.valueOf(match.round)
 
@@ -121,7 +113,7 @@ class CompleteMatchUseCase(
             isCompleted = true
         )
 
-        tournamentMatchDao.updateMatch(updatedMatch)
+        tournamentRepository.updateMatch(updatedMatch)
         advanceTournamentRoundUseCase.propagateWinnerOnMatchCompleted(updatedMatch)
         return@withContext true
     }
@@ -144,9 +136,7 @@ class CompleteMatchUseCase(
 
         require(hasRealPlayers(match)) { "Match ${match.id} enthält unaufgelöste Platzhalter-IDs" }
 
-        val tournament = requireNotNull(tournamentDao.getTournamentById(match.tournamentId)) {
-            "Turnier mit ID ${match.tournamentId} nicht gefunden"
-        }
+        val tournament = tournamentRepository.getTournamentById(match.tournamentId)
         val event = TournamentEvent.valueOf(tournament.type)
         val round = TournamentRound.valueOf(match.round)
         val matchDistance = event.getMatchDistance(round)
@@ -180,7 +170,7 @@ class CompleteMatchUseCase(
             isCompleted = true
         )
 
-        tournamentMatchDao.updateMatch(updatedMatch)
+        tournamentRepository.updateMatch(updatedMatch)
         advanceTournamentRoundUseCase.propagateWinnerOnMatchCompleted(updatedMatch)
         return@withContext updatedMatch
     }
@@ -192,7 +182,7 @@ class CompleteMatchUseCase(
      * @return List of all tournament matches after simulating CPU matches in the active round.
      */
     suspend fun simulateAllOpenCpuMatches(tournamentId: Long): List<TournamentMatch> = withContext(Dispatchers.IO) {
-        val matches = tournamentMatchDao.getMatchesListForTournament(tournamentId)
+        val matches = tournamentRepository.getMatchesListForTournament(tournamentId)
         val activeRoundName = advanceTournamentRoundUseCase.evaluateTournamentState(tournamentId)?.activeRound?.name
             ?: return@withContext matches
 
@@ -224,9 +214,7 @@ class CompleteMatchUseCase(
         if (playerId == USER_ID) {
             return SkillLevel.DEFAULT.value
         }
-        val player = requireNotNull(playerDao.getPlayerById(playerId)) {
-            "CPU-Spieler mit ID $playerId nicht gefunden"
-        }
+        val player = playerRepository.getPlayerById(playerId)
         return SkillLevel.fromValue(player.skill).value
     }
 

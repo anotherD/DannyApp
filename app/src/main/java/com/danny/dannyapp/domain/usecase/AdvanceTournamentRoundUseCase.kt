@@ -1,14 +1,13 @@
 package com.danny.dannyapp.domain.usecase
 
 import android.content.Context
-import com.danny.dannyapp.data.db.AppDatabase
 import com.danny.dannyapp.data.db.Tournament
 import com.danny.dannyapp.data.db.TournamentDao
 import com.danny.dannyapp.data.db.TournamentMatch
 import com.danny.dannyapp.data.db.TournamentMatchDao
 import com.danny.dannyapp.data.db.TournamentParticipantDao
 import com.danny.dannyapp.data.db.TournamentPlacementDao
-
+import com.danny.dannyapp.data.db.TournamentRepository
 import com.danny.dannyapp.domain.enums.TournamentEvent
 import com.danny.dannyapp.domain.enums.TournamentRound
 import com.danny.dannyapp.domain.model.TournamentProgressState
@@ -21,20 +20,30 @@ import kotlinx.coroutines.withContext
  * based on the winner-based placement model (instant entry prize money + immediate winner promotions).
  */
 class AdvanceTournamentRoundUseCase(
-    private val tournamentDao: TournamentDao,
-    private val tournamentMatchDao: TournamentMatchDao,
-    private val tournamentPlacementDao: TournamentPlacementDao,
-    private val tournamentParticipantDao: TournamentParticipantDao,
+    private val tournamentRepository: TournamentRepository,
     private val tournamentQualificationUseCase: TournamentQualificationUseCase
 ) {
     /** Single source of truth for group-stage standings – shared with the advance logic. */
     private val calculateGroupStandingsUseCase: CalculateGroupStandingsUseCase = CalculateGroupStandingsUseCase()
 
+    constructor(
+        tournamentDao: TournamentDao,
+        tournamentMatchDao: TournamentMatchDao,
+        tournamentPlacementDao: TournamentPlacementDao,
+        tournamentParticipantDao: TournamentParticipantDao,
+        tournamentQualificationUseCase: TournamentQualificationUseCase
+    ) : this(
+        TournamentRepository(
+            tournamentDao,
+            tournamentMatchDao,
+            tournamentPlacementDao,
+            tournamentParticipantDao
+        ),
+        tournamentQualificationUseCase
+    )
+
     constructor(context: Context) : this(
-        AppDatabase.getDatabase(context.applicationContext).tournamentDao(),
-        AppDatabase.getDatabase(context.applicationContext).tournamentMatchDao(),
-        AppDatabase.getDatabase(context.applicationContext).tournamentPlacementDao(),
-        AppDatabase.getDatabase(context.applicationContext).tournamentParticipantDao(),
+        TournamentRepository(context),
         TournamentQualificationUseCase(context)
     )
 
@@ -65,10 +74,8 @@ class AdvanceTournamentRoundUseCase(
      * @return [TournamentProgressState] mit Rundenstatus und Fortschrittsinfos, oder null, wenn keine Matches für geplante Turniere existieren.
      */
     suspend fun evaluateTournamentState(tournamentId: Long): TournamentProgressState? = withContext(Dispatchers.IO) {
-        val tournament = requireNotNull(tournamentDao.getTournamentById(tournamentId)) {
-            "Turnier mit ID $tournamentId wurde nicht gefunden"
-        }
-        val allMatches = tournamentMatchDao.getMatchesListForTournament(tournamentId)
+        val tournament = tournamentRepository.getTournamentById(tournamentId)
+        val allMatches = tournamentRepository.getMatchesListForTournament(tournamentId)
         if (allMatches.isEmpty()) return@withContext null
 
         val event = TournamentEvent.valueOf(tournament.type)
@@ -130,11 +137,9 @@ class AdvanceTournamentRoundUseCase(
         if (!state.canAdvanceRound) return@withContext false
         val activeRound = state.activeRound ?: return@withContext false
 
-        val tournament = requireNotNull(tournamentDao.getTournamentById(tournamentId)) {
-            "Turnier mit ID $tournamentId wurde nicht gefunden"
-        }
+        val tournament = tournamentRepository.getTournamentById(tournamentId)
         val event = TournamentEvent.valueOf(tournament.type)
-        val allMatches = tournamentMatchDao.getMatchesListForTournament(tournamentId)
+        val allMatches = tournamentRepository.getMatchesListForTournament(tournamentId)
 
         if (state.isFinalRound) {
             if (!event.isQualifier) {
@@ -142,7 +147,7 @@ class AdvanceTournamentRoundUseCase(
                 val finalMatch = finalMatches.firstOrNull()
                 val winnerId = finalMatch?.winnerId
                 if (winnerId != null) {
-                    tournamentPlacementDao.upsertPlayerPlacement(
+                    tournamentRepository.upsertPlayerPlacement(
                         tournamentId = tournamentId,
                         playerId = winnerId,
                         reachedRound = TournamentRound.WINNER.name,
@@ -150,7 +155,7 @@ class AdvanceTournamentRoundUseCase(
                     )
                 }
             }
-            tournamentDao.updateTournament(tournament.copy(isCompleted = true, currentRound = null))
+            tournamentRepository.updateTournament(tournament.copy(isCompleted = true, currentRound = null))
             return@withContext true
         }
 
@@ -165,7 +170,7 @@ class AdvanceTournamentRoundUseCase(
         val activeIndex = roundSequence.indexOf(activeRound)
         val nextRound = if (activeIndex >= 0) roundSequence.getOrNull(activeIndex + 1) else null
         if (nextRound != null) {
-            tournamentDao.updateTournament(tournament.copy(currentRound = nextRound.name))
+            tournamentRepository.updateTournament(tournament.copy(currentRound = nextRound.name))
         }
 
         return@withContext true
@@ -202,7 +207,7 @@ class AdvanceTournamentRoundUseCase(
                     val groupWinner = sortedGroup.firstOrNull()
                     if (groupWinner != null) {
                         groupWinners.add(groupWinner.playerId)
-                        tournamentPlacementDao.upsertPlayerPlacement(
+                        tournamentRepository.upsertPlayerPlacement(
                             tournamentId = tournament.id,
                             playerId = groupWinner.playerId,
                             reachedRound = TournamentRound.L16.name,
@@ -211,7 +216,7 @@ class AdvanceTournamentRoundUseCase(
                     }
                     val groupRunnerUp = sortedGroup.getOrNull(1)
                     if (groupRunnerUp != null) {
-                        tournamentPlacementDao.upsertPlayerPlacement(
+                        tournamentRepository.upsertPlayerPlacement(
                             tournamentId = tournament.id,
                             playerId = groupRunnerUp.playerId,
                             reachedRound = TournamentRound.GROUP_2ND.name,
@@ -226,7 +231,7 @@ class AdvanceTournamentRoundUseCase(
                     val player2Id = groupWinners[2 * index + 1]
                     match.copy(player1Id = player1Id, player2Id = player2Id)
                 }
-                tournamentMatchDao.insertMatches(updatedL16)
+                tournamentRepository.insertMatches(updatedL16)
             }
             return
         }
@@ -241,7 +246,7 @@ class AdvanceTournamentRoundUseCase(
             val winners = currentRoundMatches.sortedBy { it.matchIndex }.mapNotNull { it.winnerId }
             val shuffledWinners = winners.shuffled()
 
-            val participants = tournamentParticipantDao.getParticipantsForTournament(tournament.id)
+            val participants = tournamentRepository.getParticipantsForTournament(tournament.id)
             val oom65To96 = participants.filter { it.qualificationType == "OOM_65_96" }.sortedBy { it.seedNumber ?: Int.MAX_VALUE }.map { it.playerId }
             val oom33To64 = participants.filter { it.qualificationType == "OOM_33_64" }.sortedBy { it.seedNumber ?: Int.MAX_VALUE }.map { it.playerId }
             val top32Oom = participants.filter { it.qualificationType == "OOM_TOP_32" }.sortedBy { it.seedNumber ?: Int.MAX_VALUE }.map { it.playerId }
@@ -292,7 +297,7 @@ class AdvanceTournamentRoundUseCase(
                 else -> generateStandardKoMatches(tournament.id, nextRoundEnum, shuffledWinners)
             }
             if (nextMatches.isNotEmpty()) {
-                tournamentMatchDao.insertMatches(nextMatches)
+                tournamentRepository.insertMatches(nextMatches)
             }
             return
         }
@@ -322,7 +327,7 @@ class AdvanceTournamentRoundUseCase(
                     updatedNextRoundMatches[matchIndexInList] = updated
                 }
             }
-            tournamentMatchDao.insertMatches(updatedNextRoundMatches)
+            tournamentRepository.insertMatches(updatedNextRoundMatches)
         }
 
         // Preisgeld-Hochstufung beim Rundenwechsel: Jeder Sieger der abgeschlossenen Runde wird
@@ -332,7 +337,7 @@ class AdvanceTournamentRoundUseCase(
         if (!event.isQualifier && currentRound != TournamentRound.GROUP) {
             val prizeMoneyForNextRound = event.getRankingPrizeMoney(nextRoundEnum)
             for (winnerId in sortedWinners) {
-                tournamentPlacementDao.upsertPlayerPlacement(
+                tournamentRepository.upsertPlayerPlacement(
                     tournamentId = tournament.id,
                     playerId = winnerId,
                     reachedRound = nextRoundEnum.name,
@@ -347,7 +352,7 @@ class AdvanceTournamentRoundUseCase(
      * and upgrades their placement immediately to the reached round.
      */
     suspend fun propagateWinnerOnMatchCompleted(match: TournamentMatch) = withContext(Dispatchers.IO) {
-        val tournament = tournamentDao.getTournamentById(match.tournamentId) ?: return@withContext
+        val tournament = tournamentRepository.getTournamentById(match.tournamentId)
         val event = TournamentEvent.valueOf(tournament.type)
         if (event.isQualifier) {
             return@withContext
@@ -365,7 +370,7 @@ class AdvanceTournamentRoundUseCase(
                     roundSequence.getOrNull(currentIdx + 1)
                 }
                 if (reachedRound != null) {
-                    tournamentPlacementDao.upsertPlayerPlacement(
+                    tournamentRepository.upsertPlayerPlacement(
                         tournamentId = match.tournamentId,
                         playerId = winnerId,
                         reachedRound = reachedRound.name,
@@ -379,7 +384,7 @@ class AdvanceTournamentRoundUseCase(
             return@withContext
         }
 
-        val allMatches = tournamentMatchDao.getMatchesListForTournament(match.tournamentId)
+        val allMatches = tournamentRepository.getMatchesListForTournament(match.tournamentId)
 
         if (event == TournamentEvent.GRAND_SLAM_OF_DARTS && match.round == TournamentRound.GROUP.name && match.matchIndex in 0..15) {
             val groupIdx = match.matchIndex
@@ -389,10 +394,10 @@ class AdvanceTournamentRoundUseCase(
             val day2Match = groupMatches.find { it.groupName == groupLetter && it.matchIndex == 16 + groupIdx }
             val day3Match = groupMatches.find { it.groupName == groupLetter && it.matchIndex == 32 + groupIdx }
             if (day2Match != null) {
-                tournamentMatchDao.updateMatch(day2Match.copy(player2Id = loserId))
+                tournamentRepository.updateMatch(day2Match.copy(player2Id = loserId))
             }
             if (day3Match != null) {
-                tournamentMatchDao.updateMatch(day3Match.copy(player2Id = winnerId))
+                tournamentRepository.updateMatch(day3Match.copy(player2Id = winnerId))
             }
             return@withContext
         }
@@ -412,7 +417,7 @@ class AdvanceTournamentRoundUseCase(
                     changed = true
                 }
                 if (changed) {
-                    tournamentMatchDao.updateMatch(updated)
+                    tournamentRepository.updateMatch(updated)
                 }
             }
             return@withContext
@@ -431,7 +436,7 @@ class AdvanceTournamentRoundUseCase(
             } else {
                 nextMatch.copy(player2Id = winnerId)
             }
-            tournamentMatchDao.updateMatch(updatedNext)
+            tournamentRepository.updateMatch(updatedNext)
         }
     }
 

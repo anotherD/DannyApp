@@ -48,6 +48,13 @@ class TournamentRepository(
     }
 
     /**
+     * Fügt eine Liste von Turnieren in die Datenbank ein.
+     */
+    suspend fun insertTournaments(tournaments: List<Tournament>) {
+        tournamentDao.insertTournaments(tournaments)
+    }
+
+    /**
      * Aktualisiert die Daten eines bestehenden Turniers.
      */
     suspend fun updateTournament(tournament: Tournament) {
