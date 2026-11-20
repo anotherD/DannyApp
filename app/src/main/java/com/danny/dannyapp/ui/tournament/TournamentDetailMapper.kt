@@ -47,11 +47,11 @@ object TournamentDetailMapper {
                 } else if (event == TournamentEvent.EUROPEAN_TOUR && roundKey == TournamentRound.L32.name) {
                     if (isPlayer1) {
                         val seedOrder = BracketGenerator.BRACKET_SEED_ORDER_16
-                        val seedRank = (seedOrder.getOrNull(matchIndex) ?: matchIndex) + 1
+                        val seedRank = seedOrder[matchIndex] + 1
                         context.getString(R.string.tournament_placeholder_top16_seed, seedRank)
                     } else {
                         val seedOrder = BracketGenerator.BRACKET_SEED_ORDER_16
-                        val seedIndex = seedOrder.getOrNull(matchIndex) ?: matchIndex
+                        val seedIndex = seedOrder[matchIndex]
                         val sourceLabel = "${TournamentUiHelper.getRoundPrefix(TournamentRound.L48.name)}-${16 - seedIndex}"
                         context.getString(R.string.tournament_placeholder_winner, sourceLabel)
                     }

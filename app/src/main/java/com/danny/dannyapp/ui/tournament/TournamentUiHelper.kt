@@ -78,9 +78,9 @@ object TournamentUiHelper {
     data class TypeBadgeInfo(val text: String, val colorResId: Int)
 
     fun getTournamentTypeBadgeInfo(context: Context, typeString: String): TypeBadgeInfo {
-        val event = try { TournamentEvent.valueOf(typeString) } catch (_: Exception) { null }
-        val isMajor = event?.isMajor == true
-        val isQualifier = event?.isQualifier == true
+        val event = TournamentEvent.valueOf(typeString)
+        val isMajor = event.isMajor
+        val isQualifier = event.isQualifier
         val isEtQualifier = event == TournamentEvent.QUALIFIER_ET
         val isMajorQualifier = isQualifier && !isEtQualifier
         val isEuropeanTour = event == TournamentEvent.EUROPEAN_TOUR
@@ -107,8 +107,8 @@ object TournamentUiHelper {
     data class StatusBadgeInfo(val text: String, val colorResId: Int)
 
     fun getStatusBadgeInfo(context: Context, model: TournamentUiModel): StatusBadgeInfo {
-        val event = try { TournamentEvent.valueOf(model.tournament.type) } catch (_: Exception) { null }
-        val isMultiWinnerQualifier = event?.isQualifier == true
+        val event = TournamentEvent.valueOf(model.tournament.type)
+        val isMultiWinnerQualifier = event.isQualifier
         val text = when (model.status) {
             TournamentStatus.COMPLETED -> {
                 if (!isMultiWinnerQualifier && model.winnerName != null) {
@@ -231,7 +231,7 @@ object TournamentUiHelper {
         tvTournamentStatus.text = statusBadgeInfo.text
         tvTournamentStatus.background?.setTint(ContextCompat.getColor(context, statusBadgeInfo.colorResId))
 
-        val host = tournament.hostCountry ?: Country.DEFAULT_CODE
+        val host = requireNotNull(tournament.hostCountry?.takeIf { it.isNotBlank() }) { "Gastgeberland fehlt für Turnier ${tournament.name}" }
         val city = getTournamentCity(tournament.hostCountry, tournament.hostCity)
         UIHelper.formatFlagAndText(tvTournamentDetails, host, city)
 
@@ -305,14 +305,14 @@ object TournamentUiHelper {
         tvTypeBadge.text = typeBadgeInfo.text
         tvTypeBadge.backgroundTintList = ContextCompat.getColorStateList(context, typeBadgeInfo.colorResId)
 
-        val host = tournament.hostCountry ?: Country.DEFAULT_CODE
+        val host = requireNotNull(tournament.hostCountry?.takeIf { it.isNotBlank() }) { "Gastgeberland fehlt für Turnier ${tournament.name}" }
         val city = getTournamentCity(tournament.hostCountry, tournament.hostCity)
         UIHelper.formatFlagAndText(tvHost, host, city)
 
         if (headerCard != null) {
-            val event = try { TournamentEvent.valueOf(tournament.type) } catch (_: Exception) { null }
-            val isMajor = event?.isMajor == true
-            val isQualifier = event?.isQualifier == true
+            val event = TournamentEvent.valueOf(tournament.type)
+            val isMajor = event.isMajor
+            val isQualifier = event.isQualifier
             val isEuropeanTour = event == TournamentEvent.EUROPEAN_TOUR
             val isEtQualifier = event == TournamentEvent.QUALIFIER_ET
             val isMajorQualifier = isQualifier && !isEtQualifier

@@ -116,10 +116,8 @@ class CareersActivity : BaseActivity() {
             .setMessage(getString(R.string.career_delete_message, career.name))
             .setPositiveButton(getString(R.string.career_delete_confirm)) { _, _ ->
                 lifecycleScope.launch {
-                    val success = viewModel.deleteCareer(career.id)
-                    if (success) {
-                        Toast.makeText(this@CareersActivity, getString(R.string.career_deleted_msg, career.name), Toast.LENGTH_SHORT).show()
-                    }
+                    viewModel.deleteCareer(career.id)
+                    Toast.makeText(this@CareersActivity, getString(R.string.career_deleted_msg, career.name), Toast.LENGTH_SHORT).show()
                 }
             }
             .setNegativeButton(android.R.string.cancel, null)

@@ -85,10 +85,8 @@ class ProfilesActivity : BaseActivity() {
                 .setMessage(message)
                 .setPositiveButton(getString(R.string.profile_delete_confirm)) { _, _ ->
                     lifecycleScope.launch {
-                        val success = viewModel.deleteUserProfile(profile.id)
-                        if (success) {
-                            Toast.makeText(this@ProfilesActivity, getString(R.string.profile_deleted_msg, profile.name), Toast.LENGTH_SHORT).show()
-                        }
+                        viewModel.deleteUserProfile(profile.id)
+                        Toast.makeText(this@ProfilesActivity, getString(R.string.profile_deleted_msg, profile.name), Toast.LENGTH_SHORT).show()
                     }
                 }
                 .setNegativeButton(android.R.string.cancel, null)

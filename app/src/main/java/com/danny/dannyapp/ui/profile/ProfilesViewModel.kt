@@ -101,12 +101,8 @@ class ProfilesViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    suspend fun deleteUserProfile(profileId: Long): Boolean {
-        return try {
-            userProfileRepository.deleteUserProfile(profileId)
-            true
-        } catch (e: Exception) {
-            false
-        }
+    suspend fun deleteUserProfile(profileId: Long) {
+        require(profileId > 0L) { "Ungültige Profil-ID: $profileId" }
+        userProfileRepository.deleteUserProfile(profileId)
     }
 }

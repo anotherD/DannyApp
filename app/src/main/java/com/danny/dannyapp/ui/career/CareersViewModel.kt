@@ -59,12 +59,8 @@ class CareersViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-    suspend fun deleteCareer(careerId: Long): Boolean {
-        return try {
-            careerRepository.deleteCareer(careerId)
-            true
-        } catch (e: Exception) {
-            false
-        }
+    suspend fun deleteCareer(careerId: Long) {
+        require(careerId > 0L) { "Ungültige Karriere-ID: $careerId" }
+        careerRepository.deleteCareer(careerId)
     }
 }
