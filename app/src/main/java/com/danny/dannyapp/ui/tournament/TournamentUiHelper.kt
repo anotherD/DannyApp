@@ -9,6 +9,7 @@ import com.danny.dannyapp.R
 import com.danny.dannyapp.data.SettingsManager
 import com.danny.dannyapp.domain.model.Country
 import com.danny.dannyapp.data.db.Tournament
+import com.danny.dannyapp.data.db.TournamentMatch
 import com.danny.dannyapp.domain.enums.TournamentEvent
 import com.danny.dannyapp.domain.enums.TournamentRound
 import com.danny.dannyapp.ui.UIHelper
@@ -18,6 +19,49 @@ import com.danny.dannyapp.ui.model.TournamentUiModel
 import com.google.android.material.card.MaterialCardView
 
 object TournamentUiHelper {
+
+    /**
+     * Wandelt die Runden-Kennung [roundKey] in ein kurzes Präfix um.
+     *
+     * @param roundKey Die Runden-Kennung aus [TournamentRound].
+     * @return Das entsprechende Runden-Präfix.
+     */
+    fun getRoundPrefix(roundKey: String): String {
+        return when (roundKey) {
+            TournamentRound.QUAL_PRELIM.name -> "PRE"
+            TournamentRound.QUAL_R1.name, TournamentRound.R1_160.name -> "R1"
+            TournamentRound.QUAL_R2.name, TournamentRound.R2_128.name -> "R2"
+            TournamentRound.R3_96.name -> "R3"
+            TournamentRound.QUAL_FINAL.name -> "FIN"
+            TournamentRound.L128.name -> "L128"
+            TournamentRound.L64.name -> "L64"
+            TournamentRound.L48.name -> "L48"
+            TournamentRound.L32.name -> "L32"
+            TournamentRound.L16.name -> "L16"
+            TournamentRound.QF.name -> "QF"
+            TournamentRound.SF.name -> "SF"
+            TournamentRound.F.name -> "F"
+            TournamentRound.GROUP.name -> "GRP"
+            else -> roundKey
+        }
+    }
+
+    /**
+     * Formatiert den Badge-Text für ein Turnier-Match mit Runden-Präfix und Match-Nummer.
+     *
+     * @param context Der Context für String-Ressourcen.
+     * @param match Das [TournamentMatch], dessen Badge-Text formatiert werden soll.
+     * @return Der formatierte Badge-Text.
+     */
+    fun formatMatchBadgeText(context: Context, match: TournamentMatch): String {
+        val prefix = getRoundPrefix(match.round)
+        val number = match.matchIndex + 1
+        return if (!match.groupName.isNullOrBlank()) {
+            context.getString(R.string.tournament_match_group_index_format, match.groupName, prefix, number)
+        } else {
+            context.getString(R.string.tournament_match_index_format, prefix, number)
+        }
+    }
 
     fun getDisplayRoundName(roundKey: String, context: Context): String {
         return TournamentRound.fromKey(roundKey)?.displayNameResId?.let { context.getString(it) } ?: roundKey

@@ -72,11 +72,7 @@ class TournamentMatchAdapter(
             holder.layoutBoardHeader.visibility = View.GONE
         }
 
-        if (!match.groupName.isNullOrBlank()) {
-            holder.tvMatchRoundIndex.text = context.getString(R.string.tournament_match_group_index_format, match.groupName, match.matchIndex + 1)
-        } else {
-            holder.tvMatchRoundIndex.text = context.getString(R.string.tournament_match_index_format, match.matchIndex + 1)
-        }
+        holder.tvMatchRoundIndex.text = TournamentUiHelper.formatMatchBadgeText(context, match)
 
         UIHelper.bindSmartPlayerName(holder.tvPlayer1Name, item.player1, isLeft = true)
         UIHelper.bindSmartPlayerName(holder.tvPlayer2Name, item.player2, isLeft = false)

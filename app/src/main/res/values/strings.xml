@@ -99,7 +99,7 @@
     <string name="oom_tab_et">European Tour</string>
     <string name="prize_money_format">£%,.0f</string>
     <string name="rank_format">#%d</string>
-    <string name="tournament_placeholder_winner">Sieger #%d</string>
+    <string name="tournament_placeholder_winner">Sieger #%s</string>
     <string name="tournament_review_winner_label">Sieger:</string>
     <string name="tournament_review_user_round">Deine erreichte Runde: %s</string>
     <string name="tournament_review_user_prize">Gewonnenes Preisgeld: %s</string>
@@ -150,8 +150,8 @@
     <string name="tournament_not_found">Turnier nicht gefunden.</string>
     <string name="player_name_you">Du</string>
     <string name="player_name_unknown">Unbekannt</string>
-    <string name="tournament_match_group_index_format">Gruppe %1$s • #%2$d</string>
-    <string name="tournament_match_index_format">#%d</string>
+    <string name="tournament_match_group_index_format">Gruppe %1$s • #%2$s-%3$d</string>
+    <string name="tournament_match_index_format">#%1$s-%2$d</string>
 
     <!-- Score-Validierung -->
     <string name="match_not_found">Match nicht gefunden.</string>

@@ -387,11 +387,7 @@ class TournamentBracketView @JvmOverloads constructor(
         val tvPlayer2Score: TextView = view.findViewById(R.id.tvPlayer2Score)
 
         val match = item.match
-        if (!match.groupName.isNullOrBlank()) {
-            tvBracketMatchIndex.text = context.getString(R.string.tournament_match_group_index_format, match.groupName, match.matchIndex + 1)
-        } else {
-            tvBracketMatchIndex.text = context.getString(R.string.tournament_match_index_format, match.matchIndex + 1)
-        }
+        tvBracketMatchIndex.text = TournamentUiHelper.formatMatchBadgeText(context, match)
 
         UIHelper.bindSmartPlayerName(tvPlayer1Name, item.player1, isLeft = true)
         UIHelper.bindSmartPlayerName(tvPlayer2Name, item.player2, isLeft = true)

@@ -52,19 +52,25 @@ object TournamentDetailMapper {
                     } else {
                         val seedOrder = BracketGenerator.BRACKET_SEED_ORDER_16
                         val seedIndex = seedOrder.getOrNull(matchIndex) ?: matchIndex
-                        context.getString(R.string.tournament_placeholder_winner, 16 - seedIndex)
+                        val sourceLabel = "${TournamentUiHelper.getRoundPrefix(TournamentRound.L48.name)}-${16 - seedIndex}"
+                        context.getString(R.string.tournament_placeholder_winner, sourceLabel)
                     }
                 } else {
-                    context.getString(R.string.tournament_placeholder_winner, 2 * matchIndex + if (isPlayer1) 1 else 2)
+                    val sequence = event.getRoundSequence()
+                    val currentIndex = sequence.indexOfFirst { round -> round.name == roundKey }
+                    val prevRoundKey = if (currentIndex > 0) sequence[currentIndex - 1].name else roundKey
+                    val sourceLabel = "${TournamentUiHelper.getRoundPrefix(prevRoundKey)}-${2 * matchIndex + if (isPlayer1) 1 else 2}"
+                    context.getString(R.string.tournament_placeholder_winner, sourceLabel)
                 }
             }
             playerId <= -1000L && playerId > -2000L -> {
-                val prelimIdx = (-1000L - playerId).toInt() + 1
-                context.getString(R.string.tournament_placeholder_winner, prelimIdx)
+                val prelimIndex = (-1000L - playerId).toInt() + 1
+                val sourceLabel = "${TournamentUiHelper.getRoundPrefix(TournamentRound.QUAL_PRELIM.name)}-$prelimIndex"
+                context.getString(R.string.tournament_placeholder_winner, sourceLabel)
             }
             playerId <= -9000L && playerId > -9020L -> {
-                val groupIdx = (-9000L - playerId).toInt()
-                val groupLetter = ('A' + groupIdx).toString()
+                val groupIndex = (-9000L - playerId).toInt()
+                val groupLetter = ('A' + groupIndex).toString()
                 context.getString(R.string.grand_slam_group_winner_format, groupLetter)
             }
             playerId < 0L && playerId != USER_ID -> {
