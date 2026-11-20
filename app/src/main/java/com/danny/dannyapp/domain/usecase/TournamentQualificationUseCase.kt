@@ -1,24 +1,19 @@
 package com.danny.dannyapp.domain.usecase
 
 import android.content.Context
-import com.danny.dannyapp.data.db.AppDatabase
-import com.danny.dannyapp.data.db.CareerDao
+import com.danny.dannyapp.data.db.CareerRepository
 import com.danny.dannyapp.data.db.Player
-import com.danny.dannyapp.data.db.PlayerDao
-import com.danny.dannyapp.data.db.SeasonDao
-import com.danny.dannyapp.data.db.TourCardDao
+import com.danny.dannyapp.data.db.PlayerRepository
+import com.danny.dannyapp.data.db.SeasonRepository
 import com.danny.dannyapp.data.db.Tournament
-import com.danny.dannyapp.data.db.TournamentDao
 import com.danny.dannyapp.data.db.TournamentMatch
-import com.danny.dannyapp.data.db.TournamentMatchDao
 import com.danny.dannyapp.data.db.TournamentParticipant
-import com.danny.dannyapp.data.db.TournamentParticipantDao
+import com.danny.dannyapp.data.db.TournamentRepository
 import com.danny.dannyapp.data.db.USER_ID
 import com.danny.dannyapp.domain.enums.OrderOfMeritType
 import com.danny.dannyapp.domain.enums.SkillLevel
 import com.danny.dannyapp.domain.enums.TournamentEvent
 import com.danny.dannyapp.domain.enums.TournamentRound
-import com.danny.dannyapp.domain.model.Country
 import com.danny.dannyapp.domain.model.OrderOfMeritEntry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -84,44 +79,35 @@ data class ParticipantPreviewResult(
  * and qualifier board assignment.
  */
 class TournamentQualificationUseCase(
-    private val seasonDao: SeasonDao,
-    private val tourCardDao: TourCardDao,
-    private val playerDao: PlayerDao,
-    private val tournamentParticipantDao: TournamentParticipantDao,
-    private val careerDao: CareerDao,
-    private val getOrderOfMeritUseCase: GetOrderOfMeritUseCase,
-    private val tournamentDao: TournamentDao,
-    private val tournamentMatchDao: TournamentMatchDao
+    private val seasonRepository: SeasonRepository,
+    private val playerRepository: PlayerRepository,
+    private val tournamentRepository: TournamentRepository,
+    private val careerRepository: CareerRepository,
+    private val getOrderOfMeritUseCase: GetOrderOfMeritUseCase
 ) {
 
     constructor(context: Context) : this(
-        AppDatabase.getDatabase(context.applicationContext).seasonDao(),
-        AppDatabase.getDatabase(context.applicationContext).tourCardDao(),
-        AppDatabase.getDatabase(context.applicationContext).playerDao(),
-        AppDatabase.getDatabase(context.applicationContext).tournamentParticipantDao(),
-        AppDatabase.getDatabase(context.applicationContext).careerDao(),
-        GetOrderOfMeritUseCase(context),
-        AppDatabase.getDatabase(context.applicationContext).tournamentDao(),
-        AppDatabase.getDatabase(context.applicationContext).tournamentMatchDao()
+        SeasonRepository(context),
+        PlayerRepository(context),
+        TournamentRepository(context),
+        CareerRepository(context),
+        GetOrderOfMeritUseCase(context)
     )
 
     private val resolveNonSimulatedQualifiersUseCase = ResolveNonSimulatedQualifiersUseCase()
 
     val grandSlamQualificationResolver = GrandSlamQualificationResolver(
-        seasonDao = seasonDao,
-        tournamentDao = tournamentDao,
-        tournamentMatchDao = tournamentMatchDao,
-        tournamentParticipantDao = tournamentParticipantDao,
+        seasonRepository = seasonRepository,
+        tournamentRepository = tournamentRepository,
         resolveNonSimulatedQualifiersUseCase = resolveNonSimulatedQualifiersUseCase,
         sortPlayerIdsByOom = ::sortPlayerIdsByOom,
         fillToTargetCount = ::fillToTargetCount
     )
 
     val preQualifyMainTournamentUseCase = PreQualifyMainTournamentUseCase(
-        tournamentDao = tournamentDao,
-        tournamentParticipantDao = tournamentParticipantDao,
-        tourCardDao = tourCardDao,
-        playerDao = playerDao,
+        tournamentRepository = tournamentRepository,
+        seasonRepository = seasonRepository,
+        playerRepository = playerRepository,
         getOrderOfMeritUseCase = getOrderOfMeritUseCase,
         resolveNonSimulatedQualifiersUseCase = resolveNonSimulatedQualifiersUseCase,
         grandSlamQualificationResolver = grandSlamQualificationResolver,
@@ -301,9 +287,9 @@ class TournamentQualificationUseCase(
         persistToDb: Boolean = true
     ): TournamentQualificationResult = withContext(Dispatchers.IO) {
         val event = TournamentEvent.valueOf(tournament.type)
-        val tourCards = tourCardDao.getTourCardsListForSeason(seasonId)
+        val tourCards = seasonRepository.getTourCardsListForSeason(seasonId)
         val tourCardPlayerIds = tourCards.map { it.tourCard.playerId }.distinct()
-        val allPlayers = playerDao.getAllPlayersList()
+        val allPlayers = playerRepository.getAllPlayersList()
         val allPlayerIds = (listOf(USER_ID) + allPlayers.map { it.id }).distinct()
 
         val oomEntries = getOrderOfMeritUseCase(careerId, OrderOfMeritType.OOM)
@@ -408,11 +394,11 @@ class TournamentQualificationUseCase(
         }
 
         if (persistToDb && result.participants.isNotEmpty()) {
-            val existing = tournamentParticipantDao.getParticipantsForTournament(tournamentId)
+            val existing = tournamentRepository.getParticipantsForTournament(tournamentId)
             val existingIds = existing.map { it.playerId }.toSet()
             val toInsert = result.participants.distinctBy { it.playerId }.filterNot { it.playerId in existingIds }
             if (toInsert.isNotEmpty()) {
-                tournamentParticipantDao.insertParticipants(toInsert)
+                tournamentRepository.insertParticipants(toInsert)
             }
         }
 
@@ -538,10 +524,10 @@ class TournamentQualificationUseCase(
         persistToDb: Boolean = true
     ): TournamentQualificationResult {
         val tournamentId = tournament.id
-        var storedParticipants = tournamentParticipantDao.getParticipantsForTournament(tournamentId)
+        var storedParticipants = tournamentRepository.getParticipantsForTournament(tournamentId)
 
         if (storedParticipants.isEmpty()) {
-            val seasonTournaments = tournamentDao.getTournamentsListForSeason(seasonId)
+            val seasonTournaments = tournamentRepository.getTournamentsListForSeason(seasonId)
             val qualTournament = findQualifierTournamentForMain(tournament, seasonTournaments)
             if (qualTournament != null) {
                 storedParticipants = freezePreQualifiedParticipantsForMainTournament(qualTournament, seasonId, careerId, persistToDb)
@@ -574,7 +560,7 @@ class TournamentQualificationUseCase(
         }
 
         if (persistToDb && newParticipants.isNotEmpty()) {
-            tournamentParticipantDao.insertParticipants(newParticipants)
+            tournamentRepository.insertParticipants(newParticipants)
         }
 
         val allParticipants = storedParticipants + newParticipants
@@ -763,10 +749,10 @@ class TournamentQualificationUseCase(
         persistToDb: Boolean = true
     ): TournamentQualificationResult {
         val tournamentId = tournament.id
-        var storedParticipants = tournamentParticipantDao.getParticipantsForTournament(tournamentId)
+        var storedParticipants = tournamentRepository.getParticipantsForTournament(tournamentId)
 
         if (storedParticipants.isEmpty()) {
-            val seasonTournaments = tournamentDao.getTournamentsListForSeason(seasonId)
+            val seasonTournaments = tournamentRepository.getTournamentsListForSeason(seasonId)
             val qualTournament = findQualifierTournamentForMain(tournament, seasonTournaments)
             if (qualTournament != null) {
                 storedParticipants = freezePreQualifiedParticipantsForMainTournament(qualTournament, seasonId, careerId, persistToDb)
@@ -801,10 +787,10 @@ class TournamentQualificationUseCase(
         persistToDb: Boolean = true
     ): TournamentQualificationResult {
         val tournamentId = tournament.id
-        var storedParticipants = tournamentParticipantDao.getParticipantsForTournament(tournamentId)
+        var storedParticipants = tournamentRepository.getParticipantsForTournament(tournamentId)
 
         if (storedParticipants.isEmpty()) {
-            val seasonTournaments = tournamentDao.getTournamentsListForSeason(seasonId)
+            val seasonTournaments = tournamentRepository.getTournamentsListForSeason(seasonId)
             val qualTournament = findQualifierTournamentForMain(tournament, seasonTournaments)
             if (qualTournament != null) {
                 storedParticipants = freezePreQualifiedParticipantsForMainTournament(qualTournament, seasonId, careerId, persistToDb)
@@ -832,7 +818,7 @@ class TournamentQualificationUseCase(
         }
 
         if (persistToDb && newParticipants.isNotEmpty()) {
-            tournamentParticipantDao.insertParticipants(newParticipants)
+            tournamentRepository.insertParticipants(newParticipants)
         }
 
         val allParticipants = storedParticipants + newParticipants
@@ -885,13 +871,13 @@ class TournamentQualificationUseCase(
         if (event == TournamentEvent.UK_OPEN || event == TournamentEvent.EUROPEAN_OPEN) return@withContext emptyMap()
 
         if (tournamentId > 0L) {
-            val seededParticipants = tournamentParticipantDao.getSeededParticipantsForTournament(tournamentId)
+            val seededParticipants = tournamentRepository.getSeededParticipantsForTournament(tournamentId)
             if (seededParticipants.isNotEmpty()) {
                 return@withContext seededParticipants.associate { it.playerId to it.seedNumber!! }
             }
         }
 
-        val season = seasonDao.getSeasonById(seasonId) ?: return@withContext emptyMap()
+        val season = seasonRepository.getSeasonById(seasonId)
         val careerId = season.careerId
 
         val dummyTournament = Tournament(
@@ -926,15 +912,15 @@ class TournamentQualificationUseCase(
         preloadedPlayers: List<Player>? = null,
         preloadedOomEntries: List<OrderOfMeritEntry>? = null
     ): List<EntrantGroupDomainData> = withContext(Dispatchers.IO) {
-        val storedParticipants = preloadedParticipants ?: tournamentParticipantDao.getParticipantsForTournament(tournamentId)
+        val storedParticipants = preloadedParticipants ?: tournamentRepository.getParticipantsForTournament(tournamentId)
         val stored65To96 = storedParticipants.filter { it.qualificationType == "OOM_65_96" }.sortedBy { it.seedNumber ?: Int.MAX_VALUE }.map { it.playerId }
         val stored33To64 = storedParticipants.filter { it.qualificationType == "OOM_33_64" }.sortedBy { it.seedNumber ?: Int.MAX_VALUE }.map { it.playerId }
         val storedTop32 = storedParticipants.filter { it.qualificationType == "OOM_TOP_32" }.sortedBy { it.seedNumber ?: Int.MAX_VALUE }.map { it.playerId }
 
-        val allPlayers = preloadedPlayers ?: playerDao.getAllPlayersList()
+        val allPlayers = preloadedPlayers ?: playerRepository.getAllPlayersList()
         val allPlayersMap = allPlayers.associateBy { it.id }
 
-        val careerWithProfile = requireNotNull(careerDao.getCareerById(currentCareerId)) { "Karriere mit ID $currentCareerId nicht gefunden" }
+        val careerWithProfile = careerRepository.getCareerById(currentCareerId)
         val userName = requireNotNull(careerWithProfile.playerName?.takeIf { it.isNotBlank() }) { "Spielername im Profil fehlt" }
         val userCountryCode = requireNotNull(careerWithProfile.countryCode?.takeIf { it.isNotBlank() }) { "Ländercode im Profil fehlt" }
 
@@ -1013,7 +999,7 @@ class TournamentQualificationUseCase(
         seasonId: Long,
         careerId: Long
     ): ParticipantPreviewResult = withContext(Dispatchers.IO) {
-        val stored = tournamentParticipantDao.getParticipantsForTournament(tournament.id)
+        val stored = tournamentRepository.getParticipantsForTournament(tournament.id)
         if (stored.isNotEmpty()) {
             ParticipantPreviewResult(participants = stored, isFrozen = true)
         } else {
@@ -1026,6 +1012,4 @@ class TournamentQualificationUseCase(
             ParticipantPreviewResult(participants = liveResult.participants, isFrozen = false)
         }
     }
-
-    // computeMainTournamentPreParticipantsInMemory removed
 }

@@ -1,17 +1,26 @@
 package com.danny.dannyapp.domain.usecase
 
 import android.content.Context
-import com.danny.dannyapp.data.db.AppDatabase
 import com.danny.dannyapp.data.db.PLACEHOLDER_PREVIOUS_WINNER_ID
+import com.danny.dannyapp.data.db.Player
+import com.danny.dannyapp.data.db.PlayerDao
 import com.danny.dannyapp.data.db.SeasonDao
+import com.danny.dannyapp.data.db.SeasonRepository
+import com.danny.dannyapp.data.db.TourCard
+import com.danny.dannyapp.data.db.TourCardDao
+import com.danny.dannyapp.data.db.TourCardWithPlayer
 import com.danny.dannyapp.data.db.TournamentDao
 import com.danny.dannyapp.data.db.TournamentMatch
 import com.danny.dannyapp.data.db.TournamentMatchDao
+import com.danny.dannyapp.data.db.TournamentParticipant
+import com.danny.dannyapp.data.db.TournamentParticipantDao
 import com.danny.dannyapp.data.db.TournamentPlacement
 import com.danny.dannyapp.data.db.TournamentPlacementDao
+import com.danny.dannyapp.data.db.TournamentRepository
 import com.danny.dannyapp.domain.enums.TournamentEvent
 import com.danny.dannyapp.domain.enums.TournamentRound
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 
 /**
@@ -19,27 +28,42 @@ import kotlinx.coroutines.withContext
  * Nutzt [TournamentQualificationUseCase] als Single Source of Truth für Qualifikationspools und Setzlisten.
  */
 class GenerateBracketUseCase(
-    private val tournamentDao: TournamentDao,
-    private val seasonDao: SeasonDao,
-    private val tournamentMatchDao: TournamentMatchDao,
-    private val tournamentPlacementDao: TournamentPlacementDao,
+    private val tournamentRepository: TournamentRepository,
+    private val seasonRepository: SeasonRepository,
     private val tournamentQualificationUseCase: TournamentQualificationUseCase
 ) {
+    constructor(
+        tournamentDao: TournamentDao,
+        seasonDao: SeasonDao,
+        tournamentMatchDao: TournamentMatchDao,
+        tournamentPlacementDao: TournamentPlacementDao,
+        tournamentQualificationUseCase: TournamentQualificationUseCase
+    ) : this(
+        TournamentRepository(
+            tournamentDao = tournamentDao,
+            tournamentMatchDao = tournamentMatchDao,
+            tournamentPlacementDao = tournamentPlacementDao,
+            tournamentParticipantDao = object : TournamentParticipantDao {
+                override suspend fun insertParticipants(participants: List<TournamentParticipant>) = throw UnsupportedOperationException()
+                override suspend fun getParticipantsForTournament(tournamentId: Long): List<TournamentParticipant> = throw UnsupportedOperationException()
+                override suspend fun getSeededParticipantsForTournament(tournamentId: Long): List<TournamentParticipant> = throw UnsupportedOperationException()
+            }
+        ),
+        SeasonRepository(seasonDao, DummyTourCardDao, DummyPlayerDao),
+        tournamentQualificationUseCase
+    )
+
     constructor(context: Context) : this(
-        AppDatabase.getDatabase(context.applicationContext).tournamentDao(),
-        AppDatabase.getDatabase(context.applicationContext).seasonDao(),
-        AppDatabase.getDatabase(context.applicationContext).tournamentMatchDao(),
-        AppDatabase.getDatabase(context.applicationContext).tournamentPlacementDao(),
+        TournamentRepository(context),
+        SeasonRepository(context),
         TournamentQualificationUseCase(context)
     )
 
     suspend operator fun invoke(tournamentId: Long): List<TournamentMatch> = withContext(Dispatchers.IO) {
-        val tournament = tournamentDao.getTournamentById(tournamentId)
-            ?: throw IllegalArgumentException("Tournament not found: $tournamentId")
-        val season = seasonDao.getSeasonById(tournament.seasonId)
-            ?: throw IllegalArgumentException("Season not found for tournament: ${tournament.seasonId}")
+        val tournament = tournamentRepository.getTournamentById(tournamentId)
+        val season = seasonRepository.getSeasonById(tournament.seasonId)
 
-        val existingMatches = tournamentMatchDao.getMatchesListForTournament(tournamentId)
+        val existingMatches = tournamentRepository.getMatchesListForTournament(tournamentId)
         if (existingMatches.isNotEmpty()) {
             return@withContext existingMatches
         }
@@ -49,10 +73,10 @@ class GenerateBracketUseCase(
 
         // Helfer zur Ermittlung vorheriger Qualifier-Sieger
         suspend fun getQualifierWinnersFromPreceding(targetCount: Int? = null): List<Long> {
-            val seasonTournaments = tournamentDao.getTournamentsListForSeason(season.id)
+            val seasonTournaments = tournamentRepository.getTournamentsListForSeason(season.id)
             val qualTournament = tournamentQualificationUseCase.findQualifierTournamentForMain(tournament, seasonTournaments)
                 ?: return emptyList()
-            val prevMatches = tournamentMatchDao.getMatchesListForTournament(qualTournament.id)
+            val prevMatches = tournamentRepository.getMatchesListForTournament(qualTournament.id)
             if (prevMatches.isEmpty()) return emptyList()
 
             val rounds = prevMatches.map { it.round }.distinct()
@@ -156,13 +180,14 @@ class GenerateBracketUseCase(
                 tournamentMatches.addAll(l48Matches)
 
                 val seedOrder = BracketGenerator.BRACKET_SEED_ORDER_16
+                require(qualResult.oomSortedIds.size == 16) { "OOM sorted IDs size must be 16 for European Tour, got ${qualResult.oomSortedIds.size}" }
                 val l32Matches = (0 until 16).map { matchIndex ->
                     val seedIndex = seedOrder[matchIndex]
                     TournamentMatch(
                         tournamentId = tournamentId,
                         round = TournamentRound.L32.name,
                         matchIndex = matchIndex,
-                        player1Id = qualResult.oomSortedIds.getOrElse(seedIndex) { 0L },
+                        player1Id = qualResult.oomSortedIds[seedIndex],
                         player2Id = PLACEHOLDER_PREVIOUS_WINNER_ID
                     )
                 }
@@ -301,11 +326,11 @@ class GenerateBracketUseCase(
                 )
             }
             if (initialPlacements.isNotEmpty()) {
-                tournamentPlacementDao.insertPlacements(initialPlacements)
+                tournamentRepository.insertPlacements(initialPlacements)
             }
         }
 
-        tournamentMatchDao.insertMatches(tournamentMatches)
+        tournamentRepository.insertMatches(tournamentMatches)
 
         // Startrunde am Turnier persistieren: erste Runde der Sequenz, für die tatsächlich Matches angelegt wurden
         val fullRoundSequence = event.getRoundSequence()
@@ -313,10 +338,10 @@ class GenerateBracketUseCase(
             tournamentMatches.any { match -> match.round == round.name }
         }
         if (startRound != null) {
-            tournamentDao.updateTournament(tournament.copy(currentRound = startRound.name))
+            tournamentRepository.updateTournament(tournament.copy(currentRound = startRound.name))
         }
 
-        tournamentMatchDao.getMatchesListForTournament(tournamentId)
+        tournamentRepository.getMatchesListForTournament(tournamentId)
     }
 
     /**
@@ -369,3 +394,27 @@ class GenerateBracketUseCase(
     }
 }
 
+private object DummyTourCardDao : TourCardDao {
+    override fun getTourCardsForSeason(seasonId: Long): Flow<List<TourCardWithPlayer>> = throw UnsupportedOperationException()
+    override suspend fun getTourCardsListForSeason(seasonId: Long): List<TourCardWithPlayer> = throw UnsupportedOperationException()
+    override suspend fun getRawTourCardsForSeason(seasonId: Long): List<TourCard> = throw UnsupportedOperationException()
+    override suspend fun insertTourCard(tourCard: TourCard): Long = throw UnsupportedOperationException()
+    override suspend fun insertTourCards(tourCards: List<TourCard>) = throw UnsupportedOperationException()
+    override suspend fun deleteTourCardsForSeason(seasonId: Long) = throw UnsupportedOperationException()
+}
+
+private object DummyPlayerDao : PlayerDao {
+    override fun getAllPlayers(): Flow<List<Player>> = throw UnsupportedOperationException()
+    override suspend fun getAllPlayersList(): List<Player> = throw UnsupportedOperationException()
+    override fun getAllPlayersSortedBySkill(): Flow<List<Player>> = throw UnsupportedOperationException()
+    override fun getAllPlayersSortedByName(): Flow<List<Player>> = throw UnsupportedOperationException()
+    override suspend fun getPlayerById(id: Long): Player? = throw UnsupportedOperationException()
+    override suspend fun getPlayerCount(): Int = throw UnsupportedOperationException()
+    override suspend fun insertPlayer(player: Player): Long = throw UnsupportedOperationException()
+    override suspend fun insertAll(players: List<Player>) = throw UnsupportedOperationException()
+    override suspend fun updatePlayer(player: Player) = throw UnsupportedOperationException()
+    override suspend fun deletePlayer(player: Player) = throw UnsupportedOperationException()
+    override suspend fun deletePlayerById(id: Long) = throw UnsupportedOperationException()
+    override suspend fun csvInsertNewPlayers(players: List<Player>) = throw UnsupportedOperationException()
+    override suspend fun csvUpdatePlayerStats(name: String, skill: Int, countryCode: String, prizeMoney: Double, tourCardYear: Int, updatedAt: Long) = throw UnsupportedOperationException()
+}

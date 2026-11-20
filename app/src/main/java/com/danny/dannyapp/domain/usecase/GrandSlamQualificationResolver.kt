@@ -1,12 +1,10 @@
 package com.danny.dannyapp.domain.usecase
 
 import com.danny.dannyapp.data.db.Player
-import com.danny.dannyapp.data.db.SeasonDao
+import com.danny.dannyapp.data.db.SeasonRepository
 import com.danny.dannyapp.data.db.Tournament
-import com.danny.dannyapp.data.db.TournamentDao
-import com.danny.dannyapp.data.db.TournamentMatchDao
+import com.danny.dannyapp.data.db.TournamentRepository
 import com.danny.dannyapp.data.db.TournamentParticipant
-import com.danny.dannyapp.data.db.TournamentParticipantDao
 import com.danny.dannyapp.data.db.USER_ID
 import com.danny.dannyapp.domain.enums.TournamentEvent
 import com.danny.dannyapp.domain.enums.TournamentRound
@@ -18,10 +16,8 @@ import kotlinx.coroutines.withContext
  * Dedizierter Resolver für die Qualifikations- und Setzlistenlogik des Grand Slam of Darts.
  */
 class GrandSlamQualificationResolver(
-    private val seasonDao: SeasonDao,
-    private val tournamentDao: TournamentDao,
-    private val tournamentMatchDao: TournamentMatchDao,
-    private val tournamentParticipantDao: TournamentParticipantDao,
+    private val seasonRepository: SeasonRepository,
+    private val tournamentRepository: TournamentRepository,
     private val resolveNonSimulatedQualifiersUseCase: ResolveNonSimulatedQualifiersUseCase,
     private val sortPlayerIdsByOom: (List<Long>, List<OrderOfMeritEntry>, List<Player>) -> List<Long>,
     private val fillToTargetCount: (List<Long>, Int, List<Long>, List<OrderOfMeritEntry>) -> List<Long>
@@ -38,14 +34,12 @@ class GrandSlamQualificationResolver(
         allPlayers: List<Player>,
         oomEntries: List<OrderOfMeritEntry>
     ): Pair<List<Long>, List<Long>> = withContext(Dispatchers.IO) {
-        val season = seasonDao.getSeasonById(seasonId)
-        val currentSeasonTournaments = tournamentDao.getTournamentsListForSeason(seasonId)
-        val prevSeasonTournaments = if (season != null) {
-            val careerSeasons = seasonDao.getSeasonsListForCareer(season.careerId)
-            val prevSeason = careerSeasons.find { it.seasonNumber == season.seasonNumber - 1 }
-            if (prevSeason != null) {
-                tournamentDao.getTournamentsListForSeason(prevSeason.id)
-            } else emptyList()
+        val season = seasonRepository.getSeasonById(seasonId)
+        val currentSeasonTournaments = tournamentRepository.getTournamentsListForSeason(seasonId)
+        val careerSeasons = seasonRepository.getSeasonsListForCareer(season.careerId)
+        val prevSeason = careerSeasons.find { it.seasonNumber == season.seasonNumber - 1 }
+        val prevSeasonTournaments = if (prevSeason != null) {
+            tournamentRepository.getTournamentsListForSeason(prevSeason.id)
         } else emptyList()
 
         val allCompletedTournaments = (currentSeasonTournaments + prevSeasonTournaments)
@@ -73,11 +67,11 @@ class GrandSlamQualificationResolver(
                 .firstOrNull()
 
             if (mostRecent != null) {
-                val matches = tournamentMatchDao.getMatchesListForTournament(mostRecent.id)
+                val matches = tournamentRepository.getMatchesListForTournament(mostRecent.id)
                 val finalMatch = matches.firstOrNull { it.round == TournamentRound.F.name && it.isCompleted && it.winnerId != null }
-                val wId = finalMatch?.winnerId
-                if (wId != null && (wId > 0L || wId == USER_ID)) {
-                    val winnerId = wId
+                val winnerIdOpt = finalMatch?.winnerId
+                if (winnerIdOpt != null && (winnerIdOpt > 0L || winnerIdOpt == USER_ID)) {
+                    val winnerId = winnerIdOpt
                     val runnerUpId = if (finalMatch.winnerId == finalMatch.player1Id) {
                         finalMatch.player2Id.takeIf { it > 0L || it == USER_ID }
                     } else {
@@ -143,12 +137,12 @@ class GrandSlamQualificationResolver(
     ): Map<Long, Int> {
         val completedTournaments = seasonTournaments.filter { it.type == eventType.name && it.isCompleted }
         val winsMap = mutableMapOf<Long, Int>()
-        for (t in completedTournaments) {
-            val matches = tournamentMatchDao.getMatchesListForTournament(t.id)
+        for (tournament in completedTournaments) {
+            val matches = tournamentRepository.getMatchesListForTournament(tournament.id)
             val finalMatch = matches.firstOrNull { it.round == TournamentRound.F.name && it.isCompleted && it.winnerId != null }
             if (finalMatch != null && finalMatch.winnerId != null && (finalMatch.winnerId > 0L || finalMatch.winnerId == USER_ID)) {
-                val wId = finalMatch.winnerId
-                winsMap[wId] = (winsMap[wId] ?: 0) + 1
+                val winnerId = finalMatch.winnerId
+                winsMap[winnerId] = (winsMap[winnerId] ?: 0) + 1
             }
         }
         return winsMap
@@ -164,7 +158,7 @@ class GrandSlamQualificationResolver(
         allPlayers: List<Player>,
         oomEntries: List<OrderOfMeritEntry>
     ): List<TournamentParticipant> = withContext(Dispatchers.IO) {
-        val seasonTournaments = tournamentDao.getTournamentsListForSeason(seasonId)
+        val seasonTournaments = tournamentRepository.getTournamentsListForSeason(seasonId)
         val (majorIds, additionalIds) = resolveMajorAndAdditionalIds(
             seasonId = seasonId,
             tourCardPlayerIds = tourCardPlayerIds,
@@ -311,7 +305,7 @@ class GrandSlamQualificationResolver(
         }
 
         if (persistToDb) {
-            tournamentParticipantDao.insertParticipants(finalParticipants)
+            tournamentRepository.insertParticipants(finalParticipants)
         }
 
         TournamentQualificationResult(

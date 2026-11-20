@@ -1,14 +1,11 @@
 package com.danny.dannyapp.domain.usecase
 
 import android.content.Context
-import com.danny.dannyapp.domain.model.Country
-import com.danny.dannyapp.data.db.AppDatabase
-import com.danny.dannyapp.data.db.CareerDao
-import com.danny.dannyapp.data.db.PlayerDao
-import com.danny.dannyapp.data.db.SeasonDao
+import com.danny.dannyapp.data.db.CareerRepository
+import com.danny.dannyapp.data.db.PlayerRepository
+import com.danny.dannyapp.data.db.SeasonRepository
 import com.danny.dannyapp.data.db.Tournament
-import com.danny.dannyapp.data.db.TournamentDao
-import com.danny.dannyapp.data.db.TournamentPlacementDao
+import com.danny.dannyapp.data.db.TournamentRepository
 import com.danny.dannyapp.data.db.USER_ID
 import com.danny.dannyapp.domain.enums.OrderOfMeritType
 import com.danny.dannyapp.domain.enums.SkillLevel
@@ -21,38 +18,36 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 
 class GetOrderOfMeritUseCase(
-    private val careerDao: CareerDao,
-    private val seasonDao: SeasonDao,
-    private val tournamentDao: TournamentDao,
-    private val placementDao: TournamentPlacementDao,
-    private val playerDao: PlayerDao
+    private val careerRepository: CareerRepository,
+    private val seasonRepository: SeasonRepository,
+    private val tournamentRepository: TournamentRepository,
+    private val playerRepository: PlayerRepository
 ) {
     constructor(context: Context) : this(
-        AppDatabase.getDatabase(context.applicationContext).careerDao(),
-        AppDatabase.getDatabase(context.applicationContext).seasonDao(),
-        AppDatabase.getDatabase(context.applicationContext).tournamentDao(),
-        AppDatabase.getDatabase(context.applicationContext).tournamentPlacementDao(),
-        AppDatabase.getDatabase(context.applicationContext).playerDao()
+        CareerRepository(context),
+        SeasonRepository(context),
+        TournamentRepository(context),
+        PlayerRepository(context)
     )
 
     suspend operator fun invoke(careerId: Long, type: OrderOfMeritType): List<OrderOfMeritEntry> = withContext(Dispatchers.IO) {
         require(careerId > 0L) { "Ungültige Karriere-ID: $careerId" }
-        val seasons = seasonDao.getSeasonsListForCareer(careerId)
+        val seasons = seasonRepository.getSeasonsListForCareer(careerId)
         if (seasons.isEmpty()) return@withContext emptyList()
 
-        val seasonIds = seasons.map { it.id }
+        val seasonIds = seasons.map { id -> id.id }
         val currentSeason = seasons.maxByOrNull { it.seasonNumber }
 
         val allTournaments = mutableListOf<Tournament>()
         for (season in seasons) {
-            allTournaments.addAll(tournamentDao.getTournamentsListForSeason(season.id))
+            allTournaments.addAll(tournamentRepository.getTournamentsListForSeason(season.id))
         }
 
-        val allPlacements = placementDao.getPlacementsForSeasons(seasonIds)
-        val allPlayers = playerDao.getAllPlayersList()
+        val allPlacements = tournamentRepository.getPlacementsForSeasons(seasonIds)
+        val allPlayers = playerRepository.getAllPlayersList()
         val playerMap = allPlayers.associateBy { it.id }
 
-        val careerWithProfile = requireNotNull(careerDao.getCareerById(careerId)) { "Karriere mit ID $careerId nicht gefunden" }
+        val careerWithProfile = careerRepository.getCareerById(careerId)
         val userName = requireNotNull(careerWithProfile.playerName?.takeIf { it.isNotBlank() }) { "Spielername im Profil fehlt" }
         val userCountryCode = requireNotNull(careerWithProfile.countryCode?.takeIf { it.isNotBlank() }) { "Ländercode im Profil fehlt" }
         val userSkill = SkillLevel.DEFAULT.value
@@ -160,13 +155,13 @@ class GetOrderOfMeritUseCase(
      */
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     fun observeOrderOfMerit(careerId: Long, type: OrderOfMeritType): Flow<List<OrderOfMeritEntry>> {
-        return seasonDao.getSeasonsForCareer(careerId)
+        return seasonRepository.getSeasonsForCareer(careerId)
             .flatMapLatest { seasons ->
                 val seasonIds = seasons.map { it.id }
                 if (seasonIds.isEmpty()) {
                     flowOf(emptyList())
                 } else {
-                    placementDao.getPlacementsFlowForSeasons(seasonIds)
+                    tournamentRepository.getPlacementsFlowForSeasons(seasonIds)
                 }
             }
             .map {

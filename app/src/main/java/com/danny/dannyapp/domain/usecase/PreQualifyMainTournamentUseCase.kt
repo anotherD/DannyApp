@@ -1,14 +1,12 @@
 package com.danny.dannyapp.domain.usecase
 
 import android.content.Context
-import com.danny.dannyapp.data.db.AppDatabase
 import com.danny.dannyapp.data.db.Player
-import com.danny.dannyapp.data.db.PlayerDao
-import com.danny.dannyapp.data.db.TourCardDao
+import com.danny.dannyapp.data.db.PlayerRepository
+import com.danny.dannyapp.data.db.SeasonRepository
 import com.danny.dannyapp.data.db.Tournament
-import com.danny.dannyapp.data.db.TournamentDao
 import com.danny.dannyapp.data.db.TournamentParticipant
-import com.danny.dannyapp.data.db.TournamentParticipantDao
+import com.danny.dannyapp.data.db.TournamentRepository
 import com.danny.dannyapp.data.db.USER_ID
 import com.danny.dannyapp.domain.enums.OrderOfMeritType
 import com.danny.dannyapp.domain.enums.TournamentEvent
@@ -22,10 +20,9 @@ import kotlinx.coroutines.withContext
  * des Hauptturniers vor Beginn des Qualifiers sauber ein (Idempotent).
  */
 class PreQualifyMainTournamentUseCase(
-    private val tournamentDao: TournamentDao,
-    private val tournamentParticipantDao: TournamentParticipantDao,
-    private val tourCardDao: TourCardDao,
-    private val playerDao: PlayerDao,
+    private val tournamentRepository: TournamentRepository,
+    private val seasonRepository: SeasonRepository,
+    private val playerRepository: PlayerRepository,
     private val getOrderOfMeritUseCase: GetOrderOfMeritUseCase,
     private val resolveNonSimulatedQualifiersUseCase: ResolveNonSimulatedQualifiersUseCase,
     private val grandSlamQualificationResolver: GrandSlamQualificationResolver,
@@ -39,10 +36,9 @@ class PreQualifyMainTournamentUseCase(
         resolvePrequalifiedTourCardIds: (TournamentEvent, List<Long>, List<OrderOfMeritEntry>, List<OrderOfMeritEntry>, List<Player>) -> Pair<List<Long>, List<Long>>,
         sortPlayerIdsByOom: (List<Long>, List<OrderOfMeritEntry>, List<Player>) -> List<Long>
     ) : this(
-        AppDatabase.getDatabase(context.applicationContext).tournamentDao(),
-        AppDatabase.getDatabase(context.applicationContext).tournamentParticipantDao(),
-        AppDatabase.getDatabase(context.applicationContext).tourCardDao(),
-        AppDatabase.getDatabase(context.applicationContext).playerDao(),
+        TournamentRepository(context),
+        SeasonRepository(context),
+        PlayerRepository(context),
         GetOrderOfMeritUseCase(context),
         ResolveNonSimulatedQualifiersUseCase(),
         grandSlamQualificationResolver,
@@ -125,17 +121,16 @@ class PreQualifyMainTournamentUseCase(
         careerId: Long,
         persistToDb: Boolean = true
     ): List<TournamentParticipant> = withContext(Dispatchers.IO) {
-        val seasonTournaments = tournamentDao.getTournamentsListForSeason(seasonId)
+        val seasonTournaments = tournamentRepository.getTournamentsListForSeason(seasonId)
         val mainTournament = findMainTournamentForQualifier(qualifierTournament, seasonTournaments)
 
-        val existingParticipants = tournamentParticipantDao.getParticipantsForTournament(mainTournament.id)
+        val existingParticipants = tournamentRepository.getParticipantsForTournament(mainTournament.id)
         if (existingParticipants.isNotEmpty()) {
             return@withContext existingParticipants
         }
 
-        val tourCards = tourCardDao.getTourCardsListForSeason(seasonId)
-        val tourCardPlayerIds = tourCards.map { it.tourCard.playerId }.distinct()
-        val allPlayers = playerDao.getAllPlayersList()
+        val tourCardPlayerIds = seasonRepository.getTourCardPlayerIdsForSeason(seasonId)
+        val allPlayers = playerRepository.getAllPlayersList()
 
         val oomEntries = getOrderOfMeritUseCase(careerId, OrderOfMeritType.OOM)
         val ptOomEntries = getOrderOfMeritUseCase(careerId, OrderOfMeritType.PT_OOM)
@@ -175,7 +170,7 @@ class PreQualifyMainTournamentUseCase(
                     )
                 }
 
-                val effectiveHostCountry = mainTournament.hostCountry ?: Country.DEFAULT_CODE
+                val effectiveHostCountry = requireNotNull(mainTournament.hostCountry?.takeIf { it.isNotBlank() }) { "Gastgeberland fehlt für Turnier ${mainTournament.name}" }
                 val excludedBase = tourCardPlayerIds.toSet() + top16Oom.toSet() + top16PtOom.toSet() + USER_ID
                 val hostQualifiers = resolveNonSimulatedQualifiersUseCase.resolveRegional(
                     setOf(effectiveHostCountry), 4, excludedBase, allPlayers, oomEntries
@@ -297,7 +292,7 @@ class PreQualifyMainTournamentUseCase(
                 addRegional(setOf("JPN"), 1)
                 addRegional(setOf("IND"), 1)
                 addRegional(ResolveNonSimulatedQualifiersUseCase.CDC_NORTH_AMERICA, 2)
-                addRegional(ResolveNonSimulatedQualifiersUseCase.CDLC_LATIN_AMERICA, 1)
+                addRegional(setOf("CDLC_LATIN_AMERICA"), 1)
                 addRegional(ResolveNonSimulatedQualifiersUseCase.OCEANIA, 2)
                 addRegional(ResolveNonSimulatedQualifiersUseCase.AFRICA, 2)
 
@@ -324,7 +319,7 @@ class PreQualifyMainTournamentUseCase(
         }
 
         if (persistToDb) {
-            tournamentParticipantDao.insertParticipants(participants)
+            tournamentRepository.insertParticipants(participants)
         }
         participants
     }
