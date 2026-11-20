@@ -257,4 +257,11 @@
     <string name="career_overview_rankings_header">Meine Ranglisten</string>
     <string name="career_overview_rank_unranked">-</string>
     <string name="career_overview_ranking_item_format">%1$s (%2$s)</string>
+
+    <!-- Crash Screen -->
+    <string name="crash_title">Unerwarteter Fehler</string>
+    <string name="crash_subtitle">Die App ist auf ein Problem gestoßen und musste angehalten werden.</string>
+    <string name="crash_copy_button">Fehlerbericht kopieren</string>
+    <string name="crash_copied_toast">Fehlerbericht in die Zwischenablage kopiert.</string>
+    <string name="crash_restart_button">App neu starten</string>
 </resources>
