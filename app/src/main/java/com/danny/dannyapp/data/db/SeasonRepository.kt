@@ -14,7 +14,7 @@ class SeasonRepository(
     private val seasonDao: SeasonDao,
     private val tourCardDao: TourCardDao,
     private val playerDao: PlayerDao,
-    private val tournamentDao: TournamentDao,
+    private val tournamentRepository: TournamentRepository,
     private val context: Context? = null
 ) {
 
@@ -22,7 +22,7 @@ class SeasonRepository(
         AppDatabase.getDatabase(context.applicationContext).seasonDao(),
         AppDatabase.getDatabase(context.applicationContext).tourCardDao(),
         AppDatabase.getDatabase(context.applicationContext).playerDao(),
-        AppDatabase.getDatabase(context.applicationContext).tournamentDao(),
+        TournamentRepository(context),
         context
     ) {
         TournamentConfigLoader.loadFromAssets(context)
@@ -36,18 +36,50 @@ class SeasonRepository(
         seasonDao,
         tourCardDao,
         playerDao,
-        object : TournamentDao {
-            private val list = mutableListOf<Tournament>()
-            override fun getTournamentsForSeason(seasonId: Long): Flow<List<Tournament>> = kotlinx.coroutines.flow.flowOf(list)
-            override suspend fun getTournamentsListForSeason(seasonId: Long): List<Tournament> = list.filter { it.seasonId == seasonId }
-            override suspend fun getTournamentById(id: Long): Tournament? = list.find { it.id == id }
-            override suspend fun insertTournament(tournament: Tournament): Long = tournament.id
-            override suspend fun insertTournaments(tournaments: List<Tournament>) { list.addAll(tournaments) }
-            override suspend fun updateTournament(tournament: Tournament) {}
-            override suspend fun deleteTournament(tournament: Tournament) {}
-            override suspend fun deleteTournamentById(id: Long) {}
-            override suspend fun deleteTournamentsForSeason(seasonId: Long) { list.removeIf { it.seasonId == seasonId } }
-        }
+        TournamentRepository(
+            object : TournamentDao {
+                private val list = mutableListOf<Tournament>()
+                override fun getTournamentsForSeason(seasonId: Long): Flow<List<Tournament>> = kotlinx.coroutines.flow.flowOf(list)
+                override suspend fun getTournamentsListForSeason(seasonId: Long): List<Tournament> = list.filter { it.seasonId == seasonId }
+                override suspend fun getTournamentById(id: Long): Tournament? = list.find { it.id == id }
+                override suspend fun insertTournament(tournament: Tournament): Long = tournament.id
+                override suspend fun insertTournaments(tournaments: List<Tournament>) { list.addAll(tournaments) }
+                override suspend fun updateTournament(tournament: Tournament) {}
+                override suspend fun deleteTournament(tournament: Tournament) {}
+                override suspend fun deleteTournamentById(id: Long) {}
+                override suspend fun deleteTournamentsForSeason(seasonId: Long) { list.removeIf { it.seasonId == seasonId } }
+            },
+            object : TournamentMatchDao {
+                override fun getMatchesForTournament(tournamentId: Long): Flow<List<TournamentMatch>> = kotlinx.coroutines.flow.flowOf(emptyList())
+                override fun getMatchesFlowForSeason(seasonId: Long): Flow<List<TournamentMatch>> = kotlinx.coroutines.flow.flowOf(emptyList())
+                override suspend fun getMatchesListForTournament(tournamentId: Long): List<TournamentMatch> = emptyList()
+                override suspend fun getMatchById(id: Long): TournamentMatch? = null
+                override suspend fun insertMatch(match: TournamentMatch): Long = 0L
+                override suspend fun insertMatches(matches: List<TournamentMatch>) {}
+                override suspend fun updateMatch(match: TournamentMatch) {}
+                override suspend fun deleteMatch(match: TournamentMatch) {}
+                override suspend fun deleteMatchesForTournament(tournamentId: Long) {}
+            },
+            object : TournamentPlacementDao {
+                override fun getPlacementsForTournament(tournamentId: Long): Flow<List<TournamentPlacement>> = kotlinx.coroutines.flow.flowOf(emptyList())
+                override suspend fun getPlacementForPlayerInTournament(tournamentId: Long, playerId: Long): TournamentPlacement? = null
+                override suspend fun getPlacementsListForTournament(tournamentId: Long): List<TournamentPlacement> = emptyList()
+                override fun getPlacementsForPlayer(playerId: Long): Flow<List<TournamentPlacement>> = kotlinx.coroutines.flow.flowOf(emptyList())
+                override suspend fun getPlacementsForSeasons(seasonIds: List<Long>): List<TournamentPlacement> = emptyList()
+                override fun getPlacementsFlowForSeasons(seasonIds: List<Long>): Flow<List<TournamentPlacement>> = kotlinx.coroutines.flow.flowOf(emptyList())
+                override suspend fun insertPlacement(placement: TournamentPlacement): Long = 0L
+                override suspend fun insertPlacements(placements: List<TournamentPlacement>) {}
+                override suspend fun updatePlacement(placement: TournamentPlacement) {}
+                override suspend fun deletePlacement(placement: TournamentPlacement) {}
+                override suspend fun deletePlacementsForTournament(tournamentId: Long) {}
+                override suspend fun upsertPlayerPlacement(tournamentId: Long, playerId: Long, reachedRound: String, prizeMoney: Double) {}
+            },
+            object : TournamentParticipantDao {
+                override suspend fun insertParticipants(participants: List<TournamentParticipant>) {}
+                override suspend fun getParticipantsForTournament(tournamentId: Long): List<TournamentParticipant> = emptyList()
+                override suspend fun getSeededParticipantsForTournament(tournamentId: Long): List<TournamentParticipant> = emptyList()
+            }
+        )
     )
 
     /**
@@ -132,11 +164,6 @@ class SeasonRepository(
 
         tourCardDao.insertTourCards(tourCards)
 
-        val tournamentRepository = if (context != null) {
-            TournamentRepository(context)
-        } else {
-            TournamentRepository(tournamentDao)
-        }
         val generateCalendarUseCase = GenerateSeasonCalendarUseCase(tournamentRepository, context)
         generateCalendarUseCase(seasonId)
 

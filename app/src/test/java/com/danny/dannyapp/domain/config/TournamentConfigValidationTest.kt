@@ -2,6 +2,12 @@ package com.danny.dannyapp.domain.config
 
 import com.danny.dannyapp.data.db.Tournament
 import com.danny.dannyapp.data.db.TournamentDao
+import com.danny.dannyapp.data.db.TournamentMatch
+import com.danny.dannyapp.data.db.TournamentMatchDao
+import com.danny.dannyapp.data.db.TournamentParticipant
+import com.danny.dannyapp.data.db.TournamentParticipantDao
+import com.danny.dannyapp.data.db.TournamentPlacement
+import com.danny.dannyapp.data.db.TournamentPlacementDao
 import com.danny.dannyapp.data.db.TournamentRepository
 import com.danny.dannyapp.domain.enums.TournamentEvent
 import com.danny.dannyapp.domain.usecase.BracketGenerator
@@ -57,7 +63,39 @@ class TournamentConfigValidationTest {
             override suspend fun deleteTournamentsForSeason(seasonId: Long) {}
         }
 
-        val calendarUseCase = GenerateSeasonCalendarUseCase(TournamentRepository(dummyDao))
+        val dummyMatchDao = object : TournamentMatchDao {
+            override fun getMatchesForTournament(tournamentId: Long): Flow<List<TournamentMatch>> = kotlinx.coroutines.flow.flowOf(emptyList())
+            override fun getMatchesFlowForSeason(seasonId: Long): Flow<List<TournamentMatch>> = kotlinx.coroutines.flow.flowOf(emptyList())
+            override suspend fun getMatchesListForTournament(tournamentId: Long): List<TournamentMatch> = emptyList()
+            override suspend fun getMatchById(id: Long): TournamentMatch? = null
+            override suspend fun insertMatch(match: TournamentMatch): Long = 0L
+            override suspend fun insertMatches(matches: List<TournamentMatch>) {}
+            override suspend fun updateMatch(match: TournamentMatch) {}
+            override suspend fun deleteMatch(match: TournamentMatch) {}
+            override suspend fun deleteMatchesForTournament(tournamentId: Long) {}
+        }
+        val dummyPlacementDao = object : TournamentPlacementDao {
+            override fun getPlacementsForTournament(tournamentId: Long): Flow<List<TournamentPlacement>> = kotlinx.coroutines.flow.flowOf(emptyList())
+            override suspend fun getPlacementForPlayerInTournament(tournamentId: Long, playerId: Long): TournamentPlacement? = null
+            override suspend fun getPlacementsListForTournament(tournamentId: Long): List<TournamentPlacement> = emptyList()
+            override fun getPlacementsForPlayer(playerId: Long): Flow<List<TournamentPlacement>> = kotlinx.coroutines.flow.flowOf(emptyList())
+            override suspend fun getPlacementsForSeasons(seasonIds: List<Long>): List<TournamentPlacement> = emptyList()
+            override fun getPlacementsFlowForSeasons(seasonIds: List<Long>): Flow<List<TournamentPlacement>> = kotlinx.coroutines.flow.flowOf(emptyList())
+            override suspend fun insertPlacement(placement: TournamentPlacement): Long = 0L
+            override suspend fun insertPlacements(placements: List<TournamentPlacement>) {}
+            override suspend fun updatePlacement(placement: TournamentPlacement) {}
+            override suspend fun deletePlacement(placement: TournamentPlacement) {}
+            override suspend fun deletePlacementsForTournament(tournamentId: Long) {}
+            override suspend fun upsertPlayerPlacement(tournamentId: Long, playerId: Long, reachedRound: String, prizeMoney: Double) {}
+        }
+        val dummyParticipantDao = object : TournamentParticipantDao {
+            override suspend fun insertParticipants(participants: List<TournamentParticipant>) {}
+            override suspend fun getParticipantsForTournament(tournamentId: Long): List<TournamentParticipant> = emptyList()
+            override suspend fun getSeededParticipantsForTournament(tournamentId: Long): List<TournamentParticipant> = emptyList()
+        }
+
+        val tournamentRepository = TournamentRepository(dummyDao, dummyMatchDao, dummyPlacementDao, dummyParticipantDao)
+        val calendarUseCase = GenerateSeasonCalendarUseCase(tournamentRepository)
         val tournaments = calendarUseCase.createSeasonCalendar(1L)
         assertTrue("Generierte Turniere dürfen nicht leer sein", tournaments.isNotEmpty())
         for (tournament in tournaments) {

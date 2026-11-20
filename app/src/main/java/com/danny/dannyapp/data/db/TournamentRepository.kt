@@ -20,40 +20,6 @@ class TournamentRepository(
         AppDatabase.getDatabase(context.applicationContext).tournamentParticipantDao(),
     )
 
-    constructor(tournamentDao: TournamentDao) : this(
-        tournamentDao = tournamentDao,
-        tournamentMatchDao = object : TournamentMatchDao {
-            override fun getMatchesForTournament(tournamentId: Long): Flow<List<TournamentMatch>> = kotlinx.coroutines.flow.flowOf(emptyList())
-            override fun getMatchesFlowForSeason(seasonId: Long): Flow<List<TournamentMatch>> = kotlinx.coroutines.flow.flowOf(emptyList())
-            override suspend fun getMatchesListForTournament(tournamentId: Long): List<TournamentMatch> = emptyList()
-            override suspend fun getMatchById(id: Long): TournamentMatch? = null
-            override suspend fun insertMatch(match: TournamentMatch): Long = 0L
-            override suspend fun insertMatches(matches: List<TournamentMatch>) {}
-            override suspend fun updateMatch(match: TournamentMatch) {}
-            override suspend fun deleteMatch(match: TournamentMatch) {}
-            override suspend fun deleteMatchesForTournament(tournamentId: Long) {}
-        },
-        tournamentPlacementDao = object : TournamentPlacementDao {
-            override fun getPlacementsForTournament(tournamentId: Long): Flow<List<TournamentPlacement>> = kotlinx.coroutines.flow.flowOf(emptyList())
-            override suspend fun getPlacementForPlayerInTournament(tournamentId: Long, playerId: Long): TournamentPlacement? = null
-            override suspend fun getPlacementsListForTournament(tournamentId: Long): List<TournamentPlacement> = emptyList()
-            override fun getPlacementsForPlayer(playerId: Long): Flow<List<TournamentPlacement>> = kotlinx.coroutines.flow.flowOf(emptyList())
-            override suspend fun getPlacementsForSeasons(seasonIds: List<Long>): List<TournamentPlacement> = emptyList()
-            override fun getPlacementsFlowForSeasons(seasonIds: List<Long>): Flow<List<TournamentPlacement>> = kotlinx.coroutines.flow.flowOf(emptyList())
-            override suspend fun insertPlacement(placement: TournamentPlacement): Long = 0L
-            override suspend fun insertPlacements(placements: List<TournamentPlacement>) {}
-            override suspend fun updatePlacement(placement: TournamentPlacement) {}
-            override suspend fun deletePlacement(placement: TournamentPlacement) {}
-            override suspend fun deletePlacementsForTournament(tournamentId: Long) {}
-            override suspend fun upsertPlayerPlacement(tournamentId: Long, playerId: Long, reachedRound: String, prizeMoney: Double) {}
-        },
-        tournamentParticipantDao = object : TournamentParticipantDao {
-            override suspend fun insertParticipants(participants: List<TournamentParticipant>) {}
-            override suspend fun getParticipantsForTournament(tournamentId: Long): List<TournamentParticipant> = emptyList()
-            override suspend fun getSeededParticipantsForTournament(tournamentId: Long): List<TournamentParticipant> = emptyList()
-        }
-    )
-
     // --- Tournaments ---
 
     /**
