@@ -292,7 +292,7 @@ class PreQualifyMainTournamentUseCase(
                 addRegional(setOf("JPN"), 1)
                 addRegional(setOf("IND"), 1)
                 addRegional(ResolveNonSimulatedQualifiersUseCase.CDC_NORTH_AMERICA, 2)
-                addRegional(setOf("CDLC_LATIN_AMERICA"), 1)
+                addRegional(ResolveNonSimulatedQualifiersUseCase.CDLC_LATIN_AMERICA, 1)
                 addRegional(ResolveNonSimulatedQualifiersUseCase.OCEANIA, 2)
                 addRegional(ResolveNonSimulatedQualifiersUseCase.AFRICA, 2)
 
