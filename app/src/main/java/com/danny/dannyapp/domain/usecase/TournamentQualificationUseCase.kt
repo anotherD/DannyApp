@@ -935,11 +935,8 @@ class TournamentQualificationUseCase(
         val allPlayersMap = allPlayers.associateBy { it.id }
 
         val careerWithProfile = requireNotNull(careerDao.getCareerById(currentCareerId)) { "Karriere mit ID $currentCareerId nicht gefunden" }
-        val userName = careerWithProfile.playerName?.ifBlank { null }
-            ?: careerWithProfile.profileName
-            ?: careerWithProfile.career.name
-            ?: "Du"
-        val userCountryCode = careerWithProfile.countryCode ?: Country.DEFAULT_USER_CODE
+        val userName = requireNotNull(careerWithProfile.playerName?.takeIf { it.isNotBlank() }) { "Spielername im Profil fehlt" }
+        val userCountryCode = requireNotNull(careerWithProfile.countryCode?.takeIf { it.isNotBlank() }) { "Ländercode im Profil fehlt" }
 
         fun createEntrantPlayerDomainInfo(id: Long, rank: Int?): EntrantPlayerDomainInfo {
             val name: String

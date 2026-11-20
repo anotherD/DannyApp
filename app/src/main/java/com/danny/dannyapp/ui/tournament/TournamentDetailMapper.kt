@@ -86,7 +86,7 @@ object TournamentDetailMapper {
     fun createMatchUiModel(
         context: Context,
         match: TournamentMatch,
-        careerWithProfile: CareerWithProfile?,
+        careerWithProfile: CareerWithProfile,
         allPlayersMap: Map<Long, Player>,
         roundKey: String,
         event: TournamentEvent,
@@ -198,7 +198,7 @@ object TournamentDetailMapper {
     fun mapGrandSlamGroupStandings(
         context: Context,
         standingsByGroup: Map<String, List<GroupStandingEntry>>,
-        careerWithProfile: CareerWithProfile?,
+        careerWithProfile: CareerWithProfile,
         allPlayersMap: Map<Long, Player>,
         seededPlayerMap: Map<Long, Int>
     ): Map<String, List<GrandSlamGroupItem>> {

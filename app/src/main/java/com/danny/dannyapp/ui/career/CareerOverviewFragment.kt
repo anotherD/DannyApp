@@ -82,20 +82,12 @@ class CareerOverviewFragment : Fragment(R.layout.fragment_career_overview) {
                             tvCareerOverviewName.text = career.name
                             tvCareerOverviewMeta.text = getString(R.string.career_season_level_format, getString(R.string.season_format, career.season), getString(R.string.career_level_format, career.level))
 
-                            if (!careerWithProfile.playerName.isNullOrBlank()) {
-                                tvCareerOverviewPlayer.visibility = View.VISIBLE
-                                val countryCode = careerWithProfile.countryCode ?: "DEU"
-                                UIHelper.formatFlagAndText(tvCareerOverviewPlayer, countryCode, careerWithProfile.playerName)
-                            } else {
-                                tvCareerOverviewPlayer.visibility = View.GONE
-                            }
+                            val profileName = requireNotNull(careerWithProfile.profileName?.takeIf { it.isNotBlank() }) { "Profilname fehlt" }
+                            val playerName = requireNotNull(careerWithProfile.playerName?.takeIf { it.isNotBlank() }) { "Spielername im Profil fehlt" }
+                            val countryCode = requireNotNull(careerWithProfile.countryCode?.takeIf { it.isNotBlank() }) { "Ländercode im Profil fehlt" }
 
-                            if (!careerWithProfile.profileName.isNullOrBlank()) {
-                                tvCareerOverviewProfile.visibility = View.VISIBLE
-                                tvCareerOverviewProfile.text = getString(R.string.career_profile_format, careerWithProfile.profileName)
-                            } else {
-                                tvCareerOverviewProfile.visibility = View.GONE
-                            }
+                            UIHelper.formatFlagAndText(tvCareerOverviewPlayer, countryCode, playerName)
+                            tvCareerOverviewProfile.text = getString(R.string.career_profile_format, profileName)
                         }
                     }
                 }

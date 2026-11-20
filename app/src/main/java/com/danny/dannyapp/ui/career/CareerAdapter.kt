@@ -9,7 +9,6 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
 import com.danny.dannyapp.data.db.CareerWithProfile
-import com.danny.dannyapp.domain.model.Country
 import com.danny.dannyapp.ui.UIHelper
 
 class CareerAdapter(
@@ -38,19 +37,14 @@ class CareerAdapter(
         holder.tvCareerName.text = career.name
         holder.tvCareerLevel.text = context.getString(R.string.career_level_format, career.level)
         holder.tvCareerSeason.text = context.getString(R.string.season_format, career.season)
-        if (!careerWithProfile.profileName.isNullOrBlank()) {
-            holder.tvCareerProfile.text = context.getString(R.string.career_profile_format, careerWithProfile.profileName)
-            holder.tvCareerProfile.visibility = View.VISIBLE
-        } else {
-            holder.tvCareerProfile.visibility = View.GONE
-        }
-        if (!careerWithProfile.playerName.isNullOrBlank()) {
-            val countryCode = careerWithProfile.countryCode ?: Country.DEFAULT_CODE
-            UIHelper.formatFlagAndText(holder.tvCareerPlayer, countryCode, careerWithProfile.playerName)
-            holder.tvCareerPlayer.visibility = View.VISIBLE
-        } else {
-            holder.tvCareerPlayer.visibility = View.GONE
-        }
+
+        val profileName = requireNotNull(careerWithProfile.profileName?.takeIf { it.isNotBlank() }) { "Profilname fehlt" }
+        val playerName = requireNotNull(careerWithProfile.playerName?.takeIf { it.isNotBlank() }) { "Spielername im Profil fehlt" }
+        val countryCode = requireNotNull(careerWithProfile.countryCode?.takeIf { it.isNotBlank() }) { "Ländercode im Profil fehlt" }
+
+        holder.tvCareerProfile.text = context.getString(R.string.career_profile_format, profileName)
+        UIHelper.formatFlagAndText(holder.tvCareerPlayer, countryCode, playerName)
+
         holder.itemView.setOnClickListener { onItemClick(careerWithProfile) }
         holder.itemView.setOnLongClickListener {
             onItemLongClick(careerWithProfile)

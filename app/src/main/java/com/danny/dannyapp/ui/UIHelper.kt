@@ -45,18 +45,20 @@ fun SkillLevel.toColorResId(): Int {
 
 object UIHelper {
 
+    /**
+     * Erstellt die Spieler-UI-Informationen für den Nutzer basierend auf der verknüpften Karriere und dem Profil.
+     */
     fun createUserPlayerUiInfo(
         context: Context,
-        careerWithProfile: CareerWithProfile?,
+        careerWithProfile: CareerWithProfile,
         seed: Int? = null
     ): PlayerUiInfo {
+        val playerName = requireNotNull(careerWithProfile.playerName?.takeIf { it.isNotBlank() }) { "Spielername im Profil fehlt" }
+        val countryCode = requireNotNull(careerWithProfile.countryCode?.takeIf { it.isNotBlank() }) { "Ländercode im Profil fehlt" }
         return PlayerUiInfo(
             id = USER_ID,
-            name = careerWithProfile?.playerName?.ifBlank { null }
-                ?: careerWithProfile?.profileName
-                ?: careerWithProfile?.career?.name
-                ?: context.getString(R.string.player_name_you),
-            countryCode = careerWithProfile?.countryCode ?: Country.DEFAULT_USER_CODE,
+            name = playerName,
+            countryCode = countryCode,
             skill = SkillLevel.DEFAULT.value,
             seed = seed
         )
@@ -87,11 +89,14 @@ object UIHelper {
         )
     }
 
+    /**
+     * Ermittelt die Spieler-UI-Informationen basierend auf der Spieler-ID (Nutzer oder CPU-Spieler).
+     */
     fun resolvePlayerUiInfo(
         context: Context,
         playerId: Long,
         player: Player?,
-        careerWithProfile: CareerWithProfile?,
+        careerWithProfile: CareerWithProfile,
         seed: Int? = null
     ): PlayerUiInfo {
         return if (playerId == USER_ID) {
