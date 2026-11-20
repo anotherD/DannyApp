@@ -4,23 +4,23 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.danny.dannyapp.R
-import com.danny.dannyapp.data.db.AppDatabase
 import com.danny.dannyapp.data.db.CareerRepository
 import com.danny.dannyapp.data.db.CareerWithProfile
-import com.danny.dannyapp.data.db.Season
+import com.danny.dannyapp.data.db.Player
+import com.danny.dannyapp.data.db.PlayerRepository
+import com.danny.dannyapp.data.db.SeasonRepository
 import com.danny.dannyapp.data.db.Tournament
 import com.danny.dannyapp.data.db.TournamentMatch
 import com.danny.dannyapp.data.db.TournamentPlacement
+import com.danny.dannyapp.data.db.TournamentRepository
 import com.danny.dannyapp.data.db.USER_ID
 import com.danny.dannyapp.domain.enums.TournamentRound
-import com.danny.dannyapp.domain.model.Country
 import com.danny.dannyapp.domain.usecase.AdvanceTournamentRoundUseCase
 import com.danny.dannyapp.domain.usecase.GenerateBracketUseCase
 import com.danny.dannyapp.domain.usecase.GenerateSeasonCalendarUseCase
 import com.danny.dannyapp.domain.usecase.GetTournamentSummaryUseCase
 import com.danny.dannyapp.domain.usecase.TournamentPhaseState
 import com.danny.dannyapp.domain.usecase.TournamentProgressionUseCase
-import com.danny.dannyapp.domain.usecase.TournamentSummary
 import com.danny.dannyapp.ui.UIHelper
 import com.danny.dannyapp.ui.enums.TournamentStatus
 import com.danny.dannyapp.ui.model.PlayerUiInfo
@@ -41,15 +41,12 @@ sealed interface TournamentCalendarState {
 
 class TournamentCalendarViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val db = AppDatabase.getDatabase(application)
-    private val tournamentDao = db.tournamentDao()
-    private val tournamentMatchDao = db.tournamentMatchDao()
-    private val tournamentPlacementDao = db.tournamentPlacementDao()
-    private val seasonDao = db.seasonDao()
-    private val playerDao = db.playerDao()
     private val careerRepository = CareerRepository(application)
+    private val tournamentRepository = TournamentRepository(application)
+    private val seasonRepository = SeasonRepository(application)
+    private val playerRepository = PlayerRepository(application)
 
-    private val generateSeasonCalendarUseCase = GenerateSeasonCalendarUseCase(tournamentDao)
+    private val generateSeasonCalendarUseCase = GenerateSeasonCalendarUseCase(application)
     private val generateBracketUseCase = GenerateBracketUseCase(application)
     private val advanceTournamentRoundUseCase = AdvanceTournamentRoundUseCase(application)
     private val tournamentProgressionUseCase = TournamentProgressionUseCase(application)
@@ -60,6 +57,9 @@ class TournamentCalendarViewModel(application: Application) : AndroidViewModel(a
     private val _uiState = MutableStateFlow<TournamentCalendarState>(TournamentCalendarState.Loading)
     val uiState: StateFlow<TournamentCalendarState> = _uiState.asStateFlow()
 
+    /**
+     * Lädt alle Turniere der aktuellen Saison einer Karriere und beobachtet deren Status.
+     */
     fun loadTournaments(careerId: Long) {
         if (careerId <= 0L) {
             _uiState.value = TournamentCalendarState.Error(getApplication<Application>().getString(R.string.error_invalid_career_id))
@@ -69,20 +69,17 @@ class TournamentCalendarViewModel(application: Application) : AndroidViewModel(a
         viewModelScope.launch {
             _uiState.value = TournamentCalendarState.Loading
             try {
-                val season = seasonDao.getCurrentSeasonForCareer(careerId) ?: run {
-                    seasonDao.insertSeason(Season(careerId = careerId, seasonNumber = 1))
-                    seasonDao.getCurrentSeasonForCareer(careerId) ?: throw IllegalStateException("Could not create season")
-                }
+                val season = seasonRepository.getOrCreateInitialSeasonForCareer(careerId)
 
                 generateSeasonCalendarUseCase(season.id)
 
-                val allPlayers = playerDao.getAllPlayersList().associateBy { it.id }
+                val allPlayers = playerRepository.getAllPlayersList().associateBy { it.id }
                 val careerWithProfile = careerRepository.getCareerById(careerId)
 
                 combine(
-                    tournamentDao.getTournamentsForSeason(season.id),
-                    tournamentMatchDao.getMatchesFlowForSeason(season.id),
-                    tournamentPlacementDao.getPlacementsFlowForSeasons(listOf(season.id)),
+                    tournamentRepository.getTournamentsForSeason(season.id),
+                    tournamentRepository.getMatchesFlowForSeason(season.id),
+                    tournamentRepository.getPlacementsFlowForSeasons(listOf(season.id)),
                     _simulatingTournamentId
                 ) { tournaments, matches, placements, simulatingId ->
                     val uiModels = buildTournamentUiModels(tournaments, matches, placements, allPlayers, careerWithProfile)
@@ -96,11 +93,14 @@ class TournamentCalendarViewModel(application: Application) : AndroidViewModel(a
         }
     }
 
+    /**
+     * Erstellt die UI-Modelle für alle Turniere einer Saison aus den Rohdaten.
+     */
     private suspend fun buildTournamentUiModels(
         tournaments: List<Tournament>,
         matchesList: List<TournamentMatch>,
         placementsList: List<TournamentPlacement>,
-        allPlayers: Map<Long, com.danny.dannyapp.data.db.Player>,
+        allPlayers: Map<Long, Player>,
         careerWithProfile: CareerWithProfile
     ): List<TournamentUiModel> {
         val matchesByTournament = matchesList.groupBy { it.tournamentId }
@@ -161,23 +161,27 @@ class TournamentCalendarViewModel(application: Application) : AndroidViewModel(a
         }
     }
 
+    /**
+     * Startet ein Turnier und generiert bei Bedarf den Turnierbaum.
+     */
     suspend fun startTournament(tournamentId: Long): Boolean = withContext(Dispatchers.IO) {
-        val matches = tournamentMatchDao.getMatchesListForTournament(tournamentId)
+        val matches = tournamentRepository.getMatchesListForTournament(tournamentId)
         if (matches.isEmpty()) {
             generateBracketUseCase(tournamentId)
         }
         true
     }
 
+    /**
+     * Simuliert ein komplettes Turnier bis zum Ende.
+     */
     fun simulateCompleteTournament(tournamentId: Long) {
         if (_simulatingTournamentId.value != null) return
         viewModelScope.launch {
             _simulatingTournamentId.value = tournamentId
             try {
                 withContext(Dispatchers.IO) {
-                    val tournament = requireNotNull(tournamentDao.getTournamentById(tournamentId)) {
-                        "Turnier mit ID $tournamentId nicht gefunden"
-                    }
+                    val tournament = tournamentRepository.getTournamentById(tournamentId)
                     if (tournament.isCompleted) return@withContext
 
                     tournamentProgressionUseCase.simulateCompleteTournament(tournamentId)
