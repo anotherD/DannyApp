@@ -2,25 +2,13 @@ package com.danny.dannyapp.domain.usecase
 
 import android.content.Context
 import com.danny.dannyapp.data.db.PLACEHOLDER_PREVIOUS_WINNER_ID
-import com.danny.dannyapp.data.db.Player
-import com.danny.dannyapp.data.db.PlayerDao
-import com.danny.dannyapp.data.db.SeasonDao
 import com.danny.dannyapp.data.db.SeasonRepository
-import com.danny.dannyapp.data.db.TourCard
-import com.danny.dannyapp.data.db.TourCardDao
-import com.danny.dannyapp.data.db.TourCardWithPlayer
-import com.danny.dannyapp.data.db.TournamentDao
 import com.danny.dannyapp.data.db.TournamentMatch
-import com.danny.dannyapp.data.db.TournamentMatchDao
-import com.danny.dannyapp.data.db.TournamentParticipant
-import com.danny.dannyapp.data.db.TournamentParticipantDao
 import com.danny.dannyapp.data.db.TournamentPlacement
-import com.danny.dannyapp.data.db.TournamentPlacementDao
 import com.danny.dannyapp.data.db.TournamentRepository
 import com.danny.dannyapp.domain.enums.TournamentEvent
 import com.danny.dannyapp.domain.enums.TournamentRound
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 
 /**
@@ -32,27 +20,6 @@ class GenerateBracketUseCase(
     private val seasonRepository: SeasonRepository,
     private val tournamentQualificationUseCase: TournamentQualificationUseCase
 ) {
-    constructor(
-        tournamentDao: TournamentDao,
-        seasonDao: SeasonDao,
-        tournamentMatchDao: TournamentMatchDao,
-        tournamentPlacementDao: TournamentPlacementDao,
-        tournamentQualificationUseCase: TournamentQualificationUseCase
-    ) : this(
-        TournamentRepository(
-            tournamentDao = tournamentDao,
-            tournamentMatchDao = tournamentMatchDao,
-            tournamentPlacementDao = tournamentPlacementDao,
-            tournamentParticipantDao = object : TournamentParticipantDao {
-                override suspend fun insertParticipants(participants: List<TournamentParticipant>) = throw UnsupportedOperationException()
-                override suspend fun getParticipantsForTournament(tournamentId: Long): List<TournamentParticipant> = throw UnsupportedOperationException()
-                override suspend fun getSeededParticipantsForTournament(tournamentId: Long): List<TournamentParticipant> = throw UnsupportedOperationException()
-            }
-        ),
-        SeasonRepository(seasonDao, DummyTourCardDao, DummyPlayerDao),
-        tournamentQualificationUseCase
-    )
-
     constructor(context: Context) : this(
         TournamentRepository(context),
         SeasonRepository(context),
@@ -392,29 +359,4 @@ class GenerateBracketUseCase(
         }
         return Pair(prelimMatches, r1Matches)
     }
-}
-
-private object DummyTourCardDao : TourCardDao {
-    override fun getTourCardsForSeason(seasonId: Long): Flow<List<TourCardWithPlayer>> = throw UnsupportedOperationException()
-    override suspend fun getTourCardsListForSeason(seasonId: Long): List<TourCardWithPlayer> = throw UnsupportedOperationException()
-    override suspend fun getRawTourCardsForSeason(seasonId: Long): List<TourCard> = throw UnsupportedOperationException()
-    override suspend fun insertTourCard(tourCard: TourCard): Long = throw UnsupportedOperationException()
-    override suspend fun insertTourCards(tourCards: List<TourCard>) = throw UnsupportedOperationException()
-    override suspend fun deleteTourCardsForSeason(seasonId: Long) = throw UnsupportedOperationException()
-}
-
-private object DummyPlayerDao : PlayerDao {
-    override fun getAllPlayers(): Flow<List<Player>> = throw UnsupportedOperationException()
-    override suspend fun getAllPlayersList(): List<Player> = throw UnsupportedOperationException()
-    override fun getAllPlayersSortedBySkill(): Flow<List<Player>> = throw UnsupportedOperationException()
-    override fun getAllPlayersSortedByName(): Flow<List<Player>> = throw UnsupportedOperationException()
-    override suspend fun getPlayerById(id: Long): Player? = throw UnsupportedOperationException()
-    override suspend fun getPlayerCount(): Int = throw UnsupportedOperationException()
-    override suspend fun insertPlayer(player: Player): Long = throw UnsupportedOperationException()
-    override suspend fun insertAll(players: List<Player>) = throw UnsupportedOperationException()
-    override suspend fun updatePlayer(player: Player) = throw UnsupportedOperationException()
-    override suspend fun deletePlayer(player: Player) = throw UnsupportedOperationException()
-    override suspend fun deletePlayerById(id: Long) = throw UnsupportedOperationException()
-    override suspend fun csvInsertNewPlayers(players: List<Player>) = throw UnsupportedOperationException()
-    override suspend fun csvUpdatePlayerStats(name: String, skill: Int, countryCode: String, prizeMoney: Double, tourCardYear: Int, updatedAt: Long) = throw UnsupportedOperationException()
 }

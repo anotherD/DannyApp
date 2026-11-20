@@ -2,6 +2,7 @@ package com.danny.dannyapp.domain.config
 
 import com.danny.dannyapp.data.db.Tournament
 import com.danny.dannyapp.data.db.TournamentDao
+import com.danny.dannyapp.data.db.TournamentRepository
 import com.danny.dannyapp.domain.enums.TournamentEvent
 import com.danny.dannyapp.domain.usecase.BracketGenerator
 import com.danny.dannyapp.domain.usecase.GenerateSeasonCalendarUseCase
@@ -56,7 +57,7 @@ class TournamentConfigValidationTest {
             override suspend fun deleteTournamentsForSeason(seasonId: Long) {}
         }
 
-        val calendarUseCase = GenerateSeasonCalendarUseCase(dummyDao)
+        val calendarUseCase = GenerateSeasonCalendarUseCase(TournamentRepository(dummyDao))
         val tournaments = calendarUseCase.createSeasonCalendar(1L)
         assertTrue("Generierte Turniere dürfen nicht leer sein", tournaments.isNotEmpty())
         for (tournament in tournaments) {
@@ -67,10 +68,10 @@ class TournamentConfigValidationTest {
             assertTrue("hostCity darf nicht leer sein", !tournament.hostCity.isNullOrBlank())
         }
 
-        val dummyPlayerIds = (1L..128L).toList()
-        val oomIds = dummyPlayerIds.take(32)
-        val ptIds = dummyPlayerIds.drop(32).take(32)
-        val qualIds = dummyPlayerIds.drop(64)
+        val dummyPlayerIds = (1L..256L).toList()
+        val oomIds = dummyPlayerIds.take(128)
+        val ptIds = dummyPlayerIds.drop(128).take(32)
+        val qualIds = dummyPlayerIds.drop(160)
 
         for (event in TournamentEvent.entries) {
             val roundSequence = event.getRoundSequence()
@@ -87,7 +88,7 @@ class TournamentConfigValidationTest {
 
             val pairings = BracketGenerator.generateInitialMatches(
                 event = event,
-                oomSortedIds = oomIds,
+                oomSortedIds = if (event.isQualifier) oomIds.take(8 * event.qualifierBoardCount) else oomIds,
                 proTourSortedIds = ptIds,
                 qualifierIds = qualIds
             )
