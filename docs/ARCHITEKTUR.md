@@ -20,6 +20,7 @@ Die App folgt dem **Model-View-ViewModel (MVVM)** Muster mit **Kotlin Coroutines
 
 * **Schichtenregel:** `ui` greift ausschließlich auf `domain` (und lesende Repositories) zu; `domain` enthält keinerlei Android-UI-Imports (`R.drawable`, `R.color`).
 * **Reaktive UI:** Änderungen in der Room-Datenbank werden über `Flow` beobachtet, sodass sich Kalender, Turnieransicht und Ranglisten automatisch aktualisieren.
+- **Repository-Pflicht (Kein direkter DAO-Zugriff in UI & Domain):** Neue Datenbank-Zugriffe werden ausschließlich über Repositories (`data/db/*Repository.kt`) gekapselt, die garantierte non-null Verträge (`requireNotNull`) und zusammengesetzte Transaktionen bereitstellen – `ui/` und `domain/` greifen niemals direkt auf rohe DAOs zu.
 
 ---
 
