@@ -19,7 +19,8 @@ import com.danny.dannyapp.R
 import com.danny.dannyapp.data.db.Career
 import com.danny.dannyapp.data.db.UserProfile
 import com.danny.dannyapp.ui.BaseActivity
-import com.danny.dannyapp.ui.profile.ProfilesActivity
+import com.danny.dannyapp.ui.profile.ProfileDialogs
+import com.danny.dannyapp.ui.profile.ProfilesViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
@@ -28,6 +29,7 @@ import kotlinx.coroutines.launch
 class CareersActivity : BaseActivity() {
 
     private val viewModel: CareersViewModel by viewModels()
+    private val profilesViewModel: ProfilesViewModel by viewModels()
     private lateinit var careerAdapter: CareerAdapter
     private lateinit var rvCareers: RecyclerView
     private lateinit var tvEmptyCareers: TextView
@@ -99,8 +101,21 @@ class CareersActivity : BaseActivity() {
                     .setTitle(getString(R.string.career_create_no_profile_title))
                     .setMessage(getString(R.string.career_create_no_profile_message))
                     .setPositiveButton(getString(R.string.career_create_no_profile_button)) { _, _ ->
-                        val intent = Intent(this@CareersActivity, ProfilesActivity::class.java)
-                        startActivity(intent)
+                        ProfileDialogs.showProfileDialog(
+                            context = this@CareersActivity,
+                            existingProfile = null,
+                            onSave = { name, playerName, countryCode, description ->
+                                profilesViewModel.saveUserProfile(name, playerName, countryCode, description)
+                            },
+                            onSuccess = { _ ->
+                                lifecycleScope.launch {
+                                    val updatedProfiles = viewModel.getUserProfiles()
+                                    if (updatedProfiles.isNotEmpty()) {
+                                        showNewCareerDialog(updatedProfiles)
+                                    }
+                                }
+                            }
+                        )
                     }
                     .setNegativeButton(android.R.string.cancel, null)
                     .show()

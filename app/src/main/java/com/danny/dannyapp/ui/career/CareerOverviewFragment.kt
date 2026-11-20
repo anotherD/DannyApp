@@ -29,8 +29,6 @@ class CareerOverviewFragment : Fragment(R.layout.fragment_career_overview) {
     private lateinit var calendarViewModel: TournamentCalendarViewModel
     private lateinit var oomViewModel: OrderOfMeritViewModel
 
-    private lateinit var tvCareerOverviewLabel: TextView
-    private lateinit var tvCareerOverviewName: TextView
     private lateinit var tvCareerOverviewPlayer: TextView
     private lateinit var tvCareerOverviewMeta: TextView
     private lateinit var tvCareerOverviewProfile: TextView
@@ -54,8 +52,6 @@ class CareerOverviewFragment : Fragment(R.layout.fragment_career_overview) {
         calendarViewModel = ViewModelProvider(requireActivity())[TournamentCalendarViewModel::class.java]
         oomViewModel = ViewModelProvider(requireActivity())[OrderOfMeritViewModel::class.java]
 
-        tvCareerOverviewLabel = view.findViewById(R.id.tvCareerOverviewLabel)
-        tvCareerOverviewName = view.findViewById(R.id.tvCareerOverviewName)
         tvCareerOverviewPlayer = view.findViewById(R.id.tvCareerOverviewPlayer)
         tvCareerOverviewMeta = view.findViewById(R.id.tvCareerOverviewMeta)
         tvCareerOverviewProfile = view.findViewById(R.id.tvCareerOverviewProfile)
@@ -79,7 +75,6 @@ class CareerOverviewFragment : Fragment(R.layout.fragment_career_overview) {
                             val career = careerWithProfile.career
                             careerName = career.name
 
-                            tvCareerOverviewName.text = career.name
                             tvCareerOverviewMeta.text = getString(R.string.career_season_level_format, getString(R.string.season_format, career.season), getString(R.string.career_level_format, career.level))
 
                             UIHelper.formatFlagAndText(tvCareerOverviewPlayer, careerWithProfile.countryCode, careerWithProfile.playerName)
