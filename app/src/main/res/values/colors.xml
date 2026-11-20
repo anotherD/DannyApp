@@ -38,6 +38,8 @@
     <color name="eingabe_hint">#FF757575</color>
 
     <!-- Badge & Status Colors -->
+    <color name="warning_banner_bg">#2E2410</color>
+    <color name="warning_banner_stroke">#D49B1A</color>
     <color name="badge_major">#D49B1A</color>
     <color name="badge_major_qualifier">#6E520A</color>
     <color name="badge_et_qualifier">#5C1414</color>

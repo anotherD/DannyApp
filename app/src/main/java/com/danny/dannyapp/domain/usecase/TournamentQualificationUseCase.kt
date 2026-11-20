@@ -1004,7 +1004,29 @@ class TournamentQualificationUseCase(
     ): ParticipantPreviewResult = withContext(Dispatchers.IO) {
         val stored = tournamentRepository.getParticipantsForTournament(tournament.id)
         if (stored.isNotEmpty()) {
-            ParticipantPreviewResult(participants = stored, isFrozen = true)
+            val seasonTournaments = tournamentRepository.getTournamentsListForSeason(seasonId)
+            val qualTournament = findQualifierTournamentForMain(tournament, seasonTournaments)
+            val participants = if (qualTournament != null && qualTournament.isCompleted) {
+                val qualMatches = tournamentRepository.getMatchesListForTournament(qualTournament.id)
+                val existingIds = stored.map { it.playerId }.toSet()
+                val qualWinners = qualMatches
+                    .filter { it.round == TournamentRound.QUAL_FINAL.name && it.winnerId != null }
+                    .sortedBy { it.matchIndex }
+                    .mapNotNull { it.winnerId }
+                    .filterNot { it in existingIds }
+                    .map { winnerId ->
+                        TournamentParticipant(
+                            tournamentId = tournament.id,
+                            playerId = winnerId,
+                            seedNumber = null,
+                            qualificationType = "QUALIFIER"
+                        )
+                    }
+                stored + qualWinners
+            } else {
+                stored
+            }
+            ParticipantPreviewResult(participants = participants, isFrozen = true)
         } else {
             val liveResult = resolveTournamentQualification(
                 tournament = tournament,

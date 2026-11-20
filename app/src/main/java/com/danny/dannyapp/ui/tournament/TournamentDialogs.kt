@@ -2,6 +2,7 @@ package com.danny.dannyapp.ui.tournament
 
 import android.content.Context
 import android.graphics.Typeface
+import android.graphics.drawable.GradientDrawable
 import android.text.InputType
 import android.util.TypedValue
 import android.view.View
@@ -131,12 +132,24 @@ object TournamentDialogs {
         }
 
         if (!isParticipantsFrozen) {
+            val density = context.resources.displayMetrics.density
             val tvPreliminaryHint = TextView(context).apply {
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply {
+                    bottomMargin = (16 * density).toInt()
+                }
                 text = context.getString(R.string.tournament_info_participants_preliminary)
                 textSize = 12f
-                setTypeface(null, Typeface.ITALIC)
-                setTextColor(ContextCompat.getColor(context, R.color.grau_text_gedaempft))
-                setPadding(0, 0, 0, 16)
+                setTypeface(null, Typeface.BOLD)
+                setTextColor(ContextCompat.getColor(context, R.color.grau_text_hell))
+                background = GradientDrawable().apply {
+                    setColor(ContextCompat.getColor(context, R.color.warning_banner_bg))
+                    setStroke((1 * density).toInt(), ContextCompat.getColor(context, R.color.warning_banner_stroke))
+                    cornerRadius = 8 * density
+                }
+                setPadding(24, 16, 24, 16)
             }
             tab1Layout.addView(tvPreliminaryHint)
         }
@@ -144,7 +157,12 @@ object TournamentDialogs {
         val participantsContainer = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
         }
-        TournamentDetailUiHelper.renderOpenDrawEntrants(context, participantsContainer, participantGroups)
+        TournamentDetailUiHelper.renderOpenDrawEntrants(
+            context = context,
+            container = participantsContainer,
+            groups = participantGroups,
+            isPreliminary = !isParticipantsFrozen
+        )
         tab1Layout.addView(participantsContainer)
 
         if (!openQualifierSlotsText.isNullOrEmpty()) {

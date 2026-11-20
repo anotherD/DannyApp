@@ -3,6 +3,7 @@ package com.danny.dannyapp.ui.tournament
 import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Typeface
+import android.text.TextUtils
 import android.util.TypedValue
 import android.view.GestureDetector
 import android.view.Gravity
@@ -43,7 +44,12 @@ object TournamentDetailUiHelper {
     /**
      * Renders open draw entrant groups (UK Open / European Open) into the given container layout.
      */
-    fun renderOpenDrawEntrants(context: Context, container: LinearLayout, groups: List<EntrantGroupInfo>) {
+    fun renderOpenDrawEntrants(
+        context: Context,
+        container: LinearLayout,
+        groups: List<EntrantGroupInfo>,
+        isPreliminary: Boolean = false
+    ) {
         container.visibility = View.VISIBLE
         container.removeAllViews()
         groups.forEachIndexed { groupIndex, group ->
@@ -98,6 +104,9 @@ object TournamentDetailUiHelper {
                             LinearLayout.LayoutParams.WRAP_CONTENT,
                             1f
                         )
+                        maxLines = 1
+                        ellipsize = TextUtils.TruncateAt.END
+                        alpha = if (isPreliminary) 0.72f else 1.0f
                         textSize = 13f
                         val typedValue = TypedValue()
                         context.theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurfaceVariant, typedValue, true)
