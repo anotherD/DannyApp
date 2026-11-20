@@ -43,6 +43,22 @@ class CareersViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
+    /**
+     * Updates the name of an existing career after validation.
+     */
+    suspend fun updateCareerName(career: Career, newName: String): SaveCareerResult {
+        val trimmedName = newName.trim()
+        if (trimmedName.isEmpty()) {
+            return SaveCareerResult.Error(getApplication<Application>().getString(R.string.careers_create_error_empty_name))
+        }
+        return try {
+            careerRepository.updateCareer(career.copy(name = trimmedName))
+            SaveCareerResult.Success(trimmedName, career.level)
+        } catch (exception: Exception) {
+            SaveCareerResult.Error(exception.localizedMessage ?: getApplication<Application>().getString(R.string.error_save_career))
+        }
+    }
+
     suspend fun deleteCareer(careerId: Long): Boolean {
         return try {
             careerRepository.deleteCareer(careerId)

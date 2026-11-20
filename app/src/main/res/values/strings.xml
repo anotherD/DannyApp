@@ -246,4 +246,10 @@
     <string name="qualification_group_pro_tour_winner">ET- &amp; PC-Saisonsieger</string>
     <string name="qualification_group_pot_2">Topf 2 (OOM Plätze 17–32)</string>
     <string name="qualification_group_pot_3">Topf 3 (OOM Plätze 33–48)</string>
+    <string name="career_options_title">Karriere verwalten</string>
+    <string name="career_option_edit">Karriere bearbeiten</string>
+    <string name="career_option_delete">Karriere löschen</string>
+    <string name="career_edit_title">Karriere umbenennen</string>
+    <string name="career_edit_positive_button">Speichern</string>
+    <string name="career_updated_msg">Karriere in \'%s\' umbenannt!</string>
 </resources>

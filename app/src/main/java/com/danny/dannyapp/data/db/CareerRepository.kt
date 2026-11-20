@@ -38,6 +38,14 @@ class CareerRepository(
         careerId
     }
 
+    /**
+     * Updates an existing career in the database.
+     */
+    suspend fun updateCareer(career: Career) = withContext(Dispatchers.IO) {
+        require(career.id > 0L) { "Cannot update career without valid ID" }
+        careerDao.insertCareer(career)
+    }
+
     suspend fun deleteCareer(id: Long) = withContext(Dispatchers.IO) {
         careerDao.deleteCareerById(id)
     }

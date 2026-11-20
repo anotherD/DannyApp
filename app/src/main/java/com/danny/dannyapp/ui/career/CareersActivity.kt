@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.AutoCompleteTextView
 import android.widget.Button
+import android.widget.LinearLayout
 import android.widget.NumberPicker
 import android.widget.TextView
 import android.widget.Toast
@@ -21,6 +22,7 @@ import com.danny.dannyapp.ui.BaseActivity
 import com.danny.dannyapp.ui.profile.ProfilesActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.launch
 
 class CareersActivity : BaseActivity() {
@@ -48,7 +50,19 @@ class CareersActivity : BaseActivity() {
                 startActivity(intent)
             },
             onItemLongClick = { careerWithProfile ->
-                showDeleteCareerDialog(careerWithProfile.career)
+                val options = arrayOf(
+                    getString(R.string.career_option_edit),
+                    getString(R.string.career_option_delete)
+                )
+                MaterialAlertDialogBuilder(this)
+                    .setTitle(getString(R.string.career_options_title))
+                    .setItems(options) { _, choiceIndex ->
+                        when (choiceIndex) {
+                            0 -> showEditCareerNameDialog(careerWithProfile.career)
+                            1 -> showDeleteCareerDialog(careerWithProfile.career)
+                        }
+                    }
+                    .show()
             }
         )
         rvCareers.adapter = careerAdapter
@@ -174,6 +188,75 @@ class CareersActivity : BaseActivity() {
                         when (val result = viewModel.saveCareer(newCareer)) {
                             is SaveCareerResult.Success -> {
                                 Toast.makeText(this@CareersActivity, getString(R.string.careers_career_created, result.careerName, result.level), Toast.LENGTH_SHORT).show()
+                                dialog.dismiss()
+                            }
+                            is SaveCareerResult.Error -> {
+                                Toast.makeText(this@CareersActivity, result.message, Toast.LENGTH_LONG).show()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        dialog.show()
+    }
+
+    /**
+     * Shows a dialog to edit the career name.
+     */
+    private fun showEditCareerNameDialog(career: Career) {
+        val density = resources.displayMetrics.density
+        val paddingPx = (24 * density).toInt()
+        val layout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(paddingPx, paddingPx, paddingPx, paddingPx)
+        }
+
+        val textInputLayout = TextInputLayout(this).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+            hint = getString(R.string.careers_create_name_hint)
+        }
+
+        val editText = TextInputEditText(this).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+            setText(career.name)
+            inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_FLAG_CAP_WORDS
+            maxLines = 1
+            setSelection(career.name.length)
+        }
+
+        textInputLayout.addView(editText)
+        layout.addView(textInputLayout)
+
+        val dialog = MaterialAlertDialogBuilder(this)
+            .setTitle(getString(R.string.career_edit_title))
+            .setView(layout)
+            .setPositiveButton(getString(R.string.career_edit_positive_button), null)
+            .setNegativeButton(android.R.string.cancel, null)
+            .create()
+
+        dialog.setOnShowListener {
+            val positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+            positiveButton?.setOnClickListener {
+                val newName = editText.text.toString().trim()
+                if (newName.isEmpty()) {
+                    Toast.makeText(this, getString(R.string.careers_create_error_empty_name), Toast.LENGTH_SHORT).show()
+                } else {
+                    lifecycleScope.launch {
+                        when (val result = viewModel.updateCareerName(career, newName)) {
+                            is SaveCareerResult.Success -> {
+                                Toast.makeText(
+                                    this@CareersActivity,
+                                    getString(R.string.career_updated_msg, result.careerName),
+                                    Toast.LENGTH_SHORT
+                                ).show()
                                 dialog.dismiss()
                             }
                             is SaveCareerResult.Error -> {
