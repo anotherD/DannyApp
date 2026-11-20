@@ -12,9 +12,11 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.danny.dannyapp.R
+import com.danny.dannyapp.domain.model.OrderOfMeritEntry
 import com.danny.dannyapp.ui.UIHelper
 import com.danny.dannyapp.ui.enums.TournamentStatus
 import com.danny.dannyapp.ui.model.TournamentUiModel
+import com.danny.dannyapp.ui.oom.OrderOfMeritViewModel
 import com.danny.dannyapp.ui.tournament.TournamentCalendarState
 import com.danny.dannyapp.ui.tournament.TournamentCalendarViewModel
 import com.danny.dannyapp.ui.tournament.TournamentDetailActivity
@@ -25,12 +27,17 @@ class CareerOverviewFragment : Fragment(R.layout.fragment_career_overview) {
 
     private lateinit var careerViewModel: CareerDetailViewModel
     private lateinit var calendarViewModel: TournamentCalendarViewModel
+    private lateinit var oomViewModel: OrderOfMeritViewModel
 
     private lateinit var tvCareerOverviewLabel: TextView
     private lateinit var tvCareerOverviewName: TextView
     private lateinit var tvCareerOverviewPlayer: TextView
     private lateinit var tvCareerOverviewMeta: TextView
     private lateinit var tvCareerOverviewProfile: TextView
+    private lateinit var tvOverviewRankOom: TextView
+    private lateinit var tvOverviewRankPt: TextView
+    private lateinit var tvOverviewRankPc: TextView
+    private lateinit var tvOverviewRankEt: TextView
     private lateinit var containerActiveTournament: FrameLayout
     private lateinit var tvNoActiveTournament: TextView
 
@@ -45,12 +52,17 @@ class CareerOverviewFragment : Fragment(R.layout.fragment_career_overview) {
 
         careerViewModel = ViewModelProvider(requireActivity())[CareerDetailViewModel::class.java]
         calendarViewModel = ViewModelProvider(requireActivity())[TournamentCalendarViewModel::class.java]
+        oomViewModel = ViewModelProvider(requireActivity())[OrderOfMeritViewModel::class.java]
 
         tvCareerOverviewLabel = view.findViewById(R.id.tvCareerOverviewLabel)
         tvCareerOverviewName = view.findViewById(R.id.tvCareerOverviewName)
         tvCareerOverviewPlayer = view.findViewById(R.id.tvCareerOverviewPlayer)
         tvCareerOverviewMeta = view.findViewById(R.id.tvCareerOverviewMeta)
         tvCareerOverviewProfile = view.findViewById(R.id.tvCareerOverviewProfile)
+        tvOverviewRankOom = view.findViewById(R.id.tvOverviewRankOom)
+        tvOverviewRankPt = view.findViewById(R.id.tvOverviewRankPt)
+        tvOverviewRankPc = view.findViewById(R.id.tvOverviewRankPc)
+        tvOverviewRankEt = view.findViewById(R.id.tvOverviewRankEt)
         containerActiveTournament = view.findViewById(R.id.containerActiveTournament)
         tvNoActiveTournament = view.findViewById(R.id.tvNoActiveTournament)
 
@@ -107,7 +119,45 @@ class CareerOverviewFragment : Fragment(R.layout.fragment_career_overview) {
                         }
                     }
                 }
+
+                launch {
+                    oomViewModel.oomEntries.collect { entries ->
+                        bindRankingEntry(tvOverviewRankOom, entries)
+                    }
+                }
+
+                launch {
+                    oomViewModel.ptOomEntries.collect { entries ->
+                        bindRankingEntry(tvOverviewRankPt, entries)
+                    }
+                }
+
+                launch {
+                    oomViewModel.pcOomEntries.collect { entries ->
+                        bindRankingEntry(tvOverviewRankPc, entries)
+                    }
+                }
+
+                launch {
+                    oomViewModel.etOomEntries.collect { entries ->
+                        bindRankingEntry(tvOverviewRankEt, entries)
+                    }
+                }
             }
+        }
+    }
+
+    /**
+     * Bindet den Ranglisten-Eintrag des aktuellen Nutzers an das angegebene TextView.
+     */
+    private fun bindRankingEntry(targetTextView: TextView, entries: List<OrderOfMeritEntry>) {
+        val userEntry = entries.find { entry -> entry.isUser }
+        if (userEntry != null) {
+            val rankText = getString(R.string.rank_format, userEntry.rank)
+            val prizeText = getString(R.string.prize_money_format, userEntry.prizeMoney)
+            targetTextView.text = getString(R.string.career_overview_ranking_item_format, rankText, prizeText)
+        } else {
+            targetTextView.text = getString(R.string.career_overview_rank_unranked)
         }
     }
 

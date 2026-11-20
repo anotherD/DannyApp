@@ -252,4 +252,9 @@
     <string name="career_edit_title">Karriere umbenennen</string>
     <string name="career_edit_positive_button">Speichern</string>
     <string name="career_updated_msg">Karriere in \'%s\' umbenannt!</string>
+
+    <!-- Karriere Übersicht Ranglisten -->
+    <string name="career_overview_rankings_header">Meine Ranglisten</string>
+    <string name="career_overview_rank_unranked">-</string>
+    <string name="career_overview_ranking_item_format">%1$s (%2$s)</string>
 </resources>
