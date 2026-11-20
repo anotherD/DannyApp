@@ -215,19 +215,19 @@
     <string name="qualifier_name_wm">WM-Qualifier</string>
 
     <!-- Turnierevent Qualifikations-Regeln -->
-    <string name="tournament_rules_players_championship">Qualifiziert sind alle 128 PDC Tour Card Holder der aktuellen Saison.</string>
-    <string name="tournament_rules_european_tour">48 Teilnehmer: Top 16 Order of Merit, Top 16 Pro Tour Order of Merit, 10 Plätze über ET-Qualifier, 4 Host Nation Qualifier &amp; 2 Regional Qualifier.</string>
-    <string name="tournament_rules_uk_open">160 Teilnehmer: 128 Tour Card Holder &amp; 32 Qualifier. Die Top 32 der Order of Merit steigen erst in Runde 4 ein.</string>
-    <string name="tournament_rules_european_open">160 Teilnehmer: 128 Tour Card Holder &amp; 32 Qualifier. Die Top 32 der Order of Merit steigen erst in Runde 4 ein.</string>
-    <string name="tournament_rules_world_matchplay">32 Teilnehmer: Top 16 der Order of Merit &amp; Top 16 der Pro Tour Order of Merit.</string>
-    <string name="tournament_rules_world_grand_prix">32 Teilnehmer: Top 16 der Order of Merit &amp; Top 16 der Pro Tour Order of Merit (Double-In/Double-Out Format).</string>
-    <string name="tournament_rules_european_championship">32 Teilnehmer: Die Top 32 der European Tour Order of Merit am Ende der Saison.</string>
-    <string name="tournament_rules_grand_slam">48 Teilnehmer: Major-Sieger &amp; Finalisten, ET-/PC-Saisonsieger, Qualifier-Sieger sowie die Top-Spieler der Order of Merit.</string>
-    <string name="tournament_rules_players_championship_finals">64 Teilnehmer: Die Top 64 der Players Championship Order of Merit am Ende der Saison.</string>
-    <string name="tournament_rules_world_championship">128 Teilnehmer: Top 32 Order of Merit (ab R2), Top 32 Pro Tour Order of Merit (ab R1) &amp; 64 internationale &amp; Qualifier-Sieger.</string>
-    <string name="tournament_rules_qualifier_et">Qualifikations-Turnier für die European Tour für Tour Card Holder ohne Vorqualifikation.</string>
-    <string name="tournament_rules_qualifier_grand_slam">Qualifikations-Turnier für den Grand Slam of Darts für Tour Card Holder ohne Vorqualifikation.</string>
-    <string name="tournament_rules_qualifier_wm">Qualifikations-Turnier für die PDC World Championship für Tour Card Holder ohne Vorqualifikation.</string>
+    <string name="tournament_rules_players_championship">Qualifiziert sind alle 128 PDC Tour Card Holder der aktuellen Saison. Bonus: Saisonsieger rücken bei freien Plätzen für den Grand Slam of Darts nach.</string>
+    <string name="tournament_rules_european_tour">48 Teilnehmer: Top 16 Order of Merit, Top 16 Pro Tour Order of Merit, 10 Plätze über ET-Qualifier, 4 Host Nation Qualifier &amp; 2 Regional Qualifier. Bonus: Saisonsieger rücken bevorzugt für den Grand Slam of Darts nach.</string>
+    <string name="tournament_rules_uk_open">160 Teilnehmer: 128 Tour Card Holder &amp; 32 Qualifier. Die Top 32 der Order of Merit steigen erst in Runde 4 ein. Bonus: Sieger &amp; Finalist qualifizieren sich für den Grand Slam of Darts.</string>
+    <string name="tournament_rules_european_open">160 Teilnehmer: 128 Tour Card Holder &amp; 32 Qualifier. Die Top 32 der Order of Merit steigen erst in Runde 4 ein. Bonus: Sieger &amp; Finalist qualifizieren sich für den Grand Slam of Darts.</string>
+    <string name="tournament_rules_world_matchplay">32 Teilnehmer: Top 16 der Order of Merit &amp; Top 16 der Pro Tour Order of Merit. Bonus: Sieger &amp; Finalist qualifizieren sich für den Grand Slam of Darts.</string>
+    <string name="tournament_rules_world_grand_prix">32 Teilnehmer: Top 16 der Order of Merit &amp; Top 16 der Pro Tour Order of Merit (Double-In/Double-Out Format). Bonus: Sieger &amp; Finalist qualifizieren sich für den Grand Slam of Darts.</string>
+    <string name="tournament_rules_european_championship">32 Teilnehmer: Die Top 32 der European Tour Order of Merit am Ende der Saison. Bonus: Sieger &amp; Finalist qualifizieren sich für den Grand Slam of Darts.</string>
+    <string name="tournament_rules_grand_slam">48 Teilnehmer: Major-Sieger &amp; Finalisten, ET-/PC-Saisonsieger, Qualifier-Sieger sowie die Top-Spieler der Order of Merit. Bonus: Sieger &amp; Finalist qualifizieren sich für den nächsten Grand Slam of Darts.</string>
+    <string name="tournament_rules_players_championship_finals">64 Teilnehmer: Die Top 64 der Players Championship Order of Merit am Ende der Saison. Bonus: Sieger &amp; Finalist qualifizieren sich für den Grand Slam of Darts.</string>
+    <string name="tournament_rules_world_championship">128 Teilnehmer: Top 32 Order of Merit (ab R2), Top 32 Pro Tour Order of Merit (ab R1) &amp; 64 internationale &amp; Qualifier-Sieger. Bonus: Sieger &amp; Finalist qualifizieren sich für den Grand Slam of Darts.</string>
+    <string name="tournament_rules_qualifier_et">Qualifikations-Turnier für die European Tour für Tour Card Holder ohne Vorqualifikation. Bonus: Die 10 Board-Sieger qualifizieren sich für das Hauptturnier.</string>
+    <string name="tournament_rules_qualifier_grand_slam">Qualifikations-Turnier für den Grand Slam of Darts für Tour Card Holder ohne Vorqualifikation. Bonus: Die Board-Sieger qualifizieren sich für den Grand Slam of Darts.</string>
+    <string name="tournament_rules_qualifier_wm">Qualifikations-Turnier für die PDC World Championship für Tour Card Holder ohne Vorqualifikation. Bonus: Die 2 Board-Sieger qualifizieren sich für die World Championship.</string>
 
     <!-- Qualifikationstypen Gruppen-Überschriften -->
     <string name="qualification_group_oom">Order of Merit</string>
