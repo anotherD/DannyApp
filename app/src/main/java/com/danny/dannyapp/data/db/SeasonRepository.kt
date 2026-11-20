@@ -75,13 +75,6 @@ class SeasonRepository(
     }
 
     /**
-     * Ruft die aktuelle Saison einer Karriere ab.
-     */
-    suspend fun getCurrentSeasonForCareer(careerId: Long): Season? = withContext(Dispatchers.IO) {
-        seasonDao.getCurrentSeasonForCareer(careerId)
-    }
-
-    /**
      * Ruft die aktuelle Saison einer Karriere ab oder erstellt Saison 1, falls noch keine Saison existiert.
      */
     suspend fun getOrCreateInitialSeasonForCareer(careerId: Long): Season {

@@ -15,10 +15,6 @@ class UserProfileRepository(context: Context) {
         userProfileDao.getAllUserProfilesList()
     }
 
-    suspend fun getUserProfileById(id: Long): UserProfile? = withContext(Dispatchers.IO) {
-        userProfileDao.getUserProfileById(id)
-    }
-
     suspend fun getProfileByName(name: String): UserProfile? = withContext(Dispatchers.IO) {
         userProfileDao.getProfileByName(name)
     }
