@@ -13,6 +13,7 @@ object BracketGenerator {
      * @param oomSortedIds Alle qualifizierten Spieler sortiert nach aktueller Order of Merit (Index 0 = Platz 1)
      * @param proTourSortedIds Qualifizierte Spieler sortiert nach Pro Tour OOM (relevant für ET, WM, Matchplay)
      * @param qualifierIds Ungesetzte Qualifikanten (Qualifier-Sieger / Nicht-Tourcard-Spieler)
+     * @param dynamicBoardCount Dynamische Anzahl von Boards für Qualifier
      */
     fun generateInitialMatches(
         event: TournamentEvent,
@@ -73,7 +74,9 @@ object BracketGenerator {
 
     /**
      * Erzeugt die Standard-Setzbaum-Reihenfolge (Faltungsalgorithmus) für n Seeds,
-     * sodass Seed 1 und Seed 2 frühestens im Finale aufeinandertreffen.
+     * sodass Seed 1 und Seed 2 frühestens im Finale aufeinander treffen.
+     *
+     * @param seedCount Die Anzahl der gesetzten Spieler
      */
     fun buildStandardSeedOrder(seedCount: Int): List<Int> {
         var order = listOf(0)
@@ -102,14 +105,16 @@ object BracketGenerator {
         top16Oom: List<Long>,
         top16ProTour: List<Long>
     ): List<MatchPairing> {
+        require(top16Oom.size == 16 && top16ProTour.size == 16) {
+            "World Matchplay R1 erfordert jeweils 16 Spieler von OOM und ProTour"
+        }
         val shuffledProTour = top16ProTour.shuffled()
-        // Standard-Setzbaum für 16 Seeds (1 vs 16, 8 vs 9, etc. im Baum verteilt)
-        return BRACKET_SEED_ORDER_16.mapIndexed { matchIdx, seedIndex ->
+        return BRACKET_SEED_ORDER_16.mapIndexed { matchIndex, seedIndex ->
             MatchPairing(
                 round = TournamentRound.L32,
-                matchIndex = matchIdx,
-                player1Id = top16Oom.getOrElse(seedIndex) { 0L },
-                player2Id = shuffledProTour.getOrElse(matchIdx) { 0L }
+                matchIndex = matchIndex,
+                player1Id = top16Oom[seedIndex],
+                player2Id = shuffledProTour[matchIndex]
             )
         }
     }
@@ -123,13 +128,16 @@ object BracketGenerator {
         proTourSeeds: List<Long>,
         qualifiers: List<Long>
     ): List<MatchPairing> {
+        require(proTourSeeds.size == 16 && qualifiers.size == 16) {
+            "European Tour R1 erfordert jeweils 16 ProTour-Seeds und Qualifier"
+        }
         val shuffledQualifiers = qualifiers.shuffled()
         return proTourSeeds.mapIndexed { index, seedId ->
             MatchPairing(
                 round = TournamentRound.L48,
                 matchIndex = index,
                 player1Id = seedId,
-                player2Id = shuffledQualifiers.getOrElse(index) { 0L }
+                player2Id = shuffledQualifiers[index]
             )
         }
     }
@@ -142,13 +150,16 @@ object BracketGenerator {
         ranks97To128: List<Long>,
         qualifiers: List<Long>
     ): List<MatchPairing> {
+        require(ranks97To128.size == 32 && qualifiers.size == 32) {
+            "UK Open / European Open R1 erfordert jeweils 32 Spieler von OOM 97-128 und Qualifikanten"
+        }
         val pool = (ranks97To128 + qualifiers).shuffled()
         return pool.chunked(2).mapIndexed { index, pair ->
             MatchPairing(
                 round = TournamentRound.R1_160,
                 matchIndex = index,
-                player1Id = pair.getOrElse(0) { 0L },
-                player2Id = pair.getOrElse(1) { 0L }
+                player1Id = pair[0],
+                player2Id = pair[1]
             )
         }
     }
@@ -162,14 +173,17 @@ object BracketGenerator {
         seededIds: List<Long>
     ): List<MatchPairing> {
         val participantCount = seededIds.size
+        require(participantCount == 32 || participantCount == 64) {
+            "Strict seeded round erfordert 32 oder 64 gesetzte Spieler, erhalten: $participantCount"
+        }
         val seedOrder = buildStandardSeedOrder(participantCount / 2)
-        return (0 until participantCount / 2).map { matchIdx ->
-            val seedIndex = seedOrder[matchIdx]
+        return (0 until participantCount / 2).map { matchIndex ->
+            val seedIndex = seedOrder[matchIndex]
             MatchPairing(
                 round = round,
-                matchIndex = matchIdx,
-                player1Id = seededIds.getOrElse(seedIndex) { 0L },
-                player2Id = seededIds.getOrElse(participantCount - 1 - seedIndex) { 0L }
+                matchIndex = matchIndex,
+                player1Id = seededIds[seedIndex],
+                player2Id = seededIds[participantCount - 1 - seedIndex]
             )
         }
     }
@@ -183,105 +197,129 @@ object BracketGenerator {
         top16OomHeads: List<Long>,
         pot3Qualifiers: List<Long>
     ): List<MatchPairing> {
+        require(top16OomHeads.size == 16 && pot3Qualifiers.size == 16) {
+            "Grand Slam Gruppenauslosung erfordert 16 Gruppenköpfe und 16 Qualifier"
+        }
         val shuffledPot3 = pot3Qualifiers.shuffled()
         val seedOrder16 = BRACKET_SEED_ORDER_16
-        return (0 until 16).map { groupIdx ->
-            val groupLetter = ('A' + groupIdx).toString()
-            val seedIndex = seedOrder16.getOrElse(groupIdx) { groupIdx }
+        return (0 until 16).map { groupIndex ->
+            val groupLetter = ('A' + groupIndex).toString()
+            val seedIndex = seedOrder16[groupIndex]
             MatchPairing(
                 round = TournamentRound.GROUP, // Kennzeichnet Gruppenspiel-Phase
-                matchIndex = groupIdx,
-                player1Id = top16OomHeads.getOrElse(seedIndex) { 0L },
-                player2Id = shuffledPot3.getOrElse(groupIdx) { 0L },
+                matchIndex = groupIndex,
+                player1Id = top16OomHeads[seedIndex],
+                player2Id = shuffledPot3[groupIndex],
                 groupName = groupLetter
             )
         }
     }
 
+    /**
+     * World Grand Prix Runde 1 (32 Spieler -> 16 Matches):
+     * Top 8 OOM gesetzt, Plätze 9-16 OOM und 16 ProTour Unseeded Spieler.
+     */
     private fun generateWorldGrandPrixRound1(
         top8Oom: List<Long>,
         ranks9To16Oom: List<Long>,
         proTourUnseeded: List<Long>
     ): List<MatchPairing> {
+        require(top8Oom.size == 8 && ranks9To16Oom.size == 8 && proTourUnseeded.size == 16) {
+            "World Grand Prix R1 erfordert 8 Top-OOM, 8 OOM 9-16 und 16 ProTour Unseeded Spieler"
+        }
         val all16Seeds = top8Oom + ranks9To16Oom
         val unseeded = proTourUnseeded.shuffled()
-        return BRACKET_SEED_ORDER_16.mapIndexed { matchIdx, seedIndex ->
+        return BRACKET_SEED_ORDER_16.mapIndexed { matchIndex, seedIndex ->
             MatchPairing(
                 round = TournamentRound.L32,
-                matchIndex = matchIdx,
-                player1Id = all16Seeds.getOrElse(seedIndex) { 0L },
-                player2Id = unseeded.getOrElse(matchIdx) { 0L }
+                matchIndex = matchIndex,
+                player1Id = all16Seeds[seedIndex],
+                player2Id = unseeded[matchIndex]
             )
         }
     }
 
+    /**
+     * Standard-Setzbaum Paarungen für Turniere mit 128 Spielern (z. B. Players Championship).
+     * 32 Top-Seeds und 96 Unseeded-Spieler in 64 Erstrunden-Matches.
+     */
     private fun generateStandardSeededBracket(
         round: TournamentRound,
         topSeeds: List<Long>,
         unseededPool: List<Long>
     ): List<MatchPairing> {
+        require(topSeeds.size == 32 && unseededPool.size == 96) {
+            "Standard Seeded Bracket erfordert 32 Top-Seeds und 96 Unseeded Spieler"
+        }
         val seedOrder32 = buildStandardSeedOrder(32)
         val unseeded = unseededPool.shuffled().toMutableList()
         val pairings = mutableListOf<MatchPairing>()
 
-        for (i in 0 until 32) {
-            val seedIndex = seedOrder32[i]
-            val seededPlayer = topSeeds.getOrElse(seedIndex) { 0L }
-            val unseededOpponent = if (unseeded.isNotEmpty()) unseeded.removeAt(0) else 0L
+        for (seedPairIndex in 0 until 32) {
+            val seedIndex = seedOrder32[seedPairIndex]
+            val seededPlayer = topSeeds[seedIndex]
+            val unseededOpponent = unseeded.removeAt(0)
 
-            // Match 2 * i (Seed vs Unseeded)
+            // Match 2 * seedPairIndex (Seed vs Unseeded)
             pairings.add(
                 MatchPairing(
                     round = round,
-                    matchIndex = 2 * i,
+                    matchIndex = 2 * seedPairIndex,
                     player1Id = seededPlayer,
                     player2Id = unseededOpponent
                 )
             )
 
-            // Match 2 * i + 1 (Unseeded vs Unseeded)
-            val player1Id = if (unseeded.isNotEmpty()) unseeded.removeAt(0) else 0L
-            val player2Id = if (unseeded.isNotEmpty()) unseeded.removeAt(0) else 0L
+            // Match 2 * seedPairIndex + 1 (Unseeded vs Unseeded)
+            val unseededPlayer1 = unseeded.removeAt(0)
+            val unseededPlayer2 = unseeded.removeAt(0)
             pairings.add(
                 MatchPairing(
                     round = round,
-                    matchIndex = 2 * i + 1,
-                    player1Id = player1Id,
-                    player2Id = player2Id
+                    matchIndex = 2 * seedPairIndex + 1,
+                    player1Id = unseededPlayer1,
+                    player2Id = unseededPlayer2
                 )
             )
         }
         return pairings.sortedBy { it.matchIndex }
     }
 
+    /**
+     * World Championship Runde 1 Paarungen (128 Spieler -> 64 Matches):
+     * 32 Top-OOM, 32 OOM 33-64 und 64 Qualifier/verbleibende Spieler.
+     */
     private fun generateWorldChampionshipRound1(
         top32Oom: List<Long>,
         ranks33To64Oom: List<Long>,
         remaining64: List<Long>
     ): List<MatchPairing> {
+        require(top32Oom.size == 32 && ranks33To64Oom.size == 32 && remaining64.size == 64) {
+            "World Championship R1 erfordert 32 Top-OOM, 32 OOM 33-64 und 64 verbleibende Spieler"
+        }
         val seedOrder32 = buildStandardSeedOrder(32)
         val shuffledRanks33To64 = ranks33To64Oom.shuffled()
         val unseeded64 = remaining64.shuffled()
 
         val pairings = mutableListOf<MatchPairing>()
-        for (i in 0 until 32) {
-            val seedIndex = seedOrder32[i]
-            val seededPlayer = top32Oom.getOrElse(seedIndex) { 0L }
+        for (seedPairIndex in 0 until 32) {
+            val seedIndex = seedOrder32[seedPairIndex]
+            val seededPlayer = top32Oom[seedIndex]
             pairings.add(
                 MatchPairing(
                     round = TournamentRound.L128,
-                    matchIndex = 2 * i,
+                    matchIndex = 2 * seedPairIndex,
                     player1Id = seededPlayer,
-                    player2Id = unseeded64.getOrElse(2 * i) { 0L }
+                    player2Id = unseeded64[2 * seedPairIndex]
                 )
             )
-            val player33To64 = shuffledRanks33To64.getOrElse(i) { 0L }
+            val player33To64 = shuffledRanks33To64[seedPairIndex]
             pairings.add(
                 MatchPairing(
                     round = TournamentRound.L128,
-                    matchIndex = 2 * i + 1,
+                    matchIndex = 2 * seedPairIndex + 1,
                     player1Id = player33To64,
-                    player2Id = unseeded64.getOrElse(2 * i + 1) { 0L }
+                    player2Id = unseeded64[2 * seedPairIndex + 1]
                 )
             )
         }
@@ -303,14 +341,20 @@ object BracketGenerator {
         byePlayers: List<Long>,
         prelimWinners: List<Long>
     ): List<MatchPairing> {
-        val pairings = mutableListOf<MatchPairing>()
+        require(byePlayers.size >= 2 * boardCount) {
+            "Qualifier R1 erfordert mindestens ${2 * boardCount} gesetzte Freilos-Spieler"
+        }
         val unseededByes = byePlayers.drop(2 * boardCount)
         val freePool = (unseededByes + prelimWinners).shuffled()
+        require(freePool.size == boardCount * 6) {
+            "Qualifier R1 erfordert genau ${boardCount * 6} freie Spieler, erhalten: ${freePool.size}"
+        }
 
+        val pairings = mutableListOf<MatchPairing>()
         for (boardIndex in 0 until boardCount) {
-            val seedTop = byePlayers.getOrNull(boardIndex) ?: 0L
-            val seedBottom = byePlayers.getOrNull(2 * boardCount - 1 - boardIndex) ?: 0L
-            val slots = LongArray(6) { slotIndex -> freePool.getOrElse(boardIndex * 6 + slotIndex) { 0L } }
+            val seedTop = byePlayers[boardIndex]
+            val seedBottom = byePlayers[2 * boardCount - 1 - boardIndex]
+            val slots = LongArray(6) { slotIndex -> freePool[boardIndex * 6 + slotIndex] }
 
             pairings.add(MatchPairing(round = TournamentRound.QUAL_R1, matchIndex = 4 * boardIndex + 0, player1Id = seedTop, player2Id = slots[0]))
             pairings.add(MatchPairing(round = TournamentRound.QUAL_R1, matchIndex = 4 * boardIndex + 1, player1Id = slots[1], player2Id = slots[2]))
@@ -326,6 +370,10 @@ object BracketGenerator {
      *
      * K = 10 (ET), K = 8 (Grand Slam), K = 4 (WM).
      * Hauptfeld = 8 · K Plätze (80 bei ET, 64 bei Grand Slam, 32 bei WM).
+     *
+     * @param event Der Qualifier-Turniertyp
+     * @param oomSortedIds Qualifizierte Teilnehmer sortiert nach OOM
+     * @param dynamicBoardCount Optimale individuelle Board-Anzahl
      */
     fun generateQualifierInitialMatches(
         event: TournamentEvent,
@@ -353,6 +401,4 @@ object BracketGenerator {
             return buildQualifierRound1Pairings(boardCount, oomSortedIds, emptyList())
         }
     }
-
-
 }

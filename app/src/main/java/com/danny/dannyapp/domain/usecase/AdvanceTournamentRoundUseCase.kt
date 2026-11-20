@@ -29,6 +29,7 @@ class AdvanceTournamentRoundUseCase(
 ) {
     /** Single source of truth for group-stage standings – shared with the advance logic. */
     private val calculateGroupStandingsUseCase: CalculateGroupStandingsUseCase = CalculateGroupStandingsUseCase()
+
     constructor(context: Context) : this(
         AppDatabase.getDatabase(context.applicationContext).tournamentDao(),
         AppDatabase.getDatabase(context.applicationContext).tournamentMatchDao(),
@@ -61,10 +62,12 @@ class AdvanceTournamentRoundUseCase(
      * mit offenen oder noch nicht verbuchten Matches herangezogen.
      *
      * @param tournamentId Die ID des zu bewertenden Turniers.
-     * @return [TournamentProgressState] mit Rundenstatus und Fortschrittsinfos, oder null, wenn kein Turnier/Matches gefunden.
+     * @return [TournamentProgressState] mit Rundenstatus und Fortschrittsinfos, oder null, wenn keine Matches für geplante Turniere existieren.
      */
     suspend fun evaluateTournamentState(tournamentId: Long): TournamentProgressState? = withContext(Dispatchers.IO) {
-        val tournament = tournamentDao.getTournamentById(tournamentId) ?: return@withContext null
+        val tournament = requireNotNull(tournamentDao.getTournamentById(tournamentId)) {
+            "Turnier mit ID $tournamentId wurde nicht gefunden"
+        }
         val allMatches = tournamentMatchDao.getMatchesListForTournament(tournamentId)
         if (allMatches.isEmpty()) return@withContext null
 
@@ -83,9 +86,12 @@ class AdvanceTournamentRoundUseCase(
             )
         }
 
-        val activeRound: TournamentRound = tournament.currentRound
-            ?.let { roundKey -> TournamentRound.entries.find { it.name == roundKey } }
-            ?: return@withContext null
+        val currentRoundKey = requireNotNull(tournament.currentRound) {
+            "Aktive Runde fehlt für laufendes Turnier $tournamentId"
+        }
+        val activeRound: TournamentRound = requireNotNull(TournamentRound.entries.find { it.name == currentRoundKey }) {
+            "Ungültige Runde $currentRoundKey für Turnier $tournamentId"
+        }
 
         val roundPhases = roundSequence.associateWith { round ->
             when {
@@ -124,7 +130,9 @@ class AdvanceTournamentRoundUseCase(
         if (!state.canAdvanceRound) return@withContext false
         val activeRound = state.activeRound ?: return@withContext false
 
-        val tournament = tournamentDao.getTournamentById(tournamentId) ?: return@withContext false
+        val tournament = requireNotNull(tournamentDao.getTournamentById(tournamentId)) {
+            "Turnier mit ID $tournamentId wurde nicht gefunden"
+        }
         val event = TournamentEvent.valueOf(tournament.type)
         val allMatches = tournamentMatchDao.getMatchesListForTournament(tournamentId)
 
@@ -187,8 +195,8 @@ class AdvanceTournamentRoundUseCase(
                 val standingsByGroup = calculateGroupStandingsUseCase(groupMatches)
 
                 val groupWinners = mutableListOf<Long>()
-                for (groupIdx in 0 until 16) {
-                    val groupLetter = ('A' + groupIdx).toString()
+                for (groupIndex in 0 until 16) {
+                    val groupLetter = ('A' + groupIndex).toString()
                     val sortedGroup = standingsByGroup[groupLetter] ?: emptyList()
 
                     val groupWinner = sortedGroup.firstOrNull()
@@ -212,9 +220,10 @@ class AdvanceTournamentRoundUseCase(
                     }
                 }
 
+                require(groupWinners.size == 16) { "Grand Slam Gruppenphase erfordert genau 16 Gruppensieger" }
                 val updatedL16 = l16Matches.mapIndexed { index, match ->
-                    val player1Id = groupWinners.getOrElse(2 * index) { 0L }
-                    val player2Id = groupWinners.getOrElse(2 * index + 1) { 0L }
+                    val player1Id = groupWinners[2 * index]
+                    val player2Id = groupWinners[2 * index + 1]
                     match.copy(player1Id = player1Id, player2Id = player2Id)
                 }
                 tournamentMatchDao.insertMatches(updatedL16)
@@ -239,35 +248,44 @@ class AdvanceTournamentRoundUseCase(
 
             val nextMatches = when (currentRound) {
                 TournamentRound.R1_160 -> {
+                    require(oom65To96.size == 32 && shuffledWinners.size == 32) {
+                        "UK/European Open R2 erfordert 32 OOM (65-96) und 32 R1-Sieger"
+                    }
                     (0 until 32).map { index ->
                         TournamentMatch(
                             tournamentId = tournament.id,
                             round = TournamentRound.R2_128.name,
                             matchIndex = index,
-                            player1Id = oom65To96.getOrElse(index) { 0L },
-                            player2Id = shuffledWinners.getOrElse(index) { 0L }
+                            player1Id = oom65To96[index],
+                            player2Id = shuffledWinners[index]
                         )
                     }
                 }
                 TournamentRound.R2_128 -> {
+                    require(oom33To64.size == 32 && shuffledWinners.size == 32) {
+                        "UK/European Open R3 erfordert 32 OOM (33-64) und 32 R2-Sieger"
+                    }
                     (0 until 32).map { index ->
                         TournamentMatch(
                             tournamentId = tournament.id,
                             round = TournamentRound.R3_96.name,
                             matchIndex = index,
-                            player1Id = oom33To64.getOrElse(index) { 0L },
-                            player2Id = shuffledWinners.getOrElse(index) { 0L }
+                            player1Id = oom33To64[index],
+                            player2Id = shuffledWinners[index]
                         )
                     }
                 }
                 TournamentRound.R3_96 -> {
+                    require(top32Oom.size == 32 && shuffledWinners.size == 32) {
+                        "UK/European Open L64 erfordert 32 Top-32-OOM und 32 R3-Sieger"
+                    }
                     (0 until 32).map { index ->
                         TournamentMatch(
                             tournamentId = tournament.id,
                             round = TournamentRound.L64.name,
                             matchIndex = index,
-                            player1Id = top32Oom.getOrElse(index) { 0L },
-                            player2Id = shuffledWinners.getOrElse(index) { 0L }
+                            player1Id = top32Oom[index],
+                            player2Id = shuffledWinners[index]
                         )
                     }
                 }
@@ -300,8 +318,8 @@ class AdvanceTournamentRoundUseCase(
                     } else {
                         nextMatch.copy(player2Id = winnerId)
                     }
-                    val idx = updatedNextRoundMatches.indexOf(nextMatch)
-                    updatedNextRoundMatches[idx] = updated
+                    val matchIndexInList = updatedNextRoundMatches.indexOf(nextMatch)
+                    updatedNextRoundMatches[matchIndexInList] = updated
                 }
             }
             tournamentMatchDao.insertMatches(updatedNextRoundMatches)

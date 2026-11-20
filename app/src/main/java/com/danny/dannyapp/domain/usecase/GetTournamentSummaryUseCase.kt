@@ -7,7 +7,6 @@ import com.danny.dannyapp.data.db.USER_ID
 import com.danny.dannyapp.domain.enums.TournamentEvent
 import com.danny.dannyapp.domain.enums.TournamentRound
 
-
 /**
  * Phase of a tournament in the season timeline.
  */
@@ -81,8 +80,8 @@ class GetTournamentSummaryUseCase {
             var qualifierWinnerIds: List<Long> = emptyList()
 
             if (phaseState == TournamentPhaseState.COMPLETED) {
-                val event = try { TournamentEvent.valueOf(tournament.type) } catch (_: Exception) { null }
-                if (event != null && event.isQualifier) {
+                val event = TournamentEvent.valueOf(tournament.type)
+                if (event.isQualifier) {
                     // Multiple qualifier winners – collect from QUAL_FINAL round.
                     qualifierWinnerIds = matches
                         .filter { it.round == TournamentRound.QUAL_FINAL.name && it.winnerId != null }
