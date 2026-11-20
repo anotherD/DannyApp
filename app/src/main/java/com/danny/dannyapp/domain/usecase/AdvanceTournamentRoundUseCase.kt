@@ -334,14 +334,11 @@ class AdvanceTournamentRoundUseCase(
     suspend fun propagateWinnerOnMatchCompleted(match: TournamentMatch) = withContext(Dispatchers.IO) {
         val tournament = tournamentRepository.getTournamentById(match.tournamentId)
         val event = TournamentEvent.valueOf(tournament.type)
-        if (event.isQualifier) {
-            return@withContext
-        }
         val winnerId = match.winnerId ?: return@withContext
         val roundSequence = event.getRoundSequence()
         val currentRoundEnum = TournamentRound.valueOf(match.round)
 
-        if (currentRoundEnum != TournamentRound.GROUP) {
+        if (!event.isQualifier && currentRoundEnum != TournamentRound.GROUP) {
             val currentIdx = roundSequence.indexOf(currentRoundEnum)
             if (currentIdx >= 0) {
                 val reachedRound = if (currentRoundEnum == TournamentRound.F) {

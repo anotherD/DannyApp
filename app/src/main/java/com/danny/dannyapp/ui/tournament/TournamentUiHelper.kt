@@ -220,11 +220,11 @@ object TournamentUiHelper {
         val typeBadgeInfo = getTournamentTypeBadgeInfo(context, tournament.type)
         tvTournamentTypeBadge.visibility = View.VISIBLE
         tvTournamentTypeBadge.text = typeBadgeInfo.text
-        tvTournamentTypeBadge.background?.setTint(ContextCompat.getColor(context, typeBadgeInfo.colorResId))
+        tvTournamentTypeBadge.background?.mutate()?.setTint(ContextCompat.getColor(context, typeBadgeInfo.colorResId))
 
         val statusBadgeInfo = getStatusBadgeInfo(context, model)
         tvTournamentStatus.text = statusBadgeInfo.text
-        tvTournamentStatus.background?.setTint(ContextCompat.getColor(context, statusBadgeInfo.colorResId))
+        tvTournamentStatus.background?.mutate()?.setTint(ContextCompat.getColor(context, statusBadgeInfo.colorResId))
 
         val city = getTournamentCity(tournament.hostCountry, tournament.hostCity)
         UIHelper.formatFlagAndText(tvTournamentDetails, tournament.hostCountry, city)
