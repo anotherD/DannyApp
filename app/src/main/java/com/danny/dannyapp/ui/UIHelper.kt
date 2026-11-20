@@ -53,12 +53,10 @@ object UIHelper {
         careerWithProfile: CareerWithProfile,
         seed: Int? = null
     ): PlayerUiInfo {
-        val playerName = requireNotNull(careerWithProfile.playerName?.takeIf { it.isNotBlank() }) { "Spielername im Profil fehlt" }
-        val countryCode = requireNotNull(careerWithProfile.countryCode?.takeIf { it.isNotBlank() }) { "Ländercode im Profil fehlt" }
         return PlayerUiInfo(
             id = USER_ID,
-            name = playerName,
-            countryCode = countryCode,
+            name = careerWithProfile.playerName,
+            countryCode = careerWithProfile.countryCode,
             skill = SkillLevel.DEFAULT.value,
             seed = seed
         )

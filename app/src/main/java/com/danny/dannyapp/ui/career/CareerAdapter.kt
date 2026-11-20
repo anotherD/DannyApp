@@ -38,12 +38,8 @@ class CareerAdapter(
         holder.tvCareerLevel.text = context.getString(R.string.career_level_format, career.level)
         holder.tvCareerSeason.text = context.getString(R.string.season_format, career.season)
 
-        val profileName = requireNotNull(careerWithProfile.profileName?.takeIf { it.isNotBlank() }) { "Profilname fehlt" }
-        val playerName = requireNotNull(careerWithProfile.playerName?.takeIf { it.isNotBlank() }) { "Spielername im Profil fehlt" }
-        val countryCode = requireNotNull(careerWithProfile.countryCode?.takeIf { it.isNotBlank() }) { "Ländercode im Profil fehlt" }
-
-        holder.tvCareerProfile.text = context.getString(R.string.career_profile_format, profileName)
-        UIHelper.formatFlagAndText(holder.tvCareerPlayer, countryCode, playerName)
+        holder.tvCareerProfile.text = context.getString(R.string.career_profile_format, careerWithProfile.profileName)
+        UIHelper.formatFlagAndText(holder.tvCareerPlayer, careerWithProfile.countryCode, careerWithProfile.playerName)
 
         holder.itemView.setOnClickListener { onItemClick(careerWithProfile) }
         holder.itemView.setOnLongClickListener {

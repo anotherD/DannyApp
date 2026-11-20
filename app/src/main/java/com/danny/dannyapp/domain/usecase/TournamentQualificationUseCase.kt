@@ -14,6 +14,7 @@ import com.danny.dannyapp.domain.enums.OrderOfMeritType
 import com.danny.dannyapp.domain.enums.SkillLevel
 import com.danny.dannyapp.domain.enums.TournamentEvent
 import com.danny.dannyapp.domain.enums.TournamentRound
+import com.danny.dannyapp.domain.model.Country
 import com.danny.dannyapp.domain.model.OrderOfMeritEntry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -885,7 +886,9 @@ class TournamentQualificationUseCase(
             seasonId = seasonId,
             name = event.name,
             type = event.name,
-            order = 1
+            order = 1,
+            hostCountry = Country.DEFAULT_USER_CODE,
+            hostCity = "London"
         )
         val qualificationResult = resolveTournamentQualification(
             tournament = dummyTournament,
@@ -921,8 +924,8 @@ class TournamentQualificationUseCase(
         val allPlayersMap = allPlayers.associateBy { it.id }
 
         val careerWithProfile = careerRepository.getCareerById(currentCareerId)
-        val userName = requireNotNull(careerWithProfile.playerName?.takeIf { it.isNotBlank() }) { "Spielername im Profil fehlt" }
-        val userCountryCode = requireNotNull(careerWithProfile.countryCode?.takeIf { it.isNotBlank() }) { "Ländercode im Profil fehlt" }
+        val userName = careerWithProfile.playerName
+        val userCountryCode = careerWithProfile.countryCode
 
         fun createEntrantPlayerDomainInfo(id: Long, rank: Int?): EntrantPlayerDomainInfo {
             val name: String

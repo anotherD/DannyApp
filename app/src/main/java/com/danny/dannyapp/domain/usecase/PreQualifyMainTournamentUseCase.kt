@@ -10,7 +10,6 @@ import com.danny.dannyapp.data.db.TournamentRepository
 import com.danny.dannyapp.data.db.USER_ID
 import com.danny.dannyapp.domain.enums.OrderOfMeritType
 import com.danny.dannyapp.domain.enums.TournamentEvent
-import com.danny.dannyapp.domain.model.Country
 import com.danny.dannyapp.domain.model.OrderOfMeritEntry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -170,7 +169,7 @@ class PreQualifyMainTournamentUseCase(
                     )
                 }
 
-                val effectiveHostCountry = requireNotNull(mainTournament.hostCountry?.takeIf { it.isNotBlank() }) { "Gastgeberland fehlt für Turnier ${mainTournament.name}" }
+                val effectiveHostCountry = mainTournament.hostCountry
                 val excludedBase = tourCardPlayerIds.toSet() + top16Oom.toSet() + top16PtOom.toSet() + USER_ID
                 val hostQualifiers = resolveNonSimulatedQualifiersUseCase.resolveRegional(
                     setOf(effectiveHostCountry), 4, excludedBase, allPlayers, oomEntries

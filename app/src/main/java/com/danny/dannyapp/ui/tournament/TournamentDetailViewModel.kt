@@ -243,7 +243,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             tournament = tournament,
             event = event,
             host = host,
-            hostCountryCode = tournament.hostCountry ?: Country.DEFAULT_CODE,
+            hostCountryCode = tournament.hostCountry,
             totalPrizeFundText = totalPrizeText,
             prizeMoneyItems = getPrizeMoneyItems(event),
             isNextPlanned = isNextPlanned,
@@ -407,7 +407,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             tournament = tournament,
             event = event,
             host = TournamentUiHelper.getTournamentCity(tournament.hostCountry, tournament.hostCity),
-            hostCountryCode = tournament.hostCountry ?: Country.DEFAULT_CODE,
+            hostCountryCode = tournament.hostCountry,
             activeRoundDisplayName = activeRoundDisplayName,
             availableRounds = availableRounds,
             availableRoundDisplayNames = availableRoundDisplayNames,
@@ -543,7 +543,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             tournament = tournament,
             event = event,
             host = TournamentUiHelper.getTournamentCity(tournament.hostCountry, tournament.hostCity),
-            hostCountryCode = tournament.hostCountry ?: Country.DEFAULT_CODE,
+            hostCountryCode = tournament.hostCountry,
             winner = winner,
             userReachedRoundText = userReachedRoundText,
             userEarnedPrizeMoneyText = userEarnedPrizeMoneyText,
@@ -590,7 +590,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             careerId = currentCareerId
         )
 
-        val groupedParticipants = previewResult.participants.groupBy { it.qualificationType ?: "QUALIFIER" }
+        val groupedParticipants = previewResult.participants.groupBy { it.qualificationType }
         val participantGroups = groupedParticipants.map { (qualType, participants) ->
             val title = getQualificationGroupTitle(qualType)
             val playerUiInfos = participants.map { participant ->

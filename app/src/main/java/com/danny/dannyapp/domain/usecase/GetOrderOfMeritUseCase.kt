@@ -48,8 +48,8 @@ class GetOrderOfMeritUseCase(
         val playerMap = allPlayers.associateBy { it.id }
 
         val careerWithProfile = careerRepository.getCareerById(careerId)
-        val userName = requireNotNull(careerWithProfile.playerName?.takeIf { it.isNotBlank() }) { "Spielername im Profil fehlt" }
-        val userCountryCode = requireNotNull(careerWithProfile.countryCode?.takeIf { it.isNotBlank() }) { "Ländercode im Profil fehlt" }
+        val userName = careerWithProfile.playerName
+        val userCountryCode = careerWithProfile.countryCode
         val userSkill = SkillLevel.DEFAULT.value
 
         val seasonMap = seasons.associateBy { it.id }
