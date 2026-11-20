@@ -3,11 +3,40 @@ package com.danny.dannyapp.data.db
 import android.content.Context
 import kotlinx.coroutines.flow.Flow
 
-class PlayerRepository(context: Context) {
+/**
+ * Repository zur Verwaltung aller Spielerdaten.
+ */
+class PlayerRepository(private val playerDao: PlayerDao) {
 
-    private val playerDao: PlayerDao = AppDatabase.getDatabase(context.applicationContext).playerDao()
+    constructor(context: Context) : this(
+        AppDatabase.getDatabase(context.applicationContext).playerDao(),
+    )
 
+    /**
+     * Liefert einen [Flow] aller Spieler, sortiert nach Spielstärke.
+     */
     val playersSortedBySkill: Flow<List<Player>> = playerDao.getAllPlayersSortedBySkill()
 
+    /**
+     * Liefert einen [Flow] aller Spieler, alphabetisch sortiert nach Name.
+     */
     val playersSortedByName: Flow<List<Player>> = playerDao.getAllPlayersSortedByName()
+
+    /**
+     * Ruft die Liste aller Spieler einmalig ab.
+     */
+    suspend fun getAllPlayersList(): List<Player> {
+        return playerDao.getAllPlayersList()
+    }
+
+    /**
+     * Ruft einen Spieler anhand seiner [id] ab.
+     *
+     * @throws IllegalArgumentException wenn [id] <= 0.
+     * @throws IllegalStateException wenn der Spieler nicht gefunden wird.
+     */
+    suspend fun getPlayerById(id: Long): Player {
+        require(id > 0L) { "Ungültige Spieler-ID: $id" }
+        return requireNotNull(playerDao.getPlayerById(id)) { "CPU-Spieler mit ID $id nicht gefunden" }
+    }
 }

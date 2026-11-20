@@ -7,6 +7,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 
+/**
+ * Repository zur Verwaltung von Saisons und Tour-Cards.
+ */
 class SeasonRepository(
     private val seasonDao: SeasonDao,
     private val tourCardDao: TourCardDao,
@@ -47,20 +50,72 @@ class SeasonRepository(
         }
     )
 
+    /**
+     * Liefert einen [Flow] aller Saisons einer bestimmten Karriere, absteigend nach Saisonnummer sortiert.
+     */
     fun getSeasonsForCareer(careerId: Long): Flow<List<Season>> =
         seasonDao.getSeasonsForCareer(careerId)
 
+    /**
+     * Ruft die Liste aller Saisons einer Karriere ab.
+     */
+    suspend fun getSeasonsListForCareer(careerId: Long): List<Season> = withContext(Dispatchers.IO) {
+        seasonDao.getSeasonsListForCareer(careerId)
+    }
+
+    /**
+     * Ruft eine Saison anhand ihrer [id] ab.
+     *
+     * @throws IllegalArgumentException wenn [id] <= 0.
+     * @throws IllegalStateException wenn die Saison nicht gefunden wird.
+     */
+    suspend fun getSeasonById(id: Long): Season = withContext(Dispatchers.IO) {
+        require(id > 0L) { "Ungültige Saison-ID: $id" }
+        requireNotNull(seasonDao.getSeasonById(id)) { "Saison mit ID $id nicht gefunden" }
+    }
+
+    /**
+     * Ruft die aktuelle Saison einer Karriere ab.
+     */
     suspend fun getCurrentSeasonForCareer(careerId: Long): Season? = withContext(Dispatchers.IO) {
         seasonDao.getCurrentSeasonForCareer(careerId)
     }
 
+    /**
+     * Ruft die aktuelle Saison einer Karriere ab oder erstellt Saison 1, falls noch keine Saison existiert.
+     */
+    suspend fun getOrCreateInitialSeasonForCareer(careerId: Long): Season {
+        val existingSeason = seasonDao.getCurrentSeasonForCareer(careerId)
+        if (existingSeason != null) {
+            return existingSeason
+        }
+        val newSeasonId = createSeason(careerId)
+        return getSeasonById(newSeasonId)
+    }
+
+    /**
+     * Liefert einen [Flow] aller Tour-Cards inkl. Spielerdaten für eine Saison.
+     */
     fun getTourCardsForSeason(seasonId: Long): Flow<List<TourCardWithPlayer>> =
         tourCardDao.getTourCardsForSeason(seasonId)
 
+    /**
+     * Ruft die Liste aller Tour-Cards inkl. Spielerdaten für eine Saison einmalig ab.
+     */
     suspend fun getTourCardsListForSeason(seasonId: Long): List<TourCardWithPlayer> = withContext(Dispatchers.IO) {
         tourCardDao.getTourCardsListForSeason(seasonId)
     }
 
+    /**
+     * Liefert alle eindeutigen Spieler-IDs, die in der angegebenen Saison eine Tour-Card besitzen.
+     */
+    suspend fun getTourCardPlayerIdsForSeason(seasonId: Long): List<Long> {
+        return tourCardDao.getTourCardsListForSeason(seasonId).map { it.tourCard.playerId }.distinct()
+    }
+
+    /**
+     * Erstellt eine neue Saison für eine Karriere und generiert den Saisonkalender sowie die Tour-Cards.
+     */
     suspend fun createSeason(careerId: Long): Long = withContext(Dispatchers.IO) {
         val currentSeason = seasonDao.getCurrentSeasonForCareer(careerId)
         val nextSeasonNumber = (currentSeason?.seasonNumber ?: 0) + 1
