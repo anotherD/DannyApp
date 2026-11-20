@@ -6,6 +6,7 @@ import android.content.Intent
 import android.graphics.Typeface
 import android.os.Bundle
 import android.widget.Button
+import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
@@ -45,6 +46,7 @@ class CrashActivity : AppCompatActivity() {
     private fun setupCrashLayout() {
         val rootLayout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
+            fitsSystemWindows = true
             setBackgroundColor(ContextCompat.getColor(context, R.color.anthrazit_hintergrund))
             setPadding(48, 64, 48, 64)
             layoutParams = LinearLayout.LayoutParams(
@@ -107,7 +109,7 @@ class CrashActivity : AppCompatActivity() {
             setPadding(24, 24, 24, 24)
         }
 
-        val horizontalScrollView = ScrollView(this).apply {
+        val horizontalScrollView = HorizontalScrollView(this).apply {
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
