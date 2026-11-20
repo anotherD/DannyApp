@@ -33,9 +33,9 @@ data class Tournament(
     @ColumnInfo(name = "is_completed")
     val isCompleted: Boolean = false,
     @ColumnInfo(name = "host_country")
-    val hostCountry: String? = null,
+    val hostCountry: String,
     @ColumnInfo(name = "host_city")
-    val hostCity: String? = null,
+    val hostCity: String,
     /** Schlüssel der aktuell aktiven Runde (entspricht dem Namen eines [TournamentRound]-Eintrags); null, wenn das Turnier abgeschlossen ist. */
     @ColumnInfo(name = "current_round")
     val currentRound: String? = null
@@ -43,5 +43,7 @@ data class Tournament(
     init {
         require(name.isNotBlank()) { "Tournament name must not be blank" }
         require(order >= 1) { "Tournament order must be at least 1, got $order" }
+        require(hostCountry.isNotBlank()) { "Tournament hostCountry must not be blank" }
+        require(hostCity.isNotBlank()) { "Tournament hostCity must not be blank" }
     }
 }

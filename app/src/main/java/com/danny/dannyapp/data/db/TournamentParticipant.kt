@@ -32,5 +32,9 @@ data class TournamentParticipant(
     @ColumnInfo(name = "seed_number")
     val seedNumber: Int? = null,
     @ColumnInfo(name = "qualification_type")
-    val qualificationType: String? = null
-)
+    val qualificationType: String
+) {
+    init {
+        require(qualificationType.isNotBlank()) { "Qualification type must not be blank" }
+    }
+}

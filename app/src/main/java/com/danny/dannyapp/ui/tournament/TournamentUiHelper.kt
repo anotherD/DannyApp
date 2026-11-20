@@ -7,7 +7,6 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.danny.dannyapp.R
 import com.danny.dannyapp.data.SettingsManager
-import com.danny.dannyapp.domain.model.Country
 import com.danny.dannyapp.data.db.Tournament
 import com.danny.dannyapp.data.db.TournamentMatch
 import com.danny.dannyapp.domain.enums.TournamentEvent
@@ -67,12 +66,8 @@ object TournamentUiHelper {
         return TournamentRound.fromKey(roundKey)?.displayNameResId?.let { context.getString(it) } ?: roundKey
     }
 
-    fun getTournamentCity(hostCountry: String?, hostCity: String? = null): String {
-        if (!hostCity.isNullOrBlank()) {
-            return hostCity
-        }
-        val countryCode = hostCountry ?: Country.DEFAULT_CODE
-        return Country.getDisplayName(countryCode)
+    fun getTournamentCity(hostCountry: String, hostCity: String): String {
+        return hostCity
     }
 
     data class TypeBadgeInfo(val text: String, val colorResId: Int)
@@ -231,9 +226,8 @@ object TournamentUiHelper {
         tvTournamentStatus.text = statusBadgeInfo.text
         tvTournamentStatus.background?.setTint(ContextCompat.getColor(context, statusBadgeInfo.colorResId))
 
-        val host = requireNotNull(tournament.hostCountry?.takeIf { it.isNotBlank() }) { "Gastgeberland fehlt für Turnier ${tournament.name}" }
         val city = getTournamentCity(tournament.hostCountry, tournament.hostCity)
-        UIHelper.formatFlagAndText(tvTournamentDetails, host, city)
+        UIHelper.formatFlagAndText(tvTournamentDetails, tournament.hostCountry, city)
 
         val cardView = itemView as? MaterialCardView
         when {
@@ -305,9 +299,8 @@ object TournamentUiHelper {
         tvTypeBadge.text = typeBadgeInfo.text
         tvTypeBadge.backgroundTintList = ContextCompat.getColorStateList(context, typeBadgeInfo.colorResId)
 
-        val host = requireNotNull(tournament.hostCountry?.takeIf { it.isNotBlank() }) { "Gastgeberland fehlt für Turnier ${tournament.name}" }
         val city = getTournamentCity(tournament.hostCountry, tournament.hostCity)
-        UIHelper.formatFlagAndText(tvHost, host, city)
+        UIHelper.formatFlagAndText(tvHost, tournament.hostCountry, city)
 
         if (headerCard != null) {
             val event = TournamentEvent.valueOf(tournament.type)
