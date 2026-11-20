@@ -13,7 +13,6 @@ import kotlinx.coroutines.launch
 sealed interface CareerDetailState {
     object Loading : CareerDetailState
     object InvalidId : CareerDetailState
-    object NotFound : CareerDetailState
     data class Success(val careerWithProfile: CareerWithProfile) : CareerDetailState
 }
 
@@ -32,11 +31,7 @@ class CareerDetailViewModel(application: Application) : AndroidViewModel(applica
         viewModelScope.launch {
             _careerState.value = CareerDetailState.Loading
             val careerWithProfile = careerRepository.getCareerById(careerId)
-            if (careerWithProfile != null) {
-                _careerState.value = CareerDetailState.Success(careerWithProfile)
-            } else {
-                _careerState.value = CareerDetailState.NotFound
-            }
+            _careerState.value = CareerDetailState.Success(careerWithProfile)
         }
     }
 }

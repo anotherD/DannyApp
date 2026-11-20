@@ -15,7 +15,6 @@ import com.danny.dannyapp.data.db.TournamentParticipant
 import com.danny.dannyapp.data.db.USER_ID
 import com.danny.dannyapp.domain.config.TournamentConfigLoader
 import com.danny.dannyapp.domain.enums.OrderOfMeritType
-import com.danny.dannyapp.domain.enums.SkillLevel
 import com.danny.dannyapp.domain.enums.TournamentEvent
 import com.danny.dannyapp.domain.enums.TournamentRound
 import com.danny.dannyapp.domain.model.Country
@@ -82,7 +81,6 @@ sealed interface TournamentDetailState {
         val isCurrentRoundCompleted: Boolean,
         val isSelectedRoundPlayable: Boolean,
         val canAdvanceRound: Boolean,
-        val userLevel: Int,
         val careerName: String,
         val seasonNumber: Int,
         val isOpenDrawInfoVisible: Boolean = false,
@@ -192,19 +190,14 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
                 if (isSimulatingBatch) null
                 else {
                     val updatedTournament = tournaments.find { it.id == tournamentId } ?: targetTournament
-                    val event = try {
-                        TournamentEvent.valueOf(updatedTournament.type)
-                    } catch (_: Exception) {
-                        _uiState.value = TournamentDetailState.Error(getApplication<Application>().getString(R.string.tournament_not_found))
-                        return@combine null
-                    }
+                    val event = TournamentEvent.valueOf(updatedTournament.type)
                     Triple(updatedTournament, event, matches)
                 }
             }.filterNotNull().collect { (tournament, event, matches) ->
                 val allTournaments = tournamentDao.getTournamentsListForSeason(tournament.seasonId)
                 val careerWithProfile = careerRepository.getCareerById(currentCareerId)
-                val careerName = careerWithProfile?.career?.name ?: "Karriere"
-                val seasonNumber = careerWithProfile?.career?.season ?: 1
+                val careerName = careerWithProfile.career.name
+                val seasonNumber = careerWithProfile.career.season
 
                 if (tournament.isCompleted) {
                     buildReviewState(tournament, event, matches, careerName, seasonNumber, careerWithProfile)
@@ -223,7 +216,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         allTournaments: List<Tournament>,
         careerName: String,
         seasonNumber: Int,
-        careerWithProfile: CareerWithProfile?
+        careerWithProfile: CareerWithProfile
     ) {
         val host = TournamentUiHelper.getTournamentCity(tournament.hostCountry, tournament.hostCity)
         val totalPrizeText = if (event.effectiveTotalPrizeFund > 0) {
@@ -267,7 +260,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         allMatches: List<TournamentMatch>,
         careerName: String,
         seasonNumber: Int,
-        careerWithProfile: CareerWithProfile?
+        careerWithProfile: CareerWithProfile
     ) {
         val sequence = getRoundSequence(event, allMatches)
         val availableRounds = sequence.map { it.name }
@@ -425,7 +418,6 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             isCurrentRoundCompleted = isCurrentRoundCompleted,
             isSelectedRoundPlayable = isSelectedRoundPlayable,
             canAdvanceRound = canAdvanceRound,
-            userLevel = careerWithProfile?.career?.level?.coerceIn(1, 10) ?: SkillLevel.DEFAULT.value,
             careerName = careerName,
             seasonNumber = seasonNumber,
             isOpenDrawInfoVisible = isUkOpenUngenerated,
@@ -448,7 +440,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         allMatches: List<TournamentMatch>,
         careerName: String,
         seasonNumber: Int,
-        careerWithProfile: CareerWithProfile?
+        careerWithProfile: CareerWithProfile
     ) {
         val finalMatch = allMatches.find { it.round == TournamentRound.F.name } ?: allMatches.lastOrNull()
         val allPlayersMap = playerDao.getAllPlayersList().associateBy { it.id }
@@ -577,7 +569,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         tournament: Tournament,
         event: TournamentEvent,
         allPlayersMap: Map<Long, Player>,
-        careerWithProfile: CareerWithProfile?
+        careerWithProfile: CareerWithProfile
     ): ParticipantPreviewUiData {
         val previewResult = tournamentQualificationUseCase.getPreviewParticipants(
             tournament = tournament,
@@ -656,7 +648,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         matches: List<TournamentMatch>,
         roundKey: String,
         event: TournamentEvent,
-        careerWithProfile: CareerWithProfile?,
+        careerWithProfile: CareerWithProfile,
         allPlayersMap: Map<Long, Player>,
         seededPlayerMap: Map<Long, Int>,
         qualR1Matches: List<TournamentMatch>,
@@ -699,7 +691,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         availableRounds: List<String>,
         allMatches: List<TournamentMatch>,
         event: TournamentEvent,
-        careerWithProfile: CareerWithProfile?,
+        careerWithProfile: CareerWithProfile,
         allPlayersMap: Map<Long, Player>,
         seededPlayerMap: Map<Long, Int>,
         qualR1Matches: List<TournamentMatch>,
@@ -722,7 +714,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
 
     private suspend fun calculateGrandSlamGroupStandings(
         allMatches: List<TournamentMatch>,
-        careerWithProfile: CareerWithProfile?,
+        careerWithProfile: CareerWithProfile,
         allPlayersMap: Map<Long, Player>,
         seasonId: Long,
         tournamentId: Long
@@ -768,10 +760,8 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         viewModelScope.launch {
             _isSimulatingBatch.value = true
             try {
-                val careerWithProfile = careerRepository.getCareerById(currentCareerId)
-                val userLevel = careerWithProfile?.career?.level?.coerceIn(1, 10) ?: SkillLevel.DEFAULT.value
                 hasUserSelectedRound = false
-                tournamentProgressionUseCase.simulateCompleteTournament(currentTournamentId, userLevel)
+                tournamentProgressionUseCase.simulateCompleteTournament(currentTournamentId)
             } finally {
                 _isSimulatingBatch.value = false
             }

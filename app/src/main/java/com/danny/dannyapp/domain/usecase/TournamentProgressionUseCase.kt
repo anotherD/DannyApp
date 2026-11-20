@@ -103,11 +103,4 @@ class TournamentProgressionUseCase(
         }
         return@withContext finalTournament.isCompleted
     }
-
-    /**
-     * Overload for backward compatibility with existing view models passing user skill.
-     */
-    @Deprecated("userSkill parameter is deprecated and ignored", ReplaceWith("simulateCompleteTournament(tournamentId)"))
-    suspend fun simulateCompleteTournament(tournamentId: Long, userSkill: Int): Boolean =
-        simulateCompleteTournament(tournamentId)
 }

@@ -12,7 +12,6 @@ import com.danny.dannyapp.data.db.Tournament
 import com.danny.dannyapp.data.db.TournamentMatch
 import com.danny.dannyapp.data.db.TournamentPlacement
 import com.danny.dannyapp.data.db.USER_ID
-import com.danny.dannyapp.domain.enums.SkillLevel
 import com.danny.dannyapp.domain.enums.TournamentRound
 import com.danny.dannyapp.domain.model.Country
 import com.danny.dannyapp.domain.usecase.AdvanceTournamentRoundUseCase
@@ -102,7 +101,7 @@ class TournamentCalendarViewModel(application: Application) : AndroidViewModel(a
         matchesList: List<TournamentMatch>,
         placementsList: List<TournamentPlacement>,
         allPlayers: Map<Long, com.danny.dannyapp.data.db.Player>,
-        careerWithProfile: CareerWithProfile?
+        careerWithProfile: CareerWithProfile
     ): List<TournamentUiModel> {
         val matchesByTournament = matchesList.groupBy { it.tournamentId }
         val placementsByTournament = placementsList.groupBy { it.tournamentId }
@@ -163,15 +162,11 @@ class TournamentCalendarViewModel(application: Application) : AndroidViewModel(a
     }
 
     suspend fun startTournament(tournamentId: Long): Boolean = withContext(Dispatchers.IO) {
-        try {
-            val matches = tournamentMatchDao.getMatchesListForTournament(tournamentId)
-            if (matches.isEmpty()) {
-                generateBracketUseCase(tournamentId)
-            }
-            true
-        } catch (e: Exception) {
-            false
+        val matches = tournamentMatchDao.getMatchesListForTournament(tournamentId)
+        if (matches.isEmpty()) {
+            generateBracketUseCase(tournamentId)
         }
+        true
     }
 
     fun simulateCompleteTournament(tournamentId: Long) {
@@ -180,16 +175,13 @@ class TournamentCalendarViewModel(application: Application) : AndroidViewModel(a
             _simulatingTournamentId.value = tournamentId
             try {
                 withContext(Dispatchers.IO) {
-                    val tournament = tournamentDao.getTournamentById(tournamentId) ?: return@withContext
+                    val tournament = requireNotNull(tournamentDao.getTournamentById(tournamentId)) {
+                        "Turnier mit ID $tournamentId nicht gefunden"
+                    }
                     if (tournament.isCompleted) return@withContext
 
-                    val careerId = seasonDao.getSeasonById(tournament.seasonId)?.careerId ?: 0L
-                    val careerWithProfile = careerRepository.getCareerById(careerId)
-                    val userLevel = careerWithProfile?.career?.level?.coerceIn(1, 10) ?: SkillLevel.DEFAULT.value
-
-                    tournamentProgressionUseCase.simulateCompleteTournament(tournamentId, userLevel)
+                    tournamentProgressionUseCase.simulateCompleteTournament(tournamentId)
                 }
-            } catch (_: Exception) {
             } finally {
                 _simulatingTournamentId.value = null
             }
