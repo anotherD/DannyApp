@@ -25,6 +25,7 @@ import com.danny.dannyapp.domain.model.TournamentRoundPhase
 import com.danny.dannyapp.domain.usecase.AdvanceTournamentRoundUseCase
 import com.danny.dannyapp.domain.usecase.CalculateGroupStandingsUseCase
 import com.danny.dannyapp.domain.usecase.CompleteMatchUseCase
+import com.danny.dannyapp.domain.usecase.ManualScoreResult
 import com.danny.dannyapp.domain.usecase.GenerateBracketUseCase
 import com.danny.dannyapp.domain.usecase.GetOrderOfMeritUseCase
 import com.danny.dannyapp.domain.usecase.GetTournamentSummaryUseCase
@@ -826,7 +827,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
     /**
      * Erfasst manuell das Ergebnis eines User-Matches.
      */
-    suspend fun setManualUserMatchScore(matchId: Long, p1Score: Int, p2Score: Int): String? {
+    suspend fun setManualUserMatchScore(matchId: Long, p1Score: Int, p2Score: Int): ManualScoreResult {
         return completeMatchUseCase.completeManualMatch(matchId, p1Score, p2Score)
     }
 

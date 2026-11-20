@@ -85,10 +85,14 @@ class TournamentRepository(
     }
 
     /**
-     * Ruft ein Match anhand seiner [id] ab (oder `null`, falls nicht vorhanden).
+     * Ruft ein Match anhand seiner [id] ab.
+     *
+     * @throws IllegalArgumentException wenn [id] <= 0.
+     * @throws IllegalStateException wenn das Match nicht gefunden wird.
      */
-    suspend fun getMatchById(id: Long): TournamentMatch? {
-        return tournamentMatchDao.getMatchById(id)
+    suspend fun getMatchById(id: Long): TournamentMatch {
+        require(id > 0L) { "Ungültige Match-ID: $id" }
+        return requireNotNull(tournamentMatchDao.getMatchById(id)) { "Match mit ID $id nicht gefunden" }
     }
 
     /**

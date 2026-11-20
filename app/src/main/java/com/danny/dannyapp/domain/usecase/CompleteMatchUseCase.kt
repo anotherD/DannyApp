@@ -1,7 +1,6 @@
 package com.danny.dannyapp.domain.usecase
 
 import android.content.Context
-import com.danny.dannyapp.R
 import com.danny.dannyapp.data.db.PlayerRepository
 import com.danny.dannyapp.data.db.TournamentMatch
 import com.danny.dannyapp.data.db.TournamentRepository
@@ -14,6 +13,16 @@ import com.danny.dannyapp.domain.model.MatchDistance
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlin.random.Random
+
+/**
+ * Central domain UseCase serving as Single Source of Truth for match completion and simulation.
+ * Manages manual match completion, debug-winner completion, single match simulation (CPU or User),
+ * and batch CPU match simulation for active tournament rounds.
+ */
+sealed interface ManualScoreResult {
+    object Success : ManualScoreResult
+    data class ValidationError(val message: String) : ManualScoreResult
+}
 
 /**
  * Central domain UseCase serving as Single Source of Truth for match completion and simulation.
@@ -40,15 +49,11 @@ class CompleteMatchUseCase(
      * @param matchId The ID of the match to complete.
      * @param player1Score The leg or set score for player 1.
      * @param player2Score The leg or set score for player 2.
-     * @return Error message string if invalid, or `null` if completed successfully.
+     * @return [ManualScoreResult.Success] if completed successfully, or [ManualScoreResult.ValidationError] if invalid.
      */
-    suspend fun completeManualMatch(matchId: Long, player1Score: Int, player2Score: Int): String? = withContext(Dispatchers.IO) {
+    suspend fun completeManualMatch(matchId: Long, player1Score: Int, player2Score: Int): ManualScoreResult = withContext(Dispatchers.IO) {
         val match = tournamentRepository.getMatchById(matchId)
-            ?: return@withContext context.getString(R.string.match_not_found)
-
-        if (match.isCompleted) {
-            return@withContext context.getString(R.string.match_already_completed)
-        }
+        check(!match.isCompleted) { "Match $matchId ist bereits abgeschlossen" }
 
         val tournament = tournamentRepository.getTournamentById(match.tournamentId)
 
@@ -64,7 +69,7 @@ class CompleteMatchUseCase(
         )
 
         if (validationError != null) {
-            return@withContext validationError
+            return@withContext ManualScoreResult.ValidationError(validationError)
         }
 
         val winnerId = if (player1Score > player2Score) match.player1Id else match.player2Id
@@ -77,7 +82,7 @@ class CompleteMatchUseCase(
 
         tournamentRepository.updateMatch(updatedMatch)
         advanceTournamentRoundUseCase.propagateWinnerOnMatchCompleted(updatedMatch)
-        return@withContext null
+        return@withContext ManualScoreResult.Success
     }
 
     /**
@@ -85,11 +90,11 @@ class CompleteMatchUseCase(
      *
      * @param matchId The ID of the match to complete.
      * @param userWins `true` if the human user should win, `false` if the opponent wins.
-     * @return `true` if the match was updated, `false` otherwise.
+     * @return `true` if the match was updated.
      */
     suspend fun completeWithPresetWinner(matchId: Long, userWins: Boolean): Boolean = withContext(Dispatchers.IO) {
-        val match = tournamentRepository.getMatchById(matchId) ?: return@withContext false
-        if (match.isCompleted) return@withContext false
+        val match = tournamentRepository.getMatchById(matchId)
+        check(!match.isCompleted) { "Match $matchId ist bereits abgeschlossen" }
 
         val tournament = tournamentRepository.getTournamentById(match.tournamentId)
         val event = TournamentEvent.valueOf(tournament.type)

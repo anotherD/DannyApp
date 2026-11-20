@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
 import com.danny.dannyapp.domain.enums.TournamentEvent
+import com.danny.dannyapp.domain.usecase.ManualScoreResult
 import com.danny.dannyapp.ui.model.EntrantGroupInfo
 import com.danny.dannyapp.ui.model.MatchUiModel
 import com.danny.dannyapp.ui.model.PrizeMoneyItem
@@ -284,13 +285,13 @@ object TournamentDialogs {
      * @param context Host context.
      * @param matchModel Target match model.
      * @param coroutineScope Coroutine scope for running validation and DB update.
-     * @param onSaveScore Suspending lambda to save score, returning error string if invalid or null if successful.
+     * @param onSaveScore Suspending lambda to save score, returning [ManualScoreResult].
      */
     fun showManualScoreInputDialog(
         context: Context,
         matchModel: MatchUiModel,
         coroutineScope: CoroutineScope,
-        onSaveScore: suspend (matchId: Long, scoreP1: Int, scoreP2: Int) -> String?
+        onSaveScore: suspend (matchId: Long, scoreP1: Int, scoreP2: Int) -> ManualScoreResult
     ) {
         val layout = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
@@ -338,11 +339,14 @@ object TournamentDialogs {
                     return@setOnClickListener
                 }
                 coroutineScope.launch {
-                    val error = onSaveScore(matchModel.match.id, p1, p2)
-                    if (error != null) {
-                        Toast.makeText(context, error, Toast.LENGTH_LONG).show()
-                    } else {
-                        dialog.dismiss()
+                    val result = onSaveScore(matchModel.match.id, p1, p2)
+                    when (result) {
+                        is ManualScoreResult.ValidationError -> {
+                            Toast.makeText(context, result.message, Toast.LENGTH_LONG).show()
+                        }
+                        is ManualScoreResult.Success -> {
+                            dialog.dismiss()
+                        }
                     }
                 }
             }
