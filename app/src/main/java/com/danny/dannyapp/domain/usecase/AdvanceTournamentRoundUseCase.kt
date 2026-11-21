@@ -1,7 +1,5 @@
 package com.danny.dannyapp.domain.usecase
 
-import android.content.Context
-import com.danny.dannyapp.data.db.AppDatabase
 import com.danny.dannyapp.data.db.Tournament
 import com.danny.dannyapp.data.db.TournamentMatch
 import com.danny.dannyapp.data.db.TournamentRepository
@@ -22,16 +20,6 @@ class AdvanceTournamentRoundUseCase(
 ) {
     /** Single source of truth for group-stage standings – shared with the advance logic. */
     private val calculateGroupStandingsUseCase: CalculateGroupStandingsUseCase = CalculateGroupStandingsUseCase()
-
-    constructor(context: Context) : this(
-        TournamentRepository(
-            AppDatabase.getDatabase(context.applicationContext).tournamentDao(),
-            AppDatabase.getDatabase(context.applicationContext).tournamentMatchDao(),
-            AppDatabase.getDatabase(context.applicationContext).tournamentPlacementDao(),
-            AppDatabase.getDatabase(context.applicationContext).tournamentParticipantDao()
-        ),
-        TournamentQualificationUseCase(context)
-    )
 
     companion object {
         /**

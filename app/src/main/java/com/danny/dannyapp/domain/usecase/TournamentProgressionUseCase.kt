@@ -1,7 +1,5 @@
 package com.danny.dannyapp.domain.usecase
 
-import android.content.Context
-import com.danny.dannyapp.data.db.AppDatabase
 import com.danny.dannyapp.data.db.TournamentRepository
 import com.danny.dannyapp.data.db.USER_ID
 import kotlinx.coroutines.Dispatchers
@@ -17,17 +15,6 @@ class TournamentProgressionUseCase(
     private val tournamentRepository: TournamentRepository,
     private val generateBracketUseCase: GenerateBracketUseCase? = null
 ) {
-    constructor(context: Context) : this(
-        completeMatchUseCase = CompleteMatchUseCase(context),
-        advanceTournamentRoundUseCase = AdvanceTournamentRoundUseCase(context),
-        tournamentRepository = TournamentRepository(
-            AppDatabase.getDatabase(context.applicationContext).tournamentDao(),
-            AppDatabase.getDatabase(context.applicationContext).tournamentMatchDao(),
-            AppDatabase.getDatabase(context.applicationContext).tournamentPlacementDao(),
-            AppDatabase.getDatabase(context.applicationContext).tournamentParticipantDao()
-        ),
-        generateBracketUseCase = GenerateBracketUseCase(context)
-    )
 
     /**
      * Simulates an entire tournament from start to finish.
