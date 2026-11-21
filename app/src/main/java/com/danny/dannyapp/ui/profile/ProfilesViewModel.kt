@@ -5,9 +5,8 @@ import android.database.sqlite.SQLiteConstraintException
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.danny.dannyapp.R
-import com.danny.dannyapp.data.db.CareerRepository
+import com.danny.dannyapp.appContainer
 import com.danny.dannyapp.data.db.UserProfile
-import com.danny.dannyapp.data.db.UserProfileRepository
 import com.danny.dannyapp.domain.model.Country
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -21,8 +20,8 @@ sealed interface SaveProfileResult {
 
 class ProfilesViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val userProfileRepository = UserProfileRepository(application)
-    private val careerRepository = CareerRepository(application)
+    private val userProfileRepository = application.appContainer.userProfileRepository
+    private val careerRepository = application.appContainer.careerRepository
 
     val profilesState: StateFlow<List<UserProfile>> = userProfileRepository.userProfilesFlow
         .stateIn(

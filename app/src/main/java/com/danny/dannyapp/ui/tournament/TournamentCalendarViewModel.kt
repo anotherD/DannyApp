@@ -4,23 +4,15 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.danny.dannyapp.R
-import com.danny.dannyapp.data.db.CareerRepository
+import com.danny.dannyapp.appContainer
 import com.danny.dannyapp.data.db.CareerWithProfile
 import com.danny.dannyapp.data.db.Player
-import com.danny.dannyapp.data.db.PlayerRepository
-import com.danny.dannyapp.data.db.SeasonRepository
 import com.danny.dannyapp.data.db.Tournament
 import com.danny.dannyapp.data.db.TournamentMatch
 import com.danny.dannyapp.data.db.TournamentPlacement
-import com.danny.dannyapp.data.db.TournamentRepository
 import com.danny.dannyapp.data.db.USER_ID
 import com.danny.dannyapp.domain.enums.TournamentRound
-import com.danny.dannyapp.domain.usecase.AdvanceTournamentRoundUseCase
-import com.danny.dannyapp.domain.usecase.GenerateBracketUseCase
-import com.danny.dannyapp.domain.usecase.GenerateSeasonCalendarUseCase
-import com.danny.dannyapp.domain.usecase.GetTournamentSummaryUseCase
 import com.danny.dannyapp.domain.usecase.TournamentPhaseState
-import com.danny.dannyapp.domain.usecase.TournamentProgressionUseCase
 import com.danny.dannyapp.ui.UIHelper
 import com.danny.dannyapp.ui.enums.TournamentStatus
 import com.danny.dannyapp.ui.model.PlayerUiInfo
@@ -41,16 +33,16 @@ sealed interface TournamentCalendarState {
 
 class TournamentCalendarViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val careerRepository = CareerRepository(application)
-    private val tournamentRepository = TournamentRepository(application)
-    private val seasonRepository = SeasonRepository(application)
-    private val playerRepository = PlayerRepository(application)
+    private val careerRepository = application.appContainer.careerRepository
+    private val tournamentRepository = application.appContainer.tournamentRepository
+    private val seasonRepository = application.appContainer.seasonRepository
+    private val playerRepository = application.appContainer.playerRepository
 
-    private val generateSeasonCalendarUseCase = GenerateSeasonCalendarUseCase(application)
-    private val generateBracketUseCase = GenerateBracketUseCase(application)
-    private val advanceTournamentRoundUseCase = AdvanceTournamentRoundUseCase(application)
-    private val tournamentProgressionUseCase = TournamentProgressionUseCase(application)
-    private val getTournamentSummaryUseCase = GetTournamentSummaryUseCase()
+    private val generateSeasonCalendarUseCase = application.appContainer.generateSeasonCalendarUseCase
+    private val generateBracketUseCase = application.appContainer.generateBracketUseCase
+    private val advanceTournamentRoundUseCase = application.appContainer.advanceTournamentRoundUseCase
+    private val tournamentProgressionUseCase = application.appContainer.tournamentProgressionUseCase
+    private val getTournamentSummaryUseCase = application.appContainer.getTournamentSummaryUseCase
 
     private val _simulatingTournamentId = MutableStateFlow<Long?>(null)
 

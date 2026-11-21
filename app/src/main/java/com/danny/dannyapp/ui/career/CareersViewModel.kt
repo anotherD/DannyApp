@@ -4,11 +4,10 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.danny.dannyapp.R
+import com.danny.dannyapp.appContainer
 import com.danny.dannyapp.data.db.Career
-import com.danny.dannyapp.data.db.CareerRepository
 import com.danny.dannyapp.data.db.CareerWithProfile
 import com.danny.dannyapp.data.db.UserProfile
-import com.danny.dannyapp.data.db.UserProfileRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
@@ -20,8 +19,8 @@ sealed interface SaveCareerResult {
 
 class CareersViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val careerRepository = CareerRepository(application)
-    private val userProfileRepository = UserProfileRepository(application)
+    private val careerRepository = application.appContainer.careerRepository
+    private val userProfileRepository = application.appContainer.userProfileRepository
 
     val careersState: StateFlow<List<CareerWithProfile>> = careerRepository.careersFlow
         .stateIn(

@@ -3,9 +3,9 @@ package com.danny.dannyapp.ui.oom
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.danny.dannyapp.appContainer
 import com.danny.dannyapp.domain.enums.OrderOfMeritType
 import com.danny.dannyapp.domain.model.OrderOfMeritEntry
-import com.danny.dannyapp.domain.usecase.GetOrderOfMeritUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 
 class OrderOfMeritViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val getOrderOfMeritUseCase = GetOrderOfMeritUseCase(application)
+    private val getOrderOfMeritUseCase = application.appContainer.getOrderOfMeritUseCase
 
     private val _oomEntries = MutableStateFlow<List<OrderOfMeritEntry>>(emptyList())
     val oomEntries: StateFlow<List<OrderOfMeritEntry>> = _oomEntries.asStateFlow()
