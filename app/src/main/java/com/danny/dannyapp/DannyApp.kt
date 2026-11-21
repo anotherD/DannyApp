@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Intent
 import android.os.Process
 import android.util.Log
+import com.danny.dannyapp.domain.config.TournamentConfigLoader
 import com.danny.dannyapp.ui.CrashActivity
 import kotlin.system.exitProcess
 
@@ -23,6 +24,7 @@ class DannyApp : Application() {
     override fun onCreate() {
         super.onCreate()
         setupUncaughtExceptionHandler()
+        TournamentConfigLoader.loadFromAssets(this)
     }
 
     /**
