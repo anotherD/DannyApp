@@ -17,8 +17,7 @@ import kotlinx.coroutines.withContext
  * based on the winner-based placement model (instant entry prize money + immediate winner promotions).
  */
 class AdvanceTournamentRoundUseCase(
-    private val tournamentRepository: TournamentRepository,
-    private val tournamentQualificationUseCase: TournamentQualificationUseCase
+    private val tournamentRepository: TournamentRepository
 ) {
     /** Single source of truth for group-stage standings – shared with the advance logic. */
     private val calculateGroupStandingsUseCase: CalculateGroupStandingsUseCase = CalculateGroupStandingsUseCase()
@@ -402,12 +401,11 @@ class AdvanceTournamentRoundUseCase(
             return@withContext
         }
 
-        val currentRound = currentRoundEnum
-        val currentIdx = roundSequence.indexOf(currentRound)
+        val currentIdx = roundSequence.indexOf(currentRoundEnum)
         if (currentIdx < 0) return@withContext
         val nextRoundEnum = roundSequence.getOrNull(currentIdx + 1) ?: return@withContext
         val nextMatches = allMatches.filter { it.round == nextRoundEnum.name }
-        val (targetMatchIndex, isPlayer1Slot) = resolveNextRoundSlot(event, currentRound, match.matchIndex)
+        val (targetMatchIndex, isPlayer1Slot) = resolveNextRoundSlot(event, currentRoundEnum, match.matchIndex)
         val nextMatch = nextMatches.find { it.matchIndex == targetMatchIndex }
         if (nextMatch != null) {
             val updatedNext = if (isPlayer1Slot) {

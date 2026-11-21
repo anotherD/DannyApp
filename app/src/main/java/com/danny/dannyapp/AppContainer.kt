@@ -152,7 +152,7 @@ class AppContainer(context: Context) {
      * Use case for advancing tournament rounds.
      */
     val advanceTournamentRoundUseCase: AdvanceTournamentRoundUseCase by lazy {
-        AdvanceTournamentRoundUseCase(tournamentRepository, tournamentQualificationUseCase)
+        AdvanceTournamentRoundUseCase(tournamentRepository)
     }
 
     /**

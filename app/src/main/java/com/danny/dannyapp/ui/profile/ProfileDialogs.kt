@@ -85,22 +85,22 @@ object ProfileDialogs {
 
                     val lifecycleOwner = context as? LifecycleOwner
                     val scope = lifecycleOwner?.lifecycleScope
-                    if (scope != null) {
-                        scope.launch {
-                            val result = onSave(profileName, playerName, selectedCountryCode, profileDescription)
-                            when (result) {
-                                is SaveProfileResult.Success -> {
-                                    val msgRes = if (isEdit) R.string.profile_updated_msg else R.string.profile_created_msg
-                                    Toast.makeText(context, context.getString(msgRes, result.profileName), Toast.LENGTH_SHORT).show()
-                                    dialog.dismiss()
-                                    onSuccess?.invoke(result.profileName)
-                                }
-                                is SaveProfileResult.DuplicateName -> {
-                                    Toast.makeText(context, context.getString(R.string.profiles_create_error_duplicate_name, result.profileName), Toast.LENGTH_SHORT).show()
-                                }
-                                is SaveProfileResult.Error -> {
-                                    Toast.makeText(context, context.getString(R.string.profile_create_error_general, result.message), Toast.LENGTH_LONG).show()
-                                }
+                    scope?.launch {
+                        val result = onSave(profileName, playerName, selectedCountryCode, profileDescription)
+                        when (result) {
+                            is SaveProfileResult.Success -> {
+                                val msgRes = if (isEdit) R.string.profile_updated_msg else R.string.profile_created_msg
+                                Toast.makeText(context, context.getString(msgRes, result.profileName), Toast.LENGTH_SHORT).show()
+                                dialog.dismiss()
+                                onSuccess?.invoke(result.profileName)
+                            }
+
+                            is SaveProfileResult.DuplicateName -> {
+                                Toast.makeText(context, context.getString(R.string.profiles_create_error_duplicate_name, result.profileName), Toast.LENGTH_SHORT).show()
+                            }
+
+                            is SaveProfileResult.Error -> {
+                                Toast.makeText(context, context.getString(R.string.profile_create_error_general, result.message), Toast.LENGTH_LONG).show()
                             }
                         }
                     }

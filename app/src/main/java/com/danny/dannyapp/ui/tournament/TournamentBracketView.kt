@@ -477,14 +477,18 @@ class TournamentBracketView @JvmOverloads constructor(
                 return paddingTopPx + matchIndex * baseSlotHeight + tileHeight / 2f
             }
 
-            return if (prevViewCount == currentViewCount * 2) {
-                val topChildY = computeIntegerFocusY(roundIndex - 1, 2 * matchIndex, focusInt)
-                val bottomChildY = computeIntegerFocusY(roundIndex - 1, 2 * matchIndex + 1, focusInt)
-                (topChildY + bottomChildY) / 2f
-            } else if (prevViewCount == currentViewCount) {
-                paddingTopPx + matchIndex * baseSlotHeight + tileHeight / 2f
-            } else {
-                computeIntegerFocusY(roundIndex - 1, matchIndex, focusInt)
+            return when (prevViewCount) {
+                currentViewCount * 2 -> {
+                    val topChildY = computeIntegerFocusY(roundIndex - 1, 2 * matchIndex, focusInt)
+                    val bottomChildY = computeIntegerFocusY(roundIndex - 1, 2 * matchIndex + 1, focusInt)
+                    (topChildY + bottomChildY) / 2f
+                }
+                currentViewCount -> {
+                    paddingTopPx + matchIndex * baseSlotHeight + tileHeight / 2f
+                }
+                else -> {
+                    computeIntegerFocusY(roundIndex - 1, matchIndex, focusInt)
+                }
             }
         } else {
             // roundIndex < focusInt

@@ -104,8 +104,8 @@ class TournamentConfigValidationTest {
             assertTrue("order muss > 0 sein", tournament.order > 0)
             assertTrue("name darf nicht leer sein", tournament.name.isNotBlank())
             assertTrue("type darf nicht leer sein", tournament.type.isNotBlank())
-            assertTrue("hostCountry darf nicht leer sein", !tournament.hostCountry.isNullOrBlank())
-            assertTrue("hostCity darf nicht leer sein", !tournament.hostCity.isNullOrBlank())
+            assertTrue("hostCountry darf nicht leer sein", tournament.hostCountry.isNotBlank())
+            assertTrue("hostCity darf nicht leer sein", tournament.hostCity.isNotBlank())
         }
 
         val dummyPlayerIds = (1L..256L).toList()

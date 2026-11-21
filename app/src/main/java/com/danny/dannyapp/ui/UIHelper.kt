@@ -64,15 +64,6 @@ object UIHelper {
 
     fun createCpuPlayerUiInfo(
         context: Context,
-        player: Player?,
-        seed: Int? = null
-    ): PlayerUiInfo {
-        val cpuPlayer = requireNotNull(player) { "CPU-Spieler nicht gefunden" }
-        return createCpuPlayerUiInfo(context, cpuPlayer.id, cpuPlayer, seed)
-    }
-
-    fun createCpuPlayerUiInfo(
-        context: Context,
         playerId: Long,
         player: Player?,
         seed: Int? = null
