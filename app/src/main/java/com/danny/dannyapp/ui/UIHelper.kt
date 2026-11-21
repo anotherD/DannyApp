@@ -10,10 +10,10 @@ import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.TextUtils
 import android.text.style.ImageSpan
+import android.view.View
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.withSave
-import androidx.core.view.doOnPreDraw
 import com.danny.dannyapp.R
 import com.danny.dannyapp.data.SettingsManager
 import com.danny.dannyapp.data.db.CareerWithProfile
@@ -210,9 +210,9 @@ object UIHelper {
 
         setFormattedText(name)
 
-        textView.doOnPreDraw { _ ->
+        fun applySmartTruncation() {
             val width = textView.width - textView.paddingStart - textView.paddingEnd
-            if (width <= 0) return@doOnPreDraw
+            if (width <= 0) return
             val safetyBufferPx = 4f * context.resources.displayMetrics.density
             val effectiveWidth = (width - safetyBufferPx).coerceAtLeast(0f)
             val paint = textView.paint
@@ -252,20 +252,39 @@ object UIHelper {
 
             // 1. Full name fits?
             if (totalWidth(name) <= effectiveWidth) {
-                return@doOnPreDraw
+                setFormattedText(name)
+                return
             }
 
             // 2. Abbreviated name fits?
             val abbrName = abbreviateName(name)
             if (totalWidth(abbrName) <= effectiveWidth) {
                 setFormattedText(abbrName)
-                return@doOnPreDraw
+                return
             }
 
             // 3. Ellipsize abbreviated name part only so seed is never cut off
             val availableForName = (effectiveWidth - seedWidth - flagExtraWidth).coerceAtLeast(0f)
             val ellipsizedName = TextUtils.ellipsize(abbrName, paint, availableForName, TextUtils.TruncateAt.END).toString()
             setFormattedText(ellipsizedName)
+        }
+
+        val oldListener = textView.tag as? View.OnLayoutChangeListener
+        if (oldListener != null) {
+            textView.removeOnLayoutChangeListener(oldListener)
+        }
+
+        val layoutListener = View.OnLayoutChangeListener { _, left, _, right, _, oldLeft, _, oldRight, _ ->
+            if (right - left != oldRight - oldLeft || textView.width > 0) {
+                applySmartTruncation()
+            }
+        }
+
+        textView.addOnLayoutChangeListener(layoutListener)
+        textView.tag = layoutListener
+
+        if (textView.width > 0) {
+            applySmartTruncation()
         }
     }
 
