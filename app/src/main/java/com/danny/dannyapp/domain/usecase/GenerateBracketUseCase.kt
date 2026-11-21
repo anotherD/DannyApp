@@ -1,6 +1,7 @@
 package com.danny.dannyapp.domain.usecase
 
 import android.content.Context
+import com.danny.dannyapp.data.db.AppDatabase
 import com.danny.dannyapp.data.db.PLACEHOLDER_PREVIOUS_WINNER_ID
 import com.danny.dannyapp.data.db.SeasonRepository
 import com.danny.dannyapp.data.db.TournamentMatch
@@ -21,7 +22,12 @@ class GenerateBracketUseCase(
     private val tournamentQualificationUseCase: TournamentQualificationUseCase
 ) {
     constructor(context: Context) : this(
-        TournamentRepository(context),
+        TournamentRepository(
+            AppDatabase.getDatabase(context.applicationContext).tournamentDao(),
+            AppDatabase.getDatabase(context.applicationContext).tournamentMatchDao(),
+            AppDatabase.getDatabase(context.applicationContext).tournamentPlacementDao(),
+            AppDatabase.getDatabase(context.applicationContext).tournamentParticipantDao()
+        ),
         SeasonRepository(context),
         TournamentQualificationUseCase(context)
     )

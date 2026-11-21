@@ -1,13 +1,10 @@
 package com.danny.dannyapp.data.db
 
-import android.content.Context
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 
-class UserProfileRepository(context: Context) {
-
-    private val userProfileDao: UserProfileDao = AppDatabase.getDatabase(context.applicationContext).userProfileDao()
+class UserProfileRepository(private val userProfileDao: UserProfileDao) {
 
     val userProfilesFlow: Flow<List<UserProfile>> = userProfileDao.getAllUserProfiles()
 

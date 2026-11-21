@@ -1,6 +1,7 @@
 package com.danny.dannyapp.domain.usecase
 
 import android.content.Context
+import com.danny.dannyapp.data.db.AppDatabase
 import com.danny.dannyapp.data.db.Player
 import com.danny.dannyapp.data.db.PlayerRepository
 import com.danny.dannyapp.data.db.SeasonRepository
@@ -35,9 +36,16 @@ class PreQualifyMainTournamentUseCase(
         resolvePrequalifiedTourCardIds: (TournamentEvent, List<Long>, List<OrderOfMeritEntry>, List<OrderOfMeritEntry>, List<Player>) -> Pair<List<Long>, List<Long>>,
         sortPlayerIdsByOom: (List<Long>, List<OrderOfMeritEntry>, List<Player>) -> List<Long>
     ) : this(
-        TournamentRepository(context),
+        TournamentRepository(
+            AppDatabase.getDatabase(context.applicationContext).tournamentDao(),
+            AppDatabase.getDatabase(context.applicationContext).tournamentMatchDao(),
+            AppDatabase.getDatabase(context.applicationContext).tournamentPlacementDao(),
+            AppDatabase.getDatabase(context.applicationContext).tournamentParticipantDao()
+        ),
         SeasonRepository(context),
-        PlayerRepository(context),
+        PlayerRepository(
+            AppDatabase.getDatabase(context.applicationContext).playerDao()
+        ),
         GetOrderOfMeritUseCase(context),
         ResolveNonSimulatedQualifiersUseCase(),
         grandSlamQualificationResolver,

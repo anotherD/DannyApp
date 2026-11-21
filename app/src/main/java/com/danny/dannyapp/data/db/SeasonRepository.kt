@@ -22,7 +22,12 @@ class SeasonRepository(
         AppDatabase.getDatabase(context.applicationContext).seasonDao(),
         AppDatabase.getDatabase(context.applicationContext).tourCardDao(),
         AppDatabase.getDatabase(context.applicationContext).playerDao(),
-        TournamentRepository(context),
+        TournamentRepository(
+            AppDatabase.getDatabase(context.applicationContext).tournamentDao(),
+            AppDatabase.getDatabase(context.applicationContext).tournamentMatchDao(),
+            AppDatabase.getDatabase(context.applicationContext).tournamentPlacementDao(),
+            AppDatabase.getDatabase(context.applicationContext).tournamentParticipantDao()
+        ),
         context
     ) {
         TournamentConfigLoader.loadFromAssets(context)

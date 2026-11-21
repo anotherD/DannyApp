@@ -44,7 +44,7 @@ class AppContainer(context: Context) {
     /**
      * Singleton instance of user profile repository.
      */
-    val userProfileRepository: UserProfileRepository by lazy { UserProfileRepository(appContext) }
+    val userProfileRepository: UserProfileRepository by lazy { UserProfileRepository(database.userProfileDao()) }
 
     /**
      * Singleton instance of tournament repository.

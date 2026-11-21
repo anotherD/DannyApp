@@ -1,6 +1,7 @@
 package com.danny.dannyapp.domain.usecase
 
 import android.content.Context
+import com.danny.dannyapp.data.db.AppDatabase
 import com.danny.dannyapp.data.db.CareerRepository
 import com.danny.dannyapp.data.db.Player
 import com.danny.dannyapp.data.db.PlayerRepository
@@ -89,9 +90,19 @@ class TournamentQualificationUseCase(
 
     constructor(context: Context) : this(
         SeasonRepository(context),
-        PlayerRepository(context),
-        TournamentRepository(context),
-        CareerRepository(context),
+        PlayerRepository(
+            AppDatabase.getDatabase(context.applicationContext).playerDao()
+        ),
+        TournamentRepository(
+            AppDatabase.getDatabase(context.applicationContext).tournamentDao(),
+            AppDatabase.getDatabase(context.applicationContext).tournamentMatchDao(),
+            AppDatabase.getDatabase(context.applicationContext).tournamentPlacementDao(),
+            AppDatabase.getDatabase(context.applicationContext).tournamentParticipantDao()
+        ),
+        CareerRepository(
+            AppDatabase.getDatabase(context.applicationContext).careerDao(),
+            SeasonRepository(context)
+        ),
         GetOrderOfMeritUseCase(context)
     )
 

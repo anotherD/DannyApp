@@ -1,6 +1,5 @@
 package com.danny.dannyapp.data.db
 
-import android.content.Context
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -12,13 +11,6 @@ class TournamentRepository(
     private val tournamentPlacementDao: TournamentPlacementDao,
     private val tournamentParticipantDao: TournamentParticipantDao,
 ) {
-
-    constructor(context: Context) : this(
-        AppDatabase.getDatabase(context.applicationContext).tournamentDao(),
-        AppDatabase.getDatabase(context.applicationContext).tournamentMatchDao(),
-        AppDatabase.getDatabase(context.applicationContext).tournamentPlacementDao(),
-        AppDatabase.getDatabase(context.applicationContext).tournamentParticipantDao(),
-    )
 
     // --- Tournaments ---
 

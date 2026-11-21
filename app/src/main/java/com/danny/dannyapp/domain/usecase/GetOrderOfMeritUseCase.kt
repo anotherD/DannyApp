@@ -1,6 +1,7 @@
 package com.danny.dannyapp.domain.usecase
 
 import android.content.Context
+import com.danny.dannyapp.data.db.AppDatabase
 import com.danny.dannyapp.data.db.CareerRepository
 import com.danny.dannyapp.data.db.PlayerRepository
 import com.danny.dannyapp.data.db.SeasonRepository
@@ -24,10 +25,20 @@ class GetOrderOfMeritUseCase(
     private val playerRepository: PlayerRepository
 ) {
     constructor(context: Context) : this(
-        CareerRepository(context),
+        CareerRepository(
+            AppDatabase.getDatabase(context.applicationContext).careerDao(),
+            SeasonRepository(context)
+        ),
         SeasonRepository(context),
-        TournamentRepository(context),
-        PlayerRepository(context)
+        TournamentRepository(
+            AppDatabase.getDatabase(context.applicationContext).tournamentDao(),
+            AppDatabase.getDatabase(context.applicationContext).tournamentMatchDao(),
+            AppDatabase.getDatabase(context.applicationContext).tournamentPlacementDao(),
+            AppDatabase.getDatabase(context.applicationContext).tournamentParticipantDao()
+        ),
+        PlayerRepository(
+            AppDatabase.getDatabase(context.applicationContext).playerDao()
+        )
     )
 
     suspend operator fun invoke(careerId: Long, type: OrderOfMeritType): List<OrderOfMeritEntry> = withContext(Dispatchers.IO) {

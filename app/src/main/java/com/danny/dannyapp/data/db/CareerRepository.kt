@@ -1,6 +1,5 @@
 package com.danny.dannyapp.data.db
 
-import android.content.Context
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
@@ -9,11 +8,6 @@ class CareerRepository(
     private val careerDao: CareerDao,
     private val seasonRepository: SeasonRepository
 ) {
-
-    constructor(context: Context) : this(
-        AppDatabase.getDatabase(context.applicationContext).careerDao(),
-        SeasonRepository(context.applicationContext)
-    )
 
     val careersFlow: Flow<List<CareerWithProfile>> = careerDao.getAllCareers()
 

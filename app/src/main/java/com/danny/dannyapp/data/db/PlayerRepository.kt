@@ -1,16 +1,11 @@
 package com.danny.dannyapp.data.db
 
-import android.content.Context
 import kotlinx.coroutines.flow.Flow
 
 /**
  * Repository zur Verwaltung aller Spielerdaten.
  */
 class PlayerRepository(private val playerDao: PlayerDao) {
-
-    constructor(context: Context) : this(
-        AppDatabase.getDatabase(context.applicationContext).playerDao(),
-    )
 
     /**
      * Liefert einen [Flow] aller Spieler, sortiert nach Spielstärke.

@@ -1,6 +1,7 @@
 package com.danny.dannyapp.domain.usecase
 
 import android.content.Context
+import com.danny.dannyapp.data.db.AppDatabase
 import com.danny.dannyapp.data.db.PlayerRepository
 import com.danny.dannyapp.data.db.TournamentMatch
 import com.danny.dannyapp.data.db.TournamentRepository
@@ -37,8 +38,15 @@ class CompleteMatchUseCase(
 ) {
     constructor(context: Context) : this(
         context = context.applicationContext,
-        tournamentRepository = TournamentRepository(context),
-        playerRepository = PlayerRepository(context),
+        tournamentRepository = TournamentRepository(
+            AppDatabase.getDatabase(context.applicationContext).tournamentDao(),
+            AppDatabase.getDatabase(context.applicationContext).tournamentMatchDao(),
+            AppDatabase.getDatabase(context.applicationContext).tournamentPlacementDao(),
+            AppDatabase.getDatabase(context.applicationContext).tournamentParticipantDao()
+        ),
+        playerRepository = PlayerRepository(
+            AppDatabase.getDatabase(context.applicationContext).playerDao()
+        ),
         advanceTournamentRoundUseCase = AdvanceTournamentRoundUseCase(context)
     )
 
