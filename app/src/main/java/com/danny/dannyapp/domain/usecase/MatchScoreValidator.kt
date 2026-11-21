@@ -1,10 +1,19 @@
 package com.danny.dannyapp.domain.usecase
 
-import android.content.Context
-import com.danny.dannyapp.R
 import com.danny.dannyapp.domain.enums.MatchFormatType
 import com.danny.dannyapp.domain.model.MatchDistance
 import kotlin.random.Random
+
+/**
+ * Typed validation errors for match scores.
+ */
+sealed interface ScoreValidationError {
+    object NegativeScore : ScoreValidationError
+    object DrawNotAllowed : ScoreValidationError
+    data class InvalidTwoClearLegs(val targetLegs: Int, val tiebreakWinnerLegs: Int, val tiebreakLoserLegs: Int) : ScoreValidationError
+    data class InvalidBestOfLegs(val bestOf: Int, val targetLegs: Int) : ScoreValidationError
+    data class InvalidBestOfSets(val bestOf: Int, val targetSets: Int) : ScoreValidationError
+}
 
 /**
  * Validates match scores and generates realistic winning scores for tournament matches.
@@ -13,19 +22,18 @@ object MatchScoreValidator {
 
     /**
      * Validates a match score for a given [matchDistance].
-     * Returns an error message string if invalid, or `null` if the score is valid.
+     * Returns a [ScoreValidationError] if invalid, or `null` if the score is valid.
      */
     fun validateMatchScore(
-        context: Context,
         player1Score: Int,
         player2Score: Int,
         matchDistance: MatchDistance
-    ): String? {
+    ): ScoreValidationError? {
         if (player1Score < 0 || player2Score < 0) {
-            return context.getString(R.string.score_validation_negative)
+            return ScoreValidationError.NegativeScore
         }
         if (player1Score == player2Score) {
-            return context.getString(R.string.score_validation_draw)
+            return ScoreValidationError.DrawNotAllowed
         }
 
         val targetScore = (matchDistance.bestOf / 2) + 1
@@ -38,28 +46,25 @@ object MatchScoreValidator {
                 val isValidTwoClearLegs = (winningScore >= targetScore && winningScore - losingScore >= 2) ||
                         (winningScore == maxLegs && winningScore - losingScore >= 1)
                 if (!isValidTwoClearLegs) {
-                    return context.getString(
-                        R.string.score_validation_two_clear_legs,
-                        targetScore,
-                        maxLegs,
-                        maxLegs - 1
+                    return ScoreValidationError.InvalidTwoClearLegs(
+                        targetLegs = targetScore,
+                        tiebreakWinnerLegs = maxLegs,
+                        tiebreakLoserLegs = maxLegs - 1
                     )
                 }
             } else {
                 if (winningScore != targetScore || losingScore >= targetScore) {
-                    return context.getString(
-                        R.string.score_validation_best_of_legs,
-                        matchDistance.bestOf,
-                        targetScore
+                    return ScoreValidationError.InvalidBestOfLegs(
+                        bestOf = matchDistance.bestOf,
+                        targetLegs = targetScore
                     )
                 }
             }
         } else {
             if (winningScore != targetScore || losingScore >= targetScore) {
-                return context.getString(
-                    R.string.score_validation_best_of_sets,
-                    matchDistance.bestOf,
-                    targetScore
+                return ScoreValidationError.InvalidBestOfSets(
+                    bestOf = matchDistance.bestOf,
+                    targetSets = targetScore
                 )
             }
         }

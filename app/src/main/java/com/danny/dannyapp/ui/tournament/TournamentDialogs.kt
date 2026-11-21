@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
 import com.danny.dannyapp.domain.enums.TournamentEvent
 import com.danny.dannyapp.domain.usecase.ManualScoreResult
+import com.danny.dannyapp.domain.usecase.ScoreValidationError
 import com.danny.dannyapp.ui.model.EntrantGroupInfo
 import com.danny.dannyapp.ui.model.MatchUiModel
 import com.danny.dannyapp.ui.model.PrizeMoneyItem
@@ -360,7 +361,27 @@ object TournamentDialogs {
                     val result = onSaveScore(matchModel.match.id, p1, p2)
                     when (result) {
                         is ManualScoreResult.ValidationError -> {
-                            Toast.makeText(context, result.message, Toast.LENGTH_LONG).show()
+                            val errorMessage = when (val error = result.error) {
+                                is ScoreValidationError.NegativeScore -> context.getString(R.string.score_validation_negative)
+                                is ScoreValidationError.DrawNotAllowed -> context.getString(R.string.score_validation_draw)
+                                is ScoreValidationError.InvalidTwoClearLegs -> context.getString(
+                                    R.string.score_validation_two_clear_legs,
+                                    error.targetLegs,
+                                    error.tiebreakWinnerLegs,
+                                    error.tiebreakLoserLegs
+                                )
+                                is ScoreValidationError.InvalidBestOfLegs -> context.getString(
+                                    R.string.score_validation_best_of_legs,
+                                    error.bestOf,
+                                    error.targetLegs
+                                )
+                                is ScoreValidationError.InvalidBestOfSets -> context.getString(
+                                    R.string.score_validation_best_of_sets,
+                                    error.bestOf,
+                                    error.targetSets
+                                )
+                            }
+                            Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
                         }
                         is ManualScoreResult.Success -> {
                             dialog.dismiss()

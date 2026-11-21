@@ -1,6 +1,5 @@
 package com.danny.dannyapp.domain.usecase
 
-import android.content.Context
 import com.danny.dannyapp.data.db.PlayerRepository
 import com.danny.dannyapp.data.db.TournamentMatch
 import com.danny.dannyapp.data.db.TournamentRepository
@@ -21,7 +20,7 @@ import kotlin.random.Random
  */
 sealed interface ManualScoreResult {
     object Success : ManualScoreResult
-    data class ValidationError(val message: String) : ManualScoreResult
+    data class ValidationError(val error: ScoreValidationError) : ManualScoreResult
 }
 
 /**
@@ -30,7 +29,6 @@ sealed interface ManualScoreResult {
  * and batch CPU match simulation for active tournament rounds.
  */
 class CompleteMatchUseCase(
-    private val context: Context,
     private val tournamentRepository: TournamentRepository,
     private val playerRepository: PlayerRepository,
     private val advanceTournamentRoundUseCase: AdvanceTournamentRoundUseCase
@@ -57,7 +55,6 @@ class CompleteMatchUseCase(
 
             val matchDistance = event.getMatchDistance(round)
             val validationError = MatchScoreValidator.validateMatchScore(
-                context = context,
                 player1Score = player1Score,
                 player2Score = player2Score,
                 matchDistance = matchDistance
