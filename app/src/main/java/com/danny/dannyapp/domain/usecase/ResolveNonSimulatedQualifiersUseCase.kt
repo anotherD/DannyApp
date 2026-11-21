@@ -1,31 +1,9 @@
 package com.danny.dannyapp.domain.usecase
 
 import com.danny.dannyapp.data.db.Player
-import com.danny.dannyapp.data.db.USER_ID
-import com.danny.dannyapp.domain.enums.SkillLevel
 import com.danny.dannyapp.domain.model.OrderOfMeritEntry
 
 class ResolveNonSimulatedQualifiersUseCase {
-
-    fun sortPlayerIds(
-        playerIds: List<Long>,
-        oomList: List<OrderOfMeritEntry>,
-        allPlayers: List<Player>
-    ): List<Long> {
-        val oomMap = oomList.associateBy { it.playerId }
-        val dbPlayerMap = allPlayers.associateBy { it.id }
-
-        return playerIds.sortedWith(
-            compareBy<Long> { oomMap[it]?.rank ?: Int.MAX_VALUE }
-                .thenByDescending { oomMap[it]?.prizeMoney ?: 0.0 }
-                .thenByDescending {
-                    if (it == USER_ID) SkillLevel.DEFAULT.value else dbPlayerMap[it]?.skill ?: SkillLevel.DEFAULT.value
-                }
-                .thenBy {
-                    if (it == USER_ID) "User" else dbPlayerMap[it]?.name ?: ""
-                }
-        )
-    }
 
     fun resolveRegional(
         regionCountries: Set<String>,
@@ -38,7 +16,7 @@ class ResolveNonSimulatedQualifiersUseCase {
         val nonTcPlayers = allPlayers.filter { it.tourCardYear == 0 && it.id !in excludedPlayerIds }
 
         val regionalPool = nonTcPlayers.filter { it.countryCode.uppercase() in upperRegionCountries }.map { it.id }
-        val sortedRegional = sortPlayerIds(regionalPool, oomList, allPlayers)
+        val sortedRegional = QualificationHelper.sortPlayerIdsByOom(regionalPool, oomList)
 
         val selected = sortedRegional.take(count).toMutableList()
         if (selected.size < count) {
@@ -47,7 +25,7 @@ class ResolveNonSimulatedQualifiersUseCase {
             val internationalPool = allPlayers
                 .filter { it.tourCardYear == 0 && it.id !in currentExcluded }
                 .map { it.id }
-            val sortedInternational = sortPlayerIds(internationalPool, oomList, allPlayers)
+            val sortedInternational = QualificationHelper.sortPlayerIdsByOom(internationalPool, oomList)
             val filled = sortedInternational.take(needed)
             selected.addAll(filled)
         }

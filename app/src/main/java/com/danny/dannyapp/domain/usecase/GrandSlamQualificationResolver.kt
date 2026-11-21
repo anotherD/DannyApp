@@ -198,7 +198,7 @@ class GrandSlamQualificationResolver(
 
         // 3. EUROPEAN_TOUR-Saisonsieger (sortiert nach Anzahl ET-Siege DESC, dann OOM)
         val etWinsMap = countSeasonEventWinners(seasonTournaments, TournamentEvent.EUROPEAN_TOUR)
-        val sortedEtWinners = QualificationHelper.sortPlayerIdsByOom(etWinsMap.keys.toList(), oomEntries, allPlayers)
+        val sortedEtWinners = QualificationHelper.sortPlayerIdsByOom(etWinsMap.keys.toList(), oomEntries)
             .sortedByDescending { etWinsMap[it] ?: 0 }
 
         for (etWinner in sortedEtWinners) {
@@ -219,7 +219,7 @@ class GrandSlamQualificationResolver(
         // 4. PLAYERS_CHAMPIONSHIP-Saisonsieger (sortiert nach Anzahl PC-Siege DESC, dann OOM)
         if (qualifiedSoFar.size < 40) {
             val pcWinsMap = countSeasonEventWinners(seasonTournaments, TournamentEvent.PLAYERS_CHAMPIONSHIP)
-            val sortedPcWinners = QualificationHelper.sortPlayerIdsByOom(pcWinsMap.keys.toList(), oomEntries, allPlayers)
+            val sortedPcWinners = QualificationHelper.sortPlayerIdsByOom(pcWinsMap.keys.toList(), oomEntries)
                 .sortedByDescending { pcWinsMap[it] ?: 0 }
 
             for (pcWinner in sortedPcWinners) {
@@ -274,7 +274,7 @@ class GrandSlamQualificationResolver(
             }
         }
 
-        val sorted48 = QualificationHelper.sortPlayerIdsByOom(qualified48Ids, oomEntries, allPlayers)
+        val sorted48 = QualificationHelper.sortPlayerIdsByOom(qualified48Ids, oomEntries)
         val pot1 = sorted48.take(16)
         val pot2 = sorted48.drop(16).take(16)
         val pot3 = sorted48.drop(32).take(16)

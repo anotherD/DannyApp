@@ -2,8 +2,6 @@ package com.danny.dannyapp.domain.usecase
 
 import com.danny.dannyapp.data.db.Player
 import com.danny.dannyapp.data.db.TournamentMatch
-import com.danny.dannyapp.data.db.USER_ID
-import com.danny.dannyapp.domain.enums.SkillLevel
 import com.danny.dannyapp.domain.enums.TournamentEvent
 import com.danny.dannyapp.domain.enums.TournamentRound
 import com.danny.dannyapp.domain.model.OrderOfMeritEntry
@@ -34,26 +32,18 @@ object QualificationHelper {
     }
 
     /**
-     * Sorts a list of player IDs based on Order of Merit ranking, prize money, skill level, and name.
+     * Sortiert eine Liste von Spieler-IDs nach dem Rang in der Order of Merit aufsteigend.
+     * Nicht gerankte Spieler ohne Eintrag in der Order of Merit werden zufällig geordnet.
      */
     fun sortPlayerIdsByOom(
         playerIds: List<Long>,
-        oomEntries: List<OrderOfMeritEntry>,
-        allPlayers: List<Player>
+        oomEntries: List<OrderOfMeritEntry>
     ): List<Long> {
         val oomMap = oomEntries.associateBy { it.playerId }
-        val dbPlayerMap = allPlayers.associateBy { it.id }
 
-        return playerIds.sortedWith(
-            compareBy<Long> { oomMap[it]?.rank ?: Int.MAX_VALUE }
-                .thenByDescending { oomMap[it]?.prizeMoney ?: 0.0 }
-                .thenByDescending {
-                    if (it == USER_ID) SkillLevel.DEFAULT.value else dbPlayerMap[it]?.skill ?: SkillLevel.DEFAULT.value
-                }
-                .thenBy {
-                    if (it == USER_ID) "User" else dbPlayerMap[it]?.name ?: ""
-                }
-        )
+        return playerIds
+            .shuffled()
+            .sortedBy { oomMap[it]?.rank ?: Int.MAX_VALUE }
     }
 
     /**
@@ -65,48 +55,18 @@ object QualificationHelper {
         tourCardIds: List<Long>,
         mainOom: List<OrderOfMeritEntry>,
         proTourOom: List<OrderOfMeritEntry>,
-        allPlayers: List<Player>
+        allPlayers: List<Player> = emptyList()
     ): Pair<List<Long>, List<Long>> {
         val isWorldChampionship = event == TournamentEvent.QUALIFIER_WM || event == TournamentEvent.WORLD_CHAMPIONSHIP
         val targetOomCount = if (isWorldChampionship) 40 else 16
         val targetPtOomCount = if (isWorldChampionship) 40 else 16
 
-        val sortedOomTc = sortPlayerIdsByOom(tourCardIds, mainOom, allPlayers)
+        val sortedOomTc = sortPlayerIdsByOom(tourCardIds, mainOom)
         val topOomIds = sortedOomTc.take(targetOomCount)
         val remainingTcAfterOom = tourCardIds.filterNot { it in topOomIds }
-        val topPtOomIds = sortPlayerIdsByOom(remainingTcAfterOom, proTourOom, allPlayers).take(targetPtOomCount)
+        val topPtOomIds = sortPlayerIdsByOom(remainingTcAfterOom, proTourOom).take(targetPtOomCount)
 
         return Pair(topOomIds, topPtOomIds)
-    }
-
-    /**
-     * Fills an initial list of player IDs to a target count using fallback candidates sorted by Order of Merit.
-     */
-    fun fillToTargetCount(
-        initialList: List<Long>,
-        targetCount: Int,
-        fallbackCandidates: List<Long>,
-        oomList: List<OrderOfMeritEntry>
-    ): List<Long> {
-        if (initialList.size >= targetCount) {
-            return initialList.take(targetCount)
-        }
-
-        val result = initialList.toMutableList()
-        val oomMap = oomList.associateBy { it.playerId }
-        val remainingCandidates = fallbackCandidates
-            .filterNot { it in result }
-            .sortedWith(
-                compareBy<Long> { oomMap[it]?.rank ?: Int.MAX_VALUE }
-                    .thenByDescending { oomMap[it]?.prizeMoney ?: 0.0 }
-                    .thenByDescending { oomMap[it]?.skill ?: SkillLevel.DEFAULT.value }
-            )
-
-        for (candidate in remainingCandidates) {
-            if (result.size >= targetCount) break
-            result.add(candidate)
-        }
-        return result
     }
 
 }

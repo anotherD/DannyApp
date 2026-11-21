@@ -904,7 +904,7 @@ class TournamentDetailViewModel(
      * Ermittelt die Rundenabfolge für das angemeldete Event.
      */
     private fun getRoundSequence(event: TournamentEvent, allMatches: List<TournamentMatch> = emptyList()): List<TournamentRound> {
-        return tournamentQualificationUseCase.getRoundSequence(event, allMatches)
+        return com.danny.dannyapp.domain.usecase.QualificationHelper.getRoundSequence(event, allMatches)
     }
 
     /**

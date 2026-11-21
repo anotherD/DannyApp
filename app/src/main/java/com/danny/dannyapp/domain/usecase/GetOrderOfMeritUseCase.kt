@@ -44,50 +44,51 @@ class GetOrderOfMeritUseCase(
 
         val seasonMap = seasons.associateBy { it.id }
 
-        val selectedTournamentIds = when (type) {
-            OrderOfMeritType.OOM -> {
-                // OOM: Summe aus prize_money aller Turniere der jüngsten 2 Austragungen pro Turnier-Event (saisonübergreifend)
-                allTournaments.groupBy { it.name }
-                    .flatMap { (_, tournaments) ->
-                        tournaments.sortedWith(
-                            compareByDescending<Tournament> { seasonMap[it.seasonId]?.seasonNumber ?: 0 }
-                                .thenByDescending { it.order }
-                                .thenByDescending { it.id }
-                        ).take(2)
-                    }
-                    .map { it.id }
+        val tournamentChronologicalDescendingComparator = compareByDescending<Tournament> {
+            val season = requireNotNull(seasonMap[it.seasonId]) { "Season mit ID ${it.seasonId} nicht gefunden" }
+            season.seasonNumber
+        }.thenByDescending { it.order }
+            .thenByDescending { it.id }
+
+        val oomTournaments = allTournaments.groupBy { it.name }
+            .flatMap { (_, tournaments) ->
+                tournaments.sortedWith(tournamentChronologicalDescendingComparator).take(2)
             }
-            OrderOfMeritType.PT_OOM -> {
-                // PT_OOM: Summe aus prize_money von PLAYERS_CHAMPIONSHIP und EUROPEAN_TOUR, jeweils nur die jüngste Austragung pro Event
-                allTournaments.filter {
-                    val t = it.type.uppercase()
-                    t.contains("PLAYERS_CHAMPIONSHIP") || t.contains("EUROPEAN_TOUR")
-                }.groupBy { it.name }
-                    .flatMap { (_, tournaments) ->
-                        tournaments.sortedWith(
-                            compareByDescending<Tournament> { seasonMap[it.seasonId]?.seasonNumber ?: 0 }
-                                .thenByDescending { it.order }
-                                .thenByDescending { it.id }
-                        ).take(1)
-                    }
-                    .map { it.id }
+            .sortedWith(tournamentChronologicalDescendingComparator)
+
+        val ptOomTournaments = allTournaments.filter {
+            val tournamentType = it.type.uppercase()
+            tournamentType.contains("PLAYERS_CHAMPIONSHIP") || tournamentType.contains("EUROPEAN_TOUR")
+        }.groupBy { it.name }
+            .flatMap { (_, tournaments) ->
+                tournaments.sortedWith(tournamentChronologicalDescendingComparator).take(1)
             }
-            OrderOfMeritType.PC_OOM -> {
-                // PC_OOM: Ausschließlich PLAYERS_CHAMPIONSHIP der aktuellen Saison
-                if (currentSeason == null) emptyList()
-                else allTournaments.filter {
-                    it.seasonId == currentSeason.id && it.type.uppercase().contains("PLAYERS_CHAMPIONSHIP")
-                }.map { it.id }
-            }
-            OrderOfMeritType.ET_OOM -> {
-                // ET_OOM: Ausschließlich EUROPEAN_TOUR der aktuellen Saison
-                if (currentSeason == null) emptyList()
-                else allTournaments.filter {
-                    it.seasonId == currentSeason.id && it.type.uppercase().contains("EUROPEAN_TOUR")
-                }.map { it.id }
-            }
+            .sortedWith(tournamentChronologicalDescendingComparator)
+
+        val pcOomTournaments = if (currentSeason == null) {
+            emptyList()
+        } else {
+            allTournaments.filter {
+                it.seasonId == currentSeason.id && it.type.uppercase().contains("PLAYERS_CHAMPIONSHIP")
+            }.sortedWith(tournamentChronologicalDescendingComparator)
         }
 
+        val etOomTournaments = if (currentSeason == null) {
+            emptyList()
+        } else {
+            allTournaments.filter {
+                it.seasonId == currentSeason.id && it.type.uppercase().contains("EUROPEAN_TOUR")
+            }.sortedWith(tournamentChronologicalDescendingComparator)
+        }
+
+        val relevantTournaments = when (type) {
+            OrderOfMeritType.OOM -> oomTournaments
+            OrderOfMeritType.PT_OOM -> ptOomTournaments
+            OrderOfMeritType.PC_OOM -> pcOomTournaments
+            OrderOfMeritType.ET_OOM -> etOomTournaments
+        }
+
+        val selectedTournamentIds = relevantTournaments.map { it.id }.toSet()
         val filteredPlacements = allPlacements.filter { it.tournamentId in selectedTournamentIds }
         val prizeMoneyMap = mutableMapOf<Long, Double>()
 
@@ -98,6 +99,8 @@ class GetOrderOfMeritUseCase(
             val current = prizeMoneyMap[placement.playerId] ?: 0.0
             prizeMoneyMap[placement.playerId] = current + placement.prizeMoney
         }
+
+        val placementPrizeMap = allPlacements.associate { (it.playerId to it.tournamentId) to it.prizeMoney }
 
         val entries = prizeMoneyMap.map { (playerId, prizeMoney) ->
             val isUser = playerId == USER_ID
@@ -127,16 +130,66 @@ class GetOrderOfMeritUseCase(
             )
         }
 
-        // Sort descending by prize money, then skill, then name
-        val sorted = entries.sortedWith(
-            compareByDescending<OrderOfMeritEntry> { it.prizeMoney }
-                .thenByDescending { it.skill }
-                .thenBy { it.name }
-        )
+        val shuffledPlayerIds = entries.map { it.playerId }.shuffled()
+        val randomTieBreakerMap = shuffledPlayerIds.mapIndexed { index, playerId -> playerId to index }.toMap()
+
+        // PDC Countback Rule (Section 3.2): Gesamtpreisgeld DESC -> Countback Sub-Rangliste -> Countback OOM -> Los (Zufall)
+        val sorted = entries.sortedWith { entryA, entryB ->
+            val prizeDiff = entryB.prizeMoney.compareTo(entryA.prizeMoney)
+            if (prizeDiff != 0) return@sortedWith prizeDiff
+
+            val countbackDiff = compareCountback(entryA.playerId, entryB.playerId, relevantTournaments, placementPrizeMap)
+            if (countbackDiff != 0) return@sortedWith countbackDiff
+
+            if (type != OrderOfMeritType.OOM) {
+                val oomTotalA = oomTournaments.sumOf { placementPrizeMap[entryA.playerId to it.id] ?: 0.0 }
+                val oomTotalB = oomTournaments.sumOf { placementPrizeMap[entryB.playerId to it.id] ?: 0.0 }
+                val oomTotalDiff = oomTotalB.compareTo(oomTotalA)
+                if (oomTotalDiff != 0) return@sortedWith oomTotalDiff
+
+                val oomCountbackDiff = compareCountback(entryA.playerId, entryB.playerId, oomTournaments, placementPrizeMap)
+                if (oomCountbackDiff != 0) return@sortedWith oomCountbackDiff
+            }
+
+            val tieBreakerA = requireNotNull(randomTieBreakerMap[entryA.playerId]) { "Tie-Breaker-Los für Spieler ${entryA.playerId} nicht gefunden" }
+            val tieBreakerB = requireNotNull(randomTieBreakerMap[entryB.playerId]) { "Tie-Breaker-Los für Spieler ${entryB.playerId} nicht gefunden" }
+            tieBreakerA.compareTo(tieBreakerB)
+        }
 
         sorted.mapIndexed { index, entry ->
             entry.copy(rank = index + 1)
         }
+    }
+
+    /**
+     * Vergleicht zwei Spieler anhand der PDC-Countback-Regel auf einer Liste chronologisch absteigend sortierter Turniere.
+     * 1. Kumulierte Preisgeldsumme der letzten 4 Turniere.
+     * 2. Schrittweiser Vergleich des 5., 6., ... Turniers bis zum Anfang des Fensters.
+     * Gibt einen negativen Wert zurück, wenn playerA vor playerB rangiert (höheres Preisgeld).
+     */
+    private fun compareCountback(
+        playerA: Long,
+        playerB: Long,
+        tournaments: List<Tournament>,
+        placementPrizeMap: Map<Pair<Long, Long>, Double>
+    ): Int {
+        if (tournaments.isEmpty()) return 0
+
+        val last4Tournaments = tournaments.take(4)
+        val sumA4 = last4Tournaments.sumOf { placementPrizeMap[playerA to it.id] ?: 0.0 }
+        val sumB4 = last4Tournaments.sumOf { placementPrizeMap[playerB to it.id] ?: 0.0 }
+        val diff4 = sumB4.compareTo(sumA4)
+        if (diff4 != 0) return diff4
+
+        for (i in 4 until tournaments.size) {
+            val tournament = tournaments[i]
+            val prizeA = placementPrizeMap[playerA to tournament.id] ?: 0.0
+            val prizeB = placementPrizeMap[playerB to tournament.id] ?: 0.0
+            val diff = prizeB.compareTo(prizeA)
+            if (diff != 0) return diff
+        }
+
+        return 0
     }
 
     /**

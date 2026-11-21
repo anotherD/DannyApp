@@ -104,38 +104,6 @@ class TournamentQualificationUseCase(
     )
 
     /**
-     * Determines the sequence of rounds for a given [TournamentEvent].
-     * If [allMatches] is provided and non-empty, truncates the sequence to start from the earliest round present in matches.
-     */
-    fun getRoundSequence(
-        event: TournamentEvent,
-        allMatches: List<TournamentMatch> = emptyList()
-    ): List<TournamentRound> = QualificationHelper.getRoundSequence(event, allMatches)
-
-    /**
-     * Sorts a list of player IDs based on Order of Merit ranking, prize money, skill level, and name.
-     */
-    fun sortPlayerIdsByOom(
-        playerIds: List<Long>,
-        oomList: List<OrderOfMeritEntry>,
-        allPlayers: List<Player>
-    ): List<Long> = QualificationHelper.sortPlayerIdsByOom(playerIds, oomList, allPlayers)
-
-    fun findQualifierTournamentForMain(
-        mainTournament: Tournament,
-        seasonTournaments: List<Tournament>
-    ): Tournament? = preQualifyMainTournamentUseCase.findQualifierTournamentForMain(mainTournament, seasonTournaments)
-
-    suspend fun freezePreQualifiedParticipantsForMainTournament(
-        qualifierTournament: Tournament,
-        seasonId: Long,
-        careerId: Long,
-        persistToDb: Boolean = true
-    ): List<TournamentParticipant> = preQualifyMainTournamentUseCase.freezePreQualifiedParticipantsForMainTournament(
-        qualifierTournament, seasonId, careerId, persistToDb
-    )
-
-    /**
      * Central resolution of the qualifier field split into prequalified players, non-prequalified players,
      * preliminary round players, R1 bye players, and seed count.
      */
@@ -143,11 +111,10 @@ class TournamentQualificationUseCase(
         tourCardPlayerIds: List<Long>,
         preQualifiedIds: List<Long>,
         oomList: List<OrderOfMeritEntry>,
-        allPlayers: List<Player>,
         boardCount: Int
     ): QualifierFieldSplit {
         val remainingTc = tourCardPlayerIds.filterNot { it in preQualifiedIds }
-        val nonPrequalifiedIds = sortPlayerIdsByOom(remainingTc, oomList, allPlayers)
+        val nonPrequalifiedIds = QualificationHelper.sortPlayerIdsByOom(remainingTc, oomList)
 
         val totalNonPrequalified = nonPrequalifiedIds.size
 
@@ -301,7 +268,7 @@ class TournamentQualificationUseCase(
             val unrankedFill = resolveNonSimulatedQualifiersUseCase.resolveUnrankedPool(needed, excluded, allPlayers)
             tourCardPlayerIds + unrankedFill
         }
-        val sortedByPt = sortPlayerIdsByOom(tcIds, ptOomEntries, allPlayers)
+        val sortedByPt = QualificationHelper.sortPlayerIdsByOom(tcIds, ptOomEntries)
         val top32 = sortedByPt.take(32)
         val remaining96 = sortedByPt.drop(32)
 
@@ -343,7 +310,7 @@ class TournamentQualificationUseCase(
     ): TournamentQualificationResult {
         val event = TournamentEvent.valueOf(qualifierTournament.type)
 
-        val frozenMainParticipants = freezePreQualifiedParticipantsForMainTournament(
+        val frozenMainParticipants = preQualifyMainTournamentUseCase.freezePreQualifiedParticipantsForMainTournament(
             qualifierTournament = qualifierTournament,
             seasonId = seasonId,
             careerId = careerId,
@@ -358,7 +325,6 @@ class TournamentQualificationUseCase(
             tourCardPlayerIds = tourCardPlayerIds,
             preQualifiedIds = preQualifiedIds.toList(),
             oomList = oomEntries,
-            allPlayers = allPlayers,
             boardCount = boardCount
         )
 
@@ -395,9 +361,9 @@ class TournamentQualificationUseCase(
 
         if (storedParticipants.isEmpty()) {
             val seasonTournaments = tournamentRepository.getTournamentsListForSeason(seasonId)
-            val qualTournament = findQualifierTournamentForMain(tournament, seasonTournaments)
+            val qualTournament = preQualifyMainTournamentUseCase.findQualifierTournamentForMain(tournament, seasonTournaments)
             if (qualTournament != null) {
-                storedParticipants = freezePreQualifiedParticipantsForMainTournament(qualTournament, seasonId, careerId, persistToDb)
+                storedParticipants = preQualifyMainTournamentUseCase.freezePreQualifiedParticipantsForMainTournament(qualTournament, seasonId, careerId, persistToDb)
             }
         }
 
@@ -464,7 +430,7 @@ class TournamentQualificationUseCase(
         require(tourCardPlayerIds.size == 128) {
             "UK/European Open erfordert exakt 128 Tour Card Inhaber, erhalten: ${tourCardPlayerIds.size}"
         }
-        val sortedTcOom = sortPlayerIdsByOom(tourCardPlayerIds, oomEntries, allPlayers)
+        val sortedTcOom = QualificationHelper.sortPlayerIdsByOom(tourCardPlayerIds, oomEntries)
 
         val excludedForNonTc = tourCardPlayerIds.toSet() + USER_ID
         val final32Qualifiers = if (event == TournamentEvent.UK_OPEN) {
@@ -542,10 +508,10 @@ class TournamentQualificationUseCase(
         ptOomEntries: List<OrderOfMeritEntry>,
         allPlayers: List<Player>
     ): TournamentQualificationResult {
-        val sortedOom = sortPlayerIdsByOom(allPlayerIds, oomEntries, allPlayers)
+        val sortedOom = QualificationHelper.sortPlayerIdsByOom(allPlayerIds, oomEntries)
         val top16Oom = sortedOom.take(16)
         val remainingForPt = allPlayerIds.filterNot { it in top16Oom }
-        val top16Pt = sortPlayerIdsByOom(remainingForPt, ptOomEntries, allPlayers).take(16)
+        val top16Pt = QualificationHelper.sortPlayerIdsByOom(remainingForPt, ptOomEntries).take(16)
 
         val participants = top16Oom.mapIndexed { index, playerId ->
             TournamentParticipant(
@@ -583,7 +549,7 @@ class TournamentQualificationUseCase(
         allPlayers: List<Player>
     ): TournamentQualificationResult {
         val candidatePlayerIds = (listOf(USER_ID) + allPlayers.map { it.id }).distinct()
-        val topPlayers = sortPlayerIdsByOom(candidatePlayerIds, rankingEntries, allPlayers).take(targetCount)
+        val topPlayers = QualificationHelper.sortPlayerIdsByOom(candidatePlayerIds, rankingEntries).take(targetCount)
         require(topPlayers.size == targetCount) {
             "Ranglisten-Qualifikation ($qualificationType) erfordert exakt $targetCount Teilnehmer, erhalten: ${topPlayers.size}"
         }
@@ -622,9 +588,9 @@ class TournamentQualificationUseCase(
 
         if (storedParticipants.isEmpty()) {
             val seasonTournaments = tournamentRepository.getTournamentsListForSeason(seasonId)
-            val qualTournament = findQualifierTournamentForMain(tournament, seasonTournaments)
+            val qualTournament = preQualifyMainTournamentUseCase.findQualifierTournamentForMain(tournament, seasonTournaments)
             if (qualTournament != null) {
-                storedParticipants = freezePreQualifiedParticipantsForMainTournament(qualTournament, seasonId, careerId, persistToDb)
+                storedParticipants = preQualifyMainTournamentUseCase.freezePreQualifiedParticipantsForMainTournament(qualTournament, seasonId, careerId, persistToDb)
             }
         }
 
@@ -653,9 +619,9 @@ class TournamentQualificationUseCase(
 
         if (storedParticipants.isEmpty()) {
             val seasonTournaments = tournamentRepository.getTournamentsListForSeason(seasonId)
-            val qualTournament = findQualifierTournamentForMain(tournament, seasonTournaments)
+            val qualTournament = preQualifyMainTournamentUseCase.findQualifierTournamentForMain(tournament, seasonTournaments)
             if (qualTournament != null) {
-                storedParticipants = freezePreQualifiedParticipantsForMainTournament(qualTournament, seasonId, careerId, persistToDb)
+                storedParticipants = preQualifyMainTournamentUseCase.freezePreQualifiedParticipantsForMainTournament(qualTournament, seasonId, careerId, persistToDb)
             }
         }
 
@@ -806,7 +772,7 @@ class TournamentQualificationUseCase(
             return EntrantPlayerDomainInfo(id = id, name = name, countryCode = country, seed = rank, skill = skill)
         }
 
-        val sequence = getRoundSequence(event, allMatches)
+        val sequence = QualificationHelper.getRoundSequence(event, allMatches)
         val roundEnum = TournamentRound.valueOf(roundKey)
         val roundIndex = sequence.indexOf(roundEnum)
 
@@ -814,7 +780,7 @@ class TournamentQualificationUseCase(
 
         val oomEntries = preloadedOomEntries ?: getOrderOfMeritUseCase(careerId, OrderOfMeritType.OOM)
         val allPlayerIds = (listOf(USER_ID) + allPlayers.map { it.id }).distinct()
-        val sortedPlayerIds = sortPlayerIdsByOom(allPlayerIds, oomEntries, allPlayers)
+        val sortedPlayerIds = QualificationHelper.sortPlayerIdsByOom(allPlayerIds, oomEntries)
 
         when (roundKey) {
             TournamentRound.R2_128.name -> {
@@ -867,7 +833,7 @@ class TournamentQualificationUseCase(
         val stored = tournamentRepository.getParticipantsForTournament(tournament.id)
         if (stored.isNotEmpty()) {
             val seasonTournaments = tournamentRepository.getTournamentsListForSeason(seasonId)
-            val qualTournament = findQualifierTournamentForMain(tournament, seasonTournaments)
+            val qualTournament = preQualifyMainTournamentUseCase.findQualifierTournamentForMain(tournament, seasonTournaments)
             val participants = if (qualTournament != null && qualTournament.isCompleted) {
                 val qualMatches = tournamentRepository.getMatchesListForTournament(qualTournament.id)
                 val existingIds = stored.map { it.playerId }.toSet()

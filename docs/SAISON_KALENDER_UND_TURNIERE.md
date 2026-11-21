@@ -127,10 +127,10 @@ Für Qualifikationswege ohne Länderbindung, die über Geschlecht, Alter oder Q-
   * *Reale PDC:* Sagen Tour-Card-Inhaber für ein PC-Event ab, rücken Spieler aus der *Challenge Tour Order of Merit* (und bei Bedarf *Development Tour Order of Merit*) nach, um das 128er-Feld aufzufüllen.
   * *App-Vereinfachung:* Da diese Secondary Tours nicht simuliert werden, wird das Feld bei unter 128 Tour-Card-Inhabern mit **zufälligen Nicht-Tourcard-Spielern** (`tour_card_year == 0`, `.shuffled()`, ohne Sortierung nach `skill` oder OOM) aufgefüllt; reichen auch diese nicht aus, greifen Erstrunden-Freilose (`Byes`).
 * **Verifizierte Quellen:**
-  * [PDC Tournaments – Players Championship](https://pdc.tv)
-  * [PDC News – Biggest prize money increase in PDC history confirmed](https://pdc.tv)
-  * [PDC Rankings Rules](https://pdc.tv)
-  * [Wikipedia – 2026 PDC Players Championship series](https://wikipedia.org)
+  * [PDC Tournaments – Players Championship](https://www.pdc.tv/tournaments/pdc-protour/players-championship)
+  * [PDC News – Biggest prize money increase in PDC history confirmed](https://www.pdc.tv/news/2025/03/31/biggest-prize-money-increase-pdc-history-confirmed)
+  * [PDC Rankings Rules](https://www.pdc.tv/rankings/pdc-rankings-rules)
+  * [Wikipedia – 2026 PDC Players Championship series](https://en.wikipedia.org/wiki/2026_PDC_Players_Championship_series)
 
 ---
 
@@ -173,10 +173,10 @@ Für Qualifikationswege ohne Länderbindung, die über Geschlecht, Alter oder Q-
 * **App-Vereinfachung vs. reale PDC-Regeln:**
   * Da die Host-Nation-, Nordic-&-Baltic- und East-Europe-Qualifier nicht als eigene Turniere ausgespielt werden, bestimmt die App die jeweiligen Nicht-Tourcard-Teilnehmer direkt über die Ländercodes und die aktuelle `OOM` (siehe Abschnitt 2.0).
 * **Verifizierte Quellen:**
-  * [PDC News: Major expansion announced for PDC European events in 2027](https://pdc.tv)
-  * [PDC Rankings Rules (Section 4.17 – Seeded Losers Rule)](https://pdc.tv)
-  * [European Darts Tour 2027 (Wikipedia)](https://wikipedia.org)
-  * [Qualifikationsturniere für die European Darts Tour 2027 (Wikipedia)](https://wikipedia.org)
+  * [PDC News: Major expansion announced for PDC European events in 2027](https://www.pdc.tv/news/2026/september/25/major-expansion-announced-for-pdc-european-events-in-2027)
+  * [PDC Rankings Rules (Section 4.17 – Seeded Losers Rule)](https://www.pdc.tv/rankings/pdc-rankings-rules)
+  * [European Darts Tour 2027 (Wikipedia)](https://de.wikipedia.org/wiki/European_Darts_Tour_2027)
+  * [Qualifikationsturniere für die European Darts Tour 2027 (Wikipedia)](https://de.wikipedia.org/wiki/Qualifikationsturniere_f%C3%BCr_die_European_Darts_Tour_2027)
 
 ---
 
@@ -260,7 +260,7 @@ Für Qualifikationswege ohne Länderbindung, die über Geschlecht, Alter oder Q-
 * **Verifizierte Quellen:**
   * [PDC Tournaments – Ladbrokes UK Open](https://www.pdc.tv/tournaments/ladbrokes-uk-open)
   * [PDC News – 2026 Ladbrokes UK Open preview](https://www.pdc.tv/news/2026/march/05/2026-ladbrokes-uk-open-preview/)
-  * [PDC Rankings Rules (Section 2 & 4)](https://pdc.tv)
+  * [PDC Rankings Rules (Section 2 & 4)](https://www.pdc.tv/rankings/pdc-rankings-rules)
   * [Wikipedia – 2026 UK Open](https://en.wikipedia.org/wiki/2026_UK_Open)
 
 ---
@@ -326,10 +326,9 @@ Für Qualifikationswege ohne Länderbindung, die über Geschlecht, Alter oder Q-
 * **App-Vereinfachung vs. reale PDC-Regeln:**
   * Keine App-Vereinfachung nötig; Teilnehmerfeld, freie Auslosung der 16 `PT OOM`-Qualifikanten gegen die Top 16 `OOM`-Seeds und Preisgelder entsprechen 1:1 dem offiziellen PDC-Regelwerk.
 * **Verifizierte Quellen:**
-  * [PDC Tournaments – World Matchplay](https://pdc.tv)
   * [PDC News – 2026 Betfred World Matchplay preview](https://www.pdc.tv/news/2026/july/17/2026-betfred-world-matchplay-preview/)
-  * [PDC Rankings Rules (Section 2 & 4)](https://pdc.tv)
-  * [Wikipedia – 2026 World Matchplay](https://en.wikipedia.org/wiki/2026_World_Matchplay)
+  * [PDC Rankings Rules (Section 2 & 4)](https://www.pdc.tv/rankings/pdc-rankings-rules)
+  * [Wikipedia – World Matchplay 2026](https://de.wikipedia.org/wiki/World_Matchplay_2026)
 
 ---
 
@@ -562,7 +561,7 @@ Für Qualifikationswege ohne Länderbindung, die über Geschlecht, Alter oder Q-
   * *App-Vereinfachung:* Die 46 internationalen Nicht-Tourcard-Plätze werden gemäß **Abschnitt 2.0** besetzt: Die regionalen Kontingente (u. a. *DACH Super League*, *Nordic & Baltic*, *East/South-East Europe*, *Asian Tour*, *CDC*, *ANZ/DPA/DPNZ*, *Afrika*) werden nach Ländercodes und `OOM DESC` (**Abschnitt 2.0 A**) vergeben; die nicht-regionalen Kontingente (*Women's Series / Women's World Matchplay*, *Development Tour / World Youth*, *Challenge Tour*, *Associate Member Qualifier*) werden über zufällige Nicht-Tourcard-Spieler (**Abschnitt 2.0 B**, `.shuffled()`) abgebildet.
 * **Verifizierte Quellen:**
   * [PDC News – 2025/26 Paddy Power World Darts Championship field confirmed](https://www.pdc.tv/news/2025/11/23/202526-paddy-power-world-darts-championship-field-confirmed)
-  * [PDC News – 2026/27 Paddy Power World Championship International Qualifying structure confirmed](https://pdc.tv)
+  * [PDC News – 2026/27 Paddy Power World Championship International Qualifying structure confirmed](https://www.pdc.tv/news/2026/february/24/2026-27-paddy-power-world-championship-international-qualifying-structure-confirmed/)
   * [Sky Sports – World Darts Championship: Schedule, format, previous winners and nine darters at Alexandra Palace](https://www.skysports.com/darts/news/13611967/world-darts-championship-schedule-format-previous-winners-and-nine-darters-at-alexandra-palace)
   * [Wikipedia – 2027 PDC World Darts Championship](https://en.wikipedia.org/wiki/2027_PDC_World_Darts_Championship)
 
@@ -582,9 +581,15 @@ Der Stammdatenwert `players.prizeMoney` wird aktuell nicht verwendet (kann in ei
 3. **Players Championship Order of Merit:** Kürzel: "PC OOM". Ausschließlich Preisgelder aus `PLAYERS_CHAMPIONSHIP` der aktuellen Saison.
 4. **European Tour Order of Merit:** Kürzel: "ET OOM". Ausschließlich Preisgelder aus `EUROPEAN_TOUR` der aktuellen Saison.
 
+#### Gleichstands-Regelung (PDC Countback Rule, Section 3.2)
+Haben zwei oder mehr Spieler exakt dasselbe Preisgeld in einer Rangliste, entscheidet **nicht** der Spielstärke-Wert oder der Name, sondern die offizielle PDC-Countback-Regel:
+1. Summe des gewerteten Preisgeldes aus den **letzten 4 gespielten/teilnahmeberechtigten Turnieren** der jeweiligen Rangliste (chronologisch absteigend nach Saison und Kalender-Reihenfolge).
+2. Besteht danach weiterhin Gleichstand, wird **jeweils ein Turnier weiter zurückgezählt** (5., 6., … Turnier innerhalb des Ranglisten-Fensters), bis ein Unterschied vorliegt.
+3. Besteht über das gesamte Fenster der betreffenden Rangliste Gleichstand (z. B. £0 bei allen Spielern in einer Sub-Rangliste), wird derselbe Countback auf die **Haupt-Order of Merit (`OOM`)** angewendet.
+4. Besteht auch dort kompletter Gleichstand (z. B. vor dem ersten Turnier der Karriere), entscheidet das Los (Zufallsreihenfolge).
+
 * **Verifizierte Quellen (Abschnitt 3.1):**
-  * [PDC Rankings Rules (Section 2 – PDC Order of Merit & ProTour Order of Merit)](https://pdc.tv)
-  * [PDC Rankings – Live Orders of Merit](https://pdc.tv)
+  * [PDC Rankings Rules (Section 2 & 3.2 – Countback Rule)](https://www.pdc.tv/rankings/pdc-rankings-rules)
 
 ### 3.2 Turnierübergreifende Ausnahmeregelungen (Wann gibt es £0 Preisgeld / Ranglistenpunkte?)
 
@@ -599,7 +604,7 @@ Ergänzend zu den jeweiligen Turnierregeln in Abschnitt 2 gelten für die Simula
    * Rückt ein Ersatzspieler für einen ausgefallenen Spieler direkt in eine spätere Runde nach (z. B. Runde 2 bei ET oder Runde 3 bei UK Open) und verliert dort sofort sein erstes Match, erhält er nur das Preisgeld der allerersten Turnierrunde (bei UK Open also **£0**, bei ET **£2.000**). Gewinnt er sein Auftaktmatch, greift ab der nächsten Runde das reguläre Preisgeld.
 
 * **Verifizierte Quellen (Abschnitt 3.2):**
-  * [PDC Rankings Rules (Section 3.7 – Late Replacements & Section 4.17 – Seeded Losers / Byes / Withdrawals)](https://pdc.tv)
+  * [PDC Rankings Rules (Section 3.7 – Late Replacements & Section 4.17 – Seeded Losers / Byes / Withdrawals)](https://www.pdc.tv/rankings/pdc-rankings-rules)
 
 ### 3.3 Spielformate & Sonderregeln (Zentrale Definition)
 Alle konkreten Runden-Distanzen (Best-of-Legs/Sets) aller Turniere sind zentral in `app/src/main/assets/season_calendar_2027.json` (`events.<EVENT>.distances`) definiert. Für die Spiel-Engine gelten folgende zentrale Formatregeln:
@@ -611,9 +616,8 @@ Alle konkreten Runden-Distanzen (Best-of-Legs/Sets) aller Turniere sind zentral 
 * **Double-In / Double-Out (World Grand Prix):** Das Leg wird mathematisch erst heruntergezählt, sobald der erste Pfeil des Spielers in einem äußeren Doppelring oder im Double-Bull landet, und muss auf einem Doppel beendet werden.
 
 * **Verifizierte Quellen (Abschnitt 3.3):**
-  * [Darts Regulation Authority (DRA) Rule Book](https://thedra.co.uk)
-  * [PDC News – Two-clear-legs tie-break rule explained (World Matchplay & World Championship)](https://pdc.tv)
-  * [Sky Sports – World Grand Prix Darts: Double-In / Double-Out & Two-Clear-Legs format](https://skysports.com)
+  * [Darts Regulation Authority (DRA) Rule Book (PDF)](https://dartsevent.com/wp-content/uploads/2026/01/PDC_DRA_current_as_of_2024_01.pdf)
+  * [Sky Sports – World Grand Prix Darts 2026: Schedule, format, prize money](https://www.skysports.com/darts/news/13585772/world-grand-prix-darts-2026-schedule-format-prize-money-venue-dates-as-luke-littler-luke-humphries-seek-title)
 
 ---
 

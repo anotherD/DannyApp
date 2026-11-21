@@ -8,7 +8,6 @@ import com.danny.dannyapp.data.db.TournamentRepository
 import com.danny.dannyapp.data.db.USER_ID
 import com.danny.dannyapp.domain.enums.OrderOfMeritType
 import com.danny.dannyapp.domain.enums.TournamentEvent
-import com.danny.dannyapp.domain.model.OrderOfMeritEntry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -208,7 +207,7 @@ class PreQualifyMainTournamentUseCase(
                 )
 
                 val tc80 = top40Oom + top40PtOom
-                val sortedTc80ByOom = QualificationHelper.sortPlayerIdsByOom(tc80, oomEntries, allPlayers)
+                val sortedTc80ByOom = QualificationHelper.sortPlayerIdsByOom(tc80, oomEntries)
                 val top32Oom = sortedTc80ByOom.take(32)
                 val ranks33To64 = sortedTc80ByOom.drop(32).take(32)
                 val ranks65To80 = sortedTc80ByOom.drop(64)
