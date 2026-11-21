@@ -12,6 +12,11 @@ import kotlin.system.exitProcess
  */
 class DannyApp : Application() {
 
+    /**
+     * Central application dependency container.
+     */
+    val appContainer: AppContainer by lazy { AppContainer(this) }
+
     override fun onCreate() {
         super.onCreate()
         setupUncaughtExceptionHandler()

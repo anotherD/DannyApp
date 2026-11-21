@@ -7,6 +7,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.danny.dannyapp.AppContainer
+import com.danny.dannyapp.DannyApp
 import com.danny.dannyapp.R
 import com.danny.dannyapp.data.SettingsManager
 import com.danny.dannyapp.ui.settings.SettingsActivity
@@ -15,7 +17,16 @@ import com.google.android.material.appbar.MaterialToolbar
 abstract class BaseActivity : AppCompatActivity() {
 
     protected var toolbar: MaterialToolbar? = null
-    protected val settingsManager by lazy { SettingsManager(this) }
+
+    /**
+     * Central application dependency container.
+     */
+    protected val appContainer: AppContainer get() = (applicationContext as DannyApp).appContainer
+
+    /**
+     * Central settings manager instance provided by [appContainer].
+     */
+    protected val settingsManager by lazy { appContainer.settingsManager }
 
     protected var debugMode: Boolean
         get() = settingsManager.debugMode
