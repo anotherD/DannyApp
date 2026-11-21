@@ -14,72 +14,150 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/startLayout"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:gravity="center"
-        android:orientation="vertical"
         android:padding="24dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/toolbar">
 
-        <ImageView
-            android:id="@+id/ivAppLogo"
-            android:layout_width="112dp"
-            android:layout_height="112dp"
-            android:layout_marginBottom="12dp"
-            android:contentDescription="@string/app_title"
-            android:src="@drawable/ic_app_logo" />
-
-        <!-- App Logo / Titel -->
-        <TextView
+        <!-- Guideline separating top presentation area (~52%) and bottom button area (~48%) -->
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidelineTop"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="32dp"
-            android:text="@string/app_title"
-            android:textSize="28sp"
-            android:textStyle="bold" />
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.52" />
 
-        <!-- Button 1: Scolia Browser -->
-        <Button
-            android:id="@+id/btnOpenScolia"
-            android:layout_width="match_parent"
+        <!-- Top Presentation Area -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardPresentation"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="6dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="#33F5B041"
+            app:layout_constraintBottom_toTopOf="@id/tvSubtitle"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_percent="0.70">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <ImageView
+                    android:id="@+id/ivCardImage"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:adjustViewBounds="true"
+                    android:contentDescription="@string/app_title"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/bg181818.jpg" />
+
+                <!-- Dark vertical gradient overlay at bottom -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="90dp"
+                    android:layout_gravity="bottom"
+                    android:background="@drawable/bg_gradient_bottom" />
+
+                <!-- Title "Walk-On" -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom|center_horizontal"
+                    android:layout_marginBottom="16dp"
+                    android:text="@string/app_name"
+                    android:textSize="28sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/white"
+                    android:gravity="center" />
+
+            </FrameLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Subtitle "Living Room Darts Career" -->
+        <TextView
+            android:id="@+id/tvSubtitle"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            android:text="@string/scolia_browser"
-            android:textSize="16sp" />
+            android:text="@string/app_subtitle"
+            android:textColor="#F5B041"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.08"
+            android:gravity="center"
+            app:layout_constraintBottom_toTopOf="@id/guidelineTop"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
-        <!-- Button 2: Profile -->
-        <Button
-            android:id="@+id/btnProfiles"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:text="@string/profiles"
-            android:textSize="16sp" />
+        <!-- Bottom Button Area (~48%) -->
+        <ScrollView
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:fillViewport="true"
+            android:clipToPadding="false"
+            android:paddingTop="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/guidelineTop">
 
-        <!-- Button 3: Karriere -->
-        <Button
-            android:id="@+id/btnCareers"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:text="@string/careers"
-            android:textSize="16sp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="vertical">
 
-        <!-- Button 3: Design & Farben Showcase -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnOpenDesignShowcase"
-            style="Widget.Material3.Button.OutlinedButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/design_showcase"
-            android:textSize="16sp" />
+                <!-- Button 1: Scolia Browser -->
+                <Button
+                    android:id="@+id/btnOpenScolia"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:text="@string/scolia_browser"
+                    android:textSize="16sp" />
 
-    </LinearLayout>
+                <!-- Button 2: Profile -->
+                <Button
+                    android:id="@+id/btnProfiles"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:text="@string/profiles"
+                    android:textSize="16sp" />
+
+                <!-- Button 3: Karriere -->
+                <Button
+                    android:id="@+id/btnCareers"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:text="@string/careers"
+                    android:textSize="16sp" />
+
+                <!-- Button 4: Design & Farben Showcase -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnOpenDesignShowcase"
+                    style="Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/design_showcase"
+                    android:textSize="16sp" />
+
+            </LinearLayout>
+        </ScrollView>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <WebView
         android:id="@+id/scoliaWebView"
