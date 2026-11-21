@@ -1,43 +1,45 @@
-# Generelle Anweisungen
-- Du wirst mir immer sagen, wenn deine Aussagen nur Vermutungen sind.
-- Erzähle mir immer 1 oder 2 Witze, wenn ich "Gute Nacht" wünsche oder mich verabschiede.
+# 1. Allgemeine Android- & Clean-Code-Standards
 - **Token-sparsame Antworten:** Schreibe keine langen Erklärungen, Zwischenberichte oder Zusammenfassungen im Chat. Führe die Code-Änderungen direkt aus und antworte am Ende maximal mit einer kurzen Stichpunktliste der geänderten Dateien.
-- Wenn du **eigenmächtig Änderungen** vornehmen möchtest, ohne Anweisung dafür und du es aber für sinnvoll oder notwendig hälst, dann wirst du mich vorher darüber Informieren, mir erklären, warum du das machen möchtest und **nur mit meiner expliziten Erlaubnis diese Änderung vornehmen!**
-
-# Projekt-Anweisungen
-- TODO: [VOR RELEASE / DB-FREEZE] Wir befinden uns in der Entwicklungsphase der App. Bei jedem Test lösche ich alle Karrieren und lege neue an. Wir brauchen also keine Rücksicht auf alte Datenbankeinträge aus Vorversionen und dafür auch keine Fallbacks bauen oder im code belassen. Noch kann ich die DB auch einfach löschen.
-- Erstelle Unit-Tests nur, wenn explizit danach gefragt wird
 - **Strings-Pflicht:** Alle sichtbaren UI-Texte, Labels, Turniertypen und Status-Bezeichnungen müssen zwingend in `app/src/main/res/values/strings.xml` gepflegt werden (keine hartcodierten deutschen Texte im Kotlin-Code).
-- **Fail-Fast statt stiller Fallbacks:** Verstecke interne Logik- oder Datenfehler niemals hinter leeren `catch (_: Exception)`-Blöcken, stillen `return`-Abbrüchen oder Default-Werten (`?: 0L`, `?: emptyList()`, `?: SkillLevel.DEFAULT.value` für Pflichtfelder wie `Career.level`). Im Domain- und DB-Layer gilt striktes **Fail-Fast** (`require`, `check`, `IllegalStateException`, `error(...)`), damit Bugs beim Testen sofort sichtbar werden. Defensive Fehlerbehandlung ist ausschließlich an echten Außengrenzen (User-Eingaben, externe Scolia-WebSocket/JSON-Streams) erlaubt. Ungefangene Exceptions aus Domain und DB nicht in ViewModels durch stille catch-Blöcke verschlucken!
- 
-# PDC-Regeln, Preisgelder & Kalender-Daten (Nur bei explizitem Regel-/Kalender-Update)
-- **Strikte Faktenbasis (Keine Vermutungen):** Übernimm bei Turnierformaten, Preisgeldern, Qualifikationskriterien und Spielplänen ausschließlich offiziell bestätigte und verifizierte PDC-Daten für die Ziel-Saison (aktuell 2027).
-- **Quellen-Prüfung:** Prüfe Änderungen immer gegen offizielle PDC-Verlautbarungen (`pdc.tv` / *PDC Rankings Rules*) sowie aktuelle Turnierpläne und rechne Preisgeldsummen gegen den Gesamttopf (Prize Fund) gegen.
-- **Unvollständige Ankündigungen:** Hat die PDC eine Reform angekündigt (z. B. Teilnehmer-Erweiterung), aber noch keine Runden-Preisgelder oder Setzlisten veröffentlicht, darf **nicht** geraten werden. Behalte das bisherige verifizierte Schema im Code bei und dokumentiere die angekündigte Reform ausschließlich als `TODO`-Kommentar im Code und als Hinweis in `docs/SAISON_KALENDER_UND_TURNIERE.md`.
-- **Ausnahmen immer prüfen:** Erfasse neben Standard-Preisgeldern immer Ranglisten-Sonderregeln (z. B. £0 bei Auftaktniederlage gesetzter Spieler auf der European Tour, £0 in Runde 1 bei PC/UK Open, Freilos- und Nachrücker-Regeln).
-
-# UI-, Navigation- & Code-Standards (Verbindlich)
+- **Zentrales Farbschema (`colors.xml`):** Alle UI- und Badge-Farben müssen zentral in `app/src/main/res/values/colors.xml` definiert werden (keine hartcodierten Hex-Codes im Kotlin-Code).
+- **Fail-Fast statt stiller Fallbacks:** Verstecke interne Logik- oder Datenfehler niemals hinter leeren `catch (_: Exception)`-Blöcken, stillen `return`-Abbrüchen oder Default-Werten (`?: 0L`, `?: emptyList()`, `?: SkillLevel.DEFAULT.value` für Pflichtfelder wie `Career.level`). Im Domain- und DB-Layer gilt striktes **Fail-Fast** (`require`, `check`, `IllegalStateException`, `error(...)`), damit Bugs beim Testen sofort sichtbar werden. Defensive Fehlerbehandlung ist ausschließlich an echten Außengrenzen (User-Eingaben, externe WebSocket/JSON-Streams) erlaubt. Ungefangene Exceptions aus Domain und DB nicht in ViewModels durch stille catch-Blöcke verschlucken!
 - **Sprechende Variablennamen:** Verwende keine nichtssagenden Einbuchstaben-Variablen (wie `p`, `m`, `b`), sondern immer klare, sprechende Namen (z. B. `player`, `match`, `boardIndex`).
+- **Reaktive Datenströme (Room `Flow` & `DiffUtil`):** Beobachte Datenbankänderungen konsequent über reaktive Room-`Flow`s und `ListAdapter` (`DiffUtil`), statt Listen manuell neu zu laden – so aktualisiert sich die UI bei Rücknavigation automatisch und effizient.
+- **Schichtenregel:** `ui` greift nur auf `domain` zu, niemals direkt auf `data`-Implementierungsdetails; `domain` enthält keine Android-UI-Imports (`R.drawable`, `R.color`).
+- **Context-freier Domain-Layer:** Klassen unter `domain/` dürfen keinerlei Abhängigkeiten zu `android.content.Context` oder Android-Framework-Klassen besitzen; Fehlermeldungen und Statuswerte werden als typisierte Domain-Models/Enums modelliert und erst im UI-Layer in Strings übersetzt.
+- **Lesbarkeit & KDoc:** Komplexere Methoden bekommen einen kurzen KDoc-Kommentar (`/** ... */`), tiefe Verschachtelungen werden durch Guard Clauses und kleine Hilfsmethoden vermieden.
+- **Schlanke Dateien & UI-Komponenten:** Activities und Fragments bleiben als Richtwert kompakt (~200–400 Zeilen, reine Kommentarzeilen nicht mitgezählt) und enthalten keine Fachlogik. Dialoge, Adapter und komplexe Custom-Views werden in eigene Dateien ausgelagert – reine View-Binding- und Listener-Logik bleibt jedoch zusammen, statt künstlich zerstückelt zu werden.
+- **Keine Fachlogik im ViewModel & Altlasten bereinigen:** Geschäfts- und Turnierregeln gehören ausschließlich in den Domain-Layer (`domain/`), niemals als parallele Prüfungen in ViewModels; veraltete Codepfade sind bei Umbauten immer mitzuentfernen.
+- **UI-Paketstruktur:** Neue eigenständige Feature-Bereiche (z. B. Live-Match/Scolia, Statistiken) werden in eigenen Unterpaketen unter `ui/` (z. B. `ui/match/`, `ui/stats/`) angelegt, statt bestehende flache Pakete weiter aufzublähen.
+- **Zentrale Abhängigkeitsverwaltung (`AppContainer`):** Repositories, UseCases und `SettingsManager` werden zentral im `AppContainer` (`DannyApp`) instanziiert und über Konstruktoren weitergereicht – keine sekundären `constructor(context: Context)`-Ketten oder mehrfache `SettingsManager(context)`-Instanzen in Adaptern/ViewModels.
+- **Transaktionspflicht bei mehrstufigen DB-Änderungen:** Jede Operation, die mehr als eine Tabelle oder mehrere abhängige Datensätze schreibt (z. B. Match-Ergebnis + Folgerunde + Preisgeld), muss zwingend in einer atomaren Room-`withTransaction`-Einheit ausgeführt werden.
+- **Kein Cross-Fragment-View-Lookup & State-Persistenz:** Fragments greifen niemals über `activity?.findViewById` oder `rootView` auf Views fremder Hierarchien zu, sondern kommunizieren ausschließlich über gemeinsame ViewModel-States (`StateFlow`); flüchtige Auswahlzustände im ViewModel werden über `SavedStateHandle` abgesichert.
+- **Zentrale Fehlerbehandlung (`AppContainer.reportError`):** Unerwartete Exceptions in ViewModels oder Coroutines dürfen niemals still verschluckt werden (`catch (_: Exception) {}`), sondern werden zentral über `appContainer.reportError(actionLabel, e)` gemeldet (die Toast-Anzeige übernimmt `BaseActivity` automatisch).
+
+---
+
+# 2. Projekt- & Fachregeln (Danny Darts App)
+- TODO: [VOR RELEASE / DB-FREEZE] Wir befinden uns in der Entwicklungsphase der App. Bei jedem Test lösche ich alle Karrieren und lege neue an. Wir brauchen also keine Rücksicht auf alte Datenbankeinträge aus Vorversionen und dafür auch keine Fallbacks bauen oder im code belassen. Noch kann ich die DB auch einfach löschen.
+- Erstelle Unit-Tests nur, wenn explizit danach gefragt wird.
 - **Top-Bar Breadcrumb-Standard:** Jede Unterseite zeigt als `titleText` exakt den Namen des aufrufenden Buttons/Bereichs (z. B. `Saisonkalender`, `Ranglisten`, `Turnieransicht`) und als `subtitleText` den vollständigen Breadcrumb-Pfad (z. B. `Karrieren > <Karrierename>`).
 - **Debug-Modus:** Alle Schnell-Simulations-Buttons (`Komplettes Turnier simulieren`, `CPU simulieren`, `Match simulieren`) dürfen nur sichtbar sein, wenn in den Einstellungen (`SettingsManager`) `debugMode == true` ist (Default: `true`).
-- **Reaktive Datenströme (Room `Flow` & `DiffUtil`):** Beobachte Datenbankänderungen konsequent über reaktive Room-`Flow`s und `ListAdapter` (`DiffUtil`), statt Listen manuell neu zu laden – so aktualisiert sich die UI bei Rücknavigation automatisch und effizient.
-- **Zentrales Farbschema (`colors.xml`):** Alle UI- und Badge-Farben müssen zentral in `app/src/main/res/values/colors.xml` definiert werden (keine hartcodierten Hex-Codes im Kotlin-Code).
 - **Farbkodierung der Turniertyp-Badges (über `colors.xml`):**
   - `MAJOR`: Gold-Ton
   - `QUALIFIER_GRAND_SLAM`, `QUALIFIER_WM` (Major-Qualifier): Dunkelgold
   - `QUALIFIER_ET` (ET-Qualifier): Dunkelrot
   - `EUROPEAN_TOUR`: Rubinrot
   - `PLAYERS_CHAMPIONSHIP`: Neutrales Dunkelgrau
-- **Schichtenregel:** `ui` greift nur auf `domain` zu, niemals direkt auf `data`-Implementierungsdetails; `domain` enthält keine Android-UI-Imports (`R.drawable`, `R.color`).
-- **Lesbarkeit & KDoc:** Komplexere Methoden bekommen einen kurzen KDoc-Kommentar (`/** ... */`), tiefe Verschachtelungen werden durch Guard Clauses und kleine Hilfsmethoden vermieden.
-- **Schlanke Dateien & UI-Komponenten:** Activities und Fragments bleiben als Richtwert kompakt (~200–400 Zeilen, reine Kommentarzeilen nicht mitgezählt) und enthalten keine Fachlogik. Dialoge, Adapter und komplexe Custom-Views werden in eigene Dateien ausgelagert – reine View-Binding- und Listener-Logik bleibt jedoch zusammen, statt künstlich zerstückelt zu werden.
 - **Zentrale UI- & Formatierungs-Helfer nutzen:** Keine eigenen Insellösungen für Standard-Darstellungen bauen – Flaggen und dynamische Namenskürzungen in TextViews immer über `UIHelper.formatFlagAndText(...)` bzw. `UIHelper.bindSmartPlayerName(...)` rendern (niemals `Country.getFlagEmoji(...)` direkt nutzen, da Nordirland `NIR` sonst als schwarze Flagge erscheint), Preisgelder immer über `R.string.prize_money_format` formatieren, Match-Karten-Styles ausschließlich über `UIHelper.applyMatchCardStyle(...)` anwenden und Turnierdaten über `TournamentDateHelper` formatieren.
-- **Keine Fachlogik im ViewModel & Altlasten bereinigen:** Geschäfts- und Turnierregeln gehören ausschließlich in den Domain-Layer (`domain/`), niemals als parallele Prüfungen in ViewModels; veraltete Codepfade sind bei Umbauten immer mitzuentfernen.
-- **UI-Paketstruktur:** Neue eigenständige Feature-Bereiche (z. B. Live-Match/Scolia, Statistiken) werden in eigenen Unterpaketen unter `ui/` (z. B. `ui/match/`, `ui/stats/`) angelegt, statt bestehende flache Pakete weiter aufzublähen.
-- **Zentrale Abhängigkeitsverwaltung (`AppContainer`):** Repositories, UseCases und `SettingsManager` werden zentral im `AppContainer` (`DannyApp`) instanziiert und über Konstruktoren weitergereicht – keine sekundären `constructor(context: Context)`-Ketten oder mehrfache `SettingsManager(context)`-Instanzen in Adaptern/ViewModels.
-- **Transaktionspflicht bei mehrstufigen DB-Änderungen:** Jede Operation, die mehr als eine Tabelle oder mehrere abhängige Datensätze schreibt (z. B. Match-Ergebnis + Folgerunde + Preisgeld), muss zwingend in einer atomaren Room-`withTransaction`-Einheit ausgeführt werden.
-- **Context-freier Domain-Layer:** Klassen unter `domain/` dürfen keinerlei Abhängigkeiten zu `android.content.Context` oder Android-Framework-Klassen besitzen; Fehlermeldungen und Statuswerte werden als typisierte Domain-Models/Enums modelliert und erst im UI-Layer in Strings übersetzt.
-- **Kein Cross-Fragment-View-Lookup & State-Persistenz:** Fragments greifen niemals über `activity?.findViewById` oder `rootView` auf Views fremder Hierarchien zu, sondern kommunizieren ausschließlich über gemeinsame ViewModel-States (`StateFlow`); flüchtige Auswahlzustände im ViewModel werden über `SavedStateHandle` abgesichert.
 - **Turnier-Regel-Strategien (`TournamentRuleStrategyRegistry`):** Turnierspezifische Match-Generierungs- und Qualifier-Übernahmeregeln werden ausschließlich als `TournamentRuleStrategy` unter `domain/strategy/` gekapselt und in `TournamentRuleStrategyRegistry` registriert – keine neuen `when (event)`-Kaskaden in `GenerateBracketUseCase` oder `AdvanceTournamentRoundUseCase`.
-- **Zentrale Fehlerbehandlung (`AppContainer.reportError`):** Unerwartete Exceptions in ViewModels oder Coroutines dürfen niemals still verschluckt werden (`catch (_: Exception) {}`), sondern werden zentral über `appContainer.reportError(actionLabel, e)` gemeldet (die Toast-Anzeige übernimmt `BaseActivity` automatisch).
 
+## PDC-Regeln, Preisgelder & Kalender-Daten (Nur bei explizitem Regel-/Kalender-Update)
+- **Strikte Faktenbasis (Keine Vermutungen):** Übernimm bei Turnierformaten, Preisgeldern, Qualifikationskriterien und Spielplänen ausschließlich offiziell bestätigte und verifizierte PDC-Daten für die Ziel-Saison (aktuell 2027).
+- **Quellen-Prüfung:** Prüfe Änderungen immer gegen offizielle PDC-Verlautbarungen (`pdc.tv` / *PDC Rankings Rules*) sowie aktuelle Turnierpläne und rechne Preisgeldsummen gegen den Gesamttopf (Prize Fund) gegen.
+- **Unvollständige Ankündigungen:** Hat die PDC eine Reform angekündigt (z. B. Teilnehmer-Erweiterung), aber noch keine Runden-Preisgelder oder Setzlisten veröffentlicht, darf **nicht** geraten werden. Behalte das bisherige verifizierte Schema im Code bei und dokumentiere die angekündigte Reform ausschließlich als `TODO`-Kommentar im Code und als Hinweis in `docs/SAISON_KALENDER_UND_TURNIERE.md`.
+- **Ausnahmen immer prüfen:** Erfasse neben Standard-Preisgeldern immer Ranglisten-Sonderregeln (z. B. £0 bei Auftaktniederlage gesetzter Spieler auf der European Tour, £0 in Runde 1 bei PC/UK Open, Freilos- und Nachrücker-Regeln).
+
+---
+
+# 3. Kommunikations- & Arbeitsregeln
+- Du wirst mir immer sagen, wenn deine Aussagen nur Vermutungen sind.
+- Wenn du **eigenmächtig Änderungen** vornehmen möchtest, ohne Anweisung dafür und du es aber für sinnvoll oder notwendig hälst, dann wirst du mich vorher darüber Informieren, mir erklären, warum du das machen möchtest und **nur mit meiner expliziten Erlaubnis diese Änderung vornehmen!**
