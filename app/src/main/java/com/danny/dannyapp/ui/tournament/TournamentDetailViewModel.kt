@@ -2,6 +2,7 @@ package com.danny.dannyapp.ui.tournament
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.danny.dannyapp.R
 import com.danny.dannyapp.appContainer
@@ -119,7 +120,10 @@ sealed interface TournamentDetailState {
 /**
  * ViewModel managing UI state and user interactions for tournament details.
  */
-class TournamentDetailViewModel(application: Application) : AndroidViewModel(application) {
+class TournamentDetailViewModel(
+    application: Application,
+    private val savedStateHandle: SavedStateHandle
+) : AndroidViewModel(application) {
 
     private val settingsManager = application.appContainer.settingsManager
     private val tournamentRepository = application.appContainer.tournamentRepository
@@ -142,14 +146,44 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
     private val _isSimulatingBatch = MutableStateFlow(false)
     val isSimulatingBatch: StateFlow<Boolean> = _isSimulatingBatch.asStateFlow()
 
-    private var currentTournamentId: Long = -1L
-    private var currentCareerId: Long = -1L
-    private var hasUserSelectedRound: Boolean = false
+    companion object {
+        private const val KEY_TOURNAMENT_ID = "state_tournament_id"
+        private const val KEY_CAREER_ID = "state_career_id"
+        private const val KEY_SELECTED_ROUND_INDEX = "state_selected_round_index"
+        private const val KEY_SELECTED_GROUP_INDEX = "state_selected_group_index"
+        private const val KEY_HAS_USER_SELECTED_ROUND = "state_has_user_selected_round"
+    }
 
-    private val selectedRoundIndexFlow = MutableStateFlow(0)
-    private val selectedGroupIndexFlow = MutableStateFlow(0)
+    private var currentTournamentId: Long = savedStateHandle.get<Long>(KEY_TOURNAMENT_ID) ?: -1L
+    private var currentCareerId: Long = -1L
+
+    private var hasUserSelectedRound: Boolean
+        get() = savedStateHandle.get<Boolean>(KEY_HAS_USER_SELECTED_ROUND) ?: false
+        set(value) {
+            savedStateHandle[KEY_HAS_USER_SELECTED_ROUND] = value
+        }
+
+    private val selectedRoundIndexFlow = savedStateHandle.getStateFlow(KEY_SELECTED_ROUND_INDEX, 0)
+    private val selectedGroupIndexFlow = savedStateHandle.getStateFlow(KEY_SELECTED_GROUP_INDEX, 0)
     private var loadJob: Job? = null
     private val autoStepMutex = Mutex()
+
+    init {
+        if (currentTournamentId > 0L) {
+            val careerId = savedStateHandle.get<Long>(KEY_CAREER_ID) ?: -1L
+            if (careerId > 0L) {
+                loadTournament(currentTournamentId, careerId)
+            } else {
+                viewModelScope.launch {
+                    try {
+                        val tournament = tournamentRepository.getTournamentById(currentTournamentId)
+                        val season = seasonRepository.getSeasonById(tournament.seasonId)
+                        loadTournament(currentTournamentId, season.careerId)
+                    } catch (_: Exception) {}
+                }
+            }
+        }
+    }
 
     val autoSimulateCpu: Boolean get() = settingsManager.autoSimulateCpu
     val autoAdvanceRound: Boolean get() = settingsManager.autoAdvanceRound
@@ -161,6 +195,8 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         TournamentConfigLoader.loadFromAssets(getApplication())
         this.currentTournamentId = tournamentId
         this.currentCareerId = careerId
+        savedStateHandle[KEY_TOURNAMENT_ID] = tournamentId
+        savedStateHandle[KEY_CAREER_ID] = careerId
         hasUserSelectedRound = false
 
         loadJob?.cancel()
@@ -262,11 +298,11 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
 
         if (!hasUserSelectedRound && progressState?.activeRound != null) {
             val activeIndex = sequence.indexOf(progressState.activeRound)
-            if (activeIndex != -1) selectedRoundIndexFlow.value = activeIndex
+            if (activeIndex != -1) savedStateHandle[KEY_SELECTED_ROUND_INDEX] = activeIndex
         }
 
         if (selectedRoundIndexFlow.value !in availableRounds.indices) {
-            selectedRoundIndexFlow.value = 0
+            savedStateHandle[KEY_SELECTED_ROUND_INDEX] = 0
         }
 
         val currentRoundKey = availableRounds.getOrNull(selectedRoundIndexFlow.value) ?: ""
@@ -352,7 +388,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         val availableGroups = if (isGrandSlamGroup) ('A'..'P').map { it.toString() } else emptyList()
 
         if (isGrandSlamGroup && selectedGroupIndexFlow.value !in availableGroups.indices) {
-            selectedGroupIndexFlow.value = 0
+            savedStateHandle[KEY_SELECTED_GROUP_INDEX] = 0
         }
 
         val filteredMatches = if (isGrandSlamGroup && availableGroups.isNotEmpty()) {
@@ -470,7 +506,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         val availableRounds = sequence.map { it.name }
 
         if (!hasUserSelectedRound || selectedRoundIndexFlow.value !in availableRounds.indices) {
-            selectedRoundIndexFlow.value = availableRounds.lastIndex.coerceAtLeast(0)
+            savedStateHandle[KEY_SELECTED_ROUND_INDEX] = availableRounds.lastIndex.coerceAtLeast(0)
         }
 
         val currentRoundKey = availableRounds.getOrNull(selectedRoundIndexFlow.value) ?: ""
@@ -481,7 +517,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
         val availableGroups = if (isGrandSlamGroup) ('A'..'P').map { it.toString() } else emptyList()
 
         if (isGrandSlamGroup && selectedGroupIndexFlow.value !in availableGroups.indices) {
-            selectedGroupIndexFlow.value = 0
+            savedStateHandle[KEY_SELECTED_GROUP_INDEX] = 0
         }
 
         val filteredMatches = if (isGrandSlamGroup && availableGroups.isNotEmpty()) {
@@ -761,14 +797,14 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
      */
     fun selectRound(index: Int) {
         hasUserSelectedRound = true
-        selectedRoundIndexFlow.value = index
+        savedStateHandle[KEY_SELECTED_ROUND_INDEX] = index
     }
 
     /**
      * Wählt eine bestimmte Gruppe aus.
      */
     fun selectGroup(index: Int) {
-        selectedGroupIndexFlow.value = index
+        savedStateHandle[KEY_SELECTED_GROUP_INDEX] = index
     }
 
     /**
