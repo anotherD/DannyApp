@@ -45,7 +45,7 @@ class TournamentProgressionUseCase(
             val state = checkNotNull(advanceTournamentRoundUseCase.evaluateTournamentState(tournamentId)) {
                 "Turnier-Status konnte für ID $tournamentId nicht ermittelt werden"
             }
-            val activeRound = state.activeRound ?: return@withContext tournament.isCompleted
+            val activeRound = state.activeRound ?: return@withContext false
 
             completeMatchUseCase.simulateAllOpenCpuMatches(tournamentId)
 
