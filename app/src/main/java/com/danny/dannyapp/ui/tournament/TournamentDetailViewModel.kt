@@ -33,6 +33,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
 
 sealed interface TournamentDetailState {
     object Loading : TournamentDetailState
@@ -148,6 +149,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
     private val selectedRoundIndexFlow = MutableStateFlow(0)
     private val selectedGroupIndexFlow = MutableStateFlow(0)
     private var loadJob: Job? = null
+    private val autoStepMutex = Mutex()
 
     val autoSimulateCpu: Boolean get() = settingsManager.autoSimulateCpu
     val autoAdvanceRound: Boolean get() = settingsManager.autoAdvanceRound
@@ -287,14 +289,21 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             }
         }
 
-        if (autoSimulateCpu && hasOpenCpuMatchesInActiveRound) {
-            completeMatchUseCase.simulateAllOpenCpuMatches(currentTournamentId)
-            return
-        }
-
-        if (autoAdvanceRound && canAdvanceRound) {
-            hasUserSelectedRound = false
-            advanceTournamentRoundUseCase(currentTournamentId)
+        if ((autoSimulateCpu && hasOpenCpuMatchesInActiveRound) || (autoAdvanceRound && canAdvanceRound)) {
+            if (autoStepMutex.tryLock()) {
+                viewModelScope.launch {
+                    try {
+                        if (autoSimulateCpu && hasOpenCpuMatchesInActiveRound) {
+                            completeMatchUseCase.simulateAllOpenCpuMatches(currentTournamentId)
+                        } else if (autoAdvanceRound && canAdvanceRound) {
+                            hasUserSelectedRound = false
+                            advanceTournamentRoundUseCase(currentTournamentId)
+                        }
+                    } finally {
+                        autoStepMutex.unlock()
+                    }
+                }
+            }
             return
         }
 

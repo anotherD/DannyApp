@@ -8,6 +8,7 @@ import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.danny.dannyapp.domain.model.Country
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -136,6 +137,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun tournamentParticipantDao(): TournamentParticipantDao
 
     companion object {
+        val initialSyncCompleted = CompletableDeferred<Unit>()
+
         @Volatile
         private var INSTANCE: AppDatabase? = null
 
@@ -182,6 +185,8 @@ abstract class AppDatabase : RoomDatabase() {
                         }
                     } catch (e: Exception) {
                         Log.e("CSVImport", "Fehler beim Synchronisieren der Spieler aus CSV", e)
+                    } finally {
+                        initialSyncCompleted.complete(Unit)
                     }
                 }
             }

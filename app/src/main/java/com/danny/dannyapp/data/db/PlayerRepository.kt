@@ -21,6 +21,7 @@ class PlayerRepository(private val playerDao: PlayerDao) {
      * Ruft die Liste aller Spieler einmalig ab.
      */
     suspend fun getAllPlayersList(): List<Player> {
+        AppDatabase.initialSyncCompleted.await()
         return playerDao.getAllPlayersList()
     }
 

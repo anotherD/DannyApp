@@ -12,6 +12,9 @@ import kotlin.system.exitProcess
  */
 class DannyApp : Application() {
 
+    @Volatile
+    private var isHandlingCrash = false
+
     /**
      * Central application dependency container.
      */
@@ -29,11 +32,19 @@ class DannyApp : Application() {
     private fun setupUncaughtExceptionHandler() {
         val defaultHandler = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { targetThread, throwable ->
+            if (isHandlingCrash) {
+                defaultHandler?.uncaughtException(targetThread, throwable)
+                return@setDefaultUncaughtExceptionHandler
+            }
+            isHandlingCrash = true
+
             try {
                 val readableErrorMessage = throwable.cause?.message
                     ?: throwable.message
                     ?: throwable::class.java.simpleName
                 val completeStacktrace = Log.getStackTraceString(throwable)
+
+                // TODO: FirebaseCrashlytics.getInstance().recordException(throwable)
 
                 val crashIntent = Intent(this@DannyApp, CrashActivity::class.java).apply {
                     putExtra(CrashActivity.EXTRA_ERROR_MESSAGE, readableErrorMessage)
