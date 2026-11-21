@@ -6,10 +6,19 @@ import androidx.lifecycle.viewModelScope
 import com.danny.dannyapp.appContainer
 import com.danny.dannyapp.domain.enums.OrderOfMeritType
 import com.danny.dannyapp.domain.model.OrderOfMeritEntry
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+
+sealed interface StickyUserState {
+    object Hidden : StickyUserState
+    data class VisibleTop(val entry: OrderOfMeritEntry, val userIndex: Int) : StickyUserState
+    data class VisibleBottom(val entry: OrderOfMeritEntry, val userIndex: Int) : StickyUserState
+}
 
 class OrderOfMeritViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -27,7 +36,21 @@ class OrderOfMeritViewModel(application: Application) : AndroidViewModel(applica
     private val _etOomEntries = MutableStateFlow<List<OrderOfMeritEntry>>(emptyList())
     val etOomEntries: StateFlow<List<OrderOfMeritEntry>> = _etOomEntries.asStateFlow()
 
+    private val _stickyUserState = MutableStateFlow<StickyUserState>(StickyUserState.Hidden)
+    val stickyUserState: StateFlow<StickyUserState> = _stickyUserState.asStateFlow()
+
+    private val _scrollToPositionEvent = MutableSharedFlow<Int>(extraBufferCapacity = 1)
+    val scrollToPositionEvent: SharedFlow<Int> = _scrollToPositionEvent.asSharedFlow()
+
     private var currentCareerId: Long = -1L
+
+    fun updateStickyUserState(state: StickyUserState) {
+        _stickyUserState.value = state
+    }
+
+    fun requestScrollToUser(userIndex: Int) {
+        _scrollToPositionEvent.tryEmit(userIndex)
+    }
 
     fun loadOrderOfMerit(careerId: Long) {
         if (careerId <= 0L) return

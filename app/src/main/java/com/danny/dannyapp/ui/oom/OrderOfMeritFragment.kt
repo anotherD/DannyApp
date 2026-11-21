@@ -12,8 +12,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
 import com.danny.dannyapp.domain.enums.OrderOfMeritType
-import com.danny.dannyapp.ui.UIHelper
-import com.google.android.material.card.MaterialCardView
 import kotlinx.coroutines.launch
 
 class OrderOfMeritFragment : Fragment(R.layout.fragment_order_of_merit) {
@@ -22,18 +20,6 @@ class OrderOfMeritFragment : Fragment(R.layout.fragment_order_of_merit) {
     private lateinit var adapter: OrderOfMeritAdapter
     private lateinit var rvOom: RecyclerView
     private lateinit var tvEmptyOom: TextView
-
-    private var cardStickyUserTop: MaterialCardView? = null
-    private var shadowStickyTop: View? = null
-    private var tvStickyRankTop: TextView? = null
-    private var tvStickyPlayerNameTop: TextView? = null
-    private var tvStickyPrizeMoneyTop: TextView? = null
-
-    private var cardStickyUserBottom: MaterialCardView? = null
-    private var shadowStickyBottom: View? = null
-    private var tvStickyRankBottom: TextView? = null
-    private var tvStickyPlayerNameBottom: TextView? = null
-    private var tvStickyPrizeMoneyBottom: TextView? = null
 
     private var oomType: OrderOfMeritType = OrderOfMeritType.OOM
 
@@ -47,19 +33,6 @@ class OrderOfMeritFragment : Fragment(R.layout.fragment_order_of_merit) {
 
         rvOom = view.findViewById(R.id.rvOrderOfMerit)
         tvEmptyOom = view.findViewById(R.id.tvEmptyOom)
-
-        val rootView = view.rootView
-        cardStickyUserTop = rootView.findViewById(R.id.cardStickyUserTop) ?: activity?.findViewById(R.id.cardStickyUserTop)
-        shadowStickyTop = rootView.findViewById(R.id.shadowStickyTop) ?: activity?.findViewById(R.id.shadowStickyTop)
-        tvStickyRankTop = rootView.findViewById(R.id.tvStickyRankTop) ?: activity?.findViewById(R.id.tvStickyRankTop)
-        tvStickyPlayerNameTop = rootView.findViewById(R.id.tvStickyPlayerNameTop) ?: activity?.findViewById(R.id.tvStickyPlayerNameTop)
-        tvStickyPrizeMoneyTop = rootView.findViewById(R.id.tvStickyPrizeMoneyTop) ?: activity?.findViewById(R.id.tvStickyPrizeMoneyTop)
-
-        cardStickyUserBottom = rootView.findViewById(R.id.cardStickyUserBottom) ?: activity?.findViewById(R.id.cardStickyUserBottom)
-        shadowStickyBottom = rootView.findViewById(R.id.shadowStickyBottom) ?: activity?.findViewById(R.id.shadowStickyBottom)
-        tvStickyRankBottom = rootView.findViewById(R.id.tvStickyRankBottom) ?: activity?.findViewById(R.id.tvStickyRankBottom)
-        tvStickyPlayerNameBottom = rootView.findViewById(R.id.tvStickyPlayerNameBottom) ?: activity?.findViewById(R.id.tvStickyPlayerNameBottom)
-        tvStickyPrizeMoneyBottom = rootView.findViewById(R.id.tvStickyPrizeMoneyBottom) ?: activity?.findViewById(R.id.tvStickyPrizeMoneyBottom)
 
         val layoutManager = LinearLayoutManager(requireContext())
         rvOom.layoutManager = layoutManager
@@ -92,27 +65,16 @@ class OrderOfMeritFragment : Fragment(R.layout.fragment_order_of_merit) {
     }
 
     private fun updateStickyUserVisibility(layoutManager: LinearLayoutManager) {
-        val topCard = cardStickyUserTop
-        val topShadow = shadowStickyTop
-        val bottomCard = cardStickyUserBottom
-        val bottomShadow = shadowStickyBottom
-
         val entries = adapter.currentList
         val userEntry = entries.find { it.isUser }
         if (userEntry == null || entries.isEmpty()) {
-            topCard?.visibility = View.GONE
-            topShadow?.visibility = View.GONE
-            bottomCard?.visibility = View.GONE
-            bottomShadow?.visibility = View.GONE
+            viewModel.updateStickyUserState(StickyUserState.Hidden)
             return
         }
 
         val userIndex = entries.indexOf(userEntry)
         if (userIndex == -1) {
-            topCard?.visibility = View.GONE
-            topShadow?.visibility = View.GONE
-            bottomCard?.visibility = View.GONE
-            bottomShadow?.visibility = View.GONE
+            viewModel.updateStickyUserState(StickyUserState.Hidden)
             return
         }
 
@@ -120,52 +82,19 @@ class OrderOfMeritFragment : Fragment(R.layout.fragment_order_of_merit) {
         val lastVisible = layoutManager.findLastVisibleItemPosition()
 
         if (firstVisible == RecyclerView.NO_POSITION || lastVisible == RecyclerView.NO_POSITION) {
-            topCard?.visibility = View.GONE
-            topShadow?.visibility = View.GONE
-            bottomCard?.visibility = View.GONE
-            bottomShadow?.visibility = View.GONE
+            viewModel.updateStickyUserState(StickyUserState.Hidden)
             return
         }
 
-        val rankText = getString(R.string.rank_format, userEntry.rank)
-        val moneyText = getString(R.string.prize_money_format, userEntry.prizeMoney)
-
         when {
             userIndex < firstVisible -> {
-                tvStickyRankTop?.text = rankText
-                tvStickyPlayerNameTop?.let {
-                    UIHelper.formatFlagAndText(it, userEntry.countryCode, userEntry.name)
-                }
-                tvStickyPrizeMoneyTop?.text = moneyText
-
-                topCard?.visibility = View.VISIBLE
-                topShadow?.visibility = View.VISIBLE
-                topCard?.setOnClickListener {
-                    layoutManager.scrollToPositionWithOffset(userIndex, rvOom.height / 2 - 100)
-                }
-                bottomCard?.visibility = View.GONE
-                bottomShadow?.visibility = View.GONE
+                viewModel.updateStickyUserState(StickyUserState.VisibleTop(userEntry, userIndex))
             }
             userIndex > lastVisible -> {
-                tvStickyRankBottom?.text = rankText
-                tvStickyPlayerNameBottom?.let {
-                    UIHelper.formatFlagAndText(it, userEntry.countryCode, userEntry.name)
-                }
-                tvStickyPrizeMoneyBottom?.text = moneyText
-
-                bottomCard?.visibility = View.VISIBLE
-                bottomShadow?.visibility = View.VISIBLE
-                bottomCard?.setOnClickListener {
-                    layoutManager.scrollToPositionWithOffset(userIndex, rvOom.height / 2 - 100)
-                }
-                topCard?.visibility = View.GONE
-                topShadow?.visibility = View.GONE
+                viewModel.updateStickyUserState(StickyUserState.VisibleBottom(userEntry, userIndex))
             }
             else -> {
-                topCard?.visibility = View.GONE
-                topShadow?.visibility = View.GONE
-                bottomCard?.visibility = View.GONE
-                bottomShadow?.visibility = View.GONE
+                viewModel.updateStickyUserState(StickyUserState.Hidden)
             }
         }
     }
@@ -185,10 +114,6 @@ class OrderOfMeritFragment : Fragment(R.layout.fragment_order_of_merit) {
                     if (entries.isEmpty()) {
                         tvEmptyOom.visibility = TextView.VISIBLE
                         rvOom.visibility = RecyclerView.GONE
-                        cardStickyUserTop?.visibility = View.GONE
-                        shadowStickyTop?.visibility = View.GONE
-                        cardStickyUserBottom?.visibility = View.GONE
-                        shadowStickyBottom?.visibility = View.GONE
                     } else {
                         tvEmptyOom.visibility = TextView.GONE
                         rvOom.visibility = RecyclerView.VISIBLE
@@ -197,14 +122,20 @@ class OrderOfMeritFragment : Fragment(R.layout.fragment_order_of_merit) {
                 }
             }
         }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.scrollToPositionEvent.collect { userIndex ->
+                    val lm = rvOom.layoutManager as? LinearLayoutManager
+                    lm?.scrollToPositionWithOffset(userIndex, rvOom.height / 2 - 100)
+                }
+            }
+        }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        cardStickyUserTop?.visibility = View.GONE
-        shadowStickyTop?.visibility = View.GONE
-        cardStickyUserBottom?.visibility = View.GONE
-        shadowStickyBottom?.visibility = View.GONE
+        viewModel.updateStickyUserState(StickyUserState.Hidden)
     }
 
     companion object {
