@@ -3,16 +3,21 @@ package com.danny.dannyapp.ui
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.danny.dannyapp.AppContainer
 import com.danny.dannyapp.DannyApp
 import com.danny.dannyapp.R
 import com.danny.dannyapp.data.SettingsManager
 import com.danny.dannyapp.ui.settings.SettingsActivity
 import com.google.android.material.appbar.MaterialToolbar
+import kotlinx.coroutines.launch
 
 abstract class BaseActivity : AppCompatActivity() {
 
@@ -49,6 +54,14 @@ abstract class BaseActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                appContainer.errorEvents.collect { message ->
+                    Toast.makeText(this@BaseActivity, message, Toast.LENGTH_LONG).show()
+                }
+            }
+        }
     }
 
     protected fun setupToolbar(

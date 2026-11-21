@@ -80,6 +80,7 @@ class TournamentCalendarViewModel(application: Application) : AndroidViewModel(a
                     _uiState.value = state
                 }
             } catch (e: Exception) {
+                getApplication<Application>().appContainer.reportError("Turnierkalender laden", e)
                 _uiState.value = TournamentCalendarState.Error(e.message ?: getApplication<Application>().getString(R.string.error_unknown))
             }
         }
@@ -157,11 +158,16 @@ class TournamentCalendarViewModel(application: Application) : AndroidViewModel(a
      * Startet ein Turnier und generiert bei Bedarf den Turnierbaum.
      */
     suspend fun startTournament(tournamentId: Long): Boolean = withContext(Dispatchers.IO) {
-        val matches = tournamentRepository.getMatchesListForTournament(tournamentId)
-        if (matches.isEmpty()) {
-            generateBracketUseCase(tournamentId)
+        try {
+            val matches = tournamentRepository.getMatchesListForTournament(tournamentId)
+            if (matches.isEmpty()) {
+                generateBracketUseCase(tournamentId)
+            }
+            true
+        } catch (e: Exception) {
+            getApplication<Application>().appContainer.reportError("Turnier starten", e)
+            false
         }
-        true
     }
 
     /**
@@ -178,6 +184,8 @@ class TournamentCalendarViewModel(application: Application) : AndroidViewModel(a
 
                     tournamentProgressionUseCase.simulateCompleteTournament(tournamentId)
                 }
+            } catch (e: Exception) {
+                getApplication<Application>().appContainer.reportError("Turnier simulieren", e)
             } finally {
                 _simulatingTournamentId.value = null
             }

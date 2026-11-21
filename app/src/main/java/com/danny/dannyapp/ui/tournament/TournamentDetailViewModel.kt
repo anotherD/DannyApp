@@ -179,7 +179,9 @@ class TournamentDetailViewModel(
                         val tournament = tournamentRepository.getTournamentById(currentTournamentId)
                         val season = seasonRepository.getSeasonById(tournament.seasonId)
                         loadTournament(currentTournamentId, season.careerId)
-                    } catch (_: Exception) {}
+                    } catch (e: Exception) {
+                        getApplication<Application>().appContainer.reportError("Turnier laden", e)
+                    }
                 }
             }
         }
@@ -202,34 +204,38 @@ class TournamentDetailViewModel(
         loadJob?.cancel()
         loadJob = viewModelScope.launch {
             _uiState.value = TournamentDetailState.Loading
-            val targetTournament = tournamentRepository.getTournamentById(tournamentId)
+            try {
+                val targetTournament = tournamentRepository.getTournamentById(tournamentId)
 
-            combine(
-                tournamentRepository.getTournamentsForSeason(targetTournament.seasonId),
-                tournamentRepository.getMatchesForTournament(tournamentId),
-                selectedRoundIndexFlow,
-                selectedGroupIndexFlow,
-                _isSimulatingBatch
-            ) { tournaments, matches, _, _, isSimulatingBatch ->
-                if (isSimulatingBatch) null
-                else {
-                    val updatedTournament = tournaments.find { it.id == tournamentId } ?: targetTournament
-                    val event = TournamentEvent.valueOf(updatedTournament.type)
-                    Triple(updatedTournament, event, matches)
-                }
-            }.filterNotNull().collect { (tournament, event, matches) ->
-                val allTournaments = tournamentRepository.getTournamentsListForSeason(tournament.seasonId)
-                val careerWithProfile = careerRepository.getCareerById(currentCareerId)
-                val careerName = careerWithProfile.career.name
-                val seasonNumber = careerWithProfile.career.season
+                combine(
+                    tournamentRepository.getTournamentsForSeason(targetTournament.seasonId),
+                    tournamentRepository.getMatchesForTournament(tournamentId),
+                    selectedRoundIndexFlow,
+                    selectedGroupIndexFlow,
+                    _isSimulatingBatch
+                ) { tournaments, matches, _, _, isSimulatingBatch ->
+                    if (isSimulatingBatch) null
+                    else {
+                        val updatedTournament = tournaments.find { it.id == tournamentId } ?: targetTournament
+                        val event = TournamentEvent.valueOf(updatedTournament.type)
+                        Triple(updatedTournament, event, matches)
+                    }
+                }.filterNotNull().collect { (tournament, event, matches) ->
+                    val allTournaments = tournamentRepository.getTournamentsListForSeason(tournament.seasonId)
+                    val careerWithProfile = careerRepository.getCareerById(currentCareerId)
+                    val careerName = careerWithProfile.career.name
+                    val seasonNumber = careerWithProfile.career.season
 
-                if (tournament.isCompleted) {
-                    buildReviewState(tournament, event, matches, careerName, seasonNumber, careerWithProfile)
-                } else if (matches.isEmpty()) {
-                    buildPreviewState(tournament, event, allTournaments, careerName, seasonNumber, careerWithProfile)
-                } else {
-                    buildActiveState(tournament, event, matches, careerName, seasonNumber, careerWithProfile)
+                    if (tournament.isCompleted) {
+                        buildReviewState(tournament, event, matches, careerName, seasonNumber, careerWithProfile)
+                    } else if (matches.isEmpty()) {
+                        buildPreviewState(tournament, event, allTournaments, careerName, seasonNumber, careerWithProfile)
+                    } else {
+                        buildActiveState(tournament, event, matches, careerName, seasonNumber, careerWithProfile)
+                    }
                 }
+            } catch (e: Exception) {
+                getApplication<Application>().appContainer.reportError("Turnier laden", e)
             }
         }
     }
@@ -335,6 +341,8 @@ class TournamentDetailViewModel(
                             hasUserSelectedRound = false
                             advanceTournamentRoundUseCase(currentTournamentId)
                         }
+                    } catch (e: Exception) {
+                        getApplication<Application>().appContainer.reportError("Automatische Simulation", e)
                     } finally {
                         autoStepMutex.unlock()
                     }
@@ -788,7 +796,11 @@ class TournamentDetailViewModel(
     fun startTournament() {
         viewModelScope.launch {
             _uiState.value = TournamentDetailState.Loading
-            generateBracketUseCase(currentTournamentId)
+            try {
+                generateBracketUseCase(currentTournamentId)
+            } catch (e: Exception) {
+                getApplication<Application>().appContainer.reportError("Turnier starten", e)
+            }
         }
     }
 
@@ -815,6 +827,8 @@ class TournamentDetailViewModel(
             _isSimulatingBatch.value = true
             try {
                 completeMatchUseCase.simulateAllOpenCpuMatches(currentTournamentId)
+            } catch (e: Exception) {
+                getApplication<Application>().appContainer.reportError("Match simulieren", e)
             } finally {
                 _isSimulatingBatch.value = false
             }
@@ -830,6 +844,8 @@ class TournamentDetailViewModel(
             try {
                 hasUserSelectedRound = false
                 tournamentProgressionUseCase.simulateCompleteTournament(currentTournamentId)
+            } catch (e: Exception) {
+                getApplication<Application>().appContainer.reportError("Runde simulieren", e)
             } finally {
                 _isSimulatingBatch.value = false
             }
@@ -841,8 +857,12 @@ class TournamentDetailViewModel(
      */
     fun advanceRound() {
         viewModelScope.launch {
-            hasUserSelectedRound = false
-            advanceTournamentRoundUseCase(currentTournamentId)
+            try {
+                hasUserSelectedRound = false
+                advanceTournamentRoundUseCase(currentTournamentId)
+            } catch (e: Exception) {
+                getApplication<Application>().appContainer.reportError("Rundenwechsel", e)
+            }
         }
     }
 
@@ -851,7 +871,11 @@ class TournamentDetailViewModel(
      */
     fun setUserMatchWinner(matchId: Long, userWins: Boolean) {
         viewModelScope.launch {
-            completeMatchUseCase.completeWithPresetWinner(matchId, userWins)
+            try {
+                completeMatchUseCase.completeWithPresetWinner(matchId, userWins)
+            } catch (e: Exception) {
+                getApplication<Application>().appContainer.reportError("Match speichern", e)
+            }
         }
     }
 
@@ -859,7 +883,12 @@ class TournamentDetailViewModel(
      * Erfasst manuell das Ergebnis eines User-Matches.
      */
     suspend fun setManualUserMatchScore(matchId: Long, p1Score: Int, p2Score: Int): ManualScoreResult {
-        return completeMatchUseCase.completeManualMatch(matchId, p1Score, p2Score)
+        return try {
+            completeMatchUseCase.completeManualMatch(matchId, p1Score, p2Score)
+        } catch (e: Exception) {
+            getApplication<Application>().appContainer.reportError("Match speichern", e)
+            ManualScoreResult.ValidationError(com.danny.dannyapp.domain.usecase.ScoreValidationError.NegativeScore)
+        }
     }
 
     /**

@@ -1,6 +1,7 @@
 package com.danny.dannyapp
 
 import android.content.Context
+import android.util.Log
 import com.danny.dannyapp.data.SettingsManager
 import com.danny.dannyapp.data.db.AppDatabase
 import com.danny.dannyapp.data.db.CareerRepository
@@ -18,6 +19,10 @@ import com.danny.dannyapp.domain.usecase.GetPlayersUseCase
 import com.danny.dannyapp.domain.usecase.GetTournamentSummaryUseCase
 import com.danny.dannyapp.domain.usecase.TournamentProgressionUseCase
 import com.danny.dannyapp.domain.usecase.TournamentQualificationUseCase
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 
 /**
  * Central dependency injection container for managing application-wide singletons
@@ -25,6 +30,23 @@ import com.danny.dannyapp.domain.usecase.TournamentQualificationUseCase
  */
 class AppContainer(context: Context) {
     private val appContext = context.applicationContext
+
+    private val _errorEvents = MutableSharedFlow<String>(extraBufferCapacity = 1)
+    val errorEvents: SharedFlow<String> = _errorEvents.asSharedFlow()
+
+    fun reportError(actionLabel: String, throwable: Throwable) {
+        if (throwable is CancellationException) {
+            throw throwable
+        }
+        Log.e("AppError", "Fehler bei $actionLabel", throwable)
+        val detail = throwable.cause?.message ?: throwable.message ?: throwable::class.java.simpleName
+        val userMessage = if (settingsManager.debugMode) {
+            "$actionLabel fehlgeschlagen: $detail"
+        } else {
+            "$actionLabel konnte nicht ausgeführt werden."
+        }
+        _errorEvents.tryEmit(userMessage)
+    }
 
     /**
      * Singleton instance of the Room database.
