@@ -362,6 +362,7 @@ object TournamentDialogs {
                     when (result) {
                         is ManualScoreResult.ValidationError -> {
                             val errorMessage = when (val error = result.error) {
+                                is ScoreValidationError.UnexpectedError -> null
                                 is ScoreValidationError.NegativeScore -> context.getString(R.string.score_validation_negative)
                                 is ScoreValidationError.DrawNotAllowed -> context.getString(R.string.score_validation_draw)
                                 is ScoreValidationError.InvalidTwoClearLegs -> context.getString(
@@ -381,7 +382,9 @@ object TournamentDialogs {
                                     error.targetSets
                                 )
                             }
-                            Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
+                            if (errorMessage != null) {
+                                Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
+                            }
                         }
                         is ManualScoreResult.Success -> {
                             dialog.dismiss()

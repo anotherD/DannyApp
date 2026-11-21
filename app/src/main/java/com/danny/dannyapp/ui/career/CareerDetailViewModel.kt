@@ -42,8 +42,12 @@ class CareerDetailViewModel(
 
         viewModelScope.launch {
             _careerState.value = CareerDetailState.Loading
-            val careerWithProfile = careerRepository.getCareerById(careerId)
-            _careerState.value = CareerDetailState.Success(careerWithProfile)
+            try {
+                val careerWithProfile = careerRepository.getCareerById(careerId)
+                _careerState.value = CareerDetailState.Success(careerWithProfile)
+            } catch (e: Exception) {
+                getApplication<Application>().appContainer.reportError("Karriere laden", e)
+            }
         }
     }
 }

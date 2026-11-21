@@ -10,6 +10,7 @@ import kotlin.random.Random
 sealed interface ScoreValidationError {
     object NegativeScore : ScoreValidationError
     object DrawNotAllowed : ScoreValidationError
+    object UnexpectedError : ScoreValidationError
     data class InvalidTwoClearLegs(val targetLegs: Int, val tiebreakWinnerLegs: Int, val tiebreakLoserLegs: Int) : ScoreValidationError
     data class InvalidBestOfLegs(val bestOf: Int, val targetLegs: Int) : ScoreValidationError
     data class InvalidBestOfSets(val bestOf: Int, val targetSets: Int) : ScoreValidationError

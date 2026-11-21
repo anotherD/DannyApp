@@ -38,6 +38,7 @@ class CareersViewModel(application: Application) : AndroidViewModel(application)
             careerRepository.saveCareer(career)
             SaveCareerResult.Success(career.name, career.level)
         } catch (e: Exception) {
+            getApplication<Application>().appContainer.reportError("Karriere-Aktion", e)
             SaveCareerResult.Error(e.localizedMessage ?: getApplication<Application>().getString(R.string.error_save_career))
         }
     }
@@ -54,12 +55,18 @@ class CareersViewModel(application: Application) : AndroidViewModel(application)
             careerRepository.updateCareer(career.copy(name = trimmedName))
             SaveCareerResult.Success(trimmedName, career.level)
         } catch (exception: Exception) {
+            getApplication<Application>().appContainer.reportError("Karriere-Aktion", exception)
             SaveCareerResult.Error(exception.localizedMessage ?: getApplication<Application>().getString(R.string.error_save_career))
         }
     }
 
     suspend fun deleteCareer(careerId: Long) {
         require(careerId > 0L) { "Ungültige Karriere-ID: $careerId" }
-        careerRepository.deleteCareer(careerId)
+        try {
+            careerRepository.deleteCareer(careerId)
+        } catch (e: Exception) {
+            getApplication<Application>().appContainer.reportError("Karriere-Aktion", e)
+            throw e
+        }
     }
 }
