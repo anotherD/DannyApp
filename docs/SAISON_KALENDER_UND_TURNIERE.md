@@ -401,9 +401,6 @@ Für Qualifikationswege ohne Länderbindung, die über Geschlecht, Alter oder Q-
   * [Sporting News – 2026 European Darts Championship: Draw, schedule, prize money and format](https://www.sportingnews.com/us/darts/news/2026-european-darts-championship-draw-schedule-prize-money-format/54da7e3c71b21e04a355af17)
   * [Wikipedia – European Darts Championship 2026](https://de.wikipedia.org/wiki/European_Darts_Championship_2026)
 
-  * [PDC News: Major expansion announced for PDC European events in 2027](https://www.pdc.tv/news/2026/september/25/major-expansion-announced-for-pdc-european-events-in-2027)
-  * *TODO:* Turnierspezifische Links für Qualifikation, Setzbaum und Preisgeld-Split 2026/2027 ergänzen.
-
 ---
 
 #### 2.4.6 Grand Slam of Darts
@@ -622,23 +619,7 @@ Alle konkreten Runden-Distanzen (Best-of-Legs/Sets) aller Turniere sind zentral 
 
 ## 🛠️ 4. Technische Umsetzung & Implementierungsübersicht
 
-Um das MVVM-Muster sauber einzuhalten, ist die komplexe Geschäfts- und Berechnungslogik in dedizierte Use-Cases und Domain-Klassen ausgelagert:
-
-* **`TournamentConfigLoader` & `season_calendar_2027.json`**: Zentraler Loader inkl. Fail-Fast-Validierung für Kalender, Preisgelder und Match-Distanzen.
-* **`TournamentEvent`**: Enum aller Turniertypen inkl. Gesamtpreisgeld und Regel-Mapping für Match-Distanzen, Preisgeld-Auszahlungen pro Runde (inkl. `QUALIFIER_WM`) sowie zentralen Properties (`isQualifier`, `isMajor`, `qualifierBoardCount`).
-* **`TournamentQualificationUseCase`**: Zentrale Logik für Qualifikationspools, Setzlisten, OOM-Sortierung, Qualifier-Board-Zuordnung und Vorschau-Paarungen.
-* **`CalculateGroupStandingsUseCase`**: Single Source of Truth für Grand-Slam-Gruppentabellen und Tabellenberechnung.
-* **`GetTournamentSummaryUseCase`**: Einheitliche Zustandsermittlung (`COMPLETED`/`ACTIVE`/`PLANNED`), Sieger- & User-Platzierungs-Zusammenfassung für den Saisonkalender und die Detailansicht.
-* **`TournamentRound`**: Enum aller Turnierrunden von Gruppenphase bis Finale/Sieger.
-* **`MatchDistance`**: Data Class zur Definition von Best-of-Legs/Sets, Legs pro Set und Two-Clear-Legs-Regeln.
-* **`BracketGenerator`**: Algorithmische Generierung von Setzlisten und Erstrunden-Paarungen für alle Turniertypen inkl. dynamischer Qualifikanten-Brackets mit Vorrunden/Freilosen.
-* **`GenerateSeasonCalendarUseCase`**: Erzeugt die chronologische Liste aller Saisonturniere aus `season_calendar_2027.json`.
-* **`GenerateBracketUseCase`**: Generiert die Paarungen für anstehende Turniere, speichert Teilnehmer/Setzlisten (`tournament_participants`) und schreibt sofort beim Turnierstart für alle qualifizierten Teilnehmer das garantierte Einstiegspreisgeld (inkl. gestaffelt einsteigender gesetzter Spieler bei Major-Turnieren wie UK Open oder European Open) in die Platzierungstabelle.
-* **`CompleteMatchUseCase`**: Einheitlicher UseCase für Match-Simulation, manuelle Ergebniseingabe und Debug-Abschluss basierend auf Skill und Wahrscheinlichkeiten.
-* **`AdvanceTournamentRoundUseCase`**: Zentrale Zustandsmaschine für den Turnierfortschritt; führt nach jedem Matchgewinn eine sofortige Gewinner-Hochstufung auf das Preisgeld der erreichten Folgerunde durch (z. B. automatischer Aufstieg vorqualifizierter ET-Seeds nach ihrem ersten Sieg), steuert den Rundenfortschritt und beendet Qualifier-Turniere (`QUALIFIER_ET` = 10, `QUALIFIER_GRAND_SLAM` = 8, `QUALIFIER_WM` = 4), sobald die Zielanzahl an Siegern feststeht.
-* **`TournamentProgressionUseCase`**: Verwaltet den Gesamtfortschritt eines Turniers und steuert über `simulateCompleteTournament(...)` die komplette Turniersimulation zentral von der Bracket-Erstellung über realistische CPU- und User-Matches bis zum Turnierabschluss.
-* **`GetOrderOfMeritUseCase`**: Berechnet und liefert die 4 dynamischen Ranglisten (`OOM`, `PT OOM`, `PC OOM`, `ET OOM`).
-* **`PreQualifyMainTournamentUseCase` & `GrandSlamQualificationResolver`**: Ausgelagerte Domain-Komponenten für das Vorab-Einfrieren vorqualifizierter Hauptfeld-Teilnehmer beim Qualifier-Start sowie die Grand-Slam-Prioritäts- und Topflogik.
+Die vollständige Übersicht aller Domain UseCases, Strategien sowie der Turnierbaum- und Fortschrittssteuerung befindet sich zentral in der **[System-Architektur & Datenmodell (ARCHITEKTUR.md)](ARCHITEKTUR.md)**.
 
 ---
 
