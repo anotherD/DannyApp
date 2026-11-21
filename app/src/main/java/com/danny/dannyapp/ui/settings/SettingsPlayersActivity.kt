@@ -40,7 +40,7 @@ class SettingsPlayersActivity : BaseActivity() {
             rootViewId = R.id.playersMain,
         )
 
-        getPlayersUseCase = GetPlayersUseCase(this)
+        getPlayersUseCase = appContainer.getPlayersUseCase
 
         rvPlayers = findViewById(R.id.rvPlayers)
         tvEmptyPlayers = findViewById(R.id.tvEmptyPlayers)

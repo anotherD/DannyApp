@@ -4,16 +4,12 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.danny.dannyapp.R
-import com.danny.dannyapp.data.SettingsManager
-import com.danny.dannyapp.data.db.CareerRepository
+import com.danny.dannyapp.appContainer
 import com.danny.dannyapp.data.db.CareerWithProfile
 import com.danny.dannyapp.data.db.Player
-import com.danny.dannyapp.data.db.PlayerRepository
-import com.danny.dannyapp.data.db.SeasonRepository
 import com.danny.dannyapp.data.db.Tournament
 import com.danny.dannyapp.data.db.TournamentMatch
 import com.danny.dannyapp.data.db.TournamentParticipant
-import com.danny.dannyapp.data.db.TournamentRepository
 import com.danny.dannyapp.data.db.USER_ID
 import com.danny.dannyapp.domain.config.TournamentConfigLoader
 import com.danny.dannyapp.domain.enums.OrderOfMeritType
@@ -22,15 +18,7 @@ import com.danny.dannyapp.domain.enums.TournamentRound
 import com.danny.dannyapp.domain.model.Country
 import com.danny.dannyapp.domain.model.OrderOfMeritEntry
 import com.danny.dannyapp.domain.model.TournamentRoundPhase
-import com.danny.dannyapp.domain.usecase.AdvanceTournamentRoundUseCase
-import com.danny.dannyapp.domain.usecase.CalculateGroupStandingsUseCase
-import com.danny.dannyapp.domain.usecase.CompleteMatchUseCase
 import com.danny.dannyapp.domain.usecase.ManualScoreResult
-import com.danny.dannyapp.domain.usecase.GenerateBracketUseCase
-import com.danny.dannyapp.domain.usecase.GetOrderOfMeritUseCase
-import com.danny.dannyapp.domain.usecase.GetTournamentSummaryUseCase
-import com.danny.dannyapp.domain.usecase.TournamentProgressionUseCase
-import com.danny.dannyapp.domain.usecase.TournamentQualificationUseCase
 import com.danny.dannyapp.ui.UIHelper
 import com.danny.dannyapp.ui.enums.RoundStatus
 import com.danny.dannyapp.ui.model.EntrantGroupInfo
@@ -132,20 +120,20 @@ sealed interface TournamentDetailState {
  */
 class TournamentDetailViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val settingsManager = SettingsManager(application)
-    private val tournamentRepository = TournamentRepository(application)
-    private val seasonRepository = SeasonRepository(application)
-    private val playerRepository = PlayerRepository(application)
-    private val getOrderOfMeritUseCase = GetOrderOfMeritUseCase(application)
-    private val careerRepository = CareerRepository(application)
+    private val settingsManager = application.appContainer.settingsManager
+    private val tournamentRepository = application.appContainer.tournamentRepository
+    private val seasonRepository = application.appContainer.seasonRepository
+    private val playerRepository = application.appContainer.playerRepository
+    private val getOrderOfMeritUseCase = application.appContainer.getOrderOfMeritUseCase
+    private val careerRepository = application.appContainer.careerRepository
 
-    private val generateBracketUseCase = GenerateBracketUseCase(application)
-    private val completeMatchUseCase = CompleteMatchUseCase(application)
-    private val advanceTournamentRoundUseCase = AdvanceTournamentRoundUseCase(application)
-    private val tournamentProgressionUseCase = TournamentProgressionUseCase(application)
-    private val tournamentQualificationUseCase = TournamentQualificationUseCase(application)
-    private val calculateGroupStandingsUseCase = CalculateGroupStandingsUseCase()
-    private val getTournamentSummaryUseCase = GetTournamentSummaryUseCase()
+    private val generateBracketUseCase = application.appContainer.generateBracketUseCase
+    private val completeMatchUseCase = application.appContainer.completeMatchUseCase
+    private val advanceTournamentRoundUseCase = application.appContainer.advanceTournamentRoundUseCase
+    private val tournamentProgressionUseCase = application.appContainer.tournamentProgressionUseCase
+    private val tournamentQualificationUseCase = application.appContainer.tournamentQualificationUseCase
+    private val calculateGroupStandingsUseCase = application.appContainer.calculateGroupStandingsUseCase
+    private val getTournamentSummaryUseCase = application.appContainer.getTournamentSummaryUseCase
 
     private val _uiState = MutableStateFlow<TournamentDetailState>(TournamentDetailState.Loading)
     val uiState: StateFlow<TournamentDetailState> = _uiState.asStateFlow()

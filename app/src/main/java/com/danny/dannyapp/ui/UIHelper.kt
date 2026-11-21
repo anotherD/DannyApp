@@ -15,7 +15,7 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.withSave
 import com.danny.dannyapp.R
-import com.danny.dannyapp.data.SettingsManager
+import com.danny.dannyapp.appContainer
 import com.danny.dannyapp.data.db.CareerWithProfile
 import com.danny.dannyapp.data.db.Player
 import com.danny.dannyapp.data.db.USER_ID
@@ -303,8 +303,7 @@ object UIHelper {
     ) {
         val context = card.context
         val match = item.match
-        val settingsManager = SettingsManager(context)
-        val useModern = settingsManager.useModernMatchCardStyle
+        val useModern = context.appContainer.settingsManager.useModernMatchCardStyle
 
         val cardBg: Int
         val cardStrokeColor: Int

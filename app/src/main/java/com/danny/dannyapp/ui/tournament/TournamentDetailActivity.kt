@@ -20,7 +20,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
 import com.danny.dannyapp.domain.enums.TournamentEvent
-import com.danny.dannyapp.domain.usecase.TournamentQualificationUseCase
 import com.danny.dannyapp.ui.BaseActivity
 import com.danny.dannyapp.ui.UIHelper
 import com.danny.dannyapp.ui.enums.RoundStatus
@@ -661,7 +660,7 @@ class TournamentDetailActivity : BaseActivity() {
             allRoundsMatches = allRoundsMatches,
             boardIndex = selectedBoardFilterIndex,
             boardCount = boardCount,
-            qualificationUseCase = TournamentQualificationUseCase(this)
+            qualificationUseCase = appContainer.tournamentQualificationUseCase
         )
         onFilterChanged(filtered)
     }

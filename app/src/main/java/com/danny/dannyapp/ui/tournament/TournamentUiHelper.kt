@@ -6,7 +6,7 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.danny.dannyapp.R
-import com.danny.dannyapp.data.SettingsManager
+import com.danny.dannyapp.appContainer
 import com.danny.dannyapp.data.db.Tournament
 import com.danny.dannyapp.data.db.TournamentMatch
 import com.danny.dannyapp.domain.enums.TournamentEvent
@@ -259,8 +259,7 @@ object TournamentUiHelper {
             btnStartTournament.visibility = View.GONE
         }
 
-        val settingsManager = SettingsManager(context)
-        val debugMode = settingsManager.debugMode
+        val debugMode = context.appContainer.settingsManager.debugMode
         val isEligibleForQuickSim = debugMode && (model.status == TournamentStatus.ACTIVE || (model.status == TournamentStatus.PLANNED && model.isNextPlanned))
         if (isEligibleForQuickSim) {
             btnSimulateCompleteTournament.visibility = View.VISIBLE
