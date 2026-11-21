@@ -15,6 +15,7 @@ import com.danny.dannyapp.domain.enums.TournamentEvent
 import com.danny.dannyapp.domain.enums.TournamentRound
 import com.danny.dannyapp.domain.model.Country
 import com.danny.dannyapp.domain.model.OrderOfMeritEntry
+import com.danny.dannyapp.domain.model.TournamentRoundPhase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -91,9 +92,7 @@ class TournamentQualificationUseCase(
     val grandSlamQualificationResolver = GrandSlamQualificationResolver(
         seasonRepository = seasonRepository,
         tournamentRepository = tournamentRepository,
-        resolveNonSimulatedQualifiersUseCase = resolveNonSimulatedQualifiersUseCase,
-        sortPlayerIdsByOom = ::sortPlayerIdsByOom,
-        fillToTargetCount = ::fillToTargetCount
+        resolveNonSimulatedQualifiersUseCase = resolveNonSimulatedQualifiersUseCase
     )
 
     val preQualifyMainTournamentUseCase = PreQualifyMainTournamentUseCase(
@@ -102,10 +101,25 @@ class TournamentQualificationUseCase(
         playerRepository = playerRepository,
         getOrderOfMeritUseCase = getOrderOfMeritUseCase,
         resolveNonSimulatedQualifiersUseCase = resolveNonSimulatedQualifiersUseCase,
-        grandSlamQualificationResolver = grandSlamQualificationResolver,
-        resolvePrequalifiedTourCardIds = ::resolvePrequalifiedTourCardIds,
-        sortPlayerIdsByOom = ::sortPlayerIdsByOom
+        grandSlamQualificationResolver = grandSlamQualificationResolver
     )
+
+    /**
+     * Ermittelt die Runden-Sequenz für ein [Tournament] und [TournamentEvent] basierend auf allen bisherigen Matches.
+     */
+    fun resolveTournamentRoundSequence(
+        tournament: Tournament,
+        event: TournamentEvent,
+        allMatches: List<TournamentMatch> = emptyList()
+    ): List<TournamentRound> = QualificationHelper.resolveTournamentRoundSequence(tournament, event, allMatches)
+
+    /**
+     * Ermittelt den aktuellen Status ([TournamentRoundPhase]) der aktiven Qualifikationsrunde.
+     */
+    fun resolveActiveQualificationPhase(
+        event: TournamentEvent,
+        round: TournamentRound?
+    ): TournamentRoundPhase = QualificationHelper.resolveActiveQualificationPhase(event, round)
 
     /**
      * Determines the sequence of rounds for a given [TournamentEvent].
@@ -114,17 +128,7 @@ class TournamentQualificationUseCase(
     fun getRoundSequence(
         event: TournamentEvent,
         allMatches: List<TournamentMatch> = emptyList()
-    ): List<TournamentRound> {
-        val fullSequence = event.getRoundSequence()
-
-        if (allMatches.isEmpty()) return fullSequence
-
-        val startIndex = allMatches.mapNotNull { match ->
-            fullSequence.indexOfFirst { it.name == match.round }.takeIf { it >= 0 }
-        }.minOrNull() ?: 0
-
-        return fullSequence.subList(startIndex, fullSequence.size)
-    }
+    ): List<TournamentRound> = QualificationHelper.getRoundSequence(event, allMatches)
 
     /**
      * Sorts a list of player IDs based on Order of Merit ranking, prize money, skill level, and name.
@@ -133,21 +137,7 @@ class TournamentQualificationUseCase(
         playerIds: List<Long>,
         oomList: List<OrderOfMeritEntry>,
         allPlayers: List<Player>
-    ): List<Long> {
-        val oomMap = oomList.associateBy { it.playerId }
-        val dbPlayerMap = allPlayers.associateBy { it.id }
-
-        return playerIds.sortedWith(
-            compareBy<Long> { oomMap[it]?.rank ?: Int.MAX_VALUE }
-                .thenByDescending { oomMap[it]?.prizeMoney ?: 0.0 }
-                .thenByDescending {
-                    if (it == USER_ID) SkillLevel.DEFAULT.value else dbPlayerMap[it]?.skill ?: SkillLevel.DEFAULT.value
-                }
-                .thenBy {
-                    if (it == USER_ID) "User" else dbPlayerMap[it]?.name ?: ""
-                }
-        )
-    }
+    ): List<Long> = QualificationHelper.sortPlayerIdsByOom(playerIds, oomList, allPlayers)
 
     /**
      * Fills an initial list of player IDs to a target count using fallback candidates sorted by Order of Merit.
@@ -157,27 +147,7 @@ class TournamentQualificationUseCase(
         targetCount: Int,
         fallbackCandidates: List<Long>,
         oomList: List<OrderOfMeritEntry>
-    ): List<Long> {
-        if (initialList.size >= targetCount) {
-            return initialList.take(targetCount)
-        }
-
-        val result = initialList.toMutableList()
-        val oomMap = oomList.associateBy { it.playerId }
-        val remainingCandidates = fallbackCandidates
-            .filterNot { it in result }
-            .sortedWith(
-                compareBy<Long> { oomMap[it]?.rank ?: Int.MAX_VALUE }
-                    .thenByDescending { oomMap[it]?.prizeMoney ?: 0.0 }
-                    .thenByDescending { oomMap[it]?.skill ?: SkillLevel.DEFAULT.value }
-            )
-
-        for (candidate in remainingCandidates) {
-            if (result.size >= targetCount) break
-            result.add(candidate)
-        }
-        return result
-    }
+    ): List<Long> = QualificationHelper.fillToTargetCount(initialList, targetCount, fallbackCandidates, oomList)
 
     /**
      * Resolves prequalified Tour Card holders (top OOM and top Pro Tour OOM) for events or qualifiers.
@@ -189,18 +159,7 @@ class TournamentQualificationUseCase(
         oomList: List<OrderOfMeritEntry>,
         ptOomList: List<OrderOfMeritEntry>,
         allPlayers: List<Player>
-    ): Pair<List<Long>, List<Long>> {
-        val isWorldChampionship = event == TournamentEvent.QUALIFIER_WM || event == TournamentEvent.WORLD_CHAMPIONSHIP
-        val targetOomCount = if (isWorldChampionship) 40 else 16
-        val targetPtOomCount = if (isWorldChampionship) 40 else 16
-
-        val sortedOomTc = sortPlayerIdsByOom(tourCardPlayerIds, oomList, allPlayers)
-        val topOomIds = sortedOomTc.take(targetOomCount)
-        val remainingTcAfterOom = tourCardPlayerIds.filterNot { it in topOomIds }
-        val topPtOomIds = sortPlayerIdsByOom(remainingTcAfterOom, ptOomList, allPlayers).take(targetPtOomCount)
-
-        return Pair(topOomIds, topPtOomIds)
-    }
+    ): Pair<List<Long>, List<Long>> = QualificationHelper.resolvePrequalifiedTourCardIds(event, tourCardPlayerIds, oomList, ptOomList, allPlayers)
 
     /**
      * Resolves major event winners/finalists (up to 24) and additional non-tour card qualifiers (12)

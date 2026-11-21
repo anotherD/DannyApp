@@ -18,9 +18,7 @@ import kotlinx.coroutines.withContext
 class GrandSlamQualificationResolver(
     private val seasonRepository: SeasonRepository,
     private val tournamentRepository: TournamentRepository,
-    private val resolveNonSimulatedQualifiersUseCase: ResolveNonSimulatedQualifiersUseCase,
-    private val sortPlayerIdsByOom: (List<Long>, List<OrderOfMeritEntry>, List<Player>) -> List<Long>,
-    private val fillToTargetCount: (List<Long>, Int, List<Long>, List<OrderOfMeritEntry>) -> List<Long>
+    private val resolveNonSimulatedQualifiersUseCase: ResolveNonSimulatedQualifiersUseCase
 ) {
 
     /**
@@ -201,7 +199,7 @@ class GrandSlamQualificationResolver(
 
         // 3. EUROPEAN_TOUR-Saisonsieger (sortiert nach Anzahl ET-Siege DESC, dann OOM)
         val etWinsMap = countSeasonEventWinners(seasonTournaments, TournamentEvent.EUROPEAN_TOUR)
-        val sortedEtWinners = sortPlayerIdsByOom(etWinsMap.keys.toList(), oomEntries, allPlayers)
+        val sortedEtWinners = QualificationHelper.sortPlayerIdsByOom(etWinsMap.keys.toList(), oomEntries, allPlayers)
             .sortedByDescending { etWinsMap[it] ?: 0 }
 
         for (etWinner in sortedEtWinners) {
@@ -222,7 +220,7 @@ class GrandSlamQualificationResolver(
         // 4. PLAYERS_CHAMPIONSHIP-Saisonsieger (sortiert nach Anzahl PC-Siege DESC, dann OOM)
         if (qualifiedSoFar.size < 40) {
             val pcWinsMap = countSeasonEventWinners(seasonTournaments, TournamentEvent.PLAYERS_CHAMPIONSHIP)
-            val sortedPcWinners = sortPlayerIdsByOom(pcWinsMap.keys.toList(), oomEntries, allPlayers)
+            val sortedPcWinners = QualificationHelper.sortPlayerIdsByOom(pcWinsMap.keys.toList(), oomEntries, allPlayers)
                 .sortedByDescending { pcWinsMap[it] ?: 0 }
 
             for (pcWinner in sortedPcWinners) {
@@ -266,17 +264,17 @@ class GrandSlamQualificationResolver(
         }
         if (persistToDb && tchqWinners.size < neededQualifierCount) {
             val nonPreqTc = tourCardPlayerIds.filterNot { it in existingPlayerIds || it in tchqWinners }
-            tchqWinners = fillToTargetCount(tchqWinners, neededQualifierCount, nonPreqTc, oomEntries)
+            tchqWinners = QualificationHelper.fillToTargetCount(tchqWinners, neededQualifierCount, nonPreqTc, oomEntries)
         }
 
         val qualified48Ids = (storedParticipants.map { it.playerId } + tchqWinners).distinct()
         val final48Ids = if (persistToDb) {
-            fillToTargetCount(qualified48Ids, 48, allPlayerIds, oomEntries)
+            QualificationHelper.fillToTargetCount(qualified48Ids, 48, allPlayerIds, oomEntries)
         } else {
             qualified48Ids
         }
 
-        val sorted48 = sortPlayerIdsByOom(final48Ids, oomEntries, allPlayers)
+        val sorted48 = QualificationHelper.sortPlayerIdsByOom(final48Ids, oomEntries, allPlayers)
         val pot1 = sorted48.take(16)
         val pot2 = sorted48.drop(16).take(16)
         val pot3 = sorted48.drop(32).take(16)

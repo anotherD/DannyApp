@@ -1,6 +1,5 @@
 package com.danny.dannyapp.domain.usecase
 
-import com.danny.dannyapp.data.db.Player
 import com.danny.dannyapp.data.db.PlayerRepository
 import com.danny.dannyapp.data.db.SeasonRepository
 import com.danny.dannyapp.data.db.Tournament
@@ -23,9 +22,7 @@ class PreQualifyMainTournamentUseCase(
     private val playerRepository: PlayerRepository,
     private val getOrderOfMeritUseCase: GetOrderOfMeritUseCase,
     private val resolveNonSimulatedQualifiersUseCase: ResolveNonSimulatedQualifiersUseCase,
-    private val grandSlamQualificationResolver: GrandSlamQualificationResolver,
-    private val resolvePrequalifiedTourCardIds: (TournamentEvent, List<Long>, List<OrderOfMeritEntry>, List<OrderOfMeritEntry>, List<Player>) -> Pair<List<Long>, List<Long>>,
-    private val sortPlayerIdsByOom: (List<Long>, List<OrderOfMeritEntry>, List<Player>) -> List<Long>
+    private val grandSlamQualificationResolver: GrandSlamQualificationResolver
 ) {
 
     /**
@@ -122,7 +119,7 @@ class PreQualifyMainTournamentUseCase(
 
         when (mainEvent) {
             TournamentEvent.EUROPEAN_TOUR -> {
-                val (top16Oom, top16PtOom) = resolvePrequalifiedTourCardIds(
+                val (top16Oom, top16PtOom) = QualificationHelper.resolvePrequalifiedTourCardIds(
                     mainEvent,
                     tourCardPlayerIds,
                     oomEntries,
@@ -202,7 +199,7 @@ class PreQualifyMainTournamentUseCase(
             }
 
             TournamentEvent.WORLD_CHAMPIONSHIP -> {
-                val (top40Oom, top40PtOom) = resolvePrequalifiedTourCardIds(
+                val (top40Oom, top40PtOom) = QualificationHelper.resolvePrequalifiedTourCardIds(
                     mainEvent,
                     tourCardPlayerIds,
                     oomEntries,
@@ -211,7 +208,7 @@ class PreQualifyMainTournamentUseCase(
                 )
 
                 val tc80 = top40Oom + top40PtOom
-                val sortedTc80ByOom = sortPlayerIdsByOom(tc80, oomEntries, allPlayers)
+                val sortedTc80ByOom = QualificationHelper.sortPlayerIdsByOom(tc80, oomEntries, allPlayers)
                 val top32Oom = sortedTc80ByOom.take(32)
                 val ranks33To64 = sortedTc80ByOom.drop(32).take(32)
                 val ranks65To80 = sortedTc80ByOom.drop(64)
