@@ -7,9 +7,9 @@ Dieses Dokument beschreibt die Benutzeroberfläche und den Interaktions-Flow fü
 ## 🧭 1. Navigation & Einstieg aus der Karriere-Ansicht
 
 * **Top-Bar & Breadcrumbs:** Jede Unterseite zeigt als Titel den gewählten Bereich (z. B. `Saisonkalender`, `Turnieransicht`, `Ranglisten`) und als Subtitel den Pfad `Karrieren > <Karrierename> (Saison X)`.
-* **Karrieren-Kacheln & Übersicht:** Zeigen Karrierename, aktuelle Saison, Level, Profilname sowie Spielername inklusive Landesflagge.
+* **Karrieren-Kacheln & Übersicht:** Zeigen Karrierename, aktuelle Saison, Level, Profilname sowie Spielername inklusive Landesflagge. Über das Kontextmenü (Long-Press) lassen sich bestehende Karrieren umbenennen oder löschen.
 * **Tab-Navigation in der Karriere-Ansicht:**
-    1. **Übersicht:** Kompakte Karriere-Infos sowie Direktzugriff auf das aktuelle oder nächste Turnier.
+    1. **Übersicht:** Kompakte Karriere-Infos, Anzeige der eigenen Positionen und Preisgelder in allen 4 Ranglisten (`OOM`, `PT OOM`, `PC OOM`, `ET OOM`) sowie Direktzugriff auf das aktuelle oder nächste Turnier.
     2. **Saisonkalender:** Chronologische Übersicht aller Turniere der aktiven Saison.
     3. **Ranglisten:** Auswahl der 4 dynamischen Ranglisten (`OOM`, `PT OOM`, `PC OOM`, `ET OOM`).
 
@@ -33,7 +33,7 @@ Dieses Dokument beschreibt die Benutzeroberfläche und den Interaktions-Flow fü
 ### 3.1 Die 3 Zustände der Turnieransicht
 
 1. **Vorschau-Modus (Geplantes Turnier):**
-    * Zeigt Turnierkopfzeile, Gesamtpreisgeld sowie ein Info-Icon für die Runden-Preisgelder und Match-Distanzen.
+    * Zeigt Turnierkopfzeile, Gesamtpreisgeld sowie ein Info-Icon für den Turnier-Info-Dialog.
     * Ist es das nächste anstehende Turnier im Kalender, kann es über **„Turnier jetzt starten & auslosen“** gestartet werden.
 2. **Aktiver Turnier-Modus (Laufendes Turnier):**
     * **Farbliche Akzentuierung:** Die obere Steuerungskarte ist je nach Turniertyp (Major, Major-Qualifier, European Tour, ET-Qualifier, Players Championship) farblich abgesetzt.
@@ -41,7 +41,10 @@ Dieses Dokument beschreibt die Benutzeroberfläche und den Interaktions-Flow fü
     * **Vorab-Turnierbaum vs. Freie Auslosung:**
         * Turniere mit festem Turnierbaum zeigen alle Runden vorab an und tragen feststehende Sieger sowie gesetzte Einsteiger (z. B. Top 16 OOM in Runde 2 der European Tour oder Freilos-Spieler in Runde 1 der Qualifier) direkt ein.
         * Bei Turnieren mit offener Runden-Auslosung (`UK Open` und `European Open`) zeigen noch nicht ausgeloste Folgerunden einen Hinweis auf den Auslosungszeitpunkt samt Liste der bereits qualifizierten Einsteiger.
-    * **Match-Karten & Drei-Stufen-Namenskürzung:** Zeigen Setzlisten-Nummer, Landesflagge, Spielername und Spielstand. Passt ein Name nicht vollständig, wird zuerst der Vorname abgekürzt (`M.van Gerwen`) und bei weiterem Platzmangel nur der Namensteil gekürzt (`M.van Ger...`), damit Setzlisten-Nummern und Flaggen niemals abgeschnitten werden.
+    * **Match-Karten, Match-Nummerierung & Drei-Stufen-Namenskürzung:** Jedes Match trägt eine eindeutige Kennung mit Runden-Präfix (z. B. `#L64-1`, in Gruppen z. B. `Gruppe A • #GRP-1`). Zeigen Setzlisten-Nummer, Landesflagge, Spielername und Spielstand. Passt ein Name nicht vollständig, wird zuerst der Vorname abgekürzt (`M.van Gerwen`) und bei weiterem Platzmangel nur der Namensteil gekürzt (`M.van Ger...`), damit Setzlisten-Nummern und Flaggen niemals abgeschnitten werden.
+    * **Turnier-Info-Dialog (Über das Info-Icon in allen 3 Modi erreichbar):**
+        * **Tab 1 – Preisgelder & Distanzen:** Zeigt Gesamtpreisgeld, Runden-Preisgelder, Match-Distanzen sowie turnierspezifische Ranglisten-Ausnahmen (z. B. £0 bei Auftaktniederlage gesetzter Spieler auf der European Tour bzw. £0 in Runde 1 bei PC/UK Open/European Open).
+        * **Tab 2 – Teilnehmer:** Zeigt Qualifikationsregeln, alle qualifizierten Teilnehmer gruppiert nach Qualifikationsweg samt Setzposition sowie einen Hinweis, ob das Teilnehmerfeld noch vorläufig oder bereits eingefroren ist (inkl. offener Qualifier-Plätze).
     * **Simulations-Sperre:** Während einer Batch-Simulation blockiert ein Lade-Overlay die Eingabe und die Zurück-Navigation.
     * **Steuerung:** Die Optionen *„Automatische Simulation“* und *„Automatisch zur nächsten Runde“* werden zentral in den Einstellungen verwaltet. Manuelle Simulations-Buttons sind nur im Debug-Modus sichtbar.
 3. **Rückblick-Modus (Abgeschlossenes Turnier):**
