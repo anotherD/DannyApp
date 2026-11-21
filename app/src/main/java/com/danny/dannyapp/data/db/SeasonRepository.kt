@@ -171,7 +171,7 @@ class SeasonRepository(
 
         tourCardDao.insertTourCards(tourCards)
 
-        val generateCalendarUseCase = GenerateSeasonCalendarUseCase(tournamentRepository, context)
+        val generateCalendarUseCase = GenerateSeasonCalendarUseCase(tournamentRepository)
         generateCalendarUseCase(seasonId)
 
         seasonId

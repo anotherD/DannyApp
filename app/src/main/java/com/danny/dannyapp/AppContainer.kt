@@ -81,7 +81,7 @@ class AppContainer(context: Context) {
      * Use case for generating season calendar.
      */
     val generateSeasonCalendarUseCase: GenerateSeasonCalendarUseCase by lazy {
-        GenerateSeasonCalendarUseCase(tournamentRepository, appContext)
+        GenerateSeasonCalendarUseCase(tournamentRepository)
     }
 
     /**

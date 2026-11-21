@@ -1,6 +1,5 @@
 package com.danny.dannyapp.domain.usecase
 
-import android.content.Context
 import com.danny.dannyapp.data.db.Tournament
 import com.danny.dannyapp.data.db.TournamentRepository
 import com.danny.dannyapp.domain.config.TournamentConfigLoader
@@ -8,8 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 class GenerateSeasonCalendarUseCase(
-    private val tournamentRepository: TournamentRepository,
-    private val context: Context? = null
+    private val tournamentRepository: TournamentRepository
 ) {
     suspend operator fun invoke(seasonId: Long): List<Tournament> = withContext(Dispatchers.IO) {
         val existing = tournamentRepository.getTournamentsListForSeason(seasonId)
@@ -23,12 +21,8 @@ class GenerateSeasonCalendarUseCase(
     }
 
     fun createSeasonCalendar(seasonId: Long): List<Tournament> {
-        val config = if (context != null) {
-            TournamentConfigLoader.loadFromAssets(context)
-        } else {
-            TournamentConfigLoader.safeConfig()
-                ?: throw IllegalStateException("TournamentConfigLoader wurde nicht initialisiert.")
-        }
+        val config = TournamentConfigLoader.safeConfig()
+            ?: throw IllegalStateException("TournamentConfigLoader wurde nicht initialisiert.")
 
         return config.calendar.map { entry ->
             Tournament(
