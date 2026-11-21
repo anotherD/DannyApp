@@ -7,6 +7,8 @@ import com.danny.dannyapp.domain.enums.TournamentEvent
 import com.danny.dannyapp.domain.enums.TournamentRound
 import com.danny.dannyapp.domain.model.TournamentProgressState
 import com.danny.dannyapp.domain.model.TournamentRoundPhase
+import com.danny.dannyapp.domain.strategy.TournamentRuleStrategy
+import com.danny.dannyapp.domain.strategy.TournamentRuleStrategyRegistry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -114,10 +116,11 @@ class AdvanceTournamentRoundUseCase(
 
             val tournament = tournamentRepository.getTournamentById(tournamentId)
             val event = TournamentEvent.valueOf(tournament.type)
+            val strategy = TournamentRuleStrategyRegistry.getStrategy(event)
             val allMatches = tournamentRepository.getMatchesListForTournament(tournamentId)
 
             if (state.isFinalRound) {
-                if (!event.isQualifier) {
+                if (strategy.awardsPrizeMoneyAndPlacements) {
                     val finalMatches = allMatches.filter { it.round == TournamentRound.F.name || it.round == TournamentRound.QUAL_FINAL.name }
                     val finalMatch = finalMatches.firstOrNull()
                     val winnerId = finalMatch?.winnerId
@@ -137,6 +140,7 @@ class AdvanceTournamentRoundUseCase(
             advanceToNextRound(
                 tournament = tournament,
                 event = event,
+                strategy = strategy,
                 currentRound = activeRound,
                 allMatches = allMatches
             )
@@ -165,6 +169,7 @@ class AdvanceTournamentRoundUseCase(
     private suspend fun advanceToNextRound(
         tournament: Tournament,
         event: TournamentEvent,
+        strategy: TournamentRuleStrategy,
         currentRound: TournamentRound,
         allMatches: List<TournamentMatch>
     ) {
@@ -310,7 +315,7 @@ class AdvanceTournamentRoundUseCase(
         // auf die Folgerunde hochgestuft. Betrifft insbesondere vorqualifizierte European-Tour-
         // Spieler (Top-16 OOM in L32, Top-16 PT-OOM in L48), die mit prizeMoney = 0.0 starten
         // und nach einem Sieg in L48 oder L32 sonst ohne Preisgeld-Eintrag bleiben würden.
-        if (!event.isQualifier && currentRound != TournamentRound.GROUP) {
+        if (strategy.awardsPrizeMoneyAndPlacements && currentRound != TournamentRound.GROUP) {
             val prizeMoneyForNextRound = event.getRankingPrizeMoney(nextRoundEnum)
             for (winnerId in sortedWinners) {
                 tournamentRepository.upsertPlayerPlacement(
@@ -330,11 +335,12 @@ class AdvanceTournamentRoundUseCase(
     suspend fun propagateWinnerOnMatchCompleted(match: TournamentMatch) = withContext(Dispatchers.IO) {
         val tournament = tournamentRepository.getTournamentById(match.tournamentId)
         val event = TournamentEvent.valueOf(tournament.type)
+        val strategy = TournamentRuleStrategyRegistry.getStrategy(event)
         val winnerId = match.winnerId ?: return@withContext
         val roundSequence = event.getRoundSequence()
         val currentRoundEnum = TournamentRound.valueOf(match.round)
 
-        if (!event.isQualifier && currentRoundEnum != TournamentRound.GROUP) {
+        if (strategy.awardsPrizeMoneyAndPlacements && currentRoundEnum != TournamentRound.GROUP) {
             val currentIdx = roundSequence.indexOf(currentRoundEnum)
             if (currentIdx >= 0) {
                 val reachedRound = if (currentRoundEnum == TournamentRound.F) {
