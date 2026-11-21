@@ -17,6 +17,9 @@ interface TournamentDao {
     @Query("SELECT * FROM tournaments WHERE season_id = :seasonId ORDER BY `order` ASC")
     suspend fun getTournamentsListForSeason(seasonId: Long): List<Tournament>
 
+    @Query("SELECT * FROM tournaments WHERE season_id IN (:seasonIds) ORDER BY `order` ASC")
+    suspend fun getTournamentsListForSeasons(seasonIds: List<Long>): List<Tournament>
+
     @Query("SELECT * FROM tournaments WHERE id = :id")
     suspend fun getTournamentById(id: Long): Tournament?
 

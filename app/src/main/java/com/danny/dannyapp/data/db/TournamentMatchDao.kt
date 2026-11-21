@@ -20,6 +20,9 @@ interface TournamentMatchDao {
     @Query("SELECT * FROM tournament_matches WHERE tournament_id = :tournamentId ORDER BY `round` ASC, match_index ASC")
     suspend fun getMatchesListForTournament(tournamentId: Long): List<TournamentMatch>
 
+    @Query("SELECT tm.* FROM tournament_matches tm INNER JOIN tournaments t ON tm.tournament_id = t.id WHERE t.season_id = :seasonId ORDER BY tm.`round` ASC, tm.match_index ASC")
+    suspend fun getMatchesListForSeason(seasonId: Long): List<TournamentMatch>
+
     @Query("SELECT * FROM tournament_matches WHERE id = :id")
     suspend fun getMatchById(id: Long): TournamentMatch?
 

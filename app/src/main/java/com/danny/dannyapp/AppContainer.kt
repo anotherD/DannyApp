@@ -54,7 +54,8 @@ class AppContainer(context: Context) {
             database.tournamentDao(),
             database.tournamentMatchDao(),
             database.tournamentPlacementDao(),
-            database.tournamentParticipantDao()
+            database.tournamentParticipantDao(),
+            database
         )
     }
 

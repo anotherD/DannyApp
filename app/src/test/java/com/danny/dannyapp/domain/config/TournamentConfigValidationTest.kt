@@ -54,6 +54,7 @@ class TournamentConfigValidationTest {
         val dummyDao = object : TournamentDao {
             override fun getTournamentsForSeason(seasonId: Long): Flow<List<Tournament>> = throw NotImplementedError()
             override suspend fun getTournamentsListForSeason(seasonId: Long): List<Tournament> = emptyList()
+            override suspend fun getTournamentsListForSeasons(seasonIds: List<Long>): List<Tournament> = emptyList()
             override suspend fun getTournamentById(id: Long): Tournament? = null
             override suspend fun insertTournament(tournament: Tournament): Long = 1L
             override suspend fun insertTournaments(tournaments: List<Tournament>) {}
@@ -67,6 +68,7 @@ class TournamentConfigValidationTest {
             override fun getMatchesForTournament(tournamentId: Long): Flow<List<TournamentMatch>> = kotlinx.coroutines.flow.flowOf(emptyList())
             override fun getMatchesFlowForSeason(seasonId: Long): Flow<List<TournamentMatch>> = kotlinx.coroutines.flow.flowOf(emptyList())
             override suspend fun getMatchesListForTournament(tournamentId: Long): List<TournamentMatch> = emptyList()
+            override suspend fun getMatchesListForSeason(seasonId: Long): List<TournamentMatch> = emptyList()
             override suspend fun getMatchById(id: Long): TournamentMatch? = null
             override suspend fun insertMatch(match: TournamentMatch): Long = 0L
             override suspend fun insertMatches(matches: List<TournamentMatch>) {}

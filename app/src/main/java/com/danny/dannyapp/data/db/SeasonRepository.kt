@@ -46,6 +46,7 @@ class SeasonRepository(
                 private val list = mutableListOf<Tournament>()
                 override fun getTournamentsForSeason(seasonId: Long): Flow<List<Tournament>> = kotlinx.coroutines.flow.flowOf(list)
                 override suspend fun getTournamentsListForSeason(seasonId: Long): List<Tournament> = list.filter { it.seasonId == seasonId }
+                override suspend fun getTournamentsListForSeasons(seasonIds: List<Long>): List<Tournament> = list.filter { it.seasonId in seasonIds }
                 override suspend fun getTournamentById(id: Long): Tournament? = list.find { it.id == id }
                 override suspend fun insertTournament(tournament: Tournament): Long = tournament.id
                 override suspend fun insertTournaments(tournaments: List<Tournament>) { list.addAll(tournaments) }
@@ -58,6 +59,7 @@ class SeasonRepository(
                 override fun getMatchesForTournament(tournamentId: Long): Flow<List<TournamentMatch>> = kotlinx.coroutines.flow.flowOf(emptyList())
                 override fun getMatchesFlowForSeason(seasonId: Long): Flow<List<TournamentMatch>> = kotlinx.coroutines.flow.flowOf(emptyList())
                 override suspend fun getMatchesListForTournament(tournamentId: Long): List<TournamentMatch> = emptyList()
+                override suspend fun getMatchesListForSeason(seasonId: Long): List<TournamentMatch> = emptyList()
                 override suspend fun getMatchById(id: Long): TournamentMatch? = null
                 override suspend fun insertMatch(match: TournamentMatch): Long = 0L
                 override suspend fun insertMatches(matches: List<TournamentMatch>) {}

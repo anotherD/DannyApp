@@ -1,5 +1,6 @@
 package com.danny.dannyapp.data.db
 
+import androidx.room.withTransaction
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -10,7 +11,19 @@ class TournamentRepository(
     private val tournamentMatchDao: TournamentMatchDao,
     private val tournamentPlacementDao: TournamentPlacementDao,
     private val tournamentParticipantDao: TournamentParticipantDao,
+    private val database: AppDatabase? = null,
 ) {
+
+    /**
+     * Führt einen Code-Block innerhalb einer Datenbanktransaktion aus.
+     */
+    suspend fun <T> runInTransaction(block: suspend () -> T): T {
+        return if (database != null) {
+            database.withTransaction { block() }
+        } else {
+            block()
+        }
+    }
 
     // --- Tournaments ---
 
@@ -26,6 +39,14 @@ class TournamentRepository(
      */
     suspend fun getTournamentsListForSeason(seasonId: Long): List<Tournament> {
         return tournamentDao.getTournamentsListForSeason(seasonId)
+    }
+
+    /**
+     * Ruft die Liste aller Turniere für die angegebenen Saison-IDs ab.
+     */
+    suspend fun getTournamentsListForSeasons(seasonIds: List<Long>): List<Tournament> {
+        if (seasonIds.isEmpty()) return emptyList()
+        return tournamentDao.getTournamentsListForSeasons(seasonIds)
     }
 
     /**
@@ -74,6 +95,13 @@ class TournamentRepository(
      */
     suspend fun getMatchesListForTournament(tournamentId: Long): List<TournamentMatch> {
         return tournamentMatchDao.getMatchesListForTournament(tournamentId)
+    }
+
+    /**
+     * Ruft die Liste aller Matches einer bestimmten Saison einmalig ab.
+     */
+    suspend fun getMatchesListForSeason(seasonId: Long): List<TournamentMatch> {
+        return tournamentMatchDao.getMatchesListForSeason(seasonId)
     }
 
     /**
