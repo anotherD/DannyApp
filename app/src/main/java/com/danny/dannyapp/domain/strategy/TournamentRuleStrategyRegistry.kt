@@ -21,8 +21,7 @@ object TournamentRuleStrategyRegistry {
         TournamentEvent.PLAYERS_CHAMPIONSHIP_FINALS to StandardKoStrategy(TournamentEvent.PLAYERS_CHAMPIONSHIP_FINALS),
         TournamentEvent.WORLD_CHAMPIONSHIP to StandardKoStrategy(
             event = TournamentEvent.WORLD_CHAMPIONSHIP,
-            usesPrecedingQualifier = true,
-            precedingQualifierWinnerLimit = 2
+            usesPrecedingQualifier = true
         ),
         TournamentEvent.EUROPEAN_TOUR to EuropeanTourStrategy,
         TournamentEvent.GRAND_SLAM_OF_DARTS to GrandSlamStrategy,
@@ -75,8 +74,7 @@ internal fun MutableList<TournamentMatch>.appendSubsequentKoRounds(
  */
 class StandardKoStrategy(
     override val event: TournamentEvent,
-    override val usesPrecedingQualifier: Boolean = false,
-    override val precedingQualifierWinnerLimit: Int? = null
+    override val usesPrecedingQualifier: Boolean = false
 ) : TournamentRuleStrategy {
 
     override fun buildInitialMatches(
@@ -146,7 +144,6 @@ class StandardKoStrategy(
 object EuropeanTourStrategy : TournamentRuleStrategy {
     override val event: TournamentEvent = TournamentEvent.EUROPEAN_TOUR
     override val usesPrecedingQualifier: Boolean = true
-    override val precedingQualifierWinnerLimit: Int = 10
 
     override fun buildInitialMatches(
         tournamentId: Long,
@@ -227,7 +224,6 @@ class OpenDrawMajorStrategy(
 object GrandSlamStrategy : TournamentRuleStrategy {
     override val event: TournamentEvent = TournamentEvent.GRAND_SLAM_OF_DARTS
     override val usesPrecedingQualifier: Boolean = true
-    override val precedingQualifierWinnerLimit: Int? = null
 
     override fun buildInitialMatches(
         tournamentId: Long,

@@ -256,7 +256,8 @@ class GrandSlamQualificationResolver(
         persistToDb: Boolean = true
     ): TournamentQualificationResult = withContext(Dispatchers.IO) {
         val existingPlayerIds = storedParticipants.map { it.playerId }.toSet()
-        val neededQualifierCount = (48 - storedParticipants.size).coerceAtLeast(0)
+        val targetCount = TournamentEvent.GRAND_SLAM_OF_DARTS.targetParticipantCount
+        val neededQualifierCount = (targetCount - storedParticipants.size).coerceAtLeast(0)
 
         var tchqWinners = precedingQualifierWinners.filterNot { it in existingPlayerIds }
         if (tchqWinners.size > neededQualifierCount) {
@@ -269,7 +270,7 @@ class GrandSlamQualificationResolver(
 
         val qualified48Ids = (storedParticipants.map { it.playerId } + tchqWinners).distinct()
         val final48Ids = if (persistToDb) {
-            QualificationHelper.fillToTargetCount(qualified48Ids, 48, allPlayerIds, oomEntries)
+            QualificationHelper.fillToTargetCount(qualified48Ids, targetCount, allPlayerIds, oomEntries)
         } else {
             qualified48Ids
         }

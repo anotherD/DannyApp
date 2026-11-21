@@ -426,11 +426,8 @@ class TournamentQualificationUseCase(
         )
         val preQualifiedIds = frozenMainParticipants.map { it.playerId }.toSet()
 
-        val boardCount = if (event == TournamentEvent.QUALIFIER_GRAND_SLAM) {
-            (40 - frozenMainParticipants.size).coerceAtLeast(1)
-        } else {
-            event.qualifierBoardCount
-        }
+        val mainEvent = requireNotNull(event.mainEventForQualifier)
+        val boardCount = (mainEvent.targetParticipantCount - frozenMainParticipants.size).coerceAtLeast(1)
 
         val split = resolveQualifierFieldSplit(
             event = event,
@@ -491,14 +488,15 @@ class TournamentQualificationUseCase(
         val regionalQualifiers = storedParticipants.filter { it.qualificationType == "QUALIFIER" }.map { it.playerId }
 
         val existingPlayerIds = storedParticipants.map { it.playerId }.toSet()
+        val neededQualifierCount = (TournamentEvent.EUROPEAN_TOUR.targetParticipantCount - storedParticipants.size).coerceAtLeast(0)
 
         var tcQualifiers = precedingQualifierWinners.filterNot { it in existingPlayerIds }
-        if (tcQualifiers.size > 10) {
-            tcQualifiers = tcQualifiers.take(10)
+        if (tcQualifiers.size > neededQualifierCount) {
+            tcQualifiers = tcQualifiers.take(neededQualifierCount)
         }
-        if (persistToDb && tcQualifiers.size < 10) {
+        if (persistToDb && tcQualifiers.size < neededQualifierCount) {
             val nonPreqTc = tourCardPlayerIds.filterNot { it in existingPlayerIds || it in tcQualifiers }
-            tcQualifiers = fillToTargetCount(tcQualifiers, 10, nonPreqTc, oomEntries)
+            tcQualifiers = fillToTargetCount(tcQualifiers, neededQualifierCount, nonPreqTc, oomEntries)
         }
 
         val newParticipants = tcQualifiers.filterNot { qId -> storedParticipants.any { it.playerId == qId } }.map { playerId ->
@@ -749,14 +747,15 @@ class TournamentQualificationUseCase(
         }
 
         val existingPlayerIds = storedParticipants.map { it.playerId }.toSet()
+        val neededQualifierCount = (TournamentEvent.WORLD_CHAMPIONSHIP.targetParticipantCount - storedParticipants.size).coerceAtLeast(0)
 
         var wmTchqWinners = precedingQualifierWinners.filterNot { it in existingPlayerIds }
-        if (wmTchqWinners.size > 2) {
-            wmTchqWinners = wmTchqWinners.take(2)
+        if (wmTchqWinners.size > neededQualifierCount) {
+            wmTchqWinners = wmTchqWinners.take(neededQualifierCount)
         }
-        if (persistToDb && wmTchqWinners.size < 2) {
+        if (persistToDb && wmTchqWinners.size < neededQualifierCount) {
             val nonPreqTc = tourCardPlayerIds.filterNot { it in existingPlayerIds || it in wmTchqWinners }
-            wmTchqWinners = fillToTargetCount(wmTchqWinners, 2, nonPreqTc, oomEntries)
+            wmTchqWinners = fillToTargetCount(wmTchqWinners, neededQualifierCount, nonPreqTc, oomEntries)
         }
 
         val newParticipants = wmTchqWinners.filterNot { wId -> storedParticipants.any { it.playerId == wId } }.map { playerId ->

@@ -13,12 +13,6 @@ interface TournamentRuleStrategy {
     /** Der Turnierevent-Typ, für den diese Strategie gilt. */
     val event: TournamentEvent
 
-    /**
-     * Gibt an, wie viele Qualifier-Sieger aus dem vorherigen Qualifier-Turnier übernommen werden.
-     * `10` für [TournamentEvent.EUROPEAN_TOUR], `null` (mit Flag [usesPrecedingQualifier] = true)
-     * für [TournamentEvent.GRAND_SLAM_OF_DARTS], `2` für [TournamentEvent.WORLD_CHAMPIONSHIP].
-     */
-    val precedingQualifierWinnerLimit: Int? get() = null
 
     /**
      * Gibt an, ob dieses Turnier Qualifier-Sieger aus einem vorherigen Qualifier-Turnier übernimmt.

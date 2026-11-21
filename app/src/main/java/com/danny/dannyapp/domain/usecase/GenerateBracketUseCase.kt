@@ -34,7 +34,7 @@ class GenerateBracketUseCase(
             val careerId = season.careerId
 
             // Helfer zur Ermittlung vorheriger Qualifier-Sieger
-            suspend fun getQualifierWinnersFromPreceding(targetCount: Int? = null): List<Long> {
+            suspend fun getQualifierWinnersFromPreceding(): List<Long> {
                 val seasonTournaments = tournamentRepository.getTournamentsListForSeason(season.id)
                 val qualTournament = tournamentQualificationUseCase.findQualifierTournamentForMain(tournament, seasonTournaments)
                     ?: return emptyList()
@@ -47,16 +47,12 @@ class GenerateBracketUseCase(
                 } ?: rounds.lastOrNull() ?: return emptyList()
 
                 val finalRoundMatches = prevMatches.filter { it.round == finalRoundName }
-                val winners = finalRoundMatches.mapNotNull { it.winnerId }
-                if (targetCount != null && winners.size >= targetCount) {
-                    return winners.take(targetCount)
-                }
-                return winners
+                return finalRoundMatches.mapNotNull { it.winnerId }
             }
 
             val strategy = TournamentRuleStrategyRegistry.getStrategy(event)
             val precedingWinners = if (strategy.usesPrecedingQualifier) {
-                getQualifierWinnersFromPreceding(strategy.precedingQualifierWinnerLimit)
+                getQualifierWinnersFromPreceding()
             } else {
                 emptyList()
             }
