@@ -1,31 +1,18 @@
 package com.danny.dannyapp.domain.usecase
 
 import com.danny.dannyapp.data.db.Player
-import com.danny.dannyapp.data.db.Tournament
 import com.danny.dannyapp.data.db.TournamentMatch
 import com.danny.dannyapp.data.db.USER_ID
 import com.danny.dannyapp.domain.enums.SkillLevel
 import com.danny.dannyapp.domain.enums.TournamentEvent
 import com.danny.dannyapp.domain.enums.TournamentRound
 import com.danny.dannyapp.domain.model.OrderOfMeritEntry
-import com.danny.dannyapp.domain.model.TournamentRoundPhase
 
 /**
  * Zustandsloser Helper für Sortierung nach Order of Merit, Auffüllen von Teilnehmerfeldern,
  * Ermittlung von vorqualifizierten Tour-Card-Inhabern und Runden-Sequenzen.
  */
 object QualificationHelper {
-
-    /**
-     * Ermittelt die Runden-Sequenz für ein [Tournament] und [TournamentEvent] basierend auf allen bisherigen Matches.
-     */
-    fun resolveTournamentRoundSequence(
-        tournament: Tournament,
-        event: TournamentEvent,
-        allMatches: List<TournamentMatch> = emptyList()
-    ): List<TournamentRound> {
-        return getRoundSequence(event, allMatches)
-    }
 
     /**
      * Determines the sequence of rounds for a given [TournamentEvent].
@@ -44,20 +31,6 @@ object QualificationHelper {
         }.minOrNull() ?: 0
 
         return fullSequence.subList(startIndex, fullSequence.size)
-    }
-
-    /**
-     * Ermittelt den aktuellen Status ([TournamentRoundPhase]) der aktiven Qualifikationsrunde.
-     */
-    fun resolveActiveQualificationPhase(
-        event: TournamentEvent,
-        round: TournamentRound?
-    ): TournamentRoundPhase {
-        return if (round != null) {
-            TournamentRoundPhase.ACTIVE
-        } else {
-            TournamentRoundPhase.COMPLETED
-        }
     }
 
     /**
@@ -136,18 +109,4 @@ object QualificationHelper {
         return result
     }
 
-    /**
-     * Overload von [fillToTargetCount], um Spielerpools mit Ausschlusslisten und Spielerobjekten aufzufüllen.
-     */
-    fun fillToTargetCount(
-        currentIds: List<Long>,
-        targetCount: Int,
-        oomEntries: List<OrderOfMeritEntry>,
-        allPlayers: List<Player>,
-        excludedIds: Set<Long> = emptySet(),
-        tourCardOnlyIds: Set<Long>? = null
-    ): List<Long> {
-        val baseCandidates = (tourCardOnlyIds?.toList() ?: (listOf(USER_ID) + allPlayers.map { it.id })).filterNot { it in excludedIds }
-        return fillToTargetCount(currentIds, targetCount, baseCandidates, oomEntries)
-    }
 }

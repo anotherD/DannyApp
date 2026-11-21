@@ -310,8 +310,7 @@ enum class TournamentEvent(val totalPrizeFund: Double) {
      * und die übergebene Runde eine der offen ausgelosten Runden ist.
      */
     fun isOpenDrawRound(round: TournamentRound): Boolean {
-        if (this != UK_OPEN && this != EUROPEAN_OPEN) return false
-        return round in listOf(
+        return !(this != UK_OPEN && this != EUROPEAN_OPEN) && round in listOf(
             TournamentRound.R2_128,
             TournamentRound.R3_96,
             TournamentRound.L64,

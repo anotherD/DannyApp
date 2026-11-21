@@ -69,13 +69,12 @@ class GrandSlamQualificationResolver(
                 val finalMatch = matches.firstOrNull { it.round == TournamentRound.F.name && it.isCompleted && it.winnerId != null }
                 val winnerIdOpt = finalMatch?.winnerId
                 if (winnerIdOpt != null && (winnerIdOpt > 0L || winnerIdOpt == USER_ID)) {
-                    val winnerId = winnerIdOpt
                     val runnerUpId = if (finalMatch.winnerId == finalMatch.player1Id) {
                         finalMatch.player2Id.takeIf { it > 0L || it == USER_ID }
                     } else {
                         finalMatch.player1Id.takeIf { it > 0L || it == USER_ID }
                     }
-                    winnersAndRunnerUps.add(Pair(winnerId, runnerUpId))
+                    winnersAndRunnerUps.add(Pair(winnerIdOpt, runnerUpId))
                 }
             }
         }
@@ -135,10 +134,10 @@ class GrandSlamQualificationResolver(
     ): Map<Long, Int> {
         val completedTournaments = seasonTournaments.filter { it.type == eventType.name && it.isCompleted }
         val winsMap = mutableMapOf<Long, Int>()
-        for (tournament in completedTournaments) {
-            val matches = tournamentRepository.getMatchesListForTournament(tournament.id)
+        for ((id) in completedTournaments) {
+            val matches = tournamentRepository.getMatchesListForTournament(id)
             val finalMatch = matches.firstOrNull { it.round == TournamentRound.F.name && it.isCompleted && it.winnerId != null }
-            if (finalMatch != null && finalMatch.winnerId != null && (finalMatch.winnerId > 0L || finalMatch.winnerId == USER_ID)) {
+            if (finalMatch?.winnerId != null && (finalMatch.winnerId > 0L || finalMatch.winnerId == USER_ID)) {
                 val winnerId = finalMatch.winnerId
                 winsMap[winnerId] = (winsMap[winnerId] ?: 0) + 1
             }

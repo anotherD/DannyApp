@@ -15,7 +15,6 @@ import com.danny.dannyapp.domain.enums.TournamentEvent
 import com.danny.dannyapp.domain.enums.TournamentRound
 import com.danny.dannyapp.domain.model.Country
 import com.danny.dannyapp.domain.model.OrderOfMeritEntry
-import com.danny.dannyapp.domain.model.TournamentRoundPhase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -105,23 +104,6 @@ class TournamentQualificationUseCase(
     )
 
     /**
-     * Ermittelt die Runden-Sequenz für ein [Tournament] und [TournamentEvent] basierend auf allen bisherigen Matches.
-     */
-    fun resolveTournamentRoundSequence(
-        tournament: Tournament,
-        event: TournamentEvent,
-        allMatches: List<TournamentMatch> = emptyList()
-    ): List<TournamentRound> = QualificationHelper.resolveTournamentRoundSequence(tournament, event, allMatches)
-
-    /**
-     * Ermittelt den aktuellen Status ([TournamentRoundPhase]) der aktiven Qualifikationsrunde.
-     */
-    fun resolveActiveQualificationPhase(
-        event: TournamentEvent,
-        round: TournamentRound?
-    ): TournamentRoundPhase = QualificationHelper.resolveActiveQualificationPhase(event, round)
-
-    /**
      * Determines the sequence of rounds for a given [TournamentEvent].
      * If [allMatches] is provided and non-empty, truncates the sequence to start from the earliest round present in matches.
      */
@@ -138,38 +120,6 @@ class TournamentQualificationUseCase(
         oomList: List<OrderOfMeritEntry>,
         allPlayers: List<Player>
     ): List<Long> = QualificationHelper.sortPlayerIdsByOom(playerIds, oomList, allPlayers)
-
-    /**
-     * Fills an initial list of player IDs to a target count using fallback candidates sorted by Order of Merit.
-     */
-    fun fillToTargetCount(
-        initialList: List<Long>,
-        targetCount: Int,
-        fallbackCandidates: List<Long>,
-        oomList: List<OrderOfMeritEntry>
-    ): List<Long> = QualificationHelper.fillToTargetCount(initialList, targetCount, fallbackCandidates, oomList)
-
-    /**
-     * Resolves prequalified Tour Card holders (top OOM and top Pro Tour OOM) for events or qualifiers.
-     * Returns a pair of (topOomIds, topPtOomIds).
-     */
-    fun resolvePrequalifiedTourCardIds(
-        event: TournamentEvent,
-        tourCardPlayerIds: List<Long>,
-        oomList: List<OrderOfMeritEntry>,
-        ptOomList: List<OrderOfMeritEntry>,
-        allPlayers: List<Player>
-    ): Pair<List<Long>, List<Long>> = QualificationHelper.resolvePrequalifiedTourCardIds(event, tourCardPlayerIds, oomList, ptOomList, allPlayers)
-
-    /**
-     * Resolves major event winners/finalists (up to 24) and additional non-tour card qualifiers (12)
-     * for Grand Slam of Darts according to section 2.4.6.
-     * Returns Pair(majorIds, additionalIds).
-     */
-    fun findMainTournamentForQualifier(
-        qualifierTournament: Tournament,
-        seasonTournaments: List<Tournament>
-    ): Tournament = preQualifyMainTournamentUseCase.findMainTournamentForQualifier(qualifierTournament, seasonTournaments)
 
     fun findQualifierTournamentForMain(
         mainTournament: Tournament,
@@ -190,7 +140,6 @@ class TournamentQualificationUseCase(
      * preliminary round players, R1 bye players, and seed count.
      */
     fun resolveQualifierFieldSplit(
-        event: TournamentEvent,
         tourCardPlayerIds: List<Long>,
         preQualifiedIds: List<Long>,
         oomList: List<OrderOfMeritEntry>,
@@ -254,8 +203,6 @@ class TournamentQualificationUseCase(
             TournamentEvent.PLAYERS_CHAMPIONSHIP -> resolvePlayersChampionshipQualification(
                 tournamentId = tournamentId,
                 tourCardPlayerIds = tourCardPlayerIds,
-                allPlayerIds = allPlayerIds,
-                oomEntries = oomEntries,
                 ptOomEntries = ptOomEntries,
                 allPlayers = allPlayers
             )
@@ -267,7 +214,6 @@ class TournamentQualificationUseCase(
                 careerId = careerId,
                 tourCardPlayerIds = tourCardPlayerIds,
                 oomEntries = oomEntries,
-                ptOomEntries = ptOomEntries,
                 allPlayers = allPlayers,
                 persistToDb = persistToDb
             )
@@ -344,8 +290,6 @@ class TournamentQualificationUseCase(
     private fun resolvePlayersChampionshipQualification(
         tournamentId: Long,
         tourCardPlayerIds: List<Long>,
-        allPlayerIds: List<Long>,
-        oomEntries: List<OrderOfMeritEntry>,
         ptOomEntries: List<OrderOfMeritEntry>,
         allPlayers: List<Player>
     ): TournamentQualificationResult {
@@ -394,7 +338,6 @@ class TournamentQualificationUseCase(
         careerId: Long,
         tourCardPlayerIds: List<Long>,
         oomEntries: List<OrderOfMeritEntry>,
-        ptOomEntries: List<OrderOfMeritEntry>,
         allPlayers: List<Player>,
         persistToDb: Boolean = true
     ): TournamentQualificationResult {
@@ -412,7 +355,6 @@ class TournamentQualificationUseCase(
         val boardCount = (mainEvent.targetParticipantCount - frozenMainParticipants.size).coerceAtLeast(1)
 
         val split = resolveQualifierFieldSplit(
-            event = event,
             tourCardPlayerIds = tourCardPlayerIds,
             preQualifiedIds = preQualifiedIds.toList(),
             oomList = oomEntries,
@@ -876,17 +818,17 @@ class TournamentQualificationUseCase(
 
         when (roundKey) {
             TournamentRound.R2_128.name -> {
-                val pIds = if (stored65To96.isNotEmpty()) stored65To96 else sortedPlayerIds.drop(64).take(32)
+                val pIds = stored65To96.ifEmpty { sortedPlayerIds.drop(64).take(32) }
                 val players = pIds.mapIndexed { index, id -> createEntrantPlayerDomainInfo(id, 65 + index) }
                 groups.add(EntrantGroupDomainData(groupType = EntrantGroupType.OOM_65_96, players = players))
             }
             TournamentRound.R3_96.name -> {
-                val pIds = if (stored33To64.isNotEmpty()) stored33To64 else sortedPlayerIds.drop(32).take(32)
+                val pIds = stored33To64.ifEmpty { sortedPlayerIds.drop(32).take(32) }
                 val players = pIds.mapIndexed { index, id -> createEntrantPlayerDomainInfo(id, 33 + index) }
                 groups.add(EntrantGroupDomainData(groupType = EntrantGroupType.OOM_33_64, players = players))
             }
             TournamentRound.L64.name -> {
-                val pIds = if (storedTop32.isNotEmpty()) storedTop32 else sortedPlayerIds.take(32)
+                val pIds = storedTop32.ifEmpty { sortedPlayerIds.take(32) }
                 val players = pIds.mapIndexed { index, id -> createEntrantPlayerDomainInfo(id, 1 + index) }
                 groups.add(EntrantGroupDomainData(groupType = EntrantGroupType.OOM_TOP_32, players = players))
             }
@@ -930,6 +872,7 @@ class TournamentQualificationUseCase(
                 val qualMatches = tournamentRepository.getMatchesListForTournament(qualTournament.id)
                 val existingIds = stored.map { it.playerId }.toSet()
                 val qualWinners = qualMatches
+                    .asSequence()
                     .filter { it.round == TournamentRound.QUAL_FINAL.name && it.winnerId != null }
                     .sortedBy { it.matchIndex }
                     .mapNotNull { it.winnerId }
@@ -942,6 +885,7 @@ class TournamentQualificationUseCase(
                             qualificationType = "QUALIFIER"
                         )
                     }
+                    .toList()
                 stored + qualWinners
             } else {
                 stored
