@@ -126,7 +126,6 @@ class TournamentCalendarViewModel(application: Application) : AndroidViewModel(a
             val qualifierWinners: List<PlayerUiInfo>? = if (summary.qualifierWinnerIds.isNotEmpty()) {
                 summary.qualifierWinnerIds.map { winnerId ->
                     UIHelper.resolvePlayerUiInfo(
-                        context = getApplication(),
                         playerId = winnerId,
                         player = allPlayers[winnerId],
                         careerWithProfile = careerWithProfile

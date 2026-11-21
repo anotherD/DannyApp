@@ -251,7 +251,7 @@ class TournamentDetailViewModel(
         seasonNumber: Int,
         careerWithProfile: CareerWithProfile
     ) {
-        val host = TournamentUiHelper.getTournamentCity(tournament.hostCountry, tournament.hostCity)
+        val host = TournamentUiHelper.getTournamentCity(tournament.hostCity)
         val totalPrizeText = if (event.effectiveTotalPrizeFund > 0) {
             getApplication<Application>().getString(R.string.tournament_total_prize_fund_format, event.effectiveTotalPrizeFund.toLong())
         } else {
@@ -445,7 +445,7 @@ class TournamentDetailViewModel(
         _uiState.value = TournamentDetailState.Active(
             tournament = tournament,
             event = event,
-            host = TournamentUiHelper.getTournamentCity(tournament.hostCountry, tournament.hostCity),
+            host = TournamentUiHelper.getTournamentCity(tournament.hostCity),
             hostCountryCode = tournament.hostCountry,
             activeRoundDisplayName = activeRoundDisplayName,
             availableRounds = availableRounds,
@@ -494,7 +494,6 @@ class TournamentDetailViewModel(
         val winnerId = finalMatch?.winnerId
         val winner = if (winnerId != null) {
             UIHelper.resolvePlayerUiInfo(
-                context = getApplication(),
                 playerId = winnerId,
                 player = allPlayersMap[winnerId],
                 careerWithProfile = careerWithProfile
@@ -537,7 +536,6 @@ class TournamentDetailViewModel(
             allMatches.filter { it.round == TournamentRound.QUAL_FINAL.name }.sortedBy { it.matchIndex }.mapNotNull { match ->
                 val wId = match.winnerId ?: return@mapNotNull null
                 UIHelper.resolvePlayerUiInfo(
-                    context = getApplication(),
                     playerId = wId,
                     player = allPlayersMap[wId],
                     careerWithProfile = careerWithProfile
@@ -581,7 +579,7 @@ class TournamentDetailViewModel(
         _uiState.value = TournamentDetailState.Review(
             tournament = tournament,
             event = event,
-            host = TournamentUiHelper.getTournamentCity(tournament.hostCountry, tournament.hostCity),
+            host = TournamentUiHelper.getTournamentCity(tournament.hostCity),
             hostCountryCode = tournament.hostCountry,
             winner = winner,
             userReachedRoundText = userReachedRoundText,
@@ -634,7 +632,6 @@ class TournamentDetailViewModel(
             val title = getQualificationGroupTitle(qualType)
             val playerUiInfos = participants.map { participant ->
                 UIHelper.resolvePlayerUiInfo(
-                    context = getApplication(),
                     playerId = participant.playerId,
                     player = allPlayersMap[participant.playerId],
                     careerWithProfile = careerWithProfile,

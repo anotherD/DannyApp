@@ -1,6 +1,5 @@
 package com.danny.dannyapp.ui
 
-import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Typeface
@@ -49,7 +48,6 @@ object UIHelper {
      * Erstellt die Spieler-UI-Informationen für den Nutzer basierend auf der verknüpften Karriere und dem Profil.
      */
     fun createUserPlayerUiInfo(
-        context: Context,
         careerWithProfile: CareerWithProfile,
         seed: Int? = null
     ): PlayerUiInfo {
@@ -63,7 +61,6 @@ object UIHelper {
     }
 
     fun createCpuPlayerUiInfo(
-        context: Context,
         playerId: Long,
         player: Player?,
         seed: Int? = null
@@ -82,16 +79,15 @@ object UIHelper {
      * Ermittelt die Spieler-UI-Informationen basierend auf der Spieler-ID (Nutzer oder CPU-Spieler).
      */
     fun resolvePlayerUiInfo(
-        context: Context,
         playerId: Long,
         player: Player?,
         careerWithProfile: CareerWithProfile,
         seed: Int? = null
     ): PlayerUiInfo {
         return if (playerId == USER_ID) {
-            createUserPlayerUiInfo(context, careerWithProfile, seed)
+            createUserPlayerUiInfo(careerWithProfile, seed)
         } else {
-            createCpuPlayerUiInfo(context, playerId, player, seed)
+            createCpuPlayerUiInfo(playerId, player, seed)
         }
     }
 

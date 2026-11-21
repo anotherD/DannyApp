@@ -48,7 +48,7 @@ object ProfileDialogs {
 
         var selectedCountryCode = existingProfile?.countryCode ?: Country.DEFAULT_USER_CODE
         val countryIndex = if (isEdit) {
-            countries.indexOfFirst { it.code.equals(existingProfile?.countryCode, ignoreCase = true) }
+            countries.indexOfFirst { it.code.equals(existingProfile.countryCode, ignoreCase = true) }
         } else {
             countries.indexOfFirst { it.code.equals(Country.DEFAULT_USER_CODE, ignoreCase = true) }
         }

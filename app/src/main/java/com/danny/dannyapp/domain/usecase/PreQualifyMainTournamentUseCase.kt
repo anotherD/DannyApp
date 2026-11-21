@@ -122,8 +122,7 @@ class PreQualifyMainTournamentUseCase(
                     mainEvent,
                     tourCardPlayerIds,
                     oomEntries,
-                    ptOomEntries,
-                    allPlayers
+                    ptOomEntries
                 )
 
                 top16Oom.forEachIndexed { index, playerId ->
@@ -202,8 +201,7 @@ class PreQualifyMainTournamentUseCase(
                     mainEvent,
                     tourCardPlayerIds,
                     oomEntries,
-                    ptOomEntries,
-                    allPlayers
+                    ptOomEntries
                 )
 
                 val tc80 = top40Oom + top40PtOom

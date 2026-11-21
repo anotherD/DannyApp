@@ -181,7 +181,6 @@ class TournamentQualificationUseCase(
                 careerId = careerId,
                 tourCardPlayerIds = tourCardPlayerIds,
                 oomEntries = oomEntries,
-                allPlayers = allPlayers,
                 persistToDb = persistToDb
             )
             TournamentEvent.EUROPEAN_TOUR -> resolveEuropeanTourQualification(
@@ -204,8 +203,7 @@ class TournamentQualificationUseCase(
                 tournamentId = tournamentId,
                 allPlayerIds = allPlayerIds,
                 oomEntries = oomEntries,
-                ptOomEntries = ptOomEntries,
-                allPlayers = allPlayers
+                ptOomEntries = ptOomEntries
             )
             TournamentEvent.EUROPEAN_CHAMPIONSHIP -> resolveSingleRankingQualification(
                 tournamentId = tournamentId,
@@ -227,7 +225,6 @@ class TournamentQualificationUseCase(
                 careerId = careerId,
                 precedingQualifierWinners = precedingQualifierWinners,
                 oomEntries = oomEntries,
-                allPlayers = allPlayers,
                 persistToDb = persistToDb
             )
             TournamentEvent.WORLD_CHAMPIONSHIP -> resolveWorldChampionshipQualification(
@@ -305,7 +302,6 @@ class TournamentQualificationUseCase(
         careerId: Long,
         tourCardPlayerIds: List<Long>,
         oomEntries: List<OrderOfMeritEntry>,
-        allPlayers: List<Player>,
         persistToDb: Boolean = true
     ): TournamentQualificationResult {
         val event = TournamentEvent.valueOf(qualifierTournament.type)
@@ -505,8 +501,7 @@ class TournamentQualificationUseCase(
         tournamentId: Long,
         allPlayerIds: List<Long>,
         oomEntries: List<OrderOfMeritEntry>,
-        ptOomEntries: List<OrderOfMeritEntry>,
-        allPlayers: List<Player>
+        ptOomEntries: List<OrderOfMeritEntry>
     ): TournamentQualificationResult {
         val sortedOom = QualificationHelper.sortPlayerIdsByOom(allPlayerIds, oomEntries)
         val top16Oom = sortedOom.take(16)
@@ -580,7 +575,6 @@ class TournamentQualificationUseCase(
         careerId: Long,
         precedingQualifierWinners: List<Long>,
         oomEntries: List<OrderOfMeritEntry>,
-        allPlayers: List<Player>,
         persistToDb: Boolean = true
     ): TournamentQualificationResult {
         val tournamentId = tournament.id
@@ -599,7 +593,6 @@ class TournamentQualificationUseCase(
             storedParticipants = storedParticipants,
             precedingQualifierWinners = precedingQualifierWinners,
             oomEntries = oomEntries,
-            allPlayers = allPlayers,
             persistToDb = persistToDb
         )
     }

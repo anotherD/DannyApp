@@ -111,7 +111,7 @@ object TournamentDetailMapper {
                 skill = SkillLevel.DEFAULT.value
             )
         } else {
-            UIHelper.resolvePlayerUiInfo(context, match.player1Id, allPlayersMap[match.player1Id], careerWithProfile, p1Seed)
+            UIHelper.resolvePlayerUiInfo(match.player1Id, allPlayersMap[match.player1Id], careerWithProfile, p1Seed)
         }
 
         val p2Placeholder = resolvePlaceholderPlayerName(context, match.player2Id, match.matchIndex, false, event, roundKey)
@@ -129,7 +129,7 @@ object TournamentDetailMapper {
                 skill = SkillLevel.DEFAULT.value
             )
         } else {
-            UIHelper.resolvePlayerUiInfo(context, match.player2Id, allPlayersMap[match.player2Id], careerWithProfile, p2Seed)
+            UIHelper.resolvePlayerUiInfo(match.player2Id, allPlayersMap[match.player2Id], careerWithProfile, p2Seed)
         }
 
         val scoreText = if (match.isCompleted) "${match.player1Score} : ${match.player2Score}" else "- : -"
@@ -208,7 +208,6 @@ object TournamentDetailMapper {
             val items = entries.map { entry ->
                 val playerSeed = seededPlayerMap[entry.playerId]
                 val playerUiInfo = UIHelper.resolvePlayerUiInfo(
-                    context = context,
                     playerId = entry.playerId,
                     player = allPlayersMap[entry.playerId],
                     careerWithProfile = careerWithProfile,

@@ -1,6 +1,5 @@
 package com.danny.dannyapp.domain.usecase
 
-import com.danny.dannyapp.data.db.Player
 import com.danny.dannyapp.data.db.TournamentMatch
 import com.danny.dannyapp.domain.enums.TournamentEvent
 import com.danny.dannyapp.domain.enums.TournamentRound
@@ -54,8 +53,7 @@ object QualificationHelper {
         event: TournamentEvent,
         tourCardIds: List<Long>,
         mainOom: List<OrderOfMeritEntry>,
-        proTourOom: List<OrderOfMeritEntry>,
-        allPlayers: List<Player> = emptyList()
+        proTourOom: List<OrderOfMeritEntry>
     ): Pair<List<Long>, List<Long>> {
         val isWorldChampionship = event == TournamentEvent.QUALIFIER_WM || event == TournamentEvent.WORLD_CHAMPIONSHIP
         val targetOomCount = if (isWorldChampionship) 40 else 16

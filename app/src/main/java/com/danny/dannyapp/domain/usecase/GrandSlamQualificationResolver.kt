@@ -249,7 +249,6 @@ class GrandSlamQualificationResolver(
         storedParticipants: List<TournamentParticipant>,
         precedingQualifierWinners: List<Long>,
         oomEntries: List<OrderOfMeritEntry>,
-        allPlayers: List<Player>,
         persistToDb: Boolean = true
     ): TournamentQualificationResult = withContext(Dispatchers.IO) {
         val existingPlayerIds = storedParticipants.map { it.playerId }.toSet()

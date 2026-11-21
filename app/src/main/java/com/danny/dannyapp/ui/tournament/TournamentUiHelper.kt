@@ -66,7 +66,7 @@ object TournamentUiHelper {
         return TournamentRound.fromKey(roundKey)?.displayNameResId?.let { context.getString(it) } ?: roundKey
     }
 
-    fun getTournamentCity(hostCountry: String, hostCity: String): String {
+    fun getTournamentCity(hostCity: String): String {
         return hostCity
     }
 
@@ -226,7 +226,7 @@ object TournamentUiHelper {
         tvTournamentStatus.text = statusBadgeInfo.text
         tvTournamentStatus.background?.mutate()?.setTint(ContextCompat.getColor(context, statusBadgeInfo.colorResId))
 
-        val city = getTournamentCity(tournament.hostCountry, tournament.hostCity)
+        val city = getTournamentCity(tournament.hostCity)
         UIHelper.formatFlagAndText(tvTournamentDetails, tournament.hostCountry, city)
 
         val cardView = itemView as? MaterialCardView
@@ -298,7 +298,7 @@ object TournamentUiHelper {
         tvTypeBadge.text = typeBadgeInfo.text
         tvTypeBadge.backgroundTintList = ContextCompat.getColorStateList(context, typeBadgeInfo.colorResId)
 
-        val city = getTournamentCity(tournament.hostCountry, tournament.hostCity)
+        val city = getTournamentCity(tournament.hostCity)
         UIHelper.formatFlagAndText(tvHost, tournament.hostCountry, city)
 
         if (headerCard != null) {
