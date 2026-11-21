@@ -276,11 +276,6 @@ class TournamentQualificationUseCase(
                 seasonId = seasonId,
                 careerId = careerId,
                 precedingQualifierWinners = precedingQualifierWinners,
-                tourCardPlayerIds = tourCardPlayerIds,
-                allPlayerIds = allPlayerIds,
-                oomEntries = oomEntries,
-                ptOomEntries = ptOomEntries,
-                allPlayers = allPlayers,
                 persistToDb = persistToDb
             )
             TournamentEvent.UK_OPEN,
@@ -288,7 +283,6 @@ class TournamentQualificationUseCase(
                 tournamentId = tournamentId,
                 event = event,
                 tourCardPlayerIds = tourCardPlayerIds,
-                allPlayerIds = allPlayerIds,
                 oomEntries = oomEntries,
                 allPlayers = allPlayers
             )
@@ -305,28 +299,21 @@ class TournamentQualificationUseCase(
                 targetCount = 32,
                 qualificationType = "ET_OOM",
                 rankingEntries = etOomEntries,
-                allPlayerIds = allPlayerIds,
-                allPlayers = allPlayers,
-                oomEntries = oomEntries
+                allPlayers = allPlayers
             )
             TournamentEvent.PLAYERS_CHAMPIONSHIP_FINALS -> resolveSingleRankingQualification(
                 tournamentId = tournamentId,
                 targetCount = 64,
                 qualificationType = "PC_OOM",
                 rankingEntries = pcOomEntries,
-                allPlayerIds = allPlayerIds,
-                allPlayers = allPlayers,
-                oomEntries = oomEntries
+                allPlayers = allPlayers
             )
             TournamentEvent.GRAND_SLAM_OF_DARTS -> resolveGrandSlamQualification(
                 tournament = tournament,
                 seasonId = seasonId,
                 careerId = careerId,
                 precedingQualifierWinners = precedingQualifierWinners,
-                tourCardPlayerIds = tourCardPlayerIds,
-                allPlayerIds = allPlayerIds,
                 oomEntries = oomEntries,
-                ptOomEntries = ptOomEntries,
                 allPlayers = allPlayers,
                 persistToDb = persistToDb
             )
@@ -335,11 +322,6 @@ class TournamentQualificationUseCase(
                 seasonId = seasonId,
                 careerId = careerId,
                 precedingQualifierWinners = precedingQualifierWinners,
-                tourCardPlayerIds = tourCardPlayerIds,
-                allPlayerIds = allPlayerIds,
-                oomEntries = oomEntries,
-                ptOomEntries = ptOomEntries,
-                allPlayers = allPlayers,
                 persistToDb = persistToDb
             )
         }
@@ -464,11 +446,6 @@ class TournamentQualificationUseCase(
         seasonId: Long,
         careerId: Long,
         precedingQualifierWinners: List<Long>,
-        tourCardPlayerIds: List<Long>,
-        allPlayerIds: List<Long>,
-        oomEntries: List<OrderOfMeritEntry>,
-        ptOomEntries: List<OrderOfMeritEntry>,
-        allPlayers: List<Player>,
         persistToDb: Boolean = true
     ): TournamentQualificationResult {
         val tournamentId = tournament.id
@@ -490,13 +467,15 @@ class TournamentQualificationUseCase(
         val existingPlayerIds = storedParticipants.map { it.playerId }.toSet()
         val neededQualifierCount = (TournamentEvent.EUROPEAN_TOUR.targetParticipantCount - storedParticipants.size).coerceAtLeast(0)
 
-        var tcQualifiers = precedingQualifierWinners.filterNot { it in existingPlayerIds }
-        if (tcQualifiers.size > neededQualifierCount) {
-            tcQualifiers = tcQualifiers.take(neededQualifierCount)
-        }
-        if (persistToDb && tcQualifiers.size < neededQualifierCount) {
-            val nonPreqTc = tourCardPlayerIds.filterNot { it in existingPlayerIds || it in tcQualifiers }
-            tcQualifiers = fillToTargetCount(tcQualifiers, neededQualifierCount, nonPreqTc, oomEntries)
+        val tcQualifiers = precedingQualifierWinners.filterNot { it in existingPlayerIds }
+        if (persistToDb) {
+            require(tcQualifiers.size == neededQualifierCount) {
+                "European Tour erfordert exakt $neededQualifierCount Qualifier-Sieger, erhalten: ${tcQualifiers.size}"
+            }
+        } else if (tcQualifiers.isNotEmpty()) {
+            require(tcQualifiers.size == neededQualifierCount) {
+                "European Tour erfordert exakt $neededQualifierCount Qualifier-Sieger, erhalten: ${tcQualifiers.size}"
+            }
         }
 
         val newParticipants = tcQualifiers.filterNot { qId -> storedParticipants.any { it.playerId == qId } }.map { playerId ->
@@ -514,18 +493,16 @@ class TournamentQualificationUseCase(
 
         val allParticipants = storedParticipants + newParticipants
         val qualifiersPoolRaw = tcQualifiers + hostQualifiers + regionalQualifiers
-        val excludedFromFallback = (top16Oom + top16PtOom + qualifiersPoolRaw).toSet()
-        val qualifiersPool = fillToTargetCount(
-            qualifiersPoolRaw,
-            16,
-            allPlayerIds.filterNot { it in excludedFromFallback },
-            oomEntries
-        )
+        if (persistToDb) {
+            require(qualifiersPoolRaw.size == 16) {
+                "European Tour erfordert exakt 16 ungesetzte Qualifier-Teilnehmer, erhalten: ${qualifiersPoolRaw.size}"
+            }
+        }
 
         return TournamentQualificationResult(
             oomSortedIds = top16Oom,
             proTourSortedIds = top16PtOom,
-            qualifierIds = qualifiersPool,
+            qualifierIds = qualifiersPoolRaw,
             participants = allParticipants,
             preQualifiedOomIds = top16Oom,
             preQualifiedPtOomIds = top16PtOom
@@ -539,14 +516,15 @@ class TournamentQualificationUseCase(
         tournamentId: Long,
         event: TournamentEvent,
         tourCardPlayerIds: List<Long>,
-        allPlayerIds: List<Long>,
         oomEntries: List<OrderOfMeritEntry>,
         allPlayers: List<Player>
     ): TournamentQualificationResult {
-        val tcIds = fillToTargetCount(tourCardPlayerIds, 128, allPlayerIds, oomEntries)
-        val sortedTcOom = sortPlayerIdsByOom(tcIds, oomEntries, allPlayers)
+        require(tourCardPlayerIds.size == 128) {
+            "UK/European Open erfordert exakt 128 Tour Card Inhaber, erhalten: ${tourCardPlayerIds.size}"
+        }
+        val sortedTcOom = sortPlayerIdsByOom(tourCardPlayerIds, oomEntries, allPlayers)
 
-        val excludedForNonTc = tcIds.toSet() + USER_ID
+        val excludedForNonTc = tourCardPlayerIds.toSet() + USER_ID
         val final32Qualifiers = if (event == TournamentEvent.UK_OPEN) {
             resolveNonSimulatedQualifiersUseCase.resolveUnrankedPool(32, excludedForNonTc, allPlayers)
         } else {
@@ -562,7 +540,9 @@ class TournamentQualificationUseCase(
             val unranked16 = resolveNonSimulatedQualifiersUseCase.resolveUnrankedPool(16, excludedForUnranked, allPlayers)
             regional16 + unranked16
         }
-        val final32QualifiersFull = fillToTargetCount(final32Qualifiers, 32, allPlayerIds.filterNot { it in tcIds }, oomEntries)
+        require(final32Qualifiers.size == 32) {
+            "UK/European Open erfordert exakt 32 Qualifikanten, erhalten: ${final32Qualifiers.size}"
+        }
 
         val participants = sortedTcOom.take(32).mapIndexed { index, playerId ->
             TournamentParticipant(
@@ -592,7 +572,7 @@ class TournamentQualificationUseCase(
                 seedNumber = null,
                 qualificationType = "OOM_97_128"
             )
-        } + final32QualifiersFull.map { playerId ->
+        } + final32Qualifiers.map { playerId ->
             TournamentParticipant(
                 tournamentId = tournamentId,
                 playerId = playerId,
@@ -604,7 +584,7 @@ class TournamentQualificationUseCase(
         return TournamentQualificationResult(
             oomSortedIds = sortedTcOom,
             proTourSortedIds = emptyList(),
-            qualifierIds = final32QualifiersFull,
+            qualifierIds = final32Qualifiers,
             participants = participants
         )
     }
@@ -658,14 +638,15 @@ class TournamentQualificationUseCase(
         targetCount: Int,
         qualificationType: String,
         rankingEntries: List<OrderOfMeritEntry>,
-        allPlayerIds: List<Long>,
-        allPlayers: List<Player>,
-        oomEntries: List<OrderOfMeritEntry>
+        allPlayers: List<Player>
     ): TournamentQualificationResult {
-        val topPlayers = sortPlayerIdsByOom(allPlayerIds, rankingEntries, allPlayers).take(targetCount)
-        val finalPlayers = fillToTargetCount(topPlayers, targetCount, allPlayerIds, oomEntries)
+        val candidatePlayerIds = (listOf(USER_ID) + allPlayers.map { it.id }).distinct()
+        val topPlayers = sortPlayerIdsByOom(candidatePlayerIds, rankingEntries, allPlayers).take(targetCount)
+        require(topPlayers.size == targetCount) {
+            "Ranglisten-Qualifikation ($qualificationType) erfordert exakt $targetCount Teilnehmer, erhalten: ${topPlayers.size}"
+        }
 
-        val participants = finalPlayers.mapIndexed { index, playerId ->
+        val participants = topPlayers.mapIndexed { index, playerId ->
             TournamentParticipant(
                 tournamentId = tournamentId,
                 playerId = playerId,
@@ -677,7 +658,7 @@ class TournamentQualificationUseCase(
         return TournamentQualificationResult(
             oomSortedIds = emptyList(),
             proTourSortedIds = emptyList(),
-            qualifierIds = finalPlayers,
+            qualifierIds = topPlayers,
             participants = participants
         )
     }
@@ -690,10 +671,7 @@ class TournamentQualificationUseCase(
         seasonId: Long,
         careerId: Long,
         precedingQualifierWinners: List<Long>,
-        tourCardPlayerIds: List<Long>,
-        allPlayerIds: List<Long>,
         oomEntries: List<OrderOfMeritEntry>,
-        ptOomEntries: List<OrderOfMeritEntry>,
         allPlayers: List<Player>,
         persistToDb: Boolean = true
     ): TournamentQualificationResult {
@@ -712,8 +690,6 @@ class TournamentQualificationUseCase(
             tournamentId = tournamentId,
             storedParticipants = storedParticipants,
             precedingQualifierWinners = precedingQualifierWinners,
-            tourCardPlayerIds = tourCardPlayerIds,
-            allPlayerIds = allPlayerIds,
             oomEntries = oomEntries,
             allPlayers = allPlayers,
             persistToDb = persistToDb
@@ -728,11 +704,6 @@ class TournamentQualificationUseCase(
         seasonId: Long,
         careerId: Long,
         precedingQualifierWinners: List<Long>,
-        tourCardPlayerIds: List<Long>,
-        allPlayerIds: List<Long>,
-        oomEntries: List<OrderOfMeritEntry>,
-        ptOomEntries: List<OrderOfMeritEntry>,
-        allPlayers: List<Player>,
         persistToDb: Boolean = true
     ): TournamentQualificationResult {
         val tournamentId = tournament.id
@@ -749,13 +720,15 @@ class TournamentQualificationUseCase(
         val existingPlayerIds = storedParticipants.map { it.playerId }.toSet()
         val neededQualifierCount = (TournamentEvent.WORLD_CHAMPIONSHIP.targetParticipantCount - storedParticipants.size).coerceAtLeast(0)
 
-        var wmTchqWinners = precedingQualifierWinners.filterNot { it in existingPlayerIds }
-        if (wmTchqWinners.size > neededQualifierCount) {
-            wmTchqWinners = wmTchqWinners.take(neededQualifierCount)
-        }
-        if (persistToDb && wmTchqWinners.size < neededQualifierCount) {
-            val nonPreqTc = tourCardPlayerIds.filterNot { it in existingPlayerIds || it in wmTchqWinners }
-            wmTchqWinners = fillToTargetCount(wmTchqWinners, neededQualifierCount, nonPreqTc, oomEntries)
+        val wmTchqWinners = precedingQualifierWinners.filterNot { it in existingPlayerIds }
+        if (persistToDb) {
+            require(wmTchqWinners.size == neededQualifierCount) {
+                "World Championship erfordert exakt $neededQualifierCount Qualifier-Sieger, erhalten: ${wmTchqWinners.size}"
+            }
+        } else if (wmTchqWinners.isNotEmpty()) {
+            require(wmTchqWinners.size == neededQualifierCount) {
+                "World Championship erfordert exakt $neededQualifierCount Qualifier-Sieger, erhalten: ${wmTchqWinners.size}"
+            }
         }
 
         val newParticipants = wmTchqWinners.filterNot { wId -> storedParticipants.any { it.playerId == wId } }.map { playerId ->
@@ -776,18 +749,16 @@ class TournamentQualificationUseCase(
         val top32Oom = allParticipants.filter { it.qualificationType == "OOM" }.sortedBy { it.seedNumber ?: Int.MAX_VALUE }.map { it.playerId }
         val ranks33To64 = allParticipants.filter { it.qualificationType == "PT_OOM" }.map { it.playerId }
         val remaining64PoolRaw = allParticipants.filterNot { it.playerId in top32Oom || it.playerId in ranks33To64 }.map { it.playerId }
-        val excludedFromFallback = (top32Oom + ranks33To64 + remaining64PoolRaw).toSet()
-        val remaining64Pool = fillToTargetCount(
-            remaining64PoolRaw,
-            64,
-            allPlayerIds.filterNot { it in excludedFromFallback },
-            oomEntries
-        )
+        if (persistToDb) {
+            require(remaining64PoolRaw.size == 64) {
+                "World Championship erfordert exakt 64 ungesetzte Teilnehmer (International/Qualifier), erhalten: ${remaining64PoolRaw.size}"
+            }
+        }
 
         return TournamentQualificationResult(
             oomSortedIds = top32Oom + ranks33To64,
             proTourSortedIds = emptyList(),
-            qualifierIds = remaining64Pool,
+            qualifierIds = remaining64PoolRaw,
             participants = allParticipants
         )
     }

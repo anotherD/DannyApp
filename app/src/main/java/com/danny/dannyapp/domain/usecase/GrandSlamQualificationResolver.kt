@@ -249,8 +249,6 @@ class GrandSlamQualificationResolver(
         tournamentId: Long,
         storedParticipants: List<TournamentParticipant>,
         precedingQualifierWinners: List<Long>,
-        tourCardPlayerIds: List<Long>,
-        allPlayerIds: List<Long>,
         oomEntries: List<OrderOfMeritEntry>,
         allPlayers: List<Player>,
         persistToDb: Boolean = true
@@ -259,23 +257,25 @@ class GrandSlamQualificationResolver(
         val targetCount = TournamentEvent.GRAND_SLAM_OF_DARTS.targetParticipantCount
         val neededQualifierCount = (targetCount - storedParticipants.size).coerceAtLeast(0)
 
-        var tchqWinners = precedingQualifierWinners.filterNot { it in existingPlayerIds }
-        if (tchqWinners.size > neededQualifierCount) {
-            tchqWinners = tchqWinners.take(neededQualifierCount)
-        }
-        if (persistToDb && tchqWinners.size < neededQualifierCount) {
-            val nonPreqTc = tourCardPlayerIds.filterNot { it in existingPlayerIds || it in tchqWinners }
-            tchqWinners = QualificationHelper.fillToTargetCount(tchqWinners, neededQualifierCount, nonPreqTc, oomEntries)
+        val tchqWinners = precedingQualifierWinners.filterNot { it in existingPlayerIds }
+        if (persistToDb) {
+            require(tchqWinners.size == neededQualifierCount) {
+                "Grand Slam erfordert exakt $neededQualifierCount Qualifier-Sieger, erhalten: ${tchqWinners.size}"
+            }
+        } else if (tchqWinners.isNotEmpty()) {
+            require(tchqWinners.size == neededQualifierCount) {
+                "Grand Slam erfordert exakt $neededQualifierCount Qualifier-Sieger, erhalten: ${tchqWinners.size}"
+            }
         }
 
         val qualified48Ids = (storedParticipants.map { it.playerId } + tchqWinners).distinct()
-        val final48Ids = if (persistToDb) {
-            QualificationHelper.fillToTargetCount(qualified48Ids, targetCount, allPlayerIds, oomEntries)
-        } else {
-            qualified48Ids
+        if (persistToDb) {
+            require(qualified48Ids.size == targetCount) {
+                "Grand Slam erfordert exakt $targetCount Teilnehmer, erhalten: ${qualified48Ids.size}"
+            }
         }
 
-        val sorted48 = QualificationHelper.sortPlayerIdsByOom(final48Ids, oomEntries, allPlayers)
+        val sorted48 = QualificationHelper.sortPlayerIdsByOom(qualified48Ids, oomEntries, allPlayers)
         val pot1 = sorted48.take(16)
         val pot2 = sorted48.drop(16).take(16)
         val pot3 = sorted48.drop(32).take(16)
