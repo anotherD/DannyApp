@@ -6,11 +6,11 @@ import android.webkit.WebView
 import android.widget.Button
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
+import androidx.core.view.isVisible
 import com.danny.dannyapp.R
 import com.danny.dannyapp.ui.career.CareersActivity
 import com.danny.dannyapp.ui.profile.ProfilesActivity
 import com.danny.dannyapp.webview.ScoliaWebViewManager
-import androidx.core.view.isVisible
 
 /**
  * Main activity handling navigation between the start menu and the Scolia browser view.

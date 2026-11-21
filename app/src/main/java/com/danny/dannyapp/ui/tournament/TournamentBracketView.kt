@@ -20,9 +20,9 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.danny.dannyapp.R
 import com.danny.dannyapp.data.db.USER_ID
+import com.danny.dannyapp.domain.enums.TournamentRound
 import com.danny.dannyapp.ui.UIHelper
 import com.danny.dannyapp.ui.enums.RoundStatus
-import com.danny.dannyapp.domain.enums.TournamentRound
 import com.danny.dannyapp.ui.model.EntrantGroupInfo
 import com.danny.dannyapp.ui.model.GrandSlamGroupItem
 import com.danny.dannyapp.ui.model.MatchUiModel

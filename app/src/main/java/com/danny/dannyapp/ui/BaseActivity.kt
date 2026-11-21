@@ -14,7 +14,6 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.danny.dannyapp.AppContainer
 import com.danny.dannyapp.DannyApp
 import com.danny.dannyapp.R
-import com.danny.dannyapp.data.SettingsManager
 import com.danny.dannyapp.ui.settings.SettingsActivity
 import com.google.android.material.appbar.MaterialToolbar
 import kotlinx.coroutines.launch
