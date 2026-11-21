@@ -214,9 +214,7 @@ class TournamentDetailViewModel(application: Application) : AndroidViewModel(app
             getApplication<Application>().getString(R.string.tournament_qualifying_no_prize)
         }
 
-        val matchesByTournament = allTournaments.filter { !it.isCompleted }.associate { tourney ->
-            tourney.id to tournamentRepository.getMatchesListForTournament(tourney.id)
-        }
+        val matchesByTournament = tournamentRepository.getMatchesListForSeason(tournament.seasonId).groupBy { it.tournamentId }
         val summaries = getTournamentSummaryUseCase.buildSeasonSummaries(
             tournaments = allTournaments,
             matchesByTournament = matchesByTournament,

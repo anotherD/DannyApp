@@ -107,47 +107,49 @@ class AdvanceTournamentRoundUseCase(
      * @return `true` wenn der Rundenwechsel oder Turnierabschluss erfolgreich ausgeführt wurde, sonst `false`.
      */
     suspend operator fun invoke(tournamentId: Long): Boolean = withContext(Dispatchers.IO) {
-        val state = evaluateTournamentState(tournamentId) ?: return@withContext false
-        if (!state.canAdvanceRound) return@withContext false
-        val activeRound = state.activeRound ?: return@withContext false
+        tournamentRepository.runInTransaction {
+            val state = evaluateTournamentState(tournamentId) ?: return@runInTransaction false
+            if (!state.canAdvanceRound) return@runInTransaction false
+            val activeRound = state.activeRound ?: return@runInTransaction false
 
-        val tournament = tournamentRepository.getTournamentById(tournamentId)
-        val event = TournamentEvent.valueOf(tournament.type)
-        val allMatches = tournamentRepository.getMatchesListForTournament(tournamentId)
+            val tournament = tournamentRepository.getTournamentById(tournamentId)
+            val event = TournamentEvent.valueOf(tournament.type)
+            val allMatches = tournamentRepository.getMatchesListForTournament(tournamentId)
 
-        if (state.isFinalRound) {
-            if (!event.isQualifier) {
-                val finalMatches = allMatches.filter { it.round == TournamentRound.F.name || it.round == TournamentRound.QUAL_FINAL.name }
-                val finalMatch = finalMatches.firstOrNull()
-                val winnerId = finalMatch?.winnerId
-                if (winnerId != null) {
-                    tournamentRepository.upsertPlayerPlacement(
-                        tournamentId = tournamentId,
-                        playerId = winnerId,
-                        reachedRound = TournamentRound.WINNER.name,
-                        prizeMoney = event.getRankingPrizeMoney(TournamentRound.WINNER)
-                    )
+            if (state.isFinalRound) {
+                if (!event.isQualifier) {
+                    val finalMatches = allMatches.filter { it.round == TournamentRound.F.name || it.round == TournamentRound.QUAL_FINAL.name }
+                    val finalMatch = finalMatches.firstOrNull()
+                    val winnerId = finalMatch?.winnerId
+                    if (winnerId != null) {
+                        tournamentRepository.upsertPlayerPlacement(
+                            tournamentId = tournamentId,
+                            playerId = winnerId,
+                            reachedRound = TournamentRound.WINNER.name,
+                            prizeMoney = event.getRankingPrizeMoney(TournamentRound.WINNER)
+                        )
+                    }
                 }
+                tournamentRepository.updateTournament(tournament.copy(isCompleted = true, currentRound = null))
+                return@runInTransaction true
             }
-            tournamentRepository.updateTournament(tournament.copy(isCompleted = true, currentRound = null))
-            return@withContext true
+
+            advanceToNextRound(
+                tournament = tournament,
+                event = event,
+                currentRound = activeRound,
+                allMatches = allMatches
+            )
+
+            val roundSequence = event.getRoundSequence()
+            val activeIndex = roundSequence.indexOf(activeRound)
+            val nextRound = if (activeIndex >= 0) roundSequence.getOrNull(activeIndex + 1) else null
+            if (nextRound != null) {
+                tournamentRepository.updateTournament(tournament.copy(currentRound = nextRound.name))
+            }
+
+            true
         }
-
-        advanceToNextRound(
-            tournament = tournament,
-            event = event,
-            currentRound = activeRound,
-            allMatches = allMatches
-        )
-
-        val roundSequence = event.getRoundSequence()
-        val activeIndex = roundSequence.indexOf(activeRound)
-        val nextRound = if (activeIndex >= 0) roundSequence.getOrNull(activeIndex + 1) else null
-        if (nextRound != null) {
-            tournamentRepository.updateTournament(tournament.copy(currentRound = nextRound.name))
-        }
-
-        return@withContext true
     }
 
     /**

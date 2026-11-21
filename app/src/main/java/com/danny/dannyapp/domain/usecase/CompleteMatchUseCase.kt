@@ -46,37 +46,39 @@ class CompleteMatchUseCase(
      * @return [ManualScoreResult.Success] if completed successfully, or [ManualScoreResult.ValidationError] if invalid.
      */
     suspend fun completeManualMatch(matchId: Long, player1Score: Int, player2Score: Int): ManualScoreResult = withContext(Dispatchers.IO) {
-        val match = tournamentRepository.getMatchById(matchId)
-        check(!match.isCompleted) { "Match $matchId ist bereits abgeschlossen" }
+        tournamentRepository.runInTransaction {
+            val match = tournamentRepository.getMatchById(matchId)
+            check(!match.isCompleted) { "Match $matchId ist bereits abgeschlossen" }
 
-        val tournament = tournamentRepository.getTournamentById(match.tournamentId)
+            val tournament = tournamentRepository.getTournamentById(match.tournamentId)
 
-        val event = TournamentEvent.valueOf(tournament.type)
-        val round = TournamentRound.valueOf(match.round)
+            val event = TournamentEvent.valueOf(tournament.type)
+            val round = TournamentRound.valueOf(match.round)
 
-        val matchDistance = event.getMatchDistance(round)
-        val validationError = MatchScoreValidator.validateMatchScore(
-            context = context,
-            player1Score = player1Score,
-            player2Score = player2Score,
-            matchDistance = matchDistance
-        )
+            val matchDistance = event.getMatchDistance(round)
+            val validationError = MatchScoreValidator.validateMatchScore(
+                context = context,
+                player1Score = player1Score,
+                player2Score = player2Score,
+                matchDistance = matchDistance
+            )
 
-        if (validationError != null) {
-            return@withContext ManualScoreResult.ValidationError(validationError)
+            if (validationError != null) {
+                return@runInTransaction ManualScoreResult.ValidationError(validationError)
+            }
+
+            val winnerId = if (player1Score > player2Score) match.player1Id else match.player2Id
+            val updatedMatch = match.copy(
+                player1Score = player1Score,
+                player2Score = player2Score,
+                winnerId = winnerId,
+                isCompleted = true
+            )
+
+            tournamentRepository.updateMatch(updatedMatch)
+            advanceTournamentRoundUseCase.propagateWinnerOnMatchCompleted(updatedMatch)
+            ManualScoreResult.Success
         }
-
-        val winnerId = if (player1Score > player2Score) match.player1Id else match.player2Id
-        val updatedMatch = match.copy(
-            player1Score = player1Score,
-            player2Score = player2Score,
-            winnerId = winnerId,
-            isCompleted = true
-        )
-
-        tournamentRepository.updateMatch(updatedMatch)
-        advanceTournamentRoundUseCase.propagateWinnerOnMatchCompleted(updatedMatch)
-        return@withContext ManualScoreResult.Success
     }
 
     /**
@@ -87,34 +89,36 @@ class CompleteMatchUseCase(
      * @return `true` if the match was updated.
      */
     suspend fun completeWithPresetWinner(matchId: Long, userWins: Boolean): Boolean = withContext(Dispatchers.IO) {
-        val match = tournamentRepository.getMatchById(matchId)
-        check(!match.isCompleted) { "Match $matchId ist bereits abgeschlossen" }
+        tournamentRepository.runInTransaction {
+            val match = tournamentRepository.getMatchById(matchId)
+            check(!match.isCompleted) { "Match $matchId ist bereits abgeschlossen" }
 
-        val tournament = tournamentRepository.getTournamentById(match.tournamentId)
-        val event = TournamentEvent.valueOf(tournament.type)
-        val round = TournamentRound.valueOf(match.round)
+            val tournament = tournamentRepository.getTournamentById(match.tournamentId)
+            val event = TournamentEvent.valueOf(tournament.type)
+            val round = TournamentRound.valueOf(match.round)
 
-        val matchDistance = event.getMatchDistance(round)
-        val isPlayer1User = (match.player1Id == USER_ID)
-        val isPlayer1Winner = if (isPlayer1User) userWins else !userWins
+            val matchDistance = event.getMatchDistance(round)
+            val isPlayer1User = (match.player1Id == USER_ID)
+            val isPlayer1Winner = if (isPlayer1User) userWins else !userWins
 
-        val (player1Score, player2Score, winnerId) = MatchScoreValidator.generateScoresForWinner(
-            isPlayer1Winner = isPlayer1Winner,
-            player1Id = match.player1Id,
-            player2Id = match.player2Id,
-            matchDistance = matchDistance
-        )
+            val (player1Score, player2Score, winnerId) = MatchScoreValidator.generateScoresForWinner(
+                isPlayer1Winner = isPlayer1Winner,
+                player1Id = match.player1Id,
+                player2Id = match.player2Id,
+                matchDistance = matchDistance
+            )
 
-        val updatedMatch = match.copy(
-            player1Score = player1Score,
-            player2Score = player2Score,
-            winnerId = winnerId,
-            isCompleted = true
-        )
+            val updatedMatch = match.copy(
+                player1Score = player1Score,
+                player2Score = player2Score,
+                winnerId = winnerId,
+                isCompleted = true
+            )
 
-        tournamentRepository.updateMatch(updatedMatch)
-        advanceTournamentRoundUseCase.propagateWinnerOnMatchCompleted(updatedMatch)
-        return@withContext true
+            tournamentRepository.updateMatch(updatedMatch)
+            advanceTournamentRoundUseCase.propagateWinnerOnMatchCompleted(updatedMatch)
+            true
+        }
     }
 
     /**
@@ -135,43 +139,45 @@ class CompleteMatchUseCase(
 
         require(hasRealPlayers(match)) { "Match ${match.id} enthält unaufgelöste Platzhalter-IDs" }
 
-        val tournament = tournamentRepository.getTournamentById(match.tournamentId)
-        val event = TournamentEvent.valueOf(tournament.type)
-        val round = TournamentRound.valueOf(match.round)
-        val matchDistance = event.getMatchDistance(round)
+        tournamentRepository.runInTransaction {
+            val tournament = tournamentRepository.getTournamentById(match.tournamentId)
+            val event = TournamentEvent.valueOf(tournament.type)
+            val round = TournamentRound.valueOf(match.round)
+            val matchDistance = event.getMatchDistance(round)
 
-        val skill1 = getPlayerSkill(match.player1Id)
-        val skill2 = getPlayerSkill(match.player2Id)
+            val skill1 = getPlayerSkill(match.player1Id)
+            val skill2 = getPlayerSkill(match.player2Id)
 
-        val player1WinProbability = skill1.toDouble() / (skill1 + skill2)
+            val player1WinProbability = skill1.toDouble() / (skill1 + skill2)
 
-        val (player1Score, player2Score, winnerId) = when (matchDistance.format) {
-            MatchFormatType.LEGS -> simulateLegsMatch(
-                matchDistance = matchDistance,
-                player1WinProbability = player1WinProbability,
-                player1Id = match.player1Id,
-                player2Id = match.player2Id
+            val (player1Score, player2Score, winnerId) = when (matchDistance.format) {
+                MatchFormatType.LEGS -> simulateLegsMatch(
+                    matchDistance = matchDistance,
+                    player1WinProbability = player1WinProbability,
+                    player1Id = match.player1Id,
+                    player2Id = match.player2Id
+                )
+                MatchFormatType.SETS_BEST_OF_5_LEGS,
+                MatchFormatType.SETS_BEST_OF_3_LEGS,
+                MatchFormatType.SETS_DOUBLE_IN_OUT -> simulateSetsMatch(
+                    matchDistance = matchDistance,
+                    player1WinProbability = player1WinProbability,
+                    player1Id = match.player1Id,
+                    player2Id = match.player2Id
+                )
+            }
+
+            val updatedMatch = match.copy(
+                player1Score = player1Score,
+                player2Score = player2Score,
+                winnerId = winnerId,
+                isCompleted = true
             )
-            MatchFormatType.SETS_BEST_OF_5_LEGS,
-            MatchFormatType.SETS_BEST_OF_3_LEGS,
-            MatchFormatType.SETS_DOUBLE_IN_OUT -> simulateSetsMatch(
-                matchDistance = matchDistance,
-                player1WinProbability = player1WinProbability,
-                player1Id = match.player1Id,
-                player2Id = match.player2Id
-            )
+
+            tournamentRepository.updateMatch(updatedMatch)
+            advanceTournamentRoundUseCase.propagateWinnerOnMatchCompleted(updatedMatch)
+            updatedMatch
         }
-
-        val updatedMatch = match.copy(
-            player1Score = player1Score,
-            player2Score = player2Score,
-            winnerId = winnerId,
-            isCompleted = true
-        )
-
-        tournamentRepository.updateMatch(updatedMatch)
-        advanceTournamentRoundUseCase.propagateWinnerOnMatchCompleted(updatedMatch)
-        return@withContext updatedMatch
     }
 
     /**
@@ -181,26 +187,28 @@ class CompleteMatchUseCase(
      * @return List of all tournament matches after simulating CPU matches in the active round.
      */
     suspend fun simulateAllOpenCpuMatches(tournamentId: Long): List<TournamentMatch> = withContext(Dispatchers.IO) {
-        val matches = tournamentRepository.getMatchesListForTournament(tournamentId)
-        val activeRoundName = advanceTournamentRoundUseCase.evaluateTournamentState(tournamentId)?.activeRound?.name
-            ?: return@withContext matches
+        tournamentRepository.runInTransaction {
+            val matches = tournamentRepository.getMatchesListForTournament(tournamentId)
+            val activeRoundName = advanceTournamentRoundUseCase.evaluateTournamentState(tournamentId)?.activeRound?.name
+                ?: return@runInTransaction matches
 
-        val updatedList = mutableListOf<TournamentMatch>()
+            val updatedList = mutableListOf<TournamentMatch>()
 
-        for (match in matches) {
-            if (match.round == activeRoundName &&
-                !match.isCompleted &&
-                match.player1Id != USER_ID &&
-                match.player2Id != USER_ID &&
-                hasRealPlayers(match)
-            ) {
-                val simulatedMatch = simulateMatch(match, includeUserMatches = false)
-                updatedList.add(simulatedMatch)
-            } else {
-                updatedList.add(match)
+            for (match in matches) {
+                if (match.round == activeRoundName &&
+                    !match.isCompleted &&
+                    match.player1Id != USER_ID &&
+                    match.player2Id != USER_ID &&
+                    hasRealPlayers(match)
+                ) {
+                    val simulatedMatch = simulateMatch(match, includeUserMatches = false)
+                    updatedList.add(simulatedMatch)
+                } else {
+                    updatedList.add(match)
+                }
             }
+            updatedList
         }
-        return@withContext updatedList
     }
 
     /**

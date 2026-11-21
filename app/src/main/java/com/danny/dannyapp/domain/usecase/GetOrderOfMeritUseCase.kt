@@ -28,13 +28,10 @@ class GetOrderOfMeritUseCase(
         val seasons = seasonRepository.getSeasonsListForCareer(careerId)
         if (seasons.isEmpty()) return@withContext emptyList()
 
-        val seasonIds = seasons.map { id -> id.id }
+        val seasonIds = seasons.map { it.id }
         val currentSeason = seasons.maxByOrNull { it.seasonNumber }
 
-        val allTournaments = mutableListOf<Tournament>()
-        for (season in seasons) {
-            allTournaments.addAll(tournamentRepository.getTournamentsListForSeason(season.id))
-        }
+        val allTournaments = tournamentRepository.getTournamentsListForSeasons(seasonIds)
 
         val allPlacements = tournamentRepository.getPlacementsForSeasons(seasonIds)
         val allPlayers = playerRepository.getAllPlayersList()
