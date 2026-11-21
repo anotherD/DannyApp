@@ -97,13 +97,17 @@ object TournamentDetailUiHelper {
                     weightSum = 2f
                 }
 
-                rowPlayers.forEach { player ->
+                rowPlayers.forEachIndexed { columnIndex, player ->
                     val tvPlayer = TextView(context).apply {
                         layoutParams = LinearLayout.LayoutParams(
                             0,
                             LinearLayout.LayoutParams.WRAP_CONTENT,
                             1f
-                        )
+                        ).apply {
+                            if (columnIndex == 0) {
+                                marginEnd = (6 * context.resources.displayMetrics.density).toInt()
+                            }
+                        }
                         maxLines = 1
                         ellipsize = TextUtils.TruncateAt.END
                         alpha = if (isPreliminary) 0.72f else 1.0f

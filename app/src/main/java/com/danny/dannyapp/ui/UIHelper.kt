@@ -213,6 +213,8 @@ object UIHelper {
         textView.doOnPreDraw { _ ->
             val width = textView.width - textView.paddingStart - textView.paddingEnd
             if (width <= 0) return@doOnPreDraw
+            val safetyBufferPx = 4f * context.resources.displayMetrics.density
+            val effectiveWidth = (width - safetyBufferPx).coerceAtLeast(0f)
             val paint = textView.paint
 
             val seedText = if (seed != null) {
@@ -249,19 +251,19 @@ object UIHelper {
             }
 
             // 1. Full name fits?
-            if (totalWidth(name) <= width) {
+            if (totalWidth(name) <= effectiveWidth) {
                 return@doOnPreDraw
             }
 
             // 2. Abbreviated name fits?
             val abbrName = abbreviateName(name)
-            if (totalWidth(abbrName) <= width) {
+            if (totalWidth(abbrName) <= effectiveWidth) {
                 setFormattedText(abbrName)
                 return@doOnPreDraw
             }
 
             // 3. Ellipsize abbreviated name part only so seed is never cut off
-            val availableForName = (width - seedWidth - flagExtraWidth).coerceAtLeast(0f)
+            val availableForName = (effectiveWidth - seedWidth - flagExtraWidth).coerceAtLeast(0f)
             val ellipsizedName = TextUtils.ellipsize(abbrName, paint, availableForName, TextUtils.TruncateAt.END).toString()
             setFormattedText(ellipsizedName)
         }
