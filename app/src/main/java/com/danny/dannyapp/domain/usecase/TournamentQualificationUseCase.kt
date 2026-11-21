@@ -103,7 +103,22 @@ class TournamentQualificationUseCase(
             AppDatabase.getDatabase(context.applicationContext).careerDao(),
             SeasonRepository(context)
         ),
-        GetOrderOfMeritUseCase(context)
+        GetOrderOfMeritUseCase(
+            CareerRepository(
+                AppDatabase.getDatabase(context.applicationContext).careerDao(),
+                SeasonRepository(context)
+            ),
+            SeasonRepository(context),
+            TournamentRepository(
+                AppDatabase.getDatabase(context.applicationContext).tournamentDao(),
+                AppDatabase.getDatabase(context.applicationContext).tournamentMatchDao(),
+                AppDatabase.getDatabase(context.applicationContext).tournamentPlacementDao(),
+                AppDatabase.getDatabase(context.applicationContext).tournamentParticipantDao()
+            ),
+            PlayerRepository(
+                AppDatabase.getDatabase(context.applicationContext).playerDao()
+            )
+        )
     )
 
     private val resolveNonSimulatedQualifiersUseCase = ResolveNonSimulatedQualifiersUseCase()

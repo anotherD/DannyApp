@@ -93,7 +93,7 @@ class AppContainer(context: Context) {
     /**
      * Use case for fetching players.
      */
-    val getPlayersUseCase: GetPlayersUseCase by lazy { GetPlayersUseCase(appContext) }
+    val getPlayersUseCase: GetPlayersUseCase by lazy { GetPlayersUseCase(playerRepository) }
 
     /**
      * Use case for retrieving tournament summaries.

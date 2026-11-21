@@ -1,7 +1,6 @@
 package com.danny.dannyapp.domain.usecase
 
 import android.content.Context
-import com.danny.dannyapp.data.db.AppDatabase
 import com.danny.dannyapp.data.db.Tournament
 import com.danny.dannyapp.data.db.TournamentRepository
 import com.danny.dannyapp.domain.config.TournamentConfigLoader
@@ -12,16 +11,6 @@ class GenerateSeasonCalendarUseCase(
     private val tournamentRepository: TournamentRepository,
     private val context: Context? = null
 ) {
-    constructor(context: Context) : this(
-        TournamentRepository(
-            AppDatabase.getDatabase(context.applicationContext).tournamentDao(),
-            AppDatabase.getDatabase(context.applicationContext).tournamentMatchDao(),
-            AppDatabase.getDatabase(context.applicationContext).tournamentPlacementDao(),
-            AppDatabase.getDatabase(context.applicationContext).tournamentParticipantDao()
-        ),
-        context
-    )
-
     suspend operator fun invoke(seasonId: Long): List<Tournament> = withContext(Dispatchers.IO) {
         val existing = tournamentRepository.getTournamentsListForSeason(seasonId)
         if (existing.isNotEmpty()) {
