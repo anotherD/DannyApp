@@ -60,7 +60,7 @@
                     android:adjustViewBounds="true"
                     android:contentDescription="@string/app_title"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/bg181818.jpg" />
+                    android:src="@drawable/bg_181818" />
 
                 <!-- Dark vertical gradient overlay at bottom -->
                 <View
