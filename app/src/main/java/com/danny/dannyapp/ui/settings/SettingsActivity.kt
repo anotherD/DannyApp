@@ -2,7 +2,6 @@ package com.danny.dannyapp.ui.settings
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
 import com.danny.dannyapp.R
 import com.danny.dannyapp.ui.BaseActivity
 import com.google.android.material.card.MaterialCardView
@@ -37,22 +36,22 @@ class SettingsActivity : BaseActivity() {
 
         switchDebugMode.setOnCheckedChangeListener { _, isChecked ->
             debugMode = isChecked
-            Toast.makeText(this, getString(R.string.config_saved), Toast.LENGTH_SHORT).show()
+            showMessage(R.string.config_saved)
         }
 
         switchAutoSimulateCpu.setOnCheckedChangeListener { _, isChecked ->
             autoSimulateCpu = isChecked
-            Toast.makeText(this, getString(R.string.config_saved), Toast.LENGTH_SHORT).show()
+            showMessage(R.string.config_saved)
         }
 
         switchAutoAdvanceRound.setOnCheckedChangeListener { _, isChecked ->
             autoAdvanceRound = isChecked
-            Toast.makeText(this, getString(R.string.config_saved), Toast.LENGTH_SHORT).show()
+            showMessage(R.string.config_saved)
         }
 
         switchModernMatchCard.setOnCheckedChangeListener { _, isChecked ->
             settingsManager.useModernMatchCardStyle = isChecked
-            Toast.makeText(this, getString(R.string.config_saved), Toast.LENGTH_SHORT).show()
+            showMessage(R.string.config_saved)
         }
 
         cardPlayers.setOnClickListener {

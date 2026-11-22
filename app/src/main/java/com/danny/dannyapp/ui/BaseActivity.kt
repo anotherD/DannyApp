@@ -3,7 +3,7 @@ package com.danny.dannyapp.ui
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
+import androidx.annotation.StringRes
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -16,6 +16,7 @@ import com.danny.dannyapp.DannyApp
 import com.danny.dannyapp.R
 import com.danny.dannyapp.ui.settings.SettingsActivity
 import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 
 abstract class BaseActivity : AppCompatActivity() {
@@ -57,10 +58,26 @@ abstract class BaseActivity : AppCompatActivity() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 appContainer.errorEvents.collect { message ->
-                    Toast.makeText(this@BaseActivity, message, Toast.LENGTH_LONG).show()
+                    showMessage(message, isError = true, duration = Snackbar.LENGTH_LONG)
                 }
             }
         }
+    }
+
+    protected fun showMessage(
+        message: String,
+        isError: Boolean = false,
+        duration: Int = Snackbar.LENGTH_SHORT
+    ) {
+        UIHelper.showSnackbar(findViewById(android.R.id.content), message, isError, duration)
+    }
+
+    protected fun showMessage(
+        @StringRes messageResId: Int,
+        isError: Boolean = false,
+        duration: Int = Snackbar.LENGTH_SHORT
+    ) {
+        showMessage(getString(messageResId), isError, duration)
     }
 
     protected fun setupToolbar(

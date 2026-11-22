@@ -23,6 +23,7 @@ import com.danny.dannyapp.domain.model.Country
 import com.danny.dannyapp.ui.model.MatchUiModel
 import com.danny.dannyapp.ui.model.PlayerUiInfo
 import com.google.android.material.card.MaterialCardView
+import com.google.android.material.snackbar.Snackbar
 
 /**
  * Returns the corresponding color resource ID for a [SkillLevel].
@@ -43,6 +44,29 @@ fun SkillLevel.toColorResId(): Int {
 }
 
 object UIHelper {
+
+    /**
+     * Zeigt eine Material-3-Snackbar mit anpassbaren Farben und automatischer Mehrzeiligkeit (max. 3 Zeilen) an.
+     */
+    fun showSnackbar(
+        anchorView: View,
+        message: String,
+        isError: Boolean = false,
+        duration: Int = Snackbar.LENGTH_SHORT
+    ) {
+        val snackbar = Snackbar.make(anchorView, message, duration)
+        val context = anchorView.context
+        val bgColorRes = if (isError) R.color.rot_container_dunkel else R.color.anthrazit_container_hoch
+        val textColorRes = if (isError) R.color.rot_sehr_hell else R.color.grau_text_hell
+
+        snackbar.setBackgroundTint(ContextCompat.getColor(context, bgColorRes))
+        snackbar.setTextColor(ContextCompat.getColor(context, textColorRes))
+
+        val textView = snackbar.view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
+        textView?.maxLines = 3
+
+        snackbar.show()
+    }
 
     /**
      * Erstellt die Spieler-UI-Informationen für den Nutzer basierend auf der verknüpften Karriere und dem Profil.
