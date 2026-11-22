@@ -1,5 +1,6 @@
 package com.danny.dannyapp.domain.strategy
 
+import com.danny.dannyapp.data.db.PLACEHOLDER_OPEN_DRAW_ID
 import com.danny.dannyapp.data.db.PLACEHOLDER_PREVIOUS_WINNER_ID
 import com.danny.dannyapp.data.db.TournamentMatch
 import com.danny.dannyapp.domain.enums.TournamentEvent
@@ -308,12 +309,52 @@ class QualifierStrategy(
         val split = qualResult.qualifierFieldSplit
             ?: throw IllegalStateException("QualifierFieldSplit missing for qualifier tournament $tournamentId")
         val (prelimMatches, r1Matches) = createQualifierMatches(tournamentId, split)
+
+        val processedR1Matches = r1Matches.map { match ->
+            if (match.player2Id == PLACEHOLDER_OPEN_DRAW_ID && match.player1Id != PLACEHOLDER_OPEN_DRAW_ID) {
+                match.copy(
+                    isCompleted = true,
+                    winnerId = match.player1Id,
+                    player1Score = 0,
+                    player2Score = 0
+                )
+            } else if (match.player1Id == PLACEHOLDER_OPEN_DRAW_ID && match.player2Id != PLACEHOLDER_OPEN_DRAW_ID) {
+                match.copy(
+                    isCompleted = true,
+                    winnerId = match.player2Id,
+                    player1Score = 0,
+                    player2Score = 0
+                )
+            } else {
+                match
+            }
+        }
+
         val tournamentMatches = mutableListOf<TournamentMatch>()
         tournamentMatches.addAll(prelimMatches)
-        tournamentMatches.addAll(r1Matches)
+        tournamentMatches.addAll(processedR1Matches)
         val r1MatchesPerBoard = if (split.boardCount > 0) r1Matches.size / split.boardCount else 4
         val roundSequence = event.getQualifierRoundSequence(r1MatchesPerBoard)
         tournamentMatches.appendSubsequentKoRounds(tournamentId, event, TournamentRound.QUAL_R1, r1Matches.size, roundSequence)
+
+        for (r1Match in processedR1Matches) {
+            if (r1Match.isCompleted && r1Match.winnerId != null) {
+                val targetMatchIndex = r1Match.matchIndex / 2
+                val r2MatchIndexInList = tournamentMatches.indexOfFirst {
+                    it.round == TournamentRound.QUAL_R2.name && it.matchIndex == targetMatchIndex
+                }
+                if (r2MatchIndexInList != -1) {
+                    val r2Match = tournamentMatches[r2MatchIndexInList]
+                    val updatedR2Match = if (r1Match.matchIndex % 2 == 0) {
+                        r2Match.copy(player1Id = r1Match.winnerId)
+                    } else {
+                        r2Match.copy(player2Id = r1Match.winnerId)
+                    }
+                    tournamentMatches[r2MatchIndexInList] = updatedR2Match
+                }
+            }
+        }
+
         return tournamentMatches
     }
 }
