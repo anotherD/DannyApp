@@ -277,6 +277,7 @@
     <string name="careers_create_match_distance">Match-Distanz</string>
     <string name="match_distance_info_title">Match-Distanzen im Überblick</string>
     <string name="match_distance_info_description">Lege vor Karrierestart fest, wie lang Matches in allen Turnieren gespielt werden. Diese Einstellung gilt dauerhaft für die gesamte Karriere.</string>
+    <string name="tournament_info_match_distance_format">Match-Distanz: %1$s</string>
 
     <!-- Career Distance Categories -->
     <string name="career_distance_category_players_championship">Players Championship</string>

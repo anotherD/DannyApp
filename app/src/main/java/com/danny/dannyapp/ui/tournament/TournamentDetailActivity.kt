@@ -19,6 +19,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
+import com.danny.dannyapp.domain.enums.MatchDistancePreset
 import com.danny.dannyapp.domain.enums.TournamentEvent
 import com.danny.dannyapp.ui.BaseActivity
 import com.danny.dannyapp.ui.UIHelper
@@ -557,11 +558,29 @@ class TournamentDetailActivity : BaseActivity() {
 
     private fun showPrizeMoneyDialog() {
         val state = viewModel.uiState.value
-        val (participantGroups, isParticipantsFrozen, openQualifierSlotsText) = when (state) {
-            is TournamentDetailState.Preview -> Triple(state.participantGroups, state.isParticipantsFrozen, state.openQualifierSlotsText)
-            is TournamentDetailState.Active -> Triple(state.participantGroups, state.isParticipantsFrozen, state.openQualifierSlotsText)
-            is TournamentDetailState.Review -> Triple(state.participantGroups, state.isParticipantsFrozen, state.openQualifierSlotsText)
-            else -> Triple(emptyList(), false, null)
+        val participantGroups = when (state) {
+            is TournamentDetailState.Preview -> state.participantGroups
+            is TournamentDetailState.Active -> state.participantGroups
+            is TournamentDetailState.Review -> state.participantGroups
+            else -> emptyList()
+        }
+        val isParticipantsFrozen = when (state) {
+            is TournamentDetailState.Preview -> state.isParticipantsFrozen
+            is TournamentDetailState.Active -> state.isParticipantsFrozen
+            is TournamentDetailState.Review -> state.isParticipantsFrozen
+            else -> false
+        }
+        val openQualifierSlotsText = when (state) {
+            is TournamentDetailState.Preview -> state.openQualifierSlotsText
+            is TournamentDetailState.Active -> state.openQualifierSlotsText
+            is TournamentDetailState.Review -> state.openQualifierSlotsText
+            else -> null
+        }
+        val matchDistancePreset = when (state) {
+            is TournamentDetailState.Preview -> state.matchDistancePreset
+            is TournamentDetailState.Active -> state.matchDistancePreset
+            is TournamentDetailState.Review -> state.matchDistancePreset
+            else -> MatchDistancePreset.DEFAULT
         }
         TournamentDialogs.showPrizeMoneyDialog(
             context = this,
@@ -569,7 +588,8 @@ class TournamentDetailActivity : BaseActivity() {
             event = currentEvent,
             participantGroups = participantGroups,
             isParticipantsFrozen = isParticipantsFrozen,
-            openQualifierSlotsText = openQualifierSlotsText
+            openQualifierSlotsText = openQualifierSlotsText,
+            matchDistancePreset = matchDistancePreset
         )
     }
 

@@ -17,6 +17,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
+import com.danny.dannyapp.domain.enums.MatchDistancePreset
 import com.danny.dannyapp.domain.enums.TournamentEvent
 import com.danny.dannyapp.domain.usecase.ManualScoreResult
 import com.danny.dannyapp.domain.usecase.ScoreValidationError
@@ -51,7 +52,8 @@ object TournamentDialogs {
         event: TournamentEvent?,
         participantGroups: List<EntrantGroupInfo> = emptyList(),
         isParticipantsFrozen: Boolean = false,
-        openQualifierSlotsText: String? = null
+        openQualifierSlotsText: String? = null,
+        matchDistancePreset: MatchDistancePreset = MatchDistancePreset.DEFAULT
     ) {
         if (prizeMoneyItems.isEmpty()) return
 
@@ -81,9 +83,21 @@ object TournamentDialogs {
             textSize = 15f
             setTypeface(null, Typeface.BOLD)
             setTextColor(ContextCompat.getColor(context, R.color.rot_haupt))
-            setPadding(0, 0, 0, 16)
+            setPadding(0, 0, 0, 4)
         }
         tab0Layout.addView(tvHeader)
+
+        val tvMatchDistance = TextView(context).apply {
+            text = context.getString(R.string.tournament_info_match_distance_format, context.getString(matchDistancePreset.labelResId))
+            textSize = 13f
+            val typedValue = TypedValue()
+            context.theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurfaceVariant, typedValue, true)
+            if (typedValue.resourceId != 0) {
+                setTextColor(ContextCompat.getColor(context, typedValue.resourceId))
+            }
+            setPadding(0, 0, 0, 12)
+        }
+        tab0Layout.addView(tvMatchDistance)
 
         if (event == TournamentEvent.EUROPEAN_TOUR) {
             val tvExceptionEt = TextView(context).apply {
