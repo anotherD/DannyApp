@@ -73,7 +73,7 @@ class TournamentMatchAdapter(
 
         holder.tvMatchRoundIndex.text = TournamentUiHelper.formatMatchBadgeText(context, match)
 
-        UIHelper.bindSmartPlayerName(holder.tvPlayer1Name, item.player1, isLeft = true)
+        UIHelper.bindSmartPlayerName(holder.tvPlayer1Name, item.player1)
         UIHelper.bindSmartPlayerName(holder.tvPlayer2Name, item.player2, isLeft = false)
 
         UIHelper.applyMatchCardStyle(

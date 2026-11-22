@@ -106,7 +106,6 @@ object TournamentDetailMapper {
             PlayerUiInfo(
                 id = match.player1Id,
                 name = p1Placeholder,
-                countryCode = null,
                 seed = p1Seed,
                 skill = SkillLevel.DEFAULT.value
             )
@@ -124,7 +123,6 @@ object TournamentDetailMapper {
             PlayerUiInfo(
                 id = match.player2Id,
                 name = p2Placeholder,
-                countryCode = null,
                 seed = p2Seed,
                 skill = SkillLevel.DEFAULT.value
             )

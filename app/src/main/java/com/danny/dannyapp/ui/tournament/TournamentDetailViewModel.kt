@@ -495,7 +495,7 @@ class TournamentDetailViewModel(
                 player = allPlayersMap[winnerId],
                 careerWithProfile = careerWithProfile
             )
-        } else PlayerUiInfo(id = 0L, name = getApplication<Application>().getString(R.string.player_name_unknown), countryCode = Country.DEFAULT_CODE)
+        } else PlayerUiInfo(name = getApplication<Application>().getString(R.string.player_name_unknown), countryCode = Country.DEFAULT_CODE)
 
         val userPlacement = tournamentRepository.getPlacementsListForTournament(tournament.id).find { it.playerId == USER_ID }
         val userReachedRoundText = if (userPlacement != null) {

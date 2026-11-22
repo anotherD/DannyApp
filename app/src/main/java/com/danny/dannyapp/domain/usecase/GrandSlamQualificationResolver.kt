@@ -174,7 +174,6 @@ class GrandSlamQualificationResolver(
                     TournamentParticipant(
                         tournamentId = mainTournamentId,
                         playerId = playerId,
-                        seedNumber = null,
                         qualificationType = "MAJOR"
                     )
                 )
@@ -189,7 +188,6 @@ class GrandSlamQualificationResolver(
                     TournamentParticipant(
                         tournamentId = mainTournamentId,
                         playerId = playerId,
-                        seedNumber = null,
                         qualificationType = "ADDITIONAL"
                     )
                 )
@@ -209,7 +207,6 @@ class GrandSlamQualificationResolver(
                     TournamentParticipant(
                         tournamentId = mainTournamentId,
                         playerId = etWinner,
-                        seedNumber = null,
                         qualificationType = "PRO_TOUR_WINNER"
                     )
                 )
@@ -230,7 +227,6 @@ class GrandSlamQualificationResolver(
                         TournamentParticipant(
                             tournamentId = mainTournamentId,
                             playerId = pcWinner,
-                            seedNumber = null,
                             qualificationType = "PRO_TOUR_WINNER"
                         )
                     )
@@ -289,14 +285,12 @@ class GrandSlamQualificationResolver(
             TournamentParticipant(
                 tournamentId = tournamentId,
                 playerId = playerId,
-                seedNumber = null,
                 qualificationType = "POT_2"
             )
         } + pot3.map { playerId ->
             TournamentParticipant(
                 tournamentId = tournamentId,
                 playerId = playerId,
-                seedNumber = null,
                 qualificationType = "POT_3"
             )
         }

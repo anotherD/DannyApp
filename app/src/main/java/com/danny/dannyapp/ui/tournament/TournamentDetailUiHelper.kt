@@ -118,7 +118,7 @@ object TournamentDetailUiHelper {
                             setTextColor(ContextCompat.getColor(context, typedValue.resourceId))
                         }
                     }
-                    UIHelper.bindSmartPlayerName(tvPlayer, player, isLeft = true)
+                    UIHelper.bindSmartPlayerName(tvPlayer, player)
                     rowLayout.addView(tvPlayer)
                 }
 

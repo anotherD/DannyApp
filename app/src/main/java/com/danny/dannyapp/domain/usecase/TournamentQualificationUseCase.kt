@@ -294,7 +294,6 @@ class TournamentQualificationUseCase(
             TournamentParticipant(
                 tournamentId = tournamentId,
                 playerId = playerId,
-                seedNumber = null,
                 qualificationType = "TOUR_CARD"
             )
         }
@@ -400,7 +399,6 @@ class TournamentQualificationUseCase(
             TournamentParticipant(
                 tournamentId = tournamentId,
                 playerId = playerId,
-                seedNumber = null,
                 qualificationType = "QUALIFIER"
             )
         }
@@ -487,14 +485,12 @@ class TournamentQualificationUseCase(
             TournamentParticipant(
                 tournamentId = tournamentId,
                 playerId = playerId,
-                seedNumber = null,
                 qualificationType = "OOM_97_128"
             )
         } + final32Qualifiers.map { playerId ->
             TournamentParticipant(
                 tournamentId = tournamentId,
                 playerId = playerId,
-                seedNumber = null,
                 qualificationType = "QUALIFIER"
             )
         }
@@ -533,7 +529,6 @@ class TournamentQualificationUseCase(
             TournamentParticipant(
                 tournamentId = tournamentId,
                 playerId = playerId,
-                seedNumber = null,
                 qualificationType = "PT_OOM"
             )
         }
@@ -650,7 +645,6 @@ class TournamentQualificationUseCase(
             TournamentParticipant(
                 tournamentId = tournamentId,
                 playerId = playerId,
-                seedNumber = null,
                 qualificationType = "QUALIFIER"
             )
         }
@@ -859,7 +853,6 @@ class TournamentQualificationUseCase(
                         TournamentParticipant(
                             tournamentId = tournament.id,
                             playerId = winnerId,
-                            seedNumber = null,
                             qualificationType = "QUALIFIER"
                         )
                     }

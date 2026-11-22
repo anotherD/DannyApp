@@ -36,7 +36,6 @@ class SettingsPlayersActivity : BaseActivity() {
         setupToolbar(
             titleText = getString(R.string.config_players),
             subtitleText = getString(R.string.config_title),
-            showBack = true,
             rootViewId = R.id.playersMain,
         )
 

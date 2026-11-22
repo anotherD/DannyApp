@@ -82,7 +82,7 @@ class MainActivity : BaseActivity() {
 
         if (!isWebViewInitialized) {
             webViewManager = ScoliaWebViewManager(webView, viewModel.scoliaRepository)
-            webViewManager.setupWebView("https://game.scoliadarts.com/game")
+            webViewManager.setupWebView()
             isWebViewInitialized = true
         }
     }

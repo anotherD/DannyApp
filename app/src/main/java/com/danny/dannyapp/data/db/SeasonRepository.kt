@@ -158,8 +158,7 @@ class SeasonRepository(
 
         val newSeason = Season(
             careerId = careerId,
-            seasonNumber = nextSeasonNumber,
-            isCompleted = false
+            seasonNumber = nextSeasonNumber
         )
         val seasonId = seasonDao.insertSeason(newSeason)
 

@@ -35,7 +35,6 @@ class CareerDetailActivity : BaseActivity() {
         setupToolbar(
             titleText = getString(R.string.loading),
             subtitleText = getString(R.string.career),
-            showBack = true,
             rootViewId = R.id.careerDetailMain,
         )
 
@@ -79,7 +78,6 @@ class CareerDetailActivity : BaseActivity() {
                                 setupToolbar(
                                     titleText = career.name,
                                     subtitleText = getString(R.string.breadcrumb_career_season_format, careerName, seasonNumber),
-                                    showBack = true,
                                     rootViewId = R.id.careerDetailMain,
                                 )
                             }

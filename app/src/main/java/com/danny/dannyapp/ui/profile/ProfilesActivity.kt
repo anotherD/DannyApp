@@ -25,7 +25,7 @@ class ProfilesActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_profiles)
-        setupToolbar(getString(R.string.profiles), showBack = true, rootViewId = R.id.profilesMain)
+        setupToolbar(getString(R.string.profiles), rootViewId = R.id.profilesMain)
 
         rvProfiles = findViewById(R.id.rvProfiles)
         tvEmptyProfiles = findViewById(R.id.tvEmptyProfiles)
@@ -92,7 +92,6 @@ class ProfilesActivity : BaseActivity() {
         ProfileDialogs.showProfileDialog(
             context = this,
             anchorView = findViewById(android.R.id.content),
-            existingProfile = null,
             onSave = { name, playerName, countryCode, description ->
                 viewModel.saveUserProfile(name, playerName, countryCode, description)
             }

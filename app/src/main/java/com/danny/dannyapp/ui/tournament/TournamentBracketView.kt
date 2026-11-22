@@ -336,7 +336,7 @@ class TournamentBracketView @JvmOverloads constructor(
             setPadding(pxPaddingH, pxPaddingV, pxPaddingH, pxPaddingV)
 
             setOnClickListener {
-                selectRound(roundIndex, animate = true)
+                selectRound(roundIndex)
                 onRoundSelected?.invoke(roundIndex)
             }
         }
@@ -389,8 +389,8 @@ class TournamentBracketView @JvmOverloads constructor(
         val match = item.match
         tvBracketMatchIndex.text = TournamentUiHelper.formatMatchBadgeText(context, match)
 
-        UIHelper.bindSmartPlayerName(tvPlayer1Name, item.player1, isLeft = true)
-        UIHelper.bindSmartPlayerName(tvPlayer2Name, item.player2, isLeft = true)
+        UIHelper.bindSmartPlayerName(tvPlayer1Name, item.player1)
+        UIHelper.bindSmartPlayerName(tvPlayer2Name, item.player2)
 
         UIHelper.applyMatchCardStyle(
             card = card,
@@ -398,8 +398,7 @@ class TournamentBracketView @JvmOverloads constructor(
             player1Name = tvPlayer1Name,
             player1Score = tvPlayer1Score,
             player2Name = tvPlayer2Name,
-            player2Score = tvPlayer2Score,
-            matchIndexBadge = null
+            player2Score = tvPlayer2Score
         )
 
         card.setOnClickListener {
@@ -880,7 +879,7 @@ class TournamentBracketView @JvmOverloads constructor(
                                 else -> currentFocus.roundToInt().coerceIn(0, numRounds - 1)
                             }
                             val previousRoundIndex = selectedRoundIndex
-                            selectRound(targetRound, animate = true)
+                            selectRound(targetRound)
                             if (targetRound != previousRoundIndex) {
                                 onRoundSelected?.invoke(targetRound)
                             }

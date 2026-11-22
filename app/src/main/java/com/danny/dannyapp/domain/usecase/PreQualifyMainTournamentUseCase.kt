@@ -167,7 +167,6 @@ class PreQualifyMainTournamentUseCase(
                         TournamentParticipant(
                             tournamentId = mainTournament.id,
                             playerId = playerId,
-                            seedNumber = null,
                             qualificationType = "HOST_NATION"
                         )
                     )
@@ -178,7 +177,6 @@ class PreQualifyMainTournamentUseCase(
                         TournamentParticipant(
                             tournamentId = mainTournament.id,
                             playerId = playerId,
-                            seedNumber = null,
                             qualificationType = "QUALIFIER"
                         )
                     )
@@ -226,7 +224,6 @@ class PreQualifyMainTournamentUseCase(
                         TournamentParticipant(
                             tournamentId = mainTournament.id,
                             playerId = playerId,
-                            seedNumber = null,
                             qualificationType = "PT_OOM"
                         )
                     )
@@ -237,7 +234,6 @@ class PreQualifyMainTournamentUseCase(
                         TournamentParticipant(
                             tournamentId = mainTournament.id,
                             playerId = playerId,
-                            seedNumber = null,
                             qualificationType = "QUALIFIER"
                         )
                     )
@@ -282,7 +278,6 @@ class PreQualifyMainTournamentUseCase(
                         TournamentParticipant(
                             tournamentId = mainTournament.id,
                             playerId = playerId,
-                            seedNumber = null,
                             qualificationType = "QUALIFIER"
                         )
                     )

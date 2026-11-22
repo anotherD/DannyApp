@@ -119,7 +119,7 @@ object TournamentBracketCardBuilder {
                             1f
                         )
                     }
-                    UIHelper.bindSmartPlayerName(tvPlayer, player, isLeft = true)
+                    UIHelper.bindSmartPlayerName(tvPlayer, player)
                     rowLayout.addView(tvPlayer)
 
                     if (colIdx == 0 && pair.size > 1) {
@@ -265,7 +265,7 @@ object TournamentBracketCardBuilder {
                 ellipsize = TextUtils.TruncateAt.END
                 layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
                 if (item != null) {
-                    UIHelper.bindSmartPlayerName(this, item.player, isLeft = true)
+                    UIHelper.bindSmartPlayerName(this, item.player)
                     if (item.player.id == USER_ID) {
                         setTextColor(ContextCompat.getColor(context, R.color.rot_sehr_hell))
                     } else if (i != 0) {

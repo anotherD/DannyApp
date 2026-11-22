@@ -21,7 +21,8 @@ class SettingsActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
-        setupToolbar(getString(R.string.config_title), showBack = true, rootViewId = R.id.configurationMain, menuResId = 0)
+        setupToolbar(getString(R.string.config_title),
+            rootViewId = R.id.configurationMain, menuResId = 0)
 
         switchDebugMode = findViewById(R.id.switchDebugMode)
         switchAutoSimulateCpu = findViewById(R.id.switchAutoSimulateCpu)

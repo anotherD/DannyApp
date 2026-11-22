@@ -198,7 +198,7 @@ class CompleteMatchUseCase(
                     match.player2Id != USER_ID &&
                     hasRealPlayers(match)
                 ) {
-                    val simulatedMatch = simulateMatch(match, includeUserMatches = false)
+                    val simulatedMatch = simulateMatch(match)
                     updatedList.add(simulatedMatch)
                 } else {
                     updatedList.add(match)

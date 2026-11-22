@@ -38,7 +38,7 @@ class CareersActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_careers)
-        setupToolbar(getString(R.string.careers), showBack = true, rootViewId = R.id.careersMain)
+        setupToolbar(getString(R.string.careers), rootViewId = R.id.careersMain)
 
         rvCareers = findViewById(R.id.rvCareers)
         tvEmptyCareers = findViewById(R.id.tvEmptyCareers)

@@ -150,7 +150,6 @@ class TournamentDetailActivity : BaseActivity() {
         setupToolbar(
             titleText = getString(R.string.tournament_detail),
             subtitleText = getString(R.string.breadcrumb_format, careerName.ifBlank { getString(R.string.career) }),
-            showBack = true,
             rootViewId = R.id.tournamentDetailMain
         )
 
@@ -361,7 +360,6 @@ class TournamentDetailActivity : BaseActivity() {
                 setupToolbar(
                     titleText = state.tournament.name,
                     subtitleText = getString(R.string.breadcrumb_career_season_format, activeCareerName, state.seasonNumber),
-                    showBack = true,
                     rootViewId = R.id.tournamentDetailMain
                 )
 
@@ -391,7 +389,6 @@ class TournamentDetailActivity : BaseActivity() {
                 setupToolbar(
                     titleText = state.tournament.name,
                     subtitleText = getString(R.string.breadcrumb_career_season_format, activeCareerName, state.seasonNumber),
-                    showBack = true,
                     rootViewId = R.id.tournamentDetailMain
                 )
 
@@ -457,7 +454,7 @@ class TournamentDetailActivity : BaseActivity() {
                             state.isOpenDrawInfoVisible,
                             state.openDrawInfoMap
                         )
-                        bracketViewActive.selectRound(state.selectedRoundIndex, animate = true)
+                        bracketViewActive.selectRound(state.selectedRoundIndex)
                     }
                 } else {
                     scrollBoardPills.visibility = View.GONE
@@ -491,7 +488,6 @@ class TournamentDetailActivity : BaseActivity() {
                 setupToolbar(
                     titleText = state.tournament.name,
                     subtitleText = getString(R.string.breadcrumb_career_season_format, activeCareerName, state.seasonNumber),
-                    showBack = true,
                     rootViewId = R.id.tournamentDetailMain
                 )
 
@@ -528,7 +524,6 @@ class TournamentDetailActivity : BaseActivity() {
                     chipGroup = chipGroupReviewRounds,
                     scrollContainer = scrollReviewRoundPills,
                     roundDisplayNames = state.availableRoundDisplayNames,
-                    roundStatuses = null,
                     selectedIndex = state.selectedRoundIndex,
                     onRoundSelected = { index -> viewModel.selectRound(index) }
                 )
@@ -541,7 +536,7 @@ class TournamentDetailActivity : BaseActivity() {
                     setupQualifierBoardFilterChips(state.event, state.allRoundsMatches, scrollReviewBoardPills, chipGroupReviewBoards) { filteredRounds ->
                         bracketViewReview.setRoundHeaders(state.availableRoundDisplayNames, reviewRoundStatuses)
                         bracketViewReview.setRounds(filteredRounds, state.selectedRoundIndex, state.grandSlamGroupStandings)
-                        bracketViewReview.selectRound(state.selectedRoundIndex, animate = true)
+                        bracketViewReview.selectRound(state.selectedRoundIndex)
                     }
                 } else {
                     scrollReviewBoardPills.visibility = View.GONE
