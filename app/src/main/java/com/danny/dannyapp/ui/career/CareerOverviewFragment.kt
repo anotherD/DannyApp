@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.TextView
+import android.widget.LinearLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
@@ -37,10 +38,10 @@ class CareerOverviewFragment : Fragment(R.layout.fragment_career_overview) {
     private lateinit var tvOverviewRankPt: TextView
     private lateinit var tvOverviewRankPc: TextView
     private lateinit var tvOverviewRankEt: TextView
-    private lateinit var layoutOverviewRankOom: android.widget.LinearLayout
-    private lateinit var layoutOverviewRankPt: android.widget.LinearLayout
-    private lateinit var layoutOverviewRankPc: android.widget.LinearLayout
-    private lateinit var layoutOverviewRankEt: android.widget.LinearLayout
+    private lateinit var layoutOverviewRankOom: LinearLayout
+    private lateinit var layoutOverviewRankPt: LinearLayout
+    private lateinit var layoutOverviewRankPc: LinearLayout
+    private lateinit var layoutOverviewRankEt: LinearLayout
     private lateinit var containerActiveTournament: FrameLayout
     private lateinit var tvNoActiveTournament: TextView
 
