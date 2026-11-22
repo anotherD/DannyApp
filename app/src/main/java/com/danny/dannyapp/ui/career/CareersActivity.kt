@@ -7,8 +7,9 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.NumberPicker
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.viewModels
+import com.danny.dannyapp.ui.UIHelper
+import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -103,6 +104,7 @@ class CareersActivity : BaseActivity() {
                     .setPositiveButton(getString(R.string.career_create_no_profile_button)) { _, _ ->
                         ProfileDialogs.showProfileDialog(
                             context = this@CareersActivity,
+                            anchorView = findViewById(android.R.id.content),
                             existingProfile = null,
                             onSave = { name, playerName, countryCode, description ->
                                 profilesViewModel.saveUserProfile(name, playerName, countryCode, description)
@@ -132,7 +134,7 @@ class CareersActivity : BaseActivity() {
             .setPositiveButton(getString(R.string.career_delete_confirm)) { _, _ ->
                 lifecycleScope.launch {
                     viewModel.deleteCareer(career.id)
-                    Toast.makeText(this@CareersActivity, getString(R.string.career_deleted_msg, career.name), Toast.LENGTH_SHORT).show()
+                    showMessage(getString(R.string.career_deleted_msg, career.name))
                 }
             }
             .setNegativeButton(android.R.string.cancel, null)
@@ -187,9 +189,9 @@ class CareersActivity : BaseActivity() {
                 }
 
                 if (careerName.isEmpty()) {
-                    Toast.makeText(this, getString(R.string.careers_create_error_empty_name), Toast.LENGTH_SHORT).show()
+                    UIHelper.showSnackbar(dialog.window!!.decorView, getString(R.string.careers_create_error_empty_name), isError = true)
                 } else if (matchedProfile == null || selectedProfileId <= 0L) {
-                    Toast.makeText(this, getString(R.string.careers_create_error_empty_profile), Toast.LENGTH_SHORT).show()
+                    UIHelper.showSnackbar(dialog.window!!.decorView, getString(R.string.careers_create_error_empty_profile), isError = true)
                 } else {
                     val level = numberPickerLevel.value
                     val newCareer = Career(
@@ -200,11 +202,11 @@ class CareersActivity : BaseActivity() {
                     lifecycleScope.launch {
                         when (val result = viewModel.saveCareer(newCareer)) {
                             is SaveCareerResult.Success -> {
-                                Toast.makeText(this@CareersActivity, getString(R.string.careers_career_created, result.careerName, result.level), Toast.LENGTH_SHORT).show()
+                                showMessage(getString(R.string.careers_career_created, result.careerName, result.level))
                                 dialog.dismiss()
                             }
                             is SaveCareerResult.Error -> {
-                                Toast.makeText(this@CareersActivity, result.message, Toast.LENGTH_LONG).show()
+                                UIHelper.showSnackbar(dialog.window!!.decorView, result.message, isError = true, duration = Snackbar.LENGTH_LONG)
                             }
                         }
                     }
@@ -260,20 +262,18 @@ class CareersActivity : BaseActivity() {
             positiveButton?.setOnClickListener {
                 val newName = editText.text.toString().trim()
                 if (newName.isEmpty()) {
-                    Toast.makeText(this, getString(R.string.careers_create_error_empty_name), Toast.LENGTH_SHORT).show()
+                    UIHelper.showSnackbar(dialog.window!!.decorView, getString(R.string.careers_create_error_empty_name), isError = true)
                 } else {
                     lifecycleScope.launch {
                         when (val result = viewModel.updateCareerName(career, newName)) {
                             is SaveCareerResult.Success -> {
-                                Toast.makeText(
-                                    this@CareersActivity,
-                                    getString(R.string.career_updated_msg, result.careerName),
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                                showMessage(
+                                    getString(R.string.career_updated_msg, result.careerName)
+                                )
                                 dialog.dismiss()
                             }
                             is SaveCareerResult.Error -> {
-                                Toast.makeText(this@CareersActivity, result.message, Toast.LENGTH_LONG).show()
+                                UIHelper.showSnackbar(dialog.window!!.decorView, result.message, isError = true, duration = Snackbar.LENGTH_LONG)
                             }
                         }
                     }

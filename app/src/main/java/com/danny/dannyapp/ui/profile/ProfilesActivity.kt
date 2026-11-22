@@ -3,7 +3,6 @@ package com.danny.dannyapp.ui.profile
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -81,7 +80,7 @@ class ProfilesActivity : BaseActivity() {
                 .setPositiveButton(getString(R.string.profile_delete_confirm)) { _, _ ->
                     lifecycleScope.launch {
                         viewModel.deleteUserProfile(profile.id)
-                        Toast.makeText(this@ProfilesActivity, getString(R.string.profile_deleted_msg, profile.name), Toast.LENGTH_SHORT).show()
+                        showMessage(getString(R.string.profile_deleted_msg, profile.name))
                     }
                 }
                 .setNegativeButton(android.R.string.cancel, null)
@@ -92,6 +91,7 @@ class ProfilesActivity : BaseActivity() {
     private fun showNewProfileDialog() {
         ProfileDialogs.showProfileDialog(
             context = this,
+            anchorView = findViewById(android.R.id.content),
             existingProfile = null,
             onSave = { name, playerName, countryCode, description ->
                 viewModel.saveUserProfile(name, playerName, countryCode, description)
@@ -102,6 +102,7 @@ class ProfilesActivity : BaseActivity() {
     private fun showEditProfileDialog(profile: UserProfile) {
         ProfileDialogs.showProfileDialog(
             context = this,
+            anchorView = findViewById(android.R.id.content),
             existingProfile = profile,
             onSave = { name, playerName, countryCode, description ->
                 viewModel.updateUserProfile(profile, name, playerName, countryCode, description)

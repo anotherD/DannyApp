@@ -2,17 +2,19 @@ package com.danny.dannyapp.ui.profile
 
 import android.content.Context
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.danny.dannyapp.R
 import com.danny.dannyapp.data.db.UserProfile
 import com.danny.dannyapp.domain.model.Country
+import com.danny.dannyapp.ui.UIHelper
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.launch
 
@@ -20,6 +22,7 @@ object ProfileDialogs {
 
     fun showProfileDialog(
         context: Context,
+        anchorView: View,
         existingProfile: UserProfile? = null,
         onSave: suspend (name: String, playerName: String, countryCode: String, description: String) -> SaveProfileResult,
         onSuccess: ((profileName: String) -> Unit)? = null
@@ -78,7 +81,7 @@ object ProfileDialogs {
             positiveButton?.setOnClickListener {
                 val profileName = etProfileName.text.toString().trim()
                 if (profileName.isEmpty()) {
-                    Toast.makeText(context, context.getString(R.string.profiles_create_error_empty_name), Toast.LENGTH_SHORT).show()
+                    UIHelper.showSnackbar(dialog.window!!.decorView, context.getString(R.string.profiles_create_error_empty_name), isError = true)
                 } else {
                     val playerName = etPlayerName.text.toString().trim().ifEmpty { profileName }
                     val profileDescription = etProfileDescription.text.toString().trim()
@@ -90,17 +93,17 @@ object ProfileDialogs {
                         when (result) {
                             is SaveProfileResult.Success -> {
                                 val msgRes = if (isEdit) R.string.profile_updated_msg else R.string.profile_created_msg
-                                Toast.makeText(context, context.getString(msgRes, result.profileName), Toast.LENGTH_SHORT).show()
                                 dialog.dismiss()
+                                UIHelper.showSnackbar(anchorView, context.getString(msgRes, result.profileName))
                                 onSuccess?.invoke(result.profileName)
                             }
 
                             is SaveProfileResult.DuplicateName -> {
-                                Toast.makeText(context, context.getString(R.string.profiles_create_error_duplicate_name, result.profileName), Toast.LENGTH_SHORT).show()
+                                UIHelper.showSnackbar(dialog.window!!.decorView, context.getString(R.string.profiles_create_error_duplicate_name, result.profileName), isError = true)
                             }
 
                             is SaveProfileResult.Error -> {
-                                Toast.makeText(context, context.getString(R.string.profile_create_error_general, result.message), Toast.LENGTH_LONG).show()
+                                UIHelper.showSnackbar(dialog.window!!.decorView, context.getString(R.string.profile_create_error_general, result.message), isError = true, duration = Snackbar.LENGTH_LONG)
                             }
                         }
                     }
