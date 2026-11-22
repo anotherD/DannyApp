@@ -20,6 +20,7 @@ import com.danny.dannyapp.domain.usecase.GetTournamentSummaryUseCase
 import com.danny.dannyapp.domain.usecase.TournamentProgressionUseCase
 import com.danny.dannyapp.domain.usecase.TournamentQualificationUseCase
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -31,8 +32,13 @@ import kotlinx.coroutines.flow.asSharedFlow
 class AppContainer(context: Context) {
     private val appContext = context.applicationContext
 
-    private val _errorEvents = MutableSharedFlow<String>(extraBufferCapacity = 1)
+    private val _errorEvents = MutableSharedFlow<String>(replay = 1, extraBufferCapacity = 1)
     val errorEvents: SharedFlow<String> = _errorEvents.asSharedFlow()
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun consumeErrorEvent() {
+        _errorEvents.resetReplayCache()
+    }
 
     fun reportError(actionLabel: String, throwable: Throwable) {
         if (throwable is CancellationException) {

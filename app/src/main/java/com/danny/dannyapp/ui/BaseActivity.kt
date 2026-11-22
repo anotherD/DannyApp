@@ -59,6 +59,7 @@ abstract class BaseActivity : AppCompatActivity() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 appContainer.errorEvents.collect { message ->
                     showMessage(message, isError = true, duration = Snackbar.LENGTH_LONG)
+                    appContainer.consumeErrorEvent()
                 }
             }
         }

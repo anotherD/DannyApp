@@ -54,9 +54,7 @@ class AdvanceTournamentRoundUseCase(
         if (allMatches.isEmpty()) return@withContext null
 
         val event = TournamentEvent.valueOf(tournament.type)
-        val fullSequence = event.getRoundSequence()
-        val firstRoundInMatches = fullSequence.firstOrNull { round -> allMatches.any { it.round == round.name } } ?: fullSequence.first()
-        val roundSequence = fullSequence.dropWhile { it != firstRoundInMatches }
+        val roundSequence = QualificationHelper.getRoundSequence(event, allMatches)
 
         if (tournament.isCompleted) {
             return@withContext TournamentProgressState(
@@ -144,7 +142,7 @@ class AdvanceTournamentRoundUseCase(
                 allMatches = allMatches
             )
 
-            val roundSequence = event.getRoundSequence()
+            val roundSequence = QualificationHelper.getRoundSequence(event, allMatches)
             val activeIndex = roundSequence.indexOf(activeRound)
             val nextRound = if (activeIndex >= 0) roundSequence.getOrNull(activeIndex + 1) else null
             if (nextRound != null) {
@@ -217,7 +215,7 @@ class AdvanceTournamentRoundUseCase(
         }
 
         if (event == TournamentEvent.UK_OPEN || event == TournamentEvent.EUROPEAN_OPEN) {
-            val roundSequence = event.getRoundSequence()
+            val roundSequence = QualificationHelper.getRoundSequence(event, allMatches)
             val currentIndex = roundSequence.indexOf(currentRound)
             if (currentIndex == -1 || currentIndex >= roundSequence.size - 1) return
             val nextRoundEnum = roundSequence[currentIndex + 1]
@@ -282,7 +280,7 @@ class AdvanceTournamentRoundUseCase(
             return
         }
 
-        val roundSequence = event.getRoundSequence()
+        val roundSequence = QualificationHelper.getRoundSequence(event, allMatches)
         val currentIndex = roundSequence.indexOf(currentRound)
         if (currentIndex == -1 || currentIndex >= roundSequence.size - 1) return
         val nextRoundEnum = roundSequence[currentIndex + 1]
