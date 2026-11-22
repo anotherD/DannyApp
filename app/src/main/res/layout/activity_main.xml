@@ -43,7 +43,7 @@
             android:layout_marginBottom="0dp"
             android:contentDescription="@string/app_name"
             android:scaleType="fitCenter"
-            android:src="@drawable/bg181818tr"
+            android:src="@drawable/stage"
             app:layout_constraintBottom_toTopOf="@id/guidelineTop"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
