@@ -33,7 +33,7 @@ class MainActivity : BaseActivity() {
         val btnOpenDesignShowcase: Button = findViewById(R.id.btnOpenDesignShowcase)
 
         // Set up the toolbar for the start screen – no back button.
-        setupToolbar(getString(R.string.app_title), showBack = false, rootViewId = R.id.main)
+        setupToolbar("", showBack = false, rootViewId = R.id.main)
 
         btnOpenScolia.setOnClickListener { showScoliaBrowserView(startLayout, webView) }
         btnProfiles.setOnClickListener {
