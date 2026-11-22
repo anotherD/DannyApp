@@ -18,72 +18,96 @@
         android:id="@+id/startLayout"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:paddingHorizontal="24dp"
-        android:paddingTop="32dp"
-        android:paddingBottom="24dp"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="20dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/toolbar">
 
-        <!-- Guideline separating top presentation area (~56%) and bottom button area (~44%) -->
+        <!-- Mehr Platz für die Bühne oben (~64%) -->
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guidelineTop"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            app:layout_constraintGuide_percent="0.56" />
+            app:layout_constraintGuide_percent="0.64" />
 
-        <!-- Title "Walk-On" prominent at top -->
-        <TextView
-            android:id="@+id/tvAppTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:letterSpacing="0.04"
-            android:shadowColor="#80000000"
-            android:shadowDx="0"
-            android:shadowDy="4"
-            android:shadowRadius="8"
-            android:text="@string/app_name"
-            android:textColor="@android:color/white"
-            android:textSize="48sp"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <!-- Freestanding Hero Image -->
+        <!-- Großes, freigestelltes Hero-Bild über fast die volle Breite -->
         <ImageView
             android:id="@+id/ivCardImage"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"
+            android:layout_marginTop="28dp"
             android:contentDescription="@string/app_name"
             android:scaleType="fitCenter"
             android:src="@drawable/bg181818tr"
-            app:layout_constraintBottom_toTopOf="@id/tvSubtitle"
+            app:layout_constraintBottom_toTopOf="@id/layoutSubtitle"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvAppTitle"
-            app:layout_constraintWidth_percent="0.85" />
+            app:layout_constraintTop_toTopOf="parent" />
 
-        <!-- Subtitle "Living Room Darts Career" -->
+        <!-- Show-Titel "WALK-ON" mit Gold-Glow & wuchtiger Sport-Typo -->
         <TextView
-            android:id="@+id/tvSubtitle"
+            android:id="@+id/tvAppTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/bowlby_one_sc"
+            android:gravity="center"
+            android:letterSpacing="0.14"
+            android:rotation="-3"
+            android:rotationX="15"
+            android:rotationY="0"
+            android:shadowColor="#CCFFB300"
+            android:shadowDx="0"
+            android:shadowDy="0"
+            android:shadowRadius="24"
+            android:text="@string/app_name"
+            android:textAllCaps="false"
+            android:textColor="#FFFDF5"
+            android:textSize="44sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- Untertitel eingerahmt von zwei goldenen Linien -->
+        <LinearLayout
+            android:id="@+id/layoutSubtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
-            android:gravity="center"
-            android:letterSpacing="0.08"
-            android:text="@string/app_subtitle"
-            android:textColor="#F5B041"
-            android:textSize="15sp"
-            android:textStyle="bold"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
             app:layout_constraintBottom_toTopOf="@id/guidelineTop"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent">
+
+            <View
+                android:layout_width="24dp"
+                android:layout_height="1.5dp"
+                android:layout_marginEnd="10dp"
+                android:background="#80F5B041" />
+
+            <TextView
+                android:id="@+id/tvSubtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:gravity="center"
+                android:letterSpacing="0.12"
+                android:text="@string/app_subtitle"
+                android:textAllCaps="true"
+                android:textColor="#F5B041"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <View
+                android:layout_width="24dp"
+                android:layout_height="1.5dp"
+                android:layout_marginStart="10dp"
+                android:background="#80F5B041" />
+        </LinearLayout>
 
         <!-- Bottom Button Area (approx. 2/3 width) -->
         <ScrollView
@@ -91,7 +115,7 @@
             android:layout_height="0dp"
             android:clipToPadding="false"
             android:fillViewport="true"
-            android:paddingTop="8dp"
+            android:paddingTop="4dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -109,7 +133,7 @@
                     android:id="@+id/btnOpenScolia"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
+                    android:layout_marginBottom="10dp"
                     android:text="@string/scolia_browser"
                     android:textSize="16sp" />
 
@@ -118,7 +142,7 @@
                     android:id="@+id/btnProfiles"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
+                    android:layout_marginBottom="10dp"
                     android:text="@string/profiles"
                     android:textSize="16sp" />
 
@@ -127,7 +151,7 @@
                     android:id="@+id/btnCareers"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
+                    android:layout_marginBottom="10dp"
                     android:text="@string/careers"
                     android:textSize="16sp" />
 
