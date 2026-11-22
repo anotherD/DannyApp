@@ -1,7 +1,6 @@
 package com.danny.dannyapp.ui.career
 
 import android.os.Bundle
-import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -23,7 +22,6 @@ class CareerDetailActivity : BaseActivity() {
 
     private lateinit var tabLayoutCareer: TabLayout
     private lateinit var viewPagerCareer: ViewPager2
-    private lateinit var backPressedCallback: OnBackPressedCallback
 
     private var careerId: Long = -1L
     private var careerName: String = ""
@@ -56,19 +54,7 @@ class CareerDetailActivity : BaseActivity() {
             tab.text = titles.getOrElse(position) { "" }
         }.attach()
 
-        backPressedCallback = object : OnBackPressedCallback(viewPagerCareer.currentItem != 0) {
-            override fun handleOnBackPressed() {
-                viewPagerCareer.setCurrentItem(0, true)
-            }
-        }
-        onBackPressedDispatcher.addCallback(this, backPressedCallback)
-
-        viewPagerCareer.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-            override fun onPageSelected(position: Int) {
-                super.onPageSelected(position)
-                backPressedCallback.isEnabled = position != 0
-            }
-        })
+        setupViewPagerBackToHome(viewPagerCareer)
 
         careerViewModel.loadCareer(careerId)
         calendarViewModel.loadTournaments(careerId)
