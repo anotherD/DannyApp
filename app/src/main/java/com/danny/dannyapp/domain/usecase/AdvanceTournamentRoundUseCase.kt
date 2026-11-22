@@ -107,9 +107,14 @@ class AdvanceTournamentRoundUseCase(
      */
     suspend operator fun invoke(tournamentId: Long): Boolean = withContext(Dispatchers.IO) {
         tournamentRepository.runInTransaction {
-            val state = evaluateTournamentState(tournamentId) ?: return@runInTransaction false
-            if (!state.canAdvanceRound) return@runInTransaction false
-            val activeRound = state.activeRound ?: return@runInTransaction false
+            val state = evaluateTournamentState(tournamentId) 
+                ?: error("Turnier $tournamentId hat keine Matches für Rundenwechsel")
+            check(state.canAdvanceRound) {
+                "Runde '${state.activeRound?.name ?: "unbekannt"}' in Turnier $tournamentId ist noch nicht abgeschlossen"
+            }
+            val activeRound = requireNotNull(state.activeRound) {
+                "Aktive Runde fehlt für Turnier $tournamentId"
+            }
 
             val tournament = tournamentRepository.getTournamentById(tournamentId)
             val event = TournamentEvent.valueOf(tournament.type)

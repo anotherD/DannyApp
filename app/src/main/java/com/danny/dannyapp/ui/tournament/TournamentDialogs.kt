@@ -359,37 +359,38 @@ object TournamentDialogs {
                     return@setOnClickListener
                 }
                 coroutineScope.launch {
-                    val result = onSaveScore(matchModel.match.id, p1, p2)
-                    when (result) {
-                        is ManualScoreResult.ValidationError -> {
-                            val errorMessage = when (val error = result.error) {
-                                is ScoreValidationError.UnexpectedError -> null
-                                is ScoreValidationError.NegativeScore -> context.getString(R.string.score_validation_negative)
-                                is ScoreValidationError.DrawNotAllowed -> context.getString(R.string.score_validation_draw)
-                                is ScoreValidationError.InvalidTwoClearLegs -> context.getString(
-                                    R.string.score_validation_two_clear_legs,
-                                    error.targetLegs,
-                                    error.tiebreakWinnerLegs,
-                                    error.tiebreakLoserLegs
-                                )
-                                is ScoreValidationError.InvalidBestOfLegs -> context.getString(
-                                    R.string.score_validation_best_of_legs,
-                                    error.bestOf,
-                                    error.targetLegs
-                                )
-                                is ScoreValidationError.InvalidBestOfSets -> context.getString(
-                                    R.string.score_validation_best_of_sets,
-                                    error.bestOf,
-                                    error.targetSets
-                                )
-                            }
-                            if (errorMessage != null) {
+                    try {
+                        val result = onSaveScore(matchModel.match.id, p1, p2)
+                        when (result) {
+                            is ManualScoreResult.ValidationError -> {
+                                val errorMessage = when (val error = result.error) {
+                                    is ScoreValidationError.NegativeScore -> context.getString(R.string.score_validation_negative)
+                                    is ScoreValidationError.DrawNotAllowed -> context.getString(R.string.score_validation_draw)
+                                    is ScoreValidationError.InvalidTwoClearLegs -> context.getString(
+                                        R.string.score_validation_two_clear_legs,
+                                        error.targetLegs,
+                                        error.tiebreakWinnerLegs,
+                                        error.tiebreakLoserLegs
+                                    )
+                                    is ScoreValidationError.InvalidBestOfLegs -> context.getString(
+                                        R.string.score_validation_best_of_legs,
+                                        error.bestOf,
+                                        error.targetLegs
+                                    )
+                                    is ScoreValidationError.InvalidBestOfSets -> context.getString(
+                                        R.string.score_validation_best_of_sets,
+                                        error.bestOf,
+                                        error.targetSets
+                                    )
+                                }
                                 UIHelper.showSnackbar(dialog.window!!.decorView, errorMessage, isError = true, duration = Snackbar.LENGTH_LONG)
                             }
+                            is ManualScoreResult.Success -> {
+                                dialog.dismiss()
+                            }
                         }
-                        is ManualScoreResult.Success -> {
-                            dialog.dismiss()
-                        }
+                    } catch (e: Exception) {
+                        UIHelper.showSnackbar(dialog.window!!.decorView, e.message ?: context.getString(R.string.error_unknown), isError = true, duration = Snackbar.LENGTH_LONG)
                     }
                 }
             }

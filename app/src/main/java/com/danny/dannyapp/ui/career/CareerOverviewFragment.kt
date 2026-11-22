@@ -177,13 +177,15 @@ class CareerOverviewFragment : Fragment(R.layout.fragment_career_overview) {
             },
             onStartTournamentClick = { uiModel ->
                 viewLifecycleOwner.lifecycleScope.launch {
-                    calendarViewModel.startTournament(uiModel.tournament.id)
-                    val intent = Intent(requireContext(), TournamentDetailActivity::class.java).apply {
-                        putExtra(TournamentDetailActivity.EXTRA_TOURNAMENT_ID, uiModel.tournament.id)
-                        putExtra(TournamentDetailActivity.EXTRA_CAREER_ID, careerId)
-                        putExtra(TournamentDetailActivity.EXTRA_CAREER_NAME, careerName)
+                    val started = calendarViewModel.startTournament(uiModel.tournament.id)
+                    if (started) {
+                        val intent = Intent(requireContext(), TournamentDetailActivity::class.java).apply {
+                            putExtra(TournamentDetailActivity.EXTRA_TOURNAMENT_ID, uiModel.tournament.id)
+                            putExtra(TournamentDetailActivity.EXTRA_CAREER_ID, careerId)
+                            putExtra(TournamentDetailActivity.EXTRA_CAREER_NAME, careerName)
+                        }
+                        startActivity(intent)
                     }
-                    startActivity(intent)
                 }
             },
             onSimulateCompleteClick = { uiModel ->

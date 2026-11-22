@@ -884,7 +884,7 @@ class TournamentDetailViewModel(
             completeMatchUseCase.completeManualMatch(matchId, p1Score, p2Score)
         } catch (e: Exception) {
             getApplication<Application>().appContainer.reportError("Match speichern", e)
-            ManualScoreResult.ValidationError(com.danny.dannyapp.domain.usecase.ScoreValidationError.UnexpectedError)
+            throw e
         }
     }
 

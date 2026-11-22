@@ -51,13 +51,15 @@ class TournamentCalendarFragment : Fragment(R.layout.fragment_tournament_calenda
             },
             onStartTournamentClick = { model ->
                 viewLifecycleOwner.lifecycleScope.launch {
-                    viewModel.startTournament(model.tournament.id)
-                    val intent = Intent(requireContext(), TournamentDetailActivity::class.java).apply {
-                        putExtra(TournamentDetailActivity.EXTRA_TOURNAMENT_ID, model.tournament.id)
-                        putExtra(TournamentDetailActivity.EXTRA_CAREER_ID, careerId)
-                        putExtra(TournamentDetailActivity.EXTRA_CAREER_NAME, careerName)
+                    val started = viewModel.startTournament(model.tournament.id)
+                    if (started) {
+                        val intent = Intent(requireContext(), TournamentDetailActivity::class.java).apply {
+                            putExtra(TournamentDetailActivity.EXTRA_TOURNAMENT_ID, model.tournament.id)
+                            putExtra(TournamentDetailActivity.EXTRA_CAREER_ID, careerId)
+                            putExtra(TournamentDetailActivity.EXTRA_CAREER_NAME, careerName)
+                        }
+                        startActivity(intent)
                     }
-                    startActivity(intent)
                 }
             },
             onSimulateCompleteClick = { model ->
