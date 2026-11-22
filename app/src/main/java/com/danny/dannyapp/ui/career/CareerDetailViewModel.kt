@@ -6,8 +6,12 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.danny.dannyapp.appContainer
 import com.danny.dannyapp.data.db.CareerWithProfile
+import com.danny.dannyapp.domain.enums.OrderOfMeritType
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
@@ -25,6 +29,13 @@ class CareerDetailViewModel(
     private val careerRepository = application.appContainer.careerRepository
     private val _careerState = MutableStateFlow<CareerDetailState>(CareerDetailState.Loading)
     val careerState: StateFlow<CareerDetailState> = _careerState.asStateFlow()
+
+    private val _openRankingEvent = MutableSharedFlow<OrderOfMeritType>(extraBufferCapacity = 1)
+    val openRankingEvent: SharedFlow<OrderOfMeritType> = _openRankingEvent.asSharedFlow()
+
+    fun requestOpenRanking(type: OrderOfMeritType) {
+        _openRankingEvent.tryEmit(type)
+    }
 
     init {
         val restoredCareerId = savedStateHandle.get<Long>("state_career_id") ?: -1L

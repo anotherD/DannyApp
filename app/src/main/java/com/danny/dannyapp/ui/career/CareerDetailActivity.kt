@@ -60,21 +60,29 @@ class CareerDetailActivity : BaseActivity() {
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                careerViewModel.careerState.collect { state ->
-                    when (state) {
-                        is CareerDetailState.Success -> {
-                            val career = state.careerWithProfile.career
-                            val newName = career.name
-                            val seasonNumber = career.season
-                            careerName = newName
-                            setupToolbar(
-                                titleText = career.name,
-                                subtitleText = getString(R.string.breadcrumb_career_season_format, careerName, seasonNumber),
-                                showBack = true,
-                                rootViewId = R.id.careerDetailMain,
-                            )
+                launch {
+                    careerViewModel.openRankingEvent.collect { type ->
+                        oomViewModel.selectOomType(type)
+                        viewPagerCareer.setCurrentItem(2, true)
+                    }
+                }
+                launch {
+                    careerViewModel.careerState.collect { state ->
+                        when (state) {
+                            is CareerDetailState.Success -> {
+                                val career = state.careerWithProfile.career
+                                val newName = career.name
+                                val seasonNumber = career.season
+                                careerName = newName
+                                setupToolbar(
+                                    titleText = career.name,
+                                    subtitleText = getString(R.string.breadcrumb_career_season_format, careerName, seasonNumber),
+                                    showBack = true,
+                                    rootViewId = R.id.careerDetailMain,
+                                )
+                            }
+                            else -> {}
                         }
-                        else -> {}
                     }
                 }
             }

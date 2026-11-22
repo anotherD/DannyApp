@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.danny.dannyapp.R
+import com.danny.dannyapp.domain.enums.OrderOfMeritType
 import com.danny.dannyapp.domain.model.OrderOfMeritEntry
 import com.danny.dannyapp.ui.UIHelper
 import com.danny.dannyapp.ui.enums.TournamentStatus
@@ -36,6 +37,10 @@ class CareerOverviewFragment : Fragment(R.layout.fragment_career_overview) {
     private lateinit var tvOverviewRankPt: TextView
     private lateinit var tvOverviewRankPc: TextView
     private lateinit var tvOverviewRankEt: TextView
+    private lateinit var layoutOverviewRankOom: android.widget.LinearLayout
+    private lateinit var layoutOverviewRankPt: android.widget.LinearLayout
+    private lateinit var layoutOverviewRankPc: android.widget.LinearLayout
+    private lateinit var layoutOverviewRankEt: android.widget.LinearLayout
     private lateinit var containerActiveTournament: FrameLayout
     private lateinit var tvNoActiveTournament: TextView
 
@@ -59,8 +64,17 @@ class CareerOverviewFragment : Fragment(R.layout.fragment_career_overview) {
         tvOverviewRankPt = view.findViewById(R.id.tvOverviewRankPt)
         tvOverviewRankPc = view.findViewById(R.id.tvOverviewRankPc)
         tvOverviewRankEt = view.findViewById(R.id.tvOverviewRankEt)
+        layoutOverviewRankOom = view.findViewById(R.id.layoutOverviewRankOom)
+        layoutOverviewRankPt = view.findViewById(R.id.layoutOverviewRankPt)
+        layoutOverviewRankPc = view.findViewById(R.id.layoutOverviewRankPc)
+        layoutOverviewRankEt = view.findViewById(R.id.layoutOverviewRankEt)
         containerActiveTournament = view.findViewById(R.id.containerActiveTournament)
         tvNoActiveTournament = view.findViewById(R.id.tvNoActiveTournament)
+
+        layoutOverviewRankOom.setOnClickListener { careerViewModel.requestOpenRanking(OrderOfMeritType.OOM) }
+        layoutOverviewRankPt.setOnClickListener { careerViewModel.requestOpenRanking(OrderOfMeritType.PT_OOM) }
+        layoutOverviewRankPc.setOnClickListener { careerViewModel.requestOpenRanking(OrderOfMeritType.PC_OOM) }
+        layoutOverviewRankEt.setOnClickListener { careerViewModel.requestOpenRanking(OrderOfMeritType.ET_OOM) }
 
         observeData()
     }

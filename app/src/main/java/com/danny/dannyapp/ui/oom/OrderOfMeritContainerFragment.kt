@@ -50,10 +50,6 @@ class OrderOfMeritContainerFragment : Fragment(R.layout.fragment_order_of_merit_
         tvStickyPlayerNameBottom = view.findViewById(R.id.tvStickyPlayerNameBottom)
         tvStickyPrizeMoneyBottom = view.findViewById(R.id.tvStickyPrizeMoneyBottom)
 
-        if (savedInstanceState == null) {
-            showOomFragment(OrderOfMeritType.OOM)
-        }
-
         chipGroupOomTypes.setOnCheckedStateChangeListener { _, checkedIds ->
             val checkedId = checkedIds.firstOrNull() ?: return@setOnCheckedStateChangeListener
             val type = when (checkedId) {
@@ -63,7 +59,26 @@ class OrderOfMeritContainerFragment : Fragment(R.layout.fragment_order_of_merit_
                 R.id.chipOomEuropeanTour -> OrderOfMeritType.ET_OOM
                 else -> OrderOfMeritType.OOM
             }
-            showOomFragment(type)
+            if (viewModel.selectedOomType.value != type) {
+                viewModel.selectOomType(type)
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.selectedOomType.collect { type ->
+                    val chipId = when (type) {
+                        OrderOfMeritType.OOM -> R.id.chipOomMain
+                        OrderOfMeritType.PT_OOM -> R.id.chipOomProTour
+                        OrderOfMeritType.PC_OOM -> R.id.chipOomPlayersChamp
+                        OrderOfMeritType.ET_OOM -> R.id.chipOomEuropeanTour
+                    }
+                    if (chipGroupOomTypes.checkedChipId != chipId) {
+                        chipGroupOomTypes.check(chipId)
+                    }
+                    showOomFragment(type)
+                }
+            }
         }
 
         observeStickyUserState()

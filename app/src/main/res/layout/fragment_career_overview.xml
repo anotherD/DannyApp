@@ -80,9 +80,15 @@
                     android:weightSum="2">
 
                     <LinearLayout
+                        android:id="@+id/layoutOverviewRankOom"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="?attr/selectableItemBackground"
+                        android:paddingVertical="8dp"
+                        android:paddingHorizontal="6dp"
                         android:gravity="center_horizontal"
                         android:orientation="vertical">
 
@@ -104,9 +110,15 @@
                     </LinearLayout>
 
                     <LinearLayout
+                        android:id="@+id/layoutOverviewRankPt"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="?attr/selectableItemBackground"
+                        android:paddingVertical="8dp"
+                        android:paddingHorizontal="6dp"
                         android:gravity="center_horizontal"
                         android:orientation="vertical">
 
@@ -138,9 +150,15 @@
                     android:weightSum="2">
 
                     <LinearLayout
+                        android:id="@+id/layoutOverviewRankPc"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="?attr/selectableItemBackground"
+                        android:paddingVertical="8dp"
+                        android:paddingHorizontal="6dp"
                         android:gravity="center_horizontal"
                         android:orientation="vertical">
 
@@ -162,9 +180,15 @@
                     </LinearLayout>
 
                     <LinearLayout
+                        android:id="@+id/layoutOverviewRankEt"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="?attr/selectableItemBackground"
+                        android:paddingVertical="8dp"
+                        android:paddingHorizontal="6dp"
                         android:gravity="center_horizontal"
                         android:orientation="vertical">
 
