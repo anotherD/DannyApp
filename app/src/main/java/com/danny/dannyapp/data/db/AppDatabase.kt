@@ -183,10 +183,10 @@ abstract class AppDatabase : RoomDatabase() {
                                 Log.i("CSVImport", "Spieler aus CSV erfolgreich synchronisiert (Version $CURRENT_CSV_VERSION).")
                             }
                         }
+                        initialSyncCompleted.complete(Unit)
                     } catch (e: Exception) {
                         Log.e("CSVImport", "Fehler beim Synchronisieren der Spieler aus CSV", e)
-                    } finally {
-                        initialSyncCompleted.complete(Unit)
+                        initialSyncCompleted.completeExceptionally(e)
                     }
                 }
             }
@@ -210,8 +210,10 @@ abstract class AppDatabase : RoomDatabase() {
                         return this.getOrNull(index)?.trim()
                     }
 
+                    var lineNumber = 1
                     // 2. Alle Datenzeilen durchgehen
                     while (iterator.hasNext()) {
+                        lineNumber++
                         val line = iterator.next()
                         if (line.isBlank()) continue // Leere Zeilen am Dateiende überspringen
 
@@ -225,16 +227,20 @@ abstract class AppDatabase : RoomDatabase() {
                         val countryCode = tokens.getCol("country").orEmpty()
 
                         if (countryCode.isEmpty()) {
-                            Log.w("CSVImport", "Spieler '$name': Kein Landeskürzel in CSV angegeben.")
+                            Log.w("CSVImport", "Spieler '$name' (Zeile $lineNumber): Kein Landeskürzel in CSV angegeben.")
                         } else if (!Country.isValidCode(countryCode)) {
-                            Log.w("CSVImport", "Spieler '$name': Ungültiges/unbekanntes Landeskürzel '$countryCode' in CSV gefunden!")
+                            Log.w("CSVImport", "Spieler '$name' (Zeile $lineNumber): Ungültiges/unbekanntes Landeskürzel '$countryCode' in CSV gefunden!")
                         }
 
                         val skillStr = tokens.getCol("skill_level")
-                        val skill = skillStr?.toDoubleOrNull()?.toInt() ?: skillStr?.toIntOrNull() ?: 5
+                        val skill = requireNotNull(skillStr?.toDoubleOrNull()?.toInt() ?: skillStr?.toIntOrNull()) {
+                            "Ungültiger oder fehlender skill_level '$skillStr' für Spieler '$name' in Zeile $lineNumber"
+                        }
 
                         val tourYearStr = tokens.getCol("tour_card_year")
-                        val tourCardYear = tourYearStr?.toDoubleOrNull()?.toInt() ?: tourYearStr?.toIntOrNull() ?: 0
+                        val tourCardYear = requireNotNull(tourYearStr?.toDoubleOrNull()?.toInt() ?: tourYearStr?.toIntOrNull()) {
+                            "Ungültiger oder fehlender tour_card_year '$tourYearStr' für Spieler '$name' in Zeile $lineNumber"
+                        }
 
                         val prizeMoneyStr = tokens.getCol("price_money")
                         val prizeMoney = prizeMoneyStr?.toDoubleOrNull() ?: 0.0

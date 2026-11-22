@@ -17,7 +17,6 @@ import com.danny.dannyapp.domain.enums.OrderOfMeritType
 import com.danny.dannyapp.domain.enums.TournamentEvent
 import com.danny.dannyapp.domain.enums.TournamentRound
 import com.danny.dannyapp.domain.model.Country
-import com.danny.dannyapp.domain.model.OrderOfMeritEntry
 import com.danny.dannyapp.domain.model.TournamentRoundPhase
 import com.danny.dannyapp.domain.usecase.ManualScoreResult
 import com.danny.dannyapp.ui.UIHelper
@@ -372,8 +371,7 @@ class TournamentDetailViewModel(
                     allMatches = allMatches,
                     event = event,
                     preloadedParticipants = preloadedParticipants,
-                    preloadedPlayers = preloadedPlayers,
-                    preloadedOomEntries = preloadedOomEntries
+                    preloadedPlayers = preloadedPlayers
                 )
                 openDrawInfoMap[roundIndex] = prevName to groups
             }
@@ -387,8 +385,7 @@ class TournamentDetailViewModel(
                 allMatches = allMatches,
                 event = event,
                 preloadedParticipants = preloadedParticipants,
-                preloadedPlayers = preloadedPlayers,
-                preloadedOomEntries = preloadedOomEntries
+                preloadedPlayers = preloadedPlayers
             )
         } else emptyList()
 
@@ -921,19 +918,16 @@ class TournamentDetailViewModel(
         allMatches: List<TournamentMatch>,
         event: TournamentEvent,
         preloadedParticipants: List<TournamentParticipant>? = null,
-        preloadedPlayers: List<Player>? = null,
-        preloadedOomEntries: List<OrderOfMeritEntry>? = null
+        preloadedPlayers: List<Player>? = null
     ): List<EntrantGroupInfo> {
         val domainGroups = tournamentQualificationUseCase.getUkOpenEntrantGroups(
             tournamentId = tournamentId,
-            careerId = careerId,
             roundKey = roundKey,
             allMatches = allMatches,
             event = event,
             currentCareerId = currentCareerId,
             preloadedParticipants = preloadedParticipants,
-            preloadedPlayers = preloadedPlayers,
-            preloadedOomEntries = preloadedOomEntries
+            preloadedPlayers = preloadedPlayers
         )
         return TournamentDetailUiHelper.mapEntrantGroupsToUi(getApplication(), domainGroups)
     }

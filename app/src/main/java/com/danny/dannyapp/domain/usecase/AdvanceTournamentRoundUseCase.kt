@@ -178,51 +178,54 @@ class AdvanceTournamentRoundUseCase(
         if (event == TournamentEvent.GRAND_SLAM_OF_DARTS && currentRound == TournamentRound.GROUP) {
             val groupMatches = allMatches.filter { it.round == TournamentRound.GROUP.name }
             val l16Matches = allMatches.filter { it.round == TournamentRound.L16.name }.sortedBy { it.matchIndex }
-            if (groupMatches.size == 48 && l16Matches.isNotEmpty()) {
-                // Delegate all standings calculation to the domain use-case (single source of truth).
-                val standingsByGroup = calculateGroupStandingsUseCase(groupMatches)
-
-                val groupWinners = mutableListOf<Long>()
-                for (groupIndex in 0 until 16) {
-                    val groupLetter = ('A' + groupIndex).toString()
-                    val sortedGroup = standingsByGroup[groupLetter] ?: emptyList()
-
-                    val groupWinner = sortedGroup.firstOrNull()
-                    if (groupWinner != null) {
-                        groupWinners.add(groupWinner.playerId)
-                        tournamentRepository.upsertPlayerPlacement(
-                            tournamentId = tournament.id,
-                            playerId = groupWinner.playerId,
-                            reachedRound = TournamentRound.L16.name,
-                            prizeMoney = event.getRankingPrizeMoney(TournamentRound.L16)
-                        )
-                    }
-                    val groupRunnerUp = sortedGroup.getOrNull(1)
-                    if (groupRunnerUp != null) {
-                        tournamentRepository.upsertPlayerPlacement(
-                            tournamentId = tournament.id,
-                            playerId = groupRunnerUp.playerId,
-                            reachedRound = TournamentRound.GROUP_2ND.name,
-                            prizeMoney = event.getRankingPrizeMoney(TournamentRound.GROUP_2ND)
-                        )
-                    }
-                }
-
-                require(groupWinners.size == 16) { "Grand Slam Gruppenphase erfordert genau 16 Gruppensieger" }
-                val updatedL16 = l16Matches.mapIndexed { index, match ->
-                    val player1Id = groupWinners[2 * index]
-                    val player2Id = groupWinners[2 * index + 1]
-                    match.copy(player1Id = player1Id, player2Id = player2Id)
-                }
-                tournamentRepository.insertMatches(updatedL16)
+            check(groupMatches.size == 48 && l16Matches.size == 8) {
+                "Grand Slam Gruppenphase erfordert genau 48 Gruppen-Matches und 8 L16-Matches (gefunden: ${groupMatches.size} Gruppen-Matches, ${l16Matches.size} L16-Matches)"
             }
+            // Delegate all standings calculation to the domain use-case (single source of truth).
+            val standingsByGroup = calculateGroupStandingsUseCase(groupMatches)
+
+            val groupWinners = mutableListOf<Long>()
+            for (groupIndex in 0 until 16) {
+                val groupLetter = ('A' + groupIndex).toString()
+                val sortedGroup = standingsByGroup[groupLetter] ?: emptyList()
+
+                val groupWinner = sortedGroup.firstOrNull()
+                if (groupWinner != null) {
+                    groupWinners.add(groupWinner.playerId)
+                    tournamentRepository.upsertPlayerPlacement(
+                        tournamentId = tournament.id,
+                        playerId = groupWinner.playerId,
+                        reachedRound = TournamentRound.L16.name,
+                        prizeMoney = event.getRankingPrizeMoney(TournamentRound.L16)
+                    )
+                }
+                val groupRunnerUp = sortedGroup.getOrNull(1)
+                if (groupRunnerUp != null) {
+                    tournamentRepository.upsertPlayerPlacement(
+                        tournamentId = tournament.id,
+                        playerId = groupRunnerUp.playerId,
+                        reachedRound = TournamentRound.GROUP_2ND.name,
+                        prizeMoney = event.getRankingPrizeMoney(TournamentRound.GROUP_2ND)
+                    )
+                }
+            }
+
+            require(groupWinners.size == 16) { "Grand Slam Gruppenphase erfordert genau 16 Gruppensieger" }
+            val updatedL16 = l16Matches.mapIndexed { index, match ->
+                val player1Id = groupWinners[2 * index]
+                val player2Id = groupWinners[2 * index + 1]
+                match.copy(player1Id = player1Id, player2Id = player2Id)
+            }
+            tournamentRepository.insertMatches(updatedL16)
             return
         }
 
         if (event == TournamentEvent.UK_OPEN || event == TournamentEvent.EUROPEAN_OPEN) {
             val roundSequence = QualificationHelper.getRoundSequence(event, allMatches)
             val currentIndex = roundSequence.indexOf(currentRound)
-            if (currentIndex == -1 || currentIndex >= roundSequence.size - 1) return
+            check(currentIndex in 0 until roundSequence.lastIndex) {
+                "Ungültiger Rundenwechsel für $event von Runde $currentRound (Index $currentIndex in Sequenz mit ${roundSequence.size} Runden)"
+            }
             val nextRoundEnum = roundSequence[currentIndex + 1]
 
             val currentRoundMatches = allMatches.filter { it.round == currentRound.name }
@@ -287,31 +290,37 @@ class AdvanceTournamentRoundUseCase(
 
         val roundSequence = QualificationHelper.getRoundSequence(event, allMatches)
         val currentIndex = roundSequence.indexOf(currentRound)
-        if (currentIndex == -1 || currentIndex >= roundSequence.size - 1) return
+        check(currentIndex in 0 until roundSequence.lastIndex) {
+            "Ungültiger Rundenwechsel für $event von Runde $currentRound (Index $currentIndex in Sequenz mit ${roundSequence.size} Runden)"
+        }
         val nextRoundEnum = roundSequence[currentIndex + 1]
 
         val currentRoundMatches = allMatches.filter { it.round == currentRound.name }
         val sortedWinners = currentRoundMatches.sortedBy { it.matchIndex }.mapNotNull { it.winnerId }
         val existingNextRoundMatches = allMatches.filter { it.round == nextRoundEnum.name }.sortedBy { it.matchIndex }
 
-        if (existingNextRoundMatches.isNotEmpty()) {
-            val updatedNextRoundMatches = existingNextRoundMatches.toMutableList()
-            for (match in currentRoundMatches) {
-                val winnerId = match.winnerId ?: continue
-                val (targetIdx, isPlayer1Slot) = resolveNextRoundSlot(event, currentRound, match.matchIndex)
-                val nextMatch = updatedNextRoundMatches.find { it.matchIndex == targetIdx }
-                if (nextMatch != null) {
-                    val updated = if (isPlayer1Slot) {
-                        nextMatch.copy(player1Id = winnerId)
-                    } else {
-                        nextMatch.copy(player2Id = winnerId)
-                    }
-                    val matchIndexInList = updatedNextRoundMatches.indexOf(nextMatch)
-                    updatedNextRoundMatches[matchIndexInList] = updated
-                }
-            }
-            tournamentRepository.insertMatches(updatedNextRoundMatches)
+        check(existingNextRoundMatches.isNotEmpty()) {
+            "Keine existierenden Matches für Folgerunde ${nextRoundEnum.name} in Turnier ${tournament.id} gefunden"
         }
+
+        val updatedNextRoundMatches = existingNextRoundMatches.toMutableList()
+        for (match in currentRoundMatches) {
+            val winnerId = requireNotNull(match.winnerId) {
+                "Match ${match.id} (Runde ${match.round}, Index ${match.matchIndex}) hat keinen winnerId beim Rundenwechsel"
+            }
+            val (targetIdx, isPlayer1Slot) = resolveNextRoundSlot(event, currentRound, match.matchIndex)
+            val nextMatch = requireNotNull(updatedNextRoundMatches.find { it.matchIndex == targetIdx }) {
+                "Ziel-Match mit Index $targetIdx in Folgerunde ${nextRoundEnum.name} für Match ${match.matchIndex} (${match.round}) nicht gefunden"
+            }
+            val updated = if (isPlayer1Slot) {
+                nextMatch.copy(player1Id = winnerId)
+            } else {
+                nextMatch.copy(player2Id = winnerId)
+            }
+            val matchIndexInList = updatedNextRoundMatches.indexOf(nextMatch)
+            updatedNextRoundMatches[matchIndexInList] = updated
+        }
+        tournamentRepository.insertMatches(updatedNextRoundMatches)
 
         // Preisgeld-Hochstufung beim Rundenwechsel: Jeder Sieger der abgeschlossenen Runde wird
         // auf die Folgerunde hochgestuft. Betrifft insbesondere vorqualifizierte European-Tour-
@@ -338,7 +347,7 @@ class AdvanceTournamentRoundUseCase(
         val tournament = tournamentRepository.getTournamentById(match.tournamentId)
         val event = TournamentEvent.valueOf(tournament.type)
         val strategy = TournamentRuleStrategyRegistry.getStrategy(event)
-        val winnerId = match.winnerId ?: return@withContext
+        val winnerId = requireNotNull(match.winnerId) { "Abgeschlossenes Match ${match.id} hat keinen winnerId" }
         val roundSequence = event.getRoundSequence()
         val currentRoundEnum = TournamentRound.valueOf(match.round)
 
@@ -386,6 +395,7 @@ class AdvanceTournamentRoundUseCase(
         if (match.round == TournamentRound.QUAL_PRELIM.name) {
             val qualR1Matches = allMatches.filter { it.round == TournamentRound.QUAL_R1.name }
             val placeholderId = -1000L - match.matchIndex
+            var matchedAny = false
             for (qualMatch in qualR1Matches) {
                 var updated = qualMatch
                 var changed = false
@@ -399,25 +409,31 @@ class AdvanceTournamentRoundUseCase(
                 }
                 if (changed) {
                     tournamentRepository.updateMatch(updated)
+                    matchedAny = true
                 }
+            }
+            check(matchedAny) {
+                "Vorrundensieger $winnerId für Match ${match.matchIndex} (Placeholder $placeholderId) wurde in keinem QUAL_R1-Match eingetragen"
             }
             return@withContext
         }
 
         val currentIdx = roundSequence.indexOf(currentRoundEnum)
-        if (currentIdx < 0) return@withContext
-        val nextRoundEnum = roundSequence.getOrNull(currentIdx + 1) ?: return@withContext
+        check(currentIdx in 0 until roundSequence.lastIndex) {
+            "Keine Folgerunde für Match ${match.id} (Runde $currentRoundEnum, Index $currentIdx in $event)"
+        }
+        val nextRoundEnum = roundSequence[currentIdx + 1]
         val nextMatches = allMatches.filter { it.round == nextRoundEnum.name }
         val (targetMatchIndex, isPlayer1Slot) = resolveNextRoundSlot(event, currentRoundEnum, match.matchIndex)
-        val nextMatch = nextMatches.find { it.matchIndex == targetMatchIndex }
-        if (nextMatch != null) {
-            val updatedNext = if (isPlayer1Slot) {
-                nextMatch.copy(player1Id = winnerId)
-            } else {
-                nextMatch.copy(player2Id = winnerId)
-            }
-            tournamentRepository.updateMatch(updatedNext)
+        val nextMatch = requireNotNull(nextMatches.find { it.matchIndex == targetMatchIndex }) {
+            "Ziel-Match mit Index $targetMatchIndex in Folgerunde ${nextRoundEnum.name} für Match ${match.id} (${match.round}, Index ${match.matchIndex}) nicht gefunden"
         }
+        val updatedNext = if (isPlayer1Slot) {
+            nextMatch.copy(player1Id = winnerId)
+        } else {
+            nextMatch.copy(player2Id = winnerId)
+        }
+        tournamentRepository.updateMatch(updatedNext)
     }
 
     /**

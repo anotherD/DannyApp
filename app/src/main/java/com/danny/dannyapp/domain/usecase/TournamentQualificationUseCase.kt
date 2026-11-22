@@ -746,14 +746,12 @@ class TournamentQualificationUseCase(
      */
     suspend fun getUkOpenEntrantGroups(
         tournamentId: Long,
-        careerId: Long,
         roundKey: String,
         allMatches: List<TournamentMatch>,
         event: TournamentEvent,
         currentCareerId: Long,
         preloadedParticipants: List<TournamentParticipant>? = null,
-        preloadedPlayers: List<Player>? = null,
-        preloadedOomEntries: List<OrderOfMeritEntry>? = null
+        preloadedPlayers: List<Player>? = null
     ): List<EntrantGroupDomainData> = withContext(Dispatchers.IO) {
         val storedParticipants = preloadedParticipants ?: tournamentRepository.getParticipantsForTournament(tournamentId)
         val stored65To96 = storedParticipants.filter { it.qualificationType == "OOM_65_96" }.sortedBy { it.seedNumber ?: Int.MAX_VALUE }.map { it.playerId }
@@ -790,24 +788,26 @@ class TournamentQualificationUseCase(
 
         val groups = mutableListOf<EntrantGroupDomainData>()
 
-        val oomEntries = preloadedOomEntries ?: getOrderOfMeritUseCase(careerId, OrderOfMeritType.OOM)
-        val allPlayerIds = (listOf(USER_ID) + allPlayers.map { it.id }).distinct()
-        val sortedPlayerIds = QualificationHelper.sortPlayerIdsByOom(allPlayerIds, oomEntries)
-
         when (roundKey) {
             TournamentRound.R2_128.name -> {
-                val pIds = stored65To96.ifEmpty { sortedPlayerIds.drop(64).take(32) }
-                val players = pIds.mapIndexed { index, id -> createEntrantPlayerDomainInfo(id, 65 + index) }
+                require(stored65To96.size == 32) {
+                    "UK/European Open R2 erfordert genau 32 gespeicherte OOM_65_96-Teilnehmer (gefunden: ${stored65To96.size})"
+                }
+                val players = stored65To96.mapIndexed { index, id -> createEntrantPlayerDomainInfo(id, 65 + index) }
                 groups.add(EntrantGroupDomainData(groupType = EntrantGroupType.OOM_65_96, players = players))
             }
             TournamentRound.R3_96.name -> {
-                val pIds = stored33To64.ifEmpty { sortedPlayerIds.drop(32).take(32) }
-                val players = pIds.mapIndexed { index, id -> createEntrantPlayerDomainInfo(id, 33 + index) }
+                require(stored33To64.size == 32) {
+                    "UK/European Open R3 erfordert genau 32 gespeicherte OOM_33_64-Teilnehmer (gefunden: ${stored33To64.size})"
+                }
+                val players = stored33To64.mapIndexed { index, id -> createEntrantPlayerDomainInfo(id, 33 + index) }
                 groups.add(EntrantGroupDomainData(groupType = EntrantGroupType.OOM_33_64, players = players))
             }
             TournamentRound.L64.name -> {
-                val pIds = storedTop32.ifEmpty { sortedPlayerIds.take(32) }
-                val players = pIds.mapIndexed { index, id -> createEntrantPlayerDomainInfo(id, 1 + index) }
+                require(storedTop32.size == 32) {
+                    "UK/European Open L64 erfordert genau 32 gespeicherte OOM_TOP_32-Teilnehmer (gefunden: ${storedTop32.size})"
+                }
+                val players = storedTop32.mapIndexed { index, id -> createEntrantPlayerDomainInfo(id, 1 + index) }
                 groups.add(EntrantGroupDomainData(groupType = EntrantGroupType.OOM_TOP_32, players = players))
             }
         }

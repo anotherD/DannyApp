@@ -96,9 +96,10 @@ class GenerateBracketUseCase(
             val startRound = fullRoundSequence.firstOrNull { round ->
                 tournamentMatches.any { match -> match.round == round.name }
             }
-            if (startRound != null) {
-                tournamentRepository.updateTournament(tournament.copy(currentRound = startRound.name))
+            val resolvedStartRound = requireNotNull(startRound) {
+                "Keine gültige Startrunde für Turnier $tournamentId ($event) ermittelt"
             }
+            tournamentRepository.updateTournament(tournament.copy(currentRound = resolvedStartRound.name))
 
             tournamentRepository.getMatchesListForTournament(tournamentId)
         }
