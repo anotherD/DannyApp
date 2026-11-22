@@ -45,7 +45,7 @@ class TournamentProgressionUseCase(
             val state = checkNotNull(advanceTournamentRoundUseCase.evaluateTournamentState(tournamentId)) {
                 "Turnier-Status konnte für ID $tournamentId nicht ermittelt werden"
             }
-            val activeRound = state.activeRound ?: return@withContext false
+            val activeRound = checkNotNull(state.activeRound) { "Aktive Runde fehlt für laufendes Turnier $tournamentId" }
 
             completeMatchUseCase.simulateAllOpenCpuMatches(tournamentId)
 
@@ -68,11 +68,16 @@ class TournamentProgressionUseCase(
             if (updatedState != null && updatedState.canAdvanceRound) {
                 advanceTournamentRoundUseCase(tournamentId)
             } else {
-                break
+                val openMatches = tournamentRepository.getMatchesListForTournament(tournamentId)
+                    .count { it.round == activeRound.name && !it.isCompleted }
+                error("Turnier $tournamentId steckt in Runde '${activeRound.name}' fest: $openMatches offene Matches verbleiben")
             }
         }
 
         val finalTournament = tournamentRepository.getTournamentById(tournamentId)
-        return@withContext finalTournament.isCompleted
+        check(finalTournament.isCompleted) {
+            "Turnier $tournamentId wurde nach $loopCount Durchläufen nicht abgeschlossen (Runde: ${finalTournament.currentRound})"
+        }
+        return@withContext true
     }
 }
