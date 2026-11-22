@@ -145,7 +145,7 @@ abstract class BaseActivity : AppCompatActivity() {
      * per position.
      */
     protected fun setupViewPagerBackToHome(
-        viewPager: androidx.viewpager2.widget.ViewPager2,
+        viewPager: ViewPager2,
         homeTabIndex: Int = 0
     ) {
         val callback = object : OnBackPressedCallback(viewPager.currentItem != homeTabIndex) {

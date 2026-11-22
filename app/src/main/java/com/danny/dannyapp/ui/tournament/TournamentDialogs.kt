@@ -360,8 +360,7 @@ object TournamentDialogs {
                 }
                 coroutineScope.launch {
                     try {
-                        val result = onSaveScore(matchModel.match.id, p1, p2)
-                        when (result) {
+                        when (val result = onSaveScore(matchModel.match.id, p1, p2)) {
                             is ManualScoreResult.ValidationError -> {
                                 val errorMessage = when (val error = result.error) {
                                     is ScoreValidationError.NegativeScore -> context.getString(R.string.score_validation_negative)

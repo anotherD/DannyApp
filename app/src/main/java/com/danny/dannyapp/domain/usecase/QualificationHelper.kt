@@ -29,7 +29,7 @@ object QualificationHelper {
         }.minOrNull() ?: 0
 
         return fullSequence.subList(startIndex, fullSequence.size).filter { round ->
-            if (event.isQualifier) round.name in presentRoundNames else true
+            !event.isQualifier || round.name in presentRoundNames
         }
     }
 
