@@ -475,6 +475,7 @@ class TournamentDetailActivity : BaseActivity() {
                     } else {
                         rvMatches.visibility = View.VISIBLE
                         layoutOpenDrawInfo.visibility = View.GONE
+                        activeMatchesAdapter.qualifierBoardCount = TournamentDetailUiHelper.getQualifierBoardCountFromRounds(state.event, state.allRoundsMatches)
                         activeMatchesAdapter.submitList(state.matches)
                     }
                 }
@@ -547,6 +548,7 @@ class TournamentDetailActivity : BaseActivity() {
                     scrollReviewRoundPills.visibility = View.VISIBLE
                     bracketViewReview.visibility = View.GONE
                     rvReviewMatches.visibility = View.VISIBLE
+                    reviewMatchesAdapter.qualifierBoardCount = TournamentDetailUiHelper.getQualifierBoardCountFromRounds(state.event, state.allRoundsMatches)
                     reviewMatchesAdapter.submitList(state.matches)
                 }
             }

@@ -48,7 +48,7 @@ Ausführliche Fachkonzepte, Forschungsberichte und Architekturbeschreibungen bef
     - [ ] Berechnung der Tour Cards für Saison N+1 anhand der 2-Jahres-Order-of-Merit (Top 64 behalten Card, 2. Jahr verfällt).
     - [ ] Rudimentäre Q-School-Simulation (zufällige Auffüllung neuer Tour-Card-Inhaber).
 - [ ] **Karriere-Verwaltung & Übersicht ausbauen:**
-    - [ ] Auf der Karrieren-Liste (`CareersActivity`) zusätzlich anzeigen, bei welchem Turnier und welcher Runde die Karriere aktuell steht.
+    - [x] Auf der Karrieren-Liste (`CareersActivity`) zusätzlich anzeigen, bei welchem Turnier und welcher Runde die Karriere aktuell steht.
     - [x] Karriere-Name nachträglich bearbeitbar machen.
     - [ ] Karriere-Level hochsetzen ermöglichen (z. B. gezielt nach Saisonende, damit die Karriere bei steigendem eigenem Können spannend bleibt).
     - [ ] Karriere-Übersicht (`CareerOverviewFragment`) um zentrale Infos ergänzen:

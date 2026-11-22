@@ -1,5 +1,6 @@
 package com.danny.dannyapp.domain.usecase
 
+import com.danny.dannyapp.data.db.PLACEHOLDER_OPEN_DRAW_ID
 import com.danny.dannyapp.domain.enums.TournamentEvent
 import com.danny.dannyapp.domain.enums.TournamentRound
 import com.danny.dannyapp.domain.model.MatchPairing
@@ -408,6 +409,9 @@ object BracketGenerator {
 
         val byePlayers = if (totalNonPrequalified > totalR1Slots) {
             oomSortedIds.take((2 * totalR1Slots - totalNonPrequalified).coerceAtLeast(0))
+        } else if (totalNonPrequalified < totalR1Slots) {
+            val padding = List(totalR1Slots - totalNonPrequalified) { PLACEHOLDER_OPEN_DRAW_ID }
+            oomSortedIds + padding
         } else {
             oomSortedIds
         }

@@ -1,6 +1,7 @@
 package com.danny.dannyapp.domain.usecase
 
 import com.danny.dannyapp.data.db.CareerRepository
+import com.danny.dannyapp.data.db.PLACEHOLDER_OPEN_DRAW_ID
 import com.danny.dannyapp.data.db.Player
 import com.danny.dannyapp.data.db.PlayerRepository
 import com.danny.dannyapp.data.db.SeasonRepository
@@ -135,6 +136,9 @@ class TournamentQualificationUseCase(
 
         val byePlayers = if (totalNonPrequalified > totalR1Slots) {
             nonPrequalifiedIds.take((2 * totalR1Slots - totalNonPrequalified).coerceAtLeast(0))
+        } else if (totalNonPrequalified < totalR1Slots) {
+            val padding = List(totalR1Slots - totalNonPrequalified) { PLACEHOLDER_OPEN_DRAW_ID }
+            nonPrequalifiedIds + padding
         } else {
             nonPrequalifiedIds
         }

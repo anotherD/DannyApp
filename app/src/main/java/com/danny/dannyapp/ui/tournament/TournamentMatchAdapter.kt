@@ -16,6 +16,8 @@ class TournamentMatchAdapter(
     private val onMatchClick: (MatchUiModel) -> Unit
 ) : ListAdapter<MatchUiModel, TournamentMatchAdapter.ViewHolder>(MatchDiffCallback) {
 
+    var qualifierBoardCount: Int = 1
+
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val cardMatch: MaterialCardView = view.findViewById(R.id.cardMatch)
         val tvMatchRoundIndex: TextView = view.findViewById(R.id.tvMatchRoundIndex)
@@ -31,40 +33,6 @@ class TournamentMatchAdapter(
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_tournament_match, parent, false)
         return ViewHolder(view)
-    }
-
-    private fun getR1MatchesPerBoard(items: List<MatchUiModel>): Int {
-        val qualFinalCount = items.count { it.match.round == com.danny.dannyapp.domain.enums.TournamentRound.QUAL_FINAL.name }
-        val boardCount = if (qualFinalCount > 0) qualFinalCount else 1
-
-        val r1Count = items.count { it.match.round == com.danny.dannyapp.domain.enums.TournamentRound.QUAL_R1.name }
-        if (r1Count > 0) {
-            val perBoard = r1Count / boardCount
-            return when {
-                perBoard >= 12 -> 16
-                perBoard >= 6 -> 8
-                else -> 4
-            }
-        }
-        val r2Count = items.count { it.match.round == com.danny.dannyapp.domain.enums.TournamentRound.QUAL_R2.name }
-        if (r2Count > 0) {
-            val perBoard = (r2Count / boardCount) * 2
-            return when {
-                perBoard >= 12 -> 16
-                perBoard >= 6 -> 8
-                else -> 4
-            }
-        }
-        val r3Count = items.count { it.match.round == com.danny.dannyapp.domain.enums.TournamentRound.QUAL_R3.name }
-        if (r3Count > 0) {
-            val perBoard = (r3Count / boardCount) * 4
-            return when {
-                perBoard >= 12 -> 16
-                perBoard >= 6 -> 8
-                else -> 4
-            }
-        }
-        return 4
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -90,14 +58,8 @@ class TournamentMatchAdapter(
                 holder.layoutBoardHeader.visibility = View.GONE
             }
         } else if (isQualifierRound) {
-            val r1MatchesPerBoard = getR1MatchesPerBoard(currentList)
-            val matchesPerBoard = when (roundKey) {
-                com.danny.dannyapp.domain.enums.TournamentRound.QUAL_R1.name -> r1MatchesPerBoard
-                com.danny.dannyapp.domain.enums.TournamentRound.QUAL_R2.name -> r1MatchesPerBoard / 2
-                com.danny.dannyapp.domain.enums.TournamentRound.QUAL_R3.name -> (r1MatchesPerBoard / 4).coerceAtLeast(1)
-                com.danny.dannyapp.domain.enums.TournamentRound.QUAL_FINAL.name -> 1
-                else -> r1MatchesPerBoard
-            }
+            val boardCount = qualifierBoardCount.coerceAtLeast(1)
+            val matchesPerBoard = (currentList.size / boardCount).coerceAtLeast(1)
             if (matchesPerBoard > 0 && match.matchIndex % matchesPerBoard == 0) {
                 val boardIdx = match.matchIndex / matchesPerBoard
                 holder.layoutBoardHeader.visibility = View.VISIBLE
