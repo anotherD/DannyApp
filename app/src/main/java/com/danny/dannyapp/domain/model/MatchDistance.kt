@@ -5,6 +5,6 @@ import com.danny.dannyapp.domain.enums.MatchFormatType
 data class MatchDistance(
     val bestOf: Int,
     val format: MatchFormatType,
-    val legsPerSet: Int = 5,
+    val legsPerSet: Int,
     val twoClearLegsRule: Boolean = false
 )
