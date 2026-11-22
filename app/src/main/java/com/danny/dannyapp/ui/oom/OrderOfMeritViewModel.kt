@@ -42,7 +42,7 @@ class OrderOfMeritViewModel(application: Application) : AndroidViewModel(applica
     private val _scrollToPositionEvent = MutableSharedFlow<Int>(extraBufferCapacity = 1)
     val scrollToPositionEvent: SharedFlow<Int> = _scrollToPositionEvent.asSharedFlow()
 
-    private val _selectedOomType = MutableStateFlow<OrderOfMeritType>(OrderOfMeritType.OOM)
+    private val _selectedOomType = MutableStateFlow(OrderOfMeritType.OOM)
     val selectedOomType: StateFlow<OrderOfMeritType> = _selectedOomType.asStateFlow()
 
     fun selectOomType(type: OrderOfMeritType) {

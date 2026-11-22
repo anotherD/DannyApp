@@ -23,12 +23,6 @@ data class Country(
             return HOME_NATIONS.containsKey(upper) || getIso2FromCode(upper).isNotEmpty()
         }
 
-        fun getDisplayName(code: String): String {
-            val upper = code.trim().uppercase()
-            HOME_NATIONS[upper]?.let { return it.first }
-            return getLocaleFromCode(upper)?.getDisplayCountry(Locale.getDefault()).orEmpty().ifEmpty { upper }
-        }
-
         fun getFlagEmoji(code: String): String {
             val upper = code.trim().uppercase()
             HOME_NATIONS[upper]?.let { return it.second }

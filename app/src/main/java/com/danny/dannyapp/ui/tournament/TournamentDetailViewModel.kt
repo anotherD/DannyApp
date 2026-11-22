@@ -13,7 +13,6 @@ import com.danny.dannyapp.data.db.TournamentMatch
 import com.danny.dannyapp.data.db.TournamentParticipant
 import com.danny.dannyapp.data.db.USER_ID
 import com.danny.dannyapp.domain.config.TournamentConfigLoader
-import com.danny.dannyapp.domain.enums.OrderOfMeritType
 import com.danny.dannyapp.domain.enums.TournamentEvent
 import com.danny.dannyapp.domain.enums.TournamentRound
 import com.danny.dannyapp.domain.model.Country
@@ -357,7 +356,6 @@ class TournamentDetailViewModel(
         val isOpenDrawEvent = (event == TournamentEvent.UK_OPEN || event == TournamentEvent.EUROPEAN_OPEN)
         val preloadedParticipants = if (isOpenDrawEvent) tournamentRepository.getParticipantsForTournament(currentTournamentId) else null
         val preloadedPlayers = if (isOpenDrawEvent) playerRepository.getAllPlayersList() else null
-        val preloadedOomEntries = if (isOpenDrawEvent) getOrderOfMeritUseCase(careerId, OrderOfMeritType.OOM) else null
 
         val openDrawInfoMap = mutableMapOf<Int, Pair<String, List<EntrantGroupInfo>>>()
         for ((roundIndex, roundKey) in availableRounds.withIndex()) {
@@ -366,7 +364,6 @@ class TournamentDetailViewModel(
                 val prevName = availableRoundDisplayNames.getOrNull(roundIndex - 1) ?: ""
                 val groups = getUkOpenEntrantGroups(
                     tournamentId = currentTournamentId,
-                    careerId = careerId,
                     roundKey = roundKey,
                     allMatches = allMatches,
                     event = event,
@@ -380,7 +377,6 @@ class TournamentDetailViewModel(
         val openEntrantsGroups = if (isUkOpenUngenerated) {
             openDrawInfoMap[selectedRoundIndexFlow.value]?.second ?: getUkOpenEntrantGroups(
                 tournamentId = currentTournamentId,
-                careerId = careerId,
                 roundKey = currentRoundKey,
                 allMatches = allMatches,
                 event = event,
@@ -774,7 +770,7 @@ class TournamentDetailViewModel(
         if (allMatches.none { it.round == TournamentRound.GROUP.name }) return emptyMap()
         val seededPlayerMap = getSeededPlayerMap(TournamentEvent.GRAND_SLAM_OF_DARTS, seasonId, tournamentId)
         val standingsByGroup = calculateGroupStandingsUseCase(allMatches)
-        return TournamentDetailMapper.mapGrandSlamGroupStandings(getApplication(), standingsByGroup, careerWithProfile, allPlayersMap, seededPlayerMap)
+        return TournamentDetailMapper.mapGrandSlamGroupStandings(standingsByGroup, careerWithProfile, allPlayersMap, seededPlayerMap)
     }
 
     /**
@@ -913,7 +909,6 @@ class TournamentDetailViewModel(
      */
     private suspend fun getUkOpenEntrantGroups(
         tournamentId: Long,
-        careerId: Long,
         roundKey: String,
         allMatches: List<TournamentMatch>,
         event: TournamentEvent,

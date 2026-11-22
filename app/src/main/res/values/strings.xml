@@ -268,4 +268,13 @@
     <string name="crash_copy_button">Fehlerbericht kopieren</string>
     <string name="crash_copied_toast">Fehlerbericht in die Zwischenablage kopiert.</string>
     <string name="crash_restart_button">App neu starten</string>
+
+    <!-- Match-Distance Presets -->
+    <string name="match_distance_preset_original">Original (100 %)</string>
+    <string name="match_distance_preset_shortened">Verkürzt (75 %)</string>
+    <string name="match_distance_preset_compact">Kompakt (50 %)</string>
+    <string name="match_distance_preset_rapid">Rapid (25 %)</string>
+    <string name="careers_create_match_distance">Match-Distanz</string>
+    <string name="match_distance_info_title">Match-Distanzen im Überblick</string>
+    <string name="match_distance_info_description">Lege vor Karrierestart fest, wie lang Matches in allen Turnieren gespielt werden. Diese Einstellung gilt dauerhaft für die gesamte Karriere.</string>
 </resources>

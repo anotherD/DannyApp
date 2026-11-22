@@ -194,7 +194,6 @@ object TournamentDetailMapper {
      * Maps domain group standings to [GrandSlamGroupItem] UI models.
      */
     fun mapGrandSlamGroupStandings(
-        context: Context,
         standingsByGroup: Map<String, List<GroupStandingEntry>>,
         careerWithProfile: CareerWithProfile,
         allPlayersMap: Map<Long, Player>,
