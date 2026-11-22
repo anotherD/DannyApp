@@ -10,8 +10,9 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import com.danny.dannyapp.ui.UIHelper
+import com.google.android.material.snackbar.Snackbar
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -354,7 +355,7 @@ object TournamentDialogs {
                 val p1 = etP1.text.toString().toIntOrNull() ?: -1
                 val p2 = etP2.text.toString().toIntOrNull() ?: -1
                 if (p1 < 0 || p2 < 0) {
-                    Toast.makeText(context, context.getString(R.string.user_match_invalid_numbers), Toast.LENGTH_SHORT).show()
+                    UIHelper.showSnackbar(dialog.window!!.decorView, context.getString(R.string.user_match_invalid_numbers), isError = true, duration = Snackbar.LENGTH_LONG)
                     return@setOnClickListener
                 }
                 coroutineScope.launch {
@@ -383,7 +384,7 @@ object TournamentDialogs {
                                 )
                             }
                             if (errorMessage != null) {
-                                Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
+                                UIHelper.showSnackbar(dialog.window!!.decorView, errorMessage, isError = true, duration = Snackbar.LENGTH_LONG)
                             }
                         }
                         is ManualScoreResult.Success -> {

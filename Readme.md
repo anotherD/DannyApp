@@ -70,7 +70,7 @@ Ausführliche Fachkonzepte, Forschungsberichte und Architekturbeschreibungen bef
     - [x] Horizontales Ausfaden (`fadingEdge`) an den Bildschirmrändern links/rechts für horizontal scrollbare Elemente (Runden-Pills, Board-Pills, Gruppen-Pills, Ranglisten-Pills).
     - [ ] Einheitliches Chip-Auswahl-Verhalten angleichen: Runden-Chips (aktuell Rahmen = Auswahl, Hintergrund = Status) und Ranglisten-Chips (Hintergrund = Auswahl) auf einen konsistenten Android-Standard bringen.
     - [ ] Material 3 Expressive Motion: Taktilen Spring-/Jump-Effekt (`SpringAnimation` zentral in `UIHelper`) gezielt für primäre Buttons, FABs und Filter-Chips einbauen (nicht für scrollbare Listen-Kacheln).
-    - [ ] Toasts durch einheitliche UI-Hinweise (z. B. Material `Snackbar` oder eigene Status-Banner) ersetzen.
+    - [x] Toasts durch einheitliche UI-Hinweise (z. B. Material `Snackbar` oder eigene Status-Banner) ersetzen.
 - [ ] **Spieler-Detailansicht:** Klick auf einen Spielernamen (in Turnieren, Ranglisten oder Spielerliste) öffnet die Detailseite mit Karriere-Stats und Erfolgen.
 - [ ] **Match-Detailansicht:** Klick auf ein abgeschlossenes oder laufendes Match öffnet die Match-Statistiken (Leg-/Set-Verlauf, Averages, Check-outs).
 - [ ] Entwicklungs-Hinweis zu DB-Fallbacks aus INSTRUCTIONS.md entfernen, sobald Produktiv-Migrationen greifen

@@ -10,7 +10,6 @@ import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.danny.dannyapp.R
@@ -178,7 +177,7 @@ class CrashActivity : AppCompatActivity() {
         val reportText = "Error:\n$errorMessageText\n\nStacktrace:\n$stacktraceText"
         val clipData = ClipData.newPlainText("Crash Report", reportText)
         clipboardManager.setPrimaryClip(clipData)
-        Toast.makeText(this, R.string.crash_copied_toast, Toast.LENGTH_SHORT).show()
+        UIHelper.showSnackbar(findViewById(android.R.id.content), getString(R.string.crash_copied_toast))
     }
 
     /**

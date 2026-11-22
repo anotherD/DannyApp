@@ -10,8 +10,8 @@ import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.ScrollView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.viewModels
+import com.google.android.material.snackbar.Snackbar
 import androidx.core.view.children
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -170,7 +170,7 @@ class TournamentDetailActivity : BaseActivity() {
         if (tournamentId > 0L) {
             viewModel.loadTournament(tournamentId, careerId)
         } else {
-            Toast.makeText(this, getString(R.string.invalid_tournament_id), Toast.LENGTH_SHORT).show()
+            showMessage(getString(R.string.invalid_tournament_id), isError = true, duration = Snackbar.LENGTH_LONG)
         }
     }
 
@@ -555,7 +555,7 @@ class TournamentDetailActivity : BaseActivity() {
 
             is TournamentDetailState.Error -> {
                 pbLoading.visibility = View.VISIBLE
-                Toast.makeText(this, state.message, Toast.LENGTH_LONG).show()
+                showMessage(state.message, isError = true, duration = Snackbar.LENGTH_LONG)
             }
         }
     }
