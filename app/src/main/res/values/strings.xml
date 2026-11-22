@@ -277,4 +277,15 @@
     <string name="careers_create_match_distance">Match-Distanz</string>
     <string name="match_distance_info_title">Match-Distanzen im Überblick</string>
     <string name="match_distance_info_description">Lege vor Karrierestart fest, wie lang Matches in allen Turnieren gespielt werden. Diese Einstellung gilt dauerhaft für die gesamte Karriere.</string>
+
+    <!-- Career Distance Categories -->
+    <string name="career_distance_category_players_championship">Players Championship</string>
+    <string name="career_distance_category_european_tour">European Tour</string>
+    <string name="career_distance_category_qualifier">Qualifier (ET / GS / WM)</string>
+    <string name="career_distance_category_uk_open_european_open">UK Open &amp; European Open</string>
+    <string name="career_distance_category_world_matchplay">World Matchplay</string>
+    <string name="career_distance_category_world_grand_prix">World Grand Prix</string>
+    <string name="career_distance_category_euro_championship_pc_finals">European Championship &amp; PC Finals</string>
+    <string name="career_distance_category_grand_slam">Grand Slam of Darts</string>
+    <string name="career_distance_category_world_championship">World Championship</string>
 </resources>

@@ -607,9 +607,20 @@ Ergänzend zu den jeweiligen Turnierregeln in Abschnitt 2 gelten für die Simula
   * [PDC Rankings Rules (Section 3.7 – Late Replacements & Section 4.17 – Seeded Losers / Byes / Withdrawals)](https://www.pdc.tv/rankings/pdc-rankings-rules)
 
 ### 3.3 Spielformate & Sonderregeln (Zentrale Definition)
-Alle konkreten Runden-Distanzen (Best-of-Legs/Sets) aller Turniere sind zentral in `app/src/main/assets/season_calendar_2027.json` (`events.<EVENT>.distances`) definiert. Für die Spiel-Engine gelten folgende zentrale Formatregeln:
+Alle konkreten Basis-Runden-Distanzen (Best-of-Legs/Sets) aller Turniere sind zentral in `app/src/main/assets/season_calendar_2027.json` (`events.<EVENT>.distances`) definiert (Single Source of Truth). Für die Spiel-Engine gelten folgende zentrale Formatregeln:
 
-* **Set-Format:** Standardmäßig besteht ein Set aus *Best-of 5 Legs* (First to 3 Legs) – das gilt sowohl für die *World Championship* als auch für den *World Grand Prix*. (Ausnahme bei nicht-simulierten Non-Ranking-Events: *World Masters* mit Best-of 3 Legs pro Set).
+* **Set-Format:** Standardmäßig besteht ein Set aus *Best-of 5 Legs* (First to 3 Legs) – das gilt sowohl für die *World Championship* als auch für den *World Grand Prix* im Original-Modus (100 %). (Ausnahme bei nicht-simulierten Non-Ranking-Events: *World Masters* mit Best-of 3 Legs pro Set).
+* **Modifizierbare Match-Distanzen vor Karrierestart (`MatchDistancePreset`):**
+  * Jede Karriere legt vor dem Start dauerhaft eine Distanz-Stufe fest (nicht nachträglich änderbar, um Karriere-Statistiken konsistent zu halten):
+    1. **Original (100 %):** Unveränderte offizielle PDC-Distanzen.
+    2. **Verkürzt (75 %):** Skalierung auf ca. 75 % der Basis-Distanz.
+    3. **Kompakt (50 %):** Skalierung auf ca. 50 % der Basis-Distanz.
+    4. **Rapid (25 %):** Maximale Verkürzung für schnelle Partien.
+  * **Rundungs- & Minimum-Regel:** Alle skalierten Best-of-Werte werden auf eine ungerade Zahl gerundet und unterschreiten niemals **Best of 3** (weder bei Legs noch bei Sets).
+  * **Set-Skalierung bei verkürzten Presets:**
+    * *Verkürzt (75 %):* Es bleibt bei `5 Legs/Set` (First to 3 Legs), nur die Set-Anzahl wird auf ~75 % skaliert (mindestens `Best of 3 Sets`).
+    * *Kompakt (50 %):* Runden mit Basis-Distanz `<= Best of 7 Sets` spielen mit `3 Legs/Set` (First to 2 Legs; bei Basis `Best of 7 Sets` werden `Best of 5 Sets` gespielt, damit eine Steigerung zur Vorrunde erhalten bleibt); Runden mit Basis-Distanz `>= Best of 9 Sets` (ab Viertelfinale/Halbfinale) spielen regulär mit `5 Legs/Set` (First to 3 Legs).
+    * *Rapid (25 %):* Alle Set-Runden werden als `Best of 3 Sets` mit jeweils `3 Legs/Set` (First to 2 Legs) gespielt.
 * **Two-Clear-Legs Rule:**
   * *Leg-Format (World Matchplay):* Das Spiel muss mit mindestens 2 Legs Vorsprung gewonnen werden. Steht es nach 3 zusätzlichen Legs über der regulären Zieldistanz immer noch unentschieden (z. B. 12:12 bei First to 10), entscheidet das nächste Leg als Sudden-Death-Leg (13:12).
   * *Set-Format (World Grand Prix & World Championship):* Greift erst im entscheidenden letzten Satz, wenn beide Spieler nur noch ein Set zum Sieg benötigen. Dieser Satz muss mit 2 Legs Vorsprung gewonnen werden; bei 5:5 entscheidet das 11. Leg als Sudden-Death-Leg (6:5).

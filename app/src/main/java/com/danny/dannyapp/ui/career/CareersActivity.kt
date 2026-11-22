@@ -172,6 +172,30 @@ class CareersActivity : BaseActivity() {
             selectedProfileId = profiles.find { it.name == selectedName }?.id ?: 0L
         }
 
+        val autoCompleteMatchDistance = dialogView.findViewById<AutoCompleteTextView>(R.id.autoCompleteMatchDistance)
+        val btnMatchDistanceInfo = dialogView.findViewById<android.widget.ImageView>(R.id.btnMatchDistanceInfo)
+
+        val matchDistancePresets = com.danny.dannyapp.domain.enums.MatchDistancePreset.entries
+        var selectedMatchDistancePreset = com.danny.dannyapp.domain.enums.MatchDistancePreset.DEFAULT
+        val presetAdapter = android.widget.ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, matchDistancePresets.map { getString(it.labelResId) })
+        autoCompleteMatchDistance.setAdapter(presetAdapter)
+        autoCompleteMatchDistance.setText(getString(selectedMatchDistancePreset.labelResId), false)
+        autoCompleteMatchDistance.setOnClickListener {
+            autoCompleteMatchDistance.showDropDown()
+        }
+        autoCompleteMatchDistance.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) {
+                autoCompleteMatchDistance.showDropDown()
+            }
+        }
+        autoCompleteMatchDistance.setOnItemClickListener { _, _, position, _ ->
+            selectedMatchDistancePreset = matchDistancePresets.getOrNull(position) ?: com.danny.dannyapp.domain.enums.MatchDistancePreset.DEFAULT
+        }
+
+        btnMatchDistanceInfo.setOnClickListener {
+            CareerDistanceInfoDialog.show(this, selectedMatchDistancePreset)
+        }
+
         val dialog = MaterialAlertDialogBuilder(this)
             .setView(dialogView)
             .setPositiveButton(getString(R.string.careers_create_positive_button), null)

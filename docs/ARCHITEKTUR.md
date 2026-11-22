@@ -33,10 +33,13 @@ Die App folgt dem **Model-View-ViewModel (MVVM)** Muster mit **Kotlin Coroutines
     * `USER_ID = -1L`: Feste ID für den menschlichen Spieler in Tour Cards, Matches und Preisgeld-Platzierungen.
     * `SkillLevel`: Spielstärken von `1` bis `10` (Default: `5`).
     * `Country`: ISO-3-Ländercodes (inkl. Home Nations `ENG`, `SCO`, `WAL`, `NIR`; Fallback `XYZ`, User-Default `DEU`).
-* **Fail-Fast-Prinzip:** Interne Pflichtfelder (z. B. `Career.level`, Turnier-Runden, Setzlisten) und Domain-Übergänge verwenden keine stillen Fallbacks, sondern lösen bei Inkonsistenzen sofort eine `IllegalStateException` aus.
+* **Fail-Fast-Prinzip:** Interne Pflichtfelder (z. B. `Career.level`, `Career.matchDistancePreset`, Turnier-Runden, Setzlisten) und Domain-Übergänge verwenden keine stillen Fallbacks, sondern lösen bei Inkonsistenzen sofort eine `IllegalStateException` aus.
 * **Karriere-Level vs. Skill-Level (Schwierigkeits- & Simulationsmodell):**
     * `Career.level` (`1..25`): Globaler Schwierigkeitsgrad der Karriere, der das Ziel-Average-Niveau aller CPU-Gegner festlegt (Basis-Durchschnitt: `22 + level * 3`, d. h. Level 1 ≈ 25 Avg bis Level 25 ≈ 97 Avg). Der menschliche User selbst spielt live ohne festen Skill-Wert (für Schnell-Simulationen wird der User bis zur finalen Game-Engine als neutraler Durchschnitt `SkillLevel.DEFAULT` gewertet).
     * `SkillLevel` (`1..10`, Default: `5`): Relatives Leistungsgefälle der CPU-Spieler untereinander innerhalb der durch das Karriere-Level vorgegebenen Average-Spanne (z. B. `Skill 10` wie Luke Littler am oberen Rand, `Skill 5` wie Rob Cross im Zentrum).
+* **Modifizierbare Match-Distanzen (`MatchDistancePreset` & `Career.matchDistancePreset`):**
+    * Beim Anlegen einer Karriere wird verbindlich eines der 4 Distanz-Presets (`ORIGINAL` = 100 %, `SHORTENED` = 75 %, `COMPACT` = 50 %, `RAPID` = 25 %) gewählt und dauerhaft an der `Career`-Entity gespeichert.
+    * `TournamentEvent.getMatchDistance(round, preset)` liest die Basisdistanz ausschließlich aus `TournamentConfigLoader` (Single Source of Truth ohne hartcodierte Fallbacks) und skaliert sie zentral über `MatchDistancePreset.scaleDistance(...)` für Match-Simulation, Score-Validierung und Turnier-Info-Anzeige.
 
 ---
 
@@ -86,7 +89,7 @@ Wenn du `players.csv` in den Assets bearbeitest:
 
 ### 5.1 Domain Config, Models & UseCases (`domain/`)
 * **`TournamentConfigLoader` & `season_calendar_2027.json`**: Zentraler Loader inkl. Fail-Fast-Validierung für Kalender, Preisgelder und Match-Distanzen.
-* **`TournamentEvent` & `TournamentRound` & `MatchDistance`**: Enums und Datenmodelle für Turniertypen, Rundenfolgen, Preisgeld-Auszahlungen pro Runde sowie Best-of-Legs/Sets und Two-Clear-Legs-Regeln.
+* **`TournamentEvent` & `TournamentRound` & `MatchDistance` & `MatchDistancePreset`**: Enums und Datenmodelle für Turniertypen, Rundenfolgen, Preisgeld-Auszahlungen pro Runde, Best-of-Legs/Sets, Two-Clear-Legs-Regeln sowie karrierespezifische Distanz-Presets.
 * **`TournamentRuleStrategy` & `TournamentRuleStrategyRegistry`**: Kapselt turnierspezifische Match-Generierungs- und Qualifier-Übernahmeregeln unter `domain/strategy/`.
 * **`GenerateSeasonCalendarUseCase`**: Erzeugt die chronologische Liste aller Saisonturniere aus `season_calendar_2027.json`.
 * **`GenerateBracketUseCase` & `BracketGenerator`**: Erzeugt Setzlisten, Erstrunden-Paarungen (inkl. dynamischer Qualifikanten-Brackets mit Vorrunden/Freilosen), speichert Teilnehmer/Setzlisten (`tournament_participants`) und verbucht das garantierte Einstiegspreisgeld.
