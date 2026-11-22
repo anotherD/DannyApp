@@ -57,11 +57,11 @@ Ausführliche Fachkonzepte, Forschungsberichte und Architekturbeschreibungen bef
         - [ ] Turnier-Qualifikationsübersicht mit Ampelstatus (Grün = fix qualifiziert, Gelb = aktuell drin/unsicher, Rot = nicht qualifiziert) – mit Caching/Performance-Fokus.
         - [ ] Eigener 3-Dart-Average (sobald Spielstatistiken erfasst werden).
 - [ ] **Turnier-Details, Infos & Rückblick:**
-    - [ ] Modifizierbare Match-Distanzen vor Karrierestart (z. B. 50 % / 75 % / 100 % Distanz für kürzere Spielzeiten).
+    - [x] Modifizierbare Match-Distanzen vor Karrierestart (z. B. 25% / 50 % / 75 % / 100 % Distanz für kürzere Spielzeiten).
     - [x] Turnier-Beschreibungen in der Vorschau um Qualifikations-Boni ergänzen (z. B. *„Sieger qualifiziert sich für Grand Slam of Darts“*).
-    - [X] Turnier-Info-Dialog erweitern:
-        - [X] Teilnehmerliste mit Qualifikationsweg und Setzposition pro Spieler anzeigen (live aktualisiert für bereits fix qualifizierte Spieler + temporärer Stand).
-        - [X] Bei den Runden-Preisgeldern die Ranglisten-Ausnahmen anzeigen (z. B. £0 bei Auftaktniederlage gesetzter Spieler auf der European Tour).
+    - [x] Turnier-Info-Dialog erweitern:
+        - [x] Teilnehmerliste mit Qualifikationsweg und Setzposition pro Spieler anzeigen (live aktualisiert für bereits fix qualifizierte Spieler + temporärer Stand).
+        - [x] Bei den Runden-Preisgeldern die Ranglisten-Ausnahmen anzeigen (z. B. £0 bei Auftaktniederlage gesetzter Spieler auf der European Tour).
     - [ ] Im Turnier-Rückblick (abgeschlossene Turniere) optional alle eigenen Spiele dieses Turniers gesammelt anzeigen.
 - [ ] **UI-Polish, Navigation & Branding:**
     - [ ] Finaler App-Name, eigenes Launcher-Icon und überarbeitete, moderne Startseite (`MainActivity`).

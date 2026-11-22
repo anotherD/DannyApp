@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
 import com.danny.dannyapp.data.db.CareerWithProfile
+import com.danny.dannyapp.domain.enums.MatchDistancePreset
 import com.danny.dannyapp.ui.UIHelper
 import com.danny.dannyapp.ui.tournament.TournamentUiHelper
 
@@ -23,6 +24,7 @@ class CareerAdapter(
         val tvCareerSeason: TextView = view.findViewById(R.id.tvCareerSeason)
         val tvCareerProfile: TextView = view.findViewById(R.id.tvCareerProfile)
         val tvCareerPlayer: TextView = view.findViewById(R.id.tvCareerPlayer)
+        val tvCareerMatchDistance: TextView = view.findViewById(R.id.tvCareerMatchDistance)
         val tvCareerCurrentTournament: TextView = view.findViewById(R.id.tvCareerCurrentTournament)
     }
 
@@ -39,6 +41,9 @@ class CareerAdapter(
         holder.tvCareerName.text = career.name
         holder.tvCareerLevel.text = context.getString(R.string.career_level_format, career.level)
         holder.tvCareerSeason.text = context.getString(R.string.season_format, career.season)
+
+        val preset = MatchDistancePreset.fromName(career.matchDistancePreset)
+        holder.tvCareerMatchDistance.text = context.getString(preset.labelResId)
 
         holder.tvCareerProfile.text = context.getString(R.string.career_profile_format, careerWithProfile.profileName)
         UIHelper.formatFlagAndText(holder.tvCareerPlayer, careerWithProfile.countryCode, careerWithProfile.playerName)

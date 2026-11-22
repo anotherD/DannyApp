@@ -8,6 +8,7 @@ import com.danny.dannyapp.data.db.PLACEHOLDER_PREVIOUS_WINNER_ID
 import com.danny.dannyapp.data.db.Player
 import com.danny.dannyapp.data.db.TournamentMatch
 import com.danny.dannyapp.data.db.USER_ID
+import com.danny.dannyapp.domain.enums.MatchDistancePreset
 import com.danny.dannyapp.domain.enums.MatchFormatType
 import com.danny.dannyapp.domain.enums.SkillLevel
 import com.danny.dannyapp.domain.enums.TournamentEvent
@@ -165,12 +166,13 @@ object TournamentDetailMapper {
     fun buildPrizeMoneyItems(
         context: Context,
         event: TournamentEvent,
-        sequence: List<TournamentRound>
+        sequence: List<TournamentRound>,
+        preset: MatchDistancePreset = MatchDistancePreset.DEFAULT
     ): List<PrizeMoneyItem> {
         val reversedSequence = sequence.reversed()
         val winnerPrize = event.getRankingPrizeMoney(TournamentRound.WINNER)
         val winnerPrizeText = if (winnerPrize > 0) "£%,d".format(Locale.US, winnerPrize.toLong()) else "£0"
-        val winnerDistance = event.getMatchDistance(TournamentRound.F)
+        val winnerDistance = event.getMatchDistance(TournamentRound.F, preset)
         val winnerItem = PrizeMoneyItem(
             roundName = TournamentUiHelper.getDisplayRoundName(TournamentRound.WINNER.name, context),
             matchDistanceText = formatMatchDistance(context, winnerDistance),
@@ -180,7 +182,7 @@ object TournamentDetailMapper {
         val roundItems = reversedSequence.map { round ->
             val prize = event.getRankingPrizeMoney(round)
             val prizeText = if (prize > 0) "£%,d".format(Locale.US, prize.toLong()) else "£0"
-            val distance = event.getMatchDistance(round)
+            val distance = event.getMatchDistance(round, preset)
             PrizeMoneyItem(
                 roundName = TournamentUiHelper.getDisplayRoundName(round.name, context),
                 matchDistanceText = formatMatchDistance(context, distance),

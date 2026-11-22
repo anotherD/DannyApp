@@ -165,7 +165,13 @@ class AppContainer(context: Context) {
      * Use case for completing matches.
      */
     val completeMatchUseCase: CompleteMatchUseCase by lazy {
-        CompleteMatchUseCase(tournamentRepository, playerRepository, advanceTournamentRoundUseCase)
+        CompleteMatchUseCase(
+            tournamentRepository,
+            playerRepository,
+            advanceTournamentRoundUseCase,
+            seasonRepository,
+            careerRepository
+        )
     }
 
     /**

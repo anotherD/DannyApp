@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
 import com.danny.dannyapp.data.db.Career
 import com.danny.dannyapp.data.db.UserProfile
+import com.danny.dannyapp.domain.enums.MatchDistancePreset
 import com.danny.dannyapp.ui.BaseActivity
 import com.danny.dannyapp.ui.profile.ProfileDialogs
 import com.danny.dannyapp.ui.profile.ProfilesViewModel
@@ -175,8 +176,8 @@ class CareersActivity : BaseActivity() {
         val autoCompleteMatchDistance = dialogView.findViewById<AutoCompleteTextView>(R.id.autoCompleteMatchDistance)
         val btnMatchDistanceInfo = dialogView.findViewById<android.widget.ImageView>(R.id.btnMatchDistanceInfo)
 
-        val matchDistancePresets = com.danny.dannyapp.domain.enums.MatchDistancePreset.entries
-        var selectedMatchDistancePreset = com.danny.dannyapp.domain.enums.MatchDistancePreset.DEFAULT
+        val matchDistancePresets = MatchDistancePreset.entries
+        var selectedMatchDistancePreset = MatchDistancePreset.DEFAULT
         val presetAdapter = android.widget.ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, matchDistancePresets.map { getString(it.labelResId) })
         autoCompleteMatchDistance.setAdapter(presetAdapter)
         autoCompleteMatchDistance.setText(getString(selectedMatchDistancePreset.labelResId), false)
@@ -189,7 +190,7 @@ class CareersActivity : BaseActivity() {
             }
         }
         autoCompleteMatchDistance.setOnItemClickListener { _, _, position, _ ->
-            selectedMatchDistancePreset = matchDistancePresets.getOrNull(position) ?: com.danny.dannyapp.domain.enums.MatchDistancePreset.DEFAULT
+            selectedMatchDistancePreset = matchDistancePresets.getOrNull(position) ?: MatchDistancePreset.DEFAULT
         }
 
         btnMatchDistanceInfo.setOnClickListener {
@@ -212,6 +213,12 @@ class CareersActivity : BaseActivity() {
                     selectedProfileId = matchedProfile.id
                 }
 
+                val enteredPresetText = autoCompleteMatchDistance.text.toString().trim()
+                val matchedPreset = matchDistancePresets.find { getString(it.labelResId).equals(enteredPresetText, ignoreCase = true) }
+                if (matchedPreset != null) {
+                    selectedMatchDistancePreset = matchedPreset
+                }
+
                 if (careerName.isEmpty()) {
                     UIHelper.showSnackbar(dialog.window!!.decorView, getString(R.string.careers_create_error_empty_name), isError = true)
                 } else if (matchedProfile == null || selectedProfileId <= 0L) {
@@ -221,7 +228,8 @@ class CareersActivity : BaseActivity() {
                     val newCareer = Career(
                         name = careerName,
                         level = level,
-                        profileId = selectedProfileId
+                        profileId = selectedProfileId,
+                        matchDistancePreset = selectedMatchDistancePreset.name
                     )
                     lifecycleScope.launch {
                         when (val result = viewModel.saveCareer(newCareer)) {

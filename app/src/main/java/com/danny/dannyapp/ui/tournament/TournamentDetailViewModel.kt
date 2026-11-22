@@ -13,6 +13,7 @@ import com.danny.dannyapp.data.db.TournamentMatch
 import com.danny.dannyapp.data.db.TournamentParticipant
 import com.danny.dannyapp.data.db.USER_ID
 import com.danny.dannyapp.domain.config.TournamentConfigLoader
+import com.danny.dannyapp.domain.enums.MatchDistancePreset
 import com.danny.dannyapp.domain.enums.TournamentEvent
 import com.danny.dannyapp.domain.enums.TournamentRound
 import com.danny.dannyapp.domain.model.Country
@@ -266,6 +267,7 @@ class TournamentDetailViewModel(
         val isNextPlanned = summaries.find { it.tournament.id == tournament.id }?.isNextPlanned ?: false
         val allPlayersMap = playerRepository.getAllPlayersList().associateBy { it.id }
         val participantData = buildParticipantPreviewUiData(tournament, event, allPlayersMap, careerWithProfile)
+        val preset = MatchDistancePreset.fromName(careerWithProfile.career.matchDistancePreset)
 
         _uiState.value = TournamentDetailState.Preview(
             tournament = tournament,
@@ -273,7 +275,7 @@ class TournamentDetailViewModel(
             host = host,
             hostCountryCode = tournament.hostCountry,
             totalPrizeFundText = totalPrizeText,
-            prizeMoneyItems = getPrizeMoneyItems(event),
+            prizeMoneyItems = getPrizeMoneyItems(event, preset),
             isNextPlanned = isNextPlanned,
             careerName = careerName,
             seasonNumber = seasonNumber,
@@ -434,6 +436,7 @@ class TournamentDetailViewModel(
         } else emptyMap()
 
         val participantData = buildParticipantPreviewUiData(tournament, event, allPlayersMap, careerWithProfile)
+        val preset = MatchDistancePreset.fromName(careerWithProfile.career.matchDistancePreset)
 
         _uiState.value = TournamentDetailState.Active(
             tournament = tournament,
@@ -448,7 +451,7 @@ class TournamentDetailViewModel(
             selectedGroupIndex = selectedGroupIndexFlow.value,
             matches = matchUiModels,
             allRoundsMatches = allRoundsMatches,
-            prizeMoneyItems = getPrizeMoneyItems(event),
+            prizeMoneyItems = getPrizeMoneyItems(event, preset),
             autoSimulateCpu = autoSimulateCpu,
             autoAdvanceRound = autoAdvanceRound,
             isCurrentRoundCompleted = isCurrentRoundCompleted,
@@ -568,6 +571,7 @@ class TournamentDetailViewModel(
         } else emptyMap()
 
         val participantData = buildParticipantPreviewUiData(tournament, event, allPlayersMap, careerWithProfile)
+        val preset = MatchDistancePreset.fromName(careerWithProfile.career.matchDistancePreset)
 
         _uiState.value = TournamentDetailState.Review(
             tournament = tournament,
@@ -584,7 +588,7 @@ class TournamentDetailViewModel(
             selectedGroupIndex = selectedGroupIndexFlow.value,
             matches = matchUiModels,
             allRoundsMatches = allRoundsMatches,
-            prizeMoneyItems = getPrizeMoneyItems(event),
+            prizeMoneyItems = getPrizeMoneyItems(event, preset),
             careerName = careerName,
             isQualifier = isQualifier,
             qualifierWinners = qualifierWinners,
@@ -776,8 +780,11 @@ class TournamentDetailViewModel(
     /**
      * Erstellt die Liste der Preisgeldverteilung für das Event.
      */
-    private fun getPrizeMoneyItems(event: TournamentEvent): List<PrizeMoneyItem> {
-        return TournamentDetailMapper.buildPrizeMoneyItems(getApplication(), event, getRoundSequence(event))
+    private fun getPrizeMoneyItems(
+        event: TournamentEvent,
+        preset: MatchDistancePreset = MatchDistancePreset.DEFAULT
+    ): List<PrizeMoneyItem> {
+        return TournamentDetailMapper.buildPrizeMoneyItems(getApplication(), event, getRoundSequence(event), preset)
     }
 
     /**

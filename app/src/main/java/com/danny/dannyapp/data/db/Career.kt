@@ -5,6 +5,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.danny.dannyapp.domain.enums.MatchDistancePreset
 
 @Entity(
     tableName = "careers",
@@ -29,12 +30,17 @@ data class Career(
     val season: Int = 1,
     @ColumnInfo(name = "profile_id")
     val profileId: Long = 0,
+    @ColumnInfo(name = "match_distance_preset")
+    val matchDistancePreset: String = MatchDistancePreset.DEFAULT.name,
     @ColumnInfo(name = "created_at")
     val createdAt: Long = System.currentTimeMillis()
 ) {
     init {
         require(level in MIN_LEVEL..MAX_LEVEL) { "Level must be between $MIN_LEVEL and $MAX_LEVEL" }
         require(season >= 1) { "Season must be at least 1" }
+        require(MatchDistancePreset.entries.any { it.name == matchDistancePreset }) {
+            "Invalid match_distance_preset: $matchDistancePreset"
+        }
     }
 
     companion object {

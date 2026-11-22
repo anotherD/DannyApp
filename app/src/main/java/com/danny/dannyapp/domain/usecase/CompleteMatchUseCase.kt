@@ -1,9 +1,12 @@
 package com.danny.dannyapp.domain.usecase
 
+import com.danny.dannyapp.data.db.CareerRepository
 import com.danny.dannyapp.data.db.PlayerRepository
+import com.danny.dannyapp.data.db.SeasonRepository
 import com.danny.dannyapp.data.db.TournamentMatch
 import com.danny.dannyapp.data.db.TournamentRepository
 import com.danny.dannyapp.data.db.USER_ID
+import com.danny.dannyapp.domain.enums.MatchDistancePreset
 import com.danny.dannyapp.domain.enums.MatchFormatType
 import com.danny.dannyapp.domain.enums.SkillLevel
 import com.danny.dannyapp.domain.enums.TournamentEvent
@@ -31,7 +34,9 @@ sealed interface ManualScoreResult {
 class CompleteMatchUseCase(
     private val tournamentRepository: TournamentRepository,
     private val playerRepository: PlayerRepository,
-    private val advanceTournamentRoundUseCase: AdvanceTournamentRoundUseCase
+    private val advanceTournamentRoundUseCase: AdvanceTournamentRoundUseCase,
+    private val seasonRepository: SeasonRepository,
+    private val careerRepository: CareerRepository
 ) {
 
     /**
@@ -49,11 +54,12 @@ class CompleteMatchUseCase(
             check(!match.isCompleted) { "Match $matchId ist bereits abgeschlossen" }
 
             val tournament = tournamentRepository.getTournamentById(match.tournamentId)
+            val preset = getCareerMatchDistancePreset(tournament.seasonId)
 
             val event = TournamentEvent.valueOf(tournament.type)
             val round = TournamentRound.valueOf(match.round)
 
-            val matchDistance = event.getMatchDistance(round)
+            val matchDistance = event.getMatchDistance(round, preset)
             val validationError = MatchScoreValidator.validateMatchScore(
                 player1Score = player1Score,
                 player2Score = player2Score,
@@ -91,10 +97,11 @@ class CompleteMatchUseCase(
             check(!match.isCompleted) { "Match $matchId ist bereits abgeschlossen" }
 
             val tournament = tournamentRepository.getTournamentById(match.tournamentId)
+            val preset = getCareerMatchDistancePreset(tournament.seasonId)
             val event = TournamentEvent.valueOf(tournament.type)
             val round = TournamentRound.valueOf(match.round)
 
-            val matchDistance = event.getMatchDistance(round)
+            val matchDistance = event.getMatchDistance(round, preset)
             val isPlayer1User = (match.player1Id == USER_ID)
             val isPlayer1Winner = if (isPlayer1User) userWins else !userWins
 
@@ -138,9 +145,10 @@ class CompleteMatchUseCase(
 
         tournamentRepository.runInTransaction {
             val tournament = tournamentRepository.getTournamentById(match.tournamentId)
+            val preset = getCareerMatchDistancePreset(tournament.seasonId)
             val event = TournamentEvent.valueOf(tournament.type)
             val round = TournamentRound.valueOf(match.round)
-            val matchDistance = event.getMatchDistance(round)
+            val matchDistance = event.getMatchDistance(round, preset)
 
             val skill1 = getPlayerSkill(match.player1Id)
             val skill2 = getPlayerSkill(match.player2Id)
@@ -324,5 +332,11 @@ class CompleteMatchUseCase(
 
         val winnerId = if (player1Sets == targetSets) player1Id else player2Id
         return Triple(player1Sets, player2Sets, winnerId)
+    }
+
+    private suspend fun getCareerMatchDistancePreset(seasonId: Long): MatchDistancePreset {
+        val season = seasonRepository.getSeasonById(seasonId)
+        val careerWithProfile = careerRepository.getCareerById(season.careerId)
+        return MatchDistancePreset.fromName(careerWithProfile.career.matchDistancePreset)
     }
 }

@@ -121,7 +121,7 @@ val MIGRATION_17_18 = object : Migration(17, 18) {
         TournamentPlacement::class,
         TournamentParticipant::class
     ],
-    version = 19,
+    version = 20,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
