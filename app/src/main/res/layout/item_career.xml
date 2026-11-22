@@ -54,18 +54,33 @@
             android:layout_marginTop="4dp"
             android:layout_marginEnd="8dp"
             android:textSize="14sp"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/tvCareerCurrentTournament"
             app:layout_constraintEnd_toStartOf="@+id/tvCareerLevel"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tvCareerPlayer"
             tools:text="Profil: Pro" />
 
         <TextView
+            android:id="@+id/tvCareerCurrentTournament"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textSize="13sp"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:maxLines="1"
+            android:ellipsize="end"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvCareerProfile"
+            tools:text="Nächstes: Turniername (Runde 1)" />
+
+        <TextView
             android:id="@+id/tvCareerLevel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="14sp"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/tvCareerCurrentTournament"
             app:layout_constraintEnd_toEndOf="parent"
             tools:text="Level 5" />
 

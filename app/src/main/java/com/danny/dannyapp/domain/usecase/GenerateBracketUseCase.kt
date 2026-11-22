@@ -113,6 +113,7 @@ class GenerateBracketUseCase(
     ): Pair<List<TournamentMatch>, List<TournamentMatch>> {
         val prelimMatches = mutableListOf<TournamentMatch>()
         val boardCount = split.boardCount
+        val boardSizePerBoard = split.boardSizePerBoard
         val r1Matches = if (split.prelimPlayers.isNotEmpty()) {
             val prelimMatchCount = split.prelimPlayers.size / 2
             val prelimPlayers = split.prelimPlayers
@@ -128,7 +129,7 @@ class GenerateBracketUseCase(
                 )
             }
             val prelimPlaceholders = (0 until prelimMatchCount).map { matchIndex -> -1000L - matchIndex }
-            val r1Pairings = BracketGenerator.buildQualifierRound1Pairings(boardCount, split.byePlayers, prelimPlaceholders)
+            val r1Pairings = BracketGenerator.buildQualifierRound1Pairings(boardCount, boardSizePerBoard, split.byePlayers, prelimPlaceholders)
             r1Pairings.map { pairing ->
                 TournamentMatch(
                     tournamentId = tournamentId,
@@ -139,7 +140,7 @@ class GenerateBracketUseCase(
                 )
             }
         } else {
-            val r1Pairings = BracketGenerator.buildQualifierRound1Pairings(boardCount, split.byePlayers, emptyList())
+            val r1Pairings = BracketGenerator.buildQualifierRound1Pairings(boardCount, boardSizePerBoard, split.byePlayers, emptyList())
             r1Pairings.map { pairing ->
                 TournamentMatch(
                     tournamentId = tournamentId,

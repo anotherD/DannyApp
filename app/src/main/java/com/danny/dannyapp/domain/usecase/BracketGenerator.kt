@@ -3,6 +3,7 @@ package com.danny.dannyapp.domain.usecase
 import com.danny.dannyapp.domain.enums.TournamentEvent
 import com.danny.dannyapp.domain.enums.TournamentRound
 import com.danny.dannyapp.domain.model.MatchPairing
+import kotlin.math.ceil
 
 object BracketGenerator {
 
@@ -330,75 +331,105 @@ object BracketGenerator {
      * Erzeugt die Erstrunden-Paarungen für Qualifier-Turniere über die Board-Setzliste.
      * Freilose (byePlayers) und Vorrundensieger (prelimWinners) werden getrennt übergeben.
      * Die Top 2 · K Seeds behalten ihre festen Positionen; alle übrigen Freilos-Spieler und
-     * Vorrundensieger werden vor der Verteilung auf die 6 freien Slots je Board frei zugelost.
+     * Vorrundensieger werden frei gemischt auf die freien Slots jedes Boards verteilt.
      *
      * @param boardCount Anzahl der Boards (K)
+     * @param boardSizePerBoard Anzahl Startplätze pro Board in QUAL_R1 (8, 16 oder 32)
      * @param byePlayers Gesetzte Freilos-Spieler, sortiert
      * @param prelimWinners Sieger der Vorrunde
      */
     fun buildQualifierRound1Pairings(
         boardCount: Int,
+        boardSizePerBoard: Int,
         byePlayers: List<Long>,
         prelimWinners: List<Long>
     ): List<MatchPairing> {
         require(byePlayers.size >= 2 * boardCount) {
             "Qualifier R1 erfordert mindestens ${2 * boardCount} gesetzte Freilos-Spieler"
         }
+        val r1MatchesPerBoard = boardSizePerBoard / 2
+        val expectedFreeSlots = boardCount * (boardSizePerBoard - 2)
         val unseededByes = byePlayers.drop(2 * boardCount)
         val freePool = (unseededByes + prelimWinners).shuffled()
-        require(freePool.size == boardCount * 6) {
-            "Qualifier R1 erfordert genau ${boardCount * 6} freie Spieler, erhalten: ${freePool.size}"
+        require(freePool.size == expectedFreeSlots) {
+            "Qualifier R1 erfordert genau $expectedFreeSlots freie Spieler, erhalten: ${freePool.size}"
         }
 
         val pairings = mutableListOf<MatchPairing>()
         for (boardIndex in 0 until boardCount) {
             val seedTop = byePlayers[boardIndex]
             val seedBottom = byePlayers[2 * boardCount - 1 - boardIndex]
-            val slots = LongArray(6) { slotIndex -> freePool[boardIndex * 6 + slotIndex] }
+            val slots = LongArray(boardSizePerBoard - 2) { slotIndex -> freePool[boardIndex * (boardSizePerBoard - 2) + slotIndex] }
 
-            pairings.add(MatchPairing(round = TournamentRound.QUAL_R1, matchIndex = 4 * boardIndex + 0, player1Id = seedTop, player2Id = slots[0]))
-            pairings.add(MatchPairing(round = TournamentRound.QUAL_R1, matchIndex = 4 * boardIndex + 1, player1Id = slots[1], player2Id = slots[2]))
-            pairings.add(MatchPairing(round = TournamentRound.QUAL_R1, matchIndex = 4 * boardIndex + 2, player1Id = slots[3], player2Id = slots[4]))
-            pairings.add(MatchPairing(round = TournamentRound.QUAL_R1, matchIndex = 4 * boardIndex + 3, player1Id = seedBottom, player2Id = slots[5]))
+            val boardBaseMatchIndex = r1MatchesPerBoard * boardIndex
+            pairings.add(MatchPairing(round = TournamentRound.QUAL_R1, matchIndex = boardBaseMatchIndex + 0, player1Id = seedTop, player2Id = slots[0]))
+
+            var slotIdx = 1
+            for (mInBoard in 1 until r1MatchesPerBoard - 1) {
+                pairings.add(MatchPairing(round = TournamentRound.QUAL_R1, matchIndex = boardBaseMatchIndex + mInBoard, player1Id = slots[slotIdx++], player2Id = slots[slotIdx++]))
+            }
+
+            pairings.add(MatchPairing(round = TournamentRound.QUAL_R1, matchIndex = boardBaseMatchIndex + (r1MatchesPerBoard - 1), player1Id = slots[slotIdx], player2Id = seedBottom))
         }
         return pairings
     }
 
     /**
-     * Erzeugt die Erstrunden-Paarungen für Qualifier-Turniere (QUALIFIER_ET, QUALIFIER_GRAND_SLAM, QUALIFIER_WM)
-     * basierend auf dem offiziellen K-Board-System.
-     *
-     * K = 10 (ET), K = 8 (Grand Slam), K = 4 (WM).
-     * Hauptfeld = 8 · K Plätze (80 bei ET, 64 bei Grand Slam, 32 bei WM).
-     *
-     * @param event Der Qualifier-Turniertyp
-     * @param oomSortedIds Qualifizierte Teilnehmer sortiert nach OOM
-     * @param dynamicBoardCount Optimale individuelle Board-Anzahl
+     * Erzeugt die Initial-Match-Paarungen für Qualifier-Turniere mit dynamischer Board-Größe (8, 16, 32).
      */
     fun generateQualifierInitialMatches(
         event: TournamentEvent,
         oomSortedIds: List<Long>,
         dynamicBoardCount: Int? = null
     ): List<MatchPairing> {
-        val boardCount = dynamicBoardCount ?: event.qualifierBoardCount
+        val boardCount = dynamicBoardCount ?: when (event) {
+            TournamentEvent.QUALIFIER_ET -> 10
+            TournamentEvent.QUALIFIER_GRAND_SLAM -> 8
+            TournamentEvent.QUALIFIER_WM -> 2
+            else -> 8
+        }
         require(boardCount > 0) { "Kein Qualifier-Event oder ungültiger boardCount: $event" }
 
-        val participantCount = oomSortedIds.size
-        if (participantCount == 0) return emptyList()
+        val totalNonPrequalified = oomSortedIds.size
+        if (totalNonPrequalified == 0) return emptyList()
 
-        if (participantCount > 8 * boardCount) {
-            val prelimMatchCount = participantCount - 8 * boardCount
-            val prelimPlayers = oomSortedIds.takeLast(2 * prelimMatchCount)
-            return (0 until prelimMatchCount).map { matchIndex ->
-                MatchPairing(
-                    round = TournamentRound.QUAL_PRELIM,
-                    matchIndex = matchIndex,
-                    player1Id = prelimPlayers[matchIndex],
-                    player2Id = prelimPlayers[2 * prelimMatchCount - 1 - matchIndex]
+        val minSlotsPerBoard = ceil(totalNonPrequalified.toDouble() / (2.0 * boardCount)).toInt().coerceAtLeast(8)
+        var boardSize = 8
+        while (boardSize < minSlotsPerBoard) {
+            boardSize *= 2
+        }
+        val totalR1Slots = boardSize * boardCount
+
+        val prelimPlayers = if (totalNonPrequalified > totalR1Slots) {
+            oomSortedIds.takeLast(2 * (totalNonPrequalified - totalR1Slots))
+        } else {
+            emptyList()
+        }
+
+        val byePlayers = if (totalNonPrequalified > totalR1Slots) {
+            oomSortedIds.take((2 * totalR1Slots - totalNonPrequalified).coerceAtLeast(0))
+        } else {
+            oomSortedIds
+        }
+
+        val prelimMatches = mutableListOf<MatchPairing>()
+        val r1Pairings = if (prelimPlayers.isNotEmpty()) {
+            val prelimMatchCount = prelimPlayers.size / 2
+            for (matchIndex in 0 until prelimMatchCount) {
+                prelimMatches.add(
+                    MatchPairing(
+                        round = TournamentRound.QUAL_PRELIM,
+                        matchIndex = matchIndex,
+                        player1Id = prelimPlayers[matchIndex],
+                        player2Id = prelimPlayers[2 * prelimMatchCount - 1 - matchIndex]
+                    )
                 )
             }
+            val prelimPlaceholders = (0 until prelimMatchCount).map { matchIndex -> -1000L - matchIndex }
+            buildQualifierRound1Pairings(boardCount, boardSize, byePlayers, prelimPlaceholders)
         } else {
-            return buildQualifierRound1Pairings(boardCount, oomSortedIds, emptyList())
+            buildQualifierRound1Pairings(boardCount, boardSize, byePlayers, emptyList())
         }
+        return prelimMatches + r1Pairings
     }
 }

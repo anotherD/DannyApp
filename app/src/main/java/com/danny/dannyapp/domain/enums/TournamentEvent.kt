@@ -55,18 +55,6 @@ enum class TournamentEvent(val totalPrizeFund: Double) {
             else -> null
         }
 
-    /**
-     * Liefert die Anzahl der Qualifier-Boards für dieses Event
-     * (QUALIFIER_ET → 10, QUALIFIER_GRAND_SLAM -> 8, QUALIFIER_WM -> 2, sonst 0).
-     */
-    val qualifierBoardCount: Int
-        get() = when (this) {
-            QUALIFIER_ET -> 10
-            QUALIFIER_GRAND_SLAM -> 8
-            QUALIFIER_WM -> 2
-            else -> 0
-        }
-
     /** Prüft, ob es sich um ein Major-Turnier handelt. */
     val isMajor: Boolean
         get() = this in listOf(
@@ -74,6 +62,30 @@ enum class TournamentEvent(val totalPrizeFund: Double) {
             EUROPEAN_CHAMPIONSHIP, GRAND_SLAM_OF_DARTS, PLAYERS_CHAMPIONSHIP_FINALS,
             WORLD_CHAMPIONSHIP
         )
+
+    /**
+     * Liefert die Runden-Sequenz für Qualifier basierend auf der Anzahl der Erstrunden-Matches pro Board.
+     * - r1MatchesPerBoard <= 4: QUAL_PRELIM, QUAL_R1, QUAL_R2, QUAL_FINAL
+     * - r1MatchesPerBoard == 8: QUAL_PRELIM, QUAL_R1, QUAL_R2, QUAL_R3, QUAL_FINAL
+     * - r1MatchesPerBoard >= 16: QUAL_PRELIM, QUAL_R1, QUAL_R2, QUAL_R3, QUAL_FINAL (max. bis QUAL_R3 = 32er-Board)
+     */
+    fun getQualifierRoundSequence(r1MatchesPerBoard: Int): List<TournamentRound> {
+        return when {
+            r1MatchesPerBoard <= 4 -> listOf(
+                TournamentRound.QUAL_PRELIM,
+                TournamentRound.QUAL_R1,
+                TournamentRound.QUAL_R2,
+                TournamentRound.QUAL_FINAL
+            )
+            else -> listOf(
+                TournamentRound.QUAL_PRELIM,
+                TournamentRound.QUAL_R1,
+                TournamentRound.QUAL_R2,
+                TournamentRound.QUAL_R3,
+                TournamentRound.QUAL_FINAL
+            )
+        }
+    }
 
     /**
      * Liefert die zentrale Rundenfolge für dieses Turnier (identisch zu
@@ -86,6 +98,7 @@ enum class TournamentEvent(val totalPrizeFund: Double) {
                 TournamentRound.QUAL_PRELIM,
                 TournamentRound.QUAL_R1,
                 TournamentRound.QUAL_R2,
+                TournamentRound.QUAL_R3,
                 TournamentRound.QUAL_FINAL
             )
             PLAYERS_CHAMPIONSHIP -> listOf(

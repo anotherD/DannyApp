@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
 import com.danny.dannyapp.data.db.CareerWithProfile
 import com.danny.dannyapp.ui.UIHelper
+import com.danny.dannyapp.ui.tournament.TournamentUiHelper
 
 class CareerAdapter(
     private val onItemClick: (CareerWithProfile) -> Unit,
@@ -22,6 +23,7 @@ class CareerAdapter(
         val tvCareerSeason: TextView = view.findViewById(R.id.tvCareerSeason)
         val tvCareerProfile: TextView = view.findViewById(R.id.tvCareerProfile)
         val tvCareerPlayer: TextView = view.findViewById(R.id.tvCareerPlayer)
+        val tvCareerCurrentTournament: TextView = view.findViewById(R.id.tvCareerCurrentTournament)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CareerViewHolder {
@@ -40,6 +42,21 @@ class CareerAdapter(
 
         holder.tvCareerProfile.text = context.getString(R.string.career_profile_format, careerWithProfile.profileName)
         UIHelper.formatFlagAndText(holder.tvCareerPlayer, careerWithProfile.countryCode, careerWithProfile.playerName)
+
+        val currentTournamentName = careerWithProfile.currentTournamentName
+        val currentTournamentRound = careerWithProfile.currentTournamentRound
+        when {
+            currentTournamentName != null && currentTournamentRound != null -> {
+                val roundName = TournamentUiHelper.getDisplayRoundName(currentTournamentRound, context)
+                holder.tvCareerCurrentTournament.text = context.getString(R.string.career_current_tournament_active, currentTournamentName, roundName)
+            }
+            currentTournamentName != null -> {
+                holder.tvCareerCurrentTournament.text = context.getString(R.string.career_current_tournament_planned, currentTournamentName)
+            }
+            else -> {
+                holder.tvCareerCurrentTournament.text = context.getString(R.string.career_season_completed)
+            }
+        }
 
         holder.itemView.setOnClickListener { onItemClick(careerWithProfile) }
         holder.itemView.setOnLongClickListener {

@@ -30,7 +30,7 @@ object TournamentUiHelper {
             TournamentRound.QUAL_PRELIM.name -> "PRE"
             TournamentRound.QUAL_R1.name, TournamentRound.R1_160.name -> "R1"
             TournamentRound.QUAL_R2.name, TournamentRound.R2_128.name -> "R2"
-            TournamentRound.R3_96.name -> "R3"
+            TournamentRound.QUAL_R3.name, TournamentRound.R3_96.name -> "R3"
             TournamentRound.QUAL_FINAL.name -> "FIN"
             TournamentRound.L128.name -> "L128"
             TournamentRound.L64.name -> "L64"

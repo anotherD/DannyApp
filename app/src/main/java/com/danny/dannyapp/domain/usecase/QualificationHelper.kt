@@ -23,11 +23,14 @@ object QualificationHelper {
 
         if (allMatches.isEmpty()) return fullSequence
 
+        val presentRoundNames = allMatches.map { it.round }.toSet()
         val startIndex = allMatches.mapNotNull { match ->
             fullSequence.indexOfFirst { it.name == match.round }.takeIf { it >= 0 }
         }.minOrNull() ?: 0
 
-        return fullSequence.subList(startIndex, fullSequence.size)
+        return fullSequence.subList(startIndex, fullSequence.size).filter { round ->
+            if (event.isQualifier) round.name in presentRoundNames else true
+        }
     }
 
     /**

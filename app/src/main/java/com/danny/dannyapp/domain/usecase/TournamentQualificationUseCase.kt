@@ -17,6 +17,7 @@ import com.danny.dannyapp.domain.model.Country
 import com.danny.dannyapp.domain.model.OrderOfMeritEntry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlin.math.ceil
 
 /** Domain representation of UK Open / European Open entrant groups. */
 enum class EntrantGroupType {
@@ -47,6 +48,7 @@ data class QualifierFieldSplit(
     val preQualifiedIds: List<Long>,
     val nonPrequalifiedIds: List<Long>,
     val boardCount: Int,
+    val boardSizePerBoard: Int,
     val prelimPlayers: List<Long>,
     val byePlayers: List<Long>,
     val seedCount: Int
@@ -118,14 +120,21 @@ class TournamentQualificationUseCase(
 
         val totalNonPrequalified = nonPrequalifiedIds.size
 
-        val prelimPlayers = if (totalNonPrequalified > 8 * boardCount) {
-            nonPrequalifiedIds.takeLast(2 * (totalNonPrequalified - 8 * boardCount))
+        val minSlotsPerBoard = ceil(totalNonPrequalified.toDouble() / (2.0 * boardCount)).toInt().coerceAtLeast(8)
+        var boardSize = 8
+        while (boardSize < minSlotsPerBoard) {
+            boardSize *= 2
+        }
+        val totalR1Slots = boardSize * boardCount
+
+        val prelimPlayers = if (totalNonPrequalified > totalR1Slots) {
+            nonPrequalifiedIds.takeLast(2 * (totalNonPrequalified - totalR1Slots))
         } else {
             emptyList()
         }
 
-        val byePlayers = if (totalNonPrequalified > 8 * boardCount) {
-            nonPrequalifiedIds.take((16 * boardCount - totalNonPrequalified).coerceAtLeast(0))
+        val byePlayers = if (totalNonPrequalified > totalR1Slots) {
+            nonPrequalifiedIds.take((2 * totalR1Slots - totalNonPrequalified).coerceAtLeast(0))
         } else {
             nonPrequalifiedIds
         }
@@ -136,6 +145,7 @@ class TournamentQualificationUseCase(
             preQualifiedIds = preQualifiedIds,
             nonPrequalifiedIds = nonPrequalifiedIds,
             boardCount = boardCount,
+            boardSizePerBoard = boardSize,
             prelimPlayers = prelimPlayers,
             byePlayers = byePlayers,
             seedCount = seedCount
@@ -673,12 +683,17 @@ class TournamentQualificationUseCase(
         winnerId: Long?,
         boardCount: Int
     ): Int {
+        val r1MatchesPerBoard = if (boardCount > 0 && qualR1Matches.isNotEmpty()) {
+            qualR1Matches.size / boardCount
+        } else {
+            4
+        }
         val placeholderId = -1000L - prelimMatchIndex
         val r1Match = qualR1Matches.firstOrNull { r1 ->
             r1.player1Id == placeholderId || r1.player2Id == placeholderId ||
                 (winnerId != null && (r1.player1Id == winnerId || r1.player2Id == winnerId))
         }
-        return r1Match?.let { it.matchIndex / 4 } ?: (prelimMatchIndex % boardCount)
+        return r1Match?.let { it.matchIndex / r1MatchesPerBoard } ?: (prelimMatchIndex % boardCount)
     }
 
     /**

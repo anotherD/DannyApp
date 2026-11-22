@@ -126,11 +126,18 @@ class TournamentConfigValidationTest {
                 assertNotNull("MatchDistance für $round in $event darf nicht null sein", distance)
             }
 
+            val boardCount = when (event) {
+                TournamentEvent.QUALIFIER_ET -> 10
+                TournamentEvent.QUALIFIER_GRAND_SLAM -> 8
+                TournamentEvent.QUALIFIER_WM -> 2
+                else -> 1
+            }
             val pairings = BracketGenerator.generateInitialMatches(
                 event = event,
-                oomSortedIds = if (event.isQualifier) oomIds.take(8 * event.qualifierBoardCount) else oomIds,
+                oomSortedIds = if (event.isQualifier) oomIds.take(8 * boardCount) else oomIds,
                 proTourSortedIds = ptIds,
-                qualifierIds = qualIds
+                qualifierIds = qualIds,
+                dynamicBoardCount = boardCount
             )
             assertNotNull("Pairings dürfen nicht null sein für $event", pairings)
 

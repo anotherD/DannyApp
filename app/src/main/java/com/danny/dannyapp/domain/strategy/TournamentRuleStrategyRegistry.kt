@@ -46,9 +46,10 @@ internal fun MutableList<TournamentMatch>.appendSubsequentKoRounds(
     tournamentId: Long,
     event: TournamentEvent,
     startRound: TournamentRound,
-    startMatchCount: Int
+    startMatchCount: Int,
+    customRoundSequence: List<TournamentRound>? = null
 ) {
-    val roundSequence = event.getRoundSequence()
+    val roundSequence = customRoundSequence ?: event.getRoundSequence()
     val startIndex = roundSequence.indexOf(startRound)
     if (startIndex == -1) return
     var currentCount = startMatchCount
@@ -310,7 +311,9 @@ class QualifierStrategy(
         val tournamentMatches = mutableListOf<TournamentMatch>()
         tournamentMatches.addAll(prelimMatches)
         tournamentMatches.addAll(r1Matches)
-        tournamentMatches.appendSubsequentKoRounds(tournamentId, event, TournamentRound.QUAL_R1, r1Matches.size)
+        val r1MatchesPerBoard = if (split.boardCount > 0) r1Matches.size / split.boardCount else 4
+        val roundSequence = event.getQualifierRoundSequence(r1MatchesPerBoard)
+        tournamentMatches.appendSubsequentKoRounds(tournamentId, event, TournamentRound.QUAL_R1, r1Matches.size, roundSequence)
         return tournamentMatches
     }
 }

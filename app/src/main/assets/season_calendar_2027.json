@@ -553,6 +553,12 @@
           "legsPerSet": 1,
           "twoClearLegsRule": false
         },
+        "QUAL_R3": {
+          "bestOf": 11,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        },
         "QUAL_FINAL": {
           "bestOf": 11,
           "format": "LEGS",
@@ -583,6 +589,12 @@
           "legsPerSet": 1,
           "twoClearLegsRule": false
         },
+        "QUAL_R3": {
+          "bestOf": 11,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        },
         "QUAL_FINAL": {
           "bestOf": 11,
           "format": "LEGS",
@@ -608,6 +620,12 @@
           "twoClearLegsRule": false
         },
         "QUAL_R2": {
+          "bestOf": 11,
+          "format": "LEGS",
+          "legsPerSet": 1,
+          "twoClearLegsRule": false
+        },
+        "QUAL_R3": {
           "bestOf": 11,
           "format": "LEGS",
           "legsPerSet": 1,

@@ -32,6 +32,7 @@
     <string name="round_qual_prelim">Vorrunde</string>
     <string name="round_qual_r1">Runde 1</string>
     <string name="round_qual_r2">Runde 2</string>
+    <string name="round_qual_r3">Runde 3</string>
     <string name="round_qual_final">Finalrunde</string>
     <string name="round_f">Finale</string>
     <string name="round_sf">Halbfinale</string>
@@ -257,6 +258,9 @@
     <string name="career_overview_rankings_header">Meine Ranglisten</string>
     <string name="career_overview_rank_unranked">-</string>
     <string name="career_overview_ranking_item_format">%1$s (%2$s)</string>
+    <string name="career_current_tournament_active">%1$s (%2$s)</string>
+    <string name="career_current_tournament_planned">Nächstes: %1$s</string>
+    <string name="career_season_completed">Saison abgeschlossen</string>
 
     <!-- Crash Screen -->
     <string name="crash_title">Unerwarteter Fehler</string>

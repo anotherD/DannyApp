@@ -7,6 +7,7 @@ enum class TournamentRound(@get:StringRes val displayNameResId: Int) {
     QUAL_PRELIM(R.string.round_qual_prelim),
     QUAL_R1(R.string.round_qual_r1),
     QUAL_R2(R.string.round_qual_r2),
+    QUAL_R3(R.string.round_qual_r3),
     QUAL_FINAL(R.string.round_qual_final),
     R1_160(R.string.round_r1_160),
     R2_128(R.string.round_r2_128),
