@@ -36,7 +36,6 @@ import org.junit.Test
 import java.io.File
 import java.io.FileInputStream
 
-@Ignore("Manueller Regressionstest – per Play-Button in Android Studio starten")
 class FullSeasonSimulationTest {
 
     private lateinit var playerDao: InMemoryPlayerDao
@@ -206,7 +205,9 @@ class FullSeasonSimulationTest {
     }
 
     @Test
-    fun simulateCompleteSeason_runsAllTournamentsWithoutErrors() = runBlocking {
+    fun simulateCompleteSeason_runsAllTournamentsWithoutErrors() {
+        org.junit.Assume.assumeTrue("Manueller Test: Starte mit -DrunSim=true", System.getProperty("runSim") == "true")
+        runBlocking {
         val career = Career(
             id = 1L,
             name = "Test",
