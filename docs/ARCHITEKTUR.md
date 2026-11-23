@@ -39,7 +39,7 @@ Die App folgt dem **Model-View-ViewModel (MVVM)** Muster mit **Kotlin Coroutines
     * `SkillLevel` (`1..10`, Default: `5`): Relatives Leistungsgefälle der CPU-Spieler untereinander innerhalb der durch das Karriere-Level vorgegebenen Average-Spanne (z. B. `Skill 10` wie Luke Littler am oberen Rand, `Skill 5` wie Rob Cross im Zentrum).
 * **Modifizierbare Match-Distanzen (`MatchDistancePreset` & `Career.matchDistancePreset`):**
     * Beim Anlegen einer Karriere wird verbindlich eines der 4 Distanz-Presets (`ORIGINAL` = 100 %, `SHORTENED` = 75 %, `COMPACT` = 50 %, `RAPID` = 25 %) gewählt und dauerhaft an der `Career`-Entity gespeichert.
-    * `TournamentEvent.getMatchDistance(round, preset)` liest die Basisdistanz ausschließlich aus `TournamentConfigLoader` (Single Source of Truth ohne hartcodierte Fallbacks) und skaliert sie zentral über `MatchDistancePreset.scaleDistance(...)` für Match-Simulation, Score-Validierung und Turnier-Info-Anzeige.
+    * `TournamentEvent.getMatchDistance(round, preset)` liest die Distanz für das gewählte Preset direkt aus `TournamentConfigLoader` / `season_calendar_2027.json` (Single Source of Truth mit Fail-Fast-Validierung beim App-Start).
 
 ---
 

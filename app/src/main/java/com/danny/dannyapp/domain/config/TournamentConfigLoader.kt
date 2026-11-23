@@ -1,6 +1,7 @@
 package com.danny.dannyapp.domain.config
 
 import android.content.Context
+import com.danny.dannyapp.domain.enums.MatchDistancePreset
 import com.danny.dannyapp.domain.enums.MatchFormatType
 import com.danny.dannyapp.domain.enums.TournamentEvent
 import com.danny.dannyapp.domain.enums.TournamentRound
@@ -116,18 +117,26 @@ object TournamentConfigLoader {
         return prizes
     }
 
-    private fun parseDistances(distancesJson: JSONObject): Map<TournamentRound, MatchDistance> {
-        val distances = mutableMapOf<TournamentRound, MatchDistance>()
+    private fun parseDistances(distancesJson: JSONObject): Map<TournamentRound, Map<MatchDistancePreset, MatchDistance>> {
+        val distances = mutableMapOf<TournamentRound, Map<MatchDistancePreset, MatchDistance>>()
         val keys = distancesJson.keys()
         while (keys.hasNext()) {
             val roundName = keys.next()
-            val distanceJson = distancesJson.getJSONObject(roundName)
-            distances[TournamentRound.valueOf(roundName)] = MatchDistance(
-                bestOf = distanceJson.getInt("bestOf"),
-                format = MatchFormatType.valueOf(distanceJson.getString("format")),
-                legsPerSet = distanceJson.getInt("legsPerSet"),
-                twoClearLegsRule = distanceJson.getBoolean("twoClearLegsRule")
-            )
+            val roundJson = distancesJson.getJSONObject(roundName)
+            val presetMap = mutableMapOf<MatchDistancePreset, MatchDistance>()
+            val presetKeys = roundJson.keys()
+            while (presetKeys.hasNext()) {
+                val presetName = presetKeys.next()
+                val distanceJson = roundJson.getJSONObject(presetName)
+                val preset = MatchDistancePreset.valueOf(presetName)
+                presetMap[preset] = MatchDistance(
+                    bestOf = distanceJson.getInt("bestOf"),
+                    format = MatchFormatType.valueOf(distanceJson.getString("format")),
+                    legsPerSet = distanceJson.getInt("legsPerSet"),
+                    twoClearLegsRule = distanceJson.getBoolean("twoClearLegsRule")
+                )
+            }
+            distances[TournamentRound.valueOf(roundName)] = presetMap
         }
         return distances
     }
@@ -172,15 +181,46 @@ object TournamentConfigLoader {
         }
     }
 
-    private fun validateDistances(event: TournamentEvent, distances: Map<TournamentRound, MatchDistance>) {
-        for (round in event.getRoundSequence()) {
-            if (round !in distances) {
+    private fun validateDistances(event: TournamentEvent, distances: Map<TournamentRound, Map<MatchDistancePreset, MatchDistance>>) {
+        val roundSequence = event.getRoundSequence()
+        for (round in roundSequence) {
+            val presetMap = distances[round]
+                ?: throw IllegalStateException(
+                    "Distanzen für Runde '$round' im Turnier '$event' fehlen im distances-Block."
+                )
+            for (preset in MatchDistancePreset.entries) {
+                val distance = presetMap[preset]
+                    ?: throw IllegalStateException(
+                        "Distanz für Preset '$preset' in Runde '$round' im Turnier '$event' fehlt."
+                    )
+                if (distance.bestOf < 3 || distance.bestOf % 2 != 1) {
+                    throw IllegalStateException(
+                        "Ungültiger bestOf-Wert '${distance.bestOf}' für Preset '$preset' in Runde '$round' im Turnier '$event' (muss >= 3 und ungerade sein)."
+                    )
+                }
+                if (distance.format == MatchFormatType.LEGS) {
+                    if (distance.legsPerSet != 1) {
+                        throw IllegalStateException(
+                            "Ungültiger legsPerSet-Wert '${distance.legsPerSet}' für Format LEGS (muss 1 sein) bei Preset '$preset' in Runde '$round' im Turnier '$event'."
+                        )
+                    }
+                } else {
+                    if (distance.legsPerSet < 3 || distance.legsPerSet % 2 != 1) {
+                        throw IllegalStateException(
+                            "Ungültiger legsPerSet-Wert '${distance.legsPerSet}' für Set-Format '${distance.format}' (muss >= 3 und ungerade sein) bei Preset '$preset' in Runde '$round' im Turnier '$event'."
+                        )
+                    }
+                }
+            }
+            val unknownPresets = presetMap.keys - MatchDistancePreset.entries.toSet()
+            if (unknownPresets.isNotEmpty()) {
                 throw IllegalStateException(
-                    "Distanz für Runde '$round' im Turnier '$event' fehlt im distances-Block."
+                    "Unbekannte Presets im distances-Block für Runde '$round' in '$event': " +
+                        unknownPresets.joinToString { it.name } + "."
                 )
             }
         }
-        val unknownRounds = distances.keys - event.getRoundSequence().toSet()
+        val unknownRounds = distances.keys - roundSequence.toSet()
         if (unknownRounds.isNotEmpty()) {
             throw IllegalStateException(
                 "Unbekannte Runden im distances-Block für '$event': " +
@@ -380,7 +420,7 @@ object TournamentConfigLoader {
     data class EventRuleConfig(
         val totalPrizeFund: Double,
         val prizes: Map<TournamentRound, Double>,
-        val distances: Map<TournamentRound, MatchDistance>
+        val distances: Map<TournamentRound, Map<MatchDistancePreset, MatchDistance>>
     )
 
     data class SeasonConfig(

@@ -203,7 +203,7 @@ class InitializeCareerOomUseCase(
         }
 
         if (rawName.equals("World Masters", ignoreCase = true)) {
-            return "Winmau World Masters"
+            return "World Masters"
         }
 
         val directHits = setOf(

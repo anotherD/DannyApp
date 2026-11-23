@@ -233,7 +233,7 @@
     <string name="tournament_rules_qualifier_et">Qualifikations-Turnier für die European Tour für Tour Card Holder ohne Vorqualifikation. Bonus: Die 10 Board-Sieger qualifizieren sich für das Hauptturnier.</string>
     <string name="tournament_rules_qualifier_grand_slam">Qualifikations-Turnier für den Grand Slam of Darts für Tour Card Holder ohne Vorqualifikation. Bonus: Die Board-Sieger qualifizieren sich für den Grand Slam of Darts.</string>
     <string name="tournament_rules_qualifier_wm">Qualifikations-Turnier für die PDC World Championship für Tour Card Holder ohne Vorqualifikation. Bonus: Die 2 Board-Sieger qualifizieren sich für die World Championship.</string>
-    <string name="tournament_rules_qualifier_world_masters">Qualifikations-Turnier für das Winmau World Masters für Tour Card Holder außerhalb der Top 24 Order of Merit. Bonus: Die 8 Board-Sieger qualifizieren sich für das Hauptturnier.</string>
+    <string name="tournament_rules_qualifier_world_masters">Qualifikations-Turnier für das World Masters für Tour Card Holder außerhalb der Top 24 Order of Merit. Bonus: Die 8 Board-Sieger qualifizieren sich für das Hauptturnier.</string>
 
     <!-- Qualifikationstypen Gruppen-Überschriften -->
     <string name="qualification_group_oom">Order of Merit</string>
@@ -292,7 +292,7 @@
     <string name="career_distance_category_world_matchplay">World Matchplay</string>
     <string name="career_distance_category_world_grand_prix">World Grand Prix</string>
     <string name="career_distance_category_euro_championship_pc_finals">European Championship &amp; PC Finals</string>
-    <string name="career_distance_category_world_masters">Winmau World Masters</string>
+    <string name="career_distance_category_world_masters">World Masters</string>
     <string name="career_distance_category_grand_slam">Grand Slam of Darts</string>
     <string name="career_distance_category_world_championship">World Championship</string>
 </resources>

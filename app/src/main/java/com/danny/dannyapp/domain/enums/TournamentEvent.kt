@@ -159,9 +159,10 @@ enum class TournamentEvent(val totalPrizeFund: Double) {
             ?: error("TournamentConfigLoader wurde nicht initialisiert")
         val eventConfig = config.events[this]
             ?: error("Keine Event-Konfiguration für $this gefunden")
-        val baseDistance = eventConfig.distances[round]
-            ?: error("Keine Match-Distanz für Runde $round in Event $this gefunden")
-        return preset.scaleDistance(baseDistance)
+        val presetMap = eventConfig.distances[round]
+            ?: error("Keine Match-Distanzen für Runde $round in Event $this gefunden")
+        return presetMap[preset]
+            ?: error("Keine Match-Distanz für Preset $preset in Runde $round in Event $this gefunden")
     }
 
     /**

@@ -167,9 +167,8 @@ object CareerDistanceInfoDialog {
                         }
                     }
 
-                    val rawDistance = category.event.getMatchDistance(round)
-                    val scaledDistance = preset.scaleDistance(rawDistance)
-                    val distanceText = TournamentDetailMapper.formatMatchDistance(context, scaledDistance)
+                    val distance = category.event.getMatchDistance(round, preset)
+                    val distanceText = TournamentDetailMapper.formatMatchDistance(context, distance)
 
                     val tvDistance = TextView(context).apply {
                         layoutParams = LinearLayout.LayoutParams(
