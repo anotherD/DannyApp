@@ -40,14 +40,7 @@ class GenerateBracketUseCase(
                     ?: return emptyList()
                 val prevMatches = tournamentRepository.getMatchesListForTournament(qualTournament.id)
                 if (prevMatches.isEmpty()) return emptyList()
-
-                val rounds = prevMatches.map { it.round }.distinct()
-                val finalRoundName = rounds.lastOrNull { round ->
-                    prevMatches.filter { it.round == round }.all { it.isCompleted && it.winnerId != null }
-                } ?: rounds.lastOrNull() ?: return emptyList()
-
-                val finalRoundMatches = prevMatches.filter { it.round == finalRoundName }
-                return finalRoundMatches.mapNotNull { it.winnerId }
+                return prevMatches.filter { it.round == TournamentRound.QUAL_FINAL.name }.sortedBy { it.matchIndex }.mapNotNull { it.winnerId }
             }
 
             val strategy = TournamentRuleStrategyRegistry.getStrategy(event)
