@@ -50,7 +50,7 @@ class GetOrderOfMeritUseCase(
         }.thenByDescending { it.order }
             .thenByDescending { it.id }
 
-        val startedOrCompletedTournaments = allTournaments.filter { it.isCompleted || it.currentRound != null }
+        val startedOrCompletedTournaments = allTournaments.filter { it.isCompleted || it.currentRound != null || seasonMap[it.seasonId]?.isCompleted == true }
 
         val oomTournaments = startedOrCompletedTournaments.groupBy { it.name }
             .flatMap { (_, tournaments) ->
