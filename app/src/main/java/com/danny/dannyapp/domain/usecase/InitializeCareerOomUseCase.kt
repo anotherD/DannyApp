@@ -202,6 +202,10 @@ class InitializeCareerOomUseCase(
             return "European Tour ${etMatch.groupValues[1]}"
         }
 
+        if (rawName.equals("World Masters", ignoreCase = true)) {
+            return "Winmau World Masters"
+        }
+
         val directHits = setOf(
             "World Championship",
             "UK Open",

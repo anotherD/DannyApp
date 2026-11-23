@@ -180,11 +180,12 @@ Für Qualifikationswege ohne Länderbindung, die über Geschlecht, Alter oder Q-
 
 ---
 
-### 2.3 Tour Card Holder Qualifier (`QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIFIER_WM`)
+### 2.3 Tour Card Holder Qualifier (`QUALIFIER_WORLD_MASTERS`, `QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIFIER_WM`)
 * **Rahmendaten:**
   * **Gastgeberland & Austragungsort:** Aktuelle und verbindliche Informationen siehe [season_calendar_2027.json](../app/src/main/assets/season_calendar_2027.json).
   * **Teilnehmer:** Alle nicht für das jeweilige Hauptturnier vorqualifizierten Tour-Card-Inhaber (inkl. `USER_ID = -1L`).
-  * **Modus:** K.o.-System auf `K` parallelen Boards (Best-of 11 Legs, £0 Preisgeld), bis exakt `K` Qualifikanten feststehen. Die Board-Anzahl `K` berechnet sich einheitlich aus der Soll-Teilnehmerzahl des zugehörigen Hauptturniers abzüglich der bereits vorqualifizierten Teilnehmer (`K = targetParticipantCount - preQualifiedCount`):
+  * **Modus:** K.o.-System auf `K` parallelen Boards (Best-of 11 Legs bzw. Best-of 5 Sets à 3 Legs beim `QUALIFIER_WORLD_MASTERS`, £0 Preisgeld), bis exakt `K` Qualifikanten feststehen. Die Board-Anzahl `K` berechnet sich einheitlich aus der Soll-Teilnehmerzahl des zugehörigen Hauptturniers abzüglich der bereits vorqualifizierten Teilnehmer (`K = targetParticipantCount - preQualifiedCount`):
+    * `QUALIFIER_WORLD_MASTERS`: regulär `K = 8` Boards → 8 Sieger
     * `QUALIFIER_ET`: regulär `K = 10` Boards → 10 Sieger
     * `QUALIFIER_GRAND_SLAM`: regulär `K = 8` Boards → 8 Sieger (erhöht sich dynamisch, falls über die vorherigen Qualifikationswege weniger als 40 Spieler feststehen)
     * `QUALIFIER_WM`: regulär `K = 2` Boards → 2 Sieger (erhöht sich dynamisch bei offenen internationalen Plätzen)

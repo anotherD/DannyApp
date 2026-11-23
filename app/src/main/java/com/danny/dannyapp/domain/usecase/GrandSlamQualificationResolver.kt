@@ -48,6 +48,7 @@ class GrandSlamQualificationResolver(
             TournamentEvent.GRAND_SLAM_OF_DARTS,
             TournamentEvent.WORLD_MATCHPLAY,
             TournamentEvent.WORLD_GRAND_PRIX,
+            TournamentEvent.WORLD_MASTERS,
             TournamentEvent.UK_OPEN,
             TournamentEvent.EUROPEAN_OPEN,
             TournamentEvent.EUROPEAN_CHAMPIONSHIP,
