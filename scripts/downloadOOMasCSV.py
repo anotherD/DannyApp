@@ -97,8 +97,19 @@ def parse_money_in_thousands(raw_text, context_label=""):
     try:
         return float(cleaned)
     except (ValueError, TypeError) as e:
-        print(f"  WARNUNG: Preisgeld-Wert '{raw_text.strip()}' konnte nicht geparst werden ({context_label}): {e}")
+        print(f"\n  WARNUNG: Preisgeld-Wert '{raw_text.strip()}' konnte nicht geparst werden ({context_label}): {e}")
         return None
+
+
+def find_breakdown_table(soup):
+    for table in soup.find_all("table"):
+        first_row = table.find("tr")
+        if not first_row:
+            continue
+        headers_text = [cell.get_text(" ", strip=True).lower() for cell in first_row.find_all(["th", "td"])]
+        if "date" in headers_text and "tournament" in headers_text and "money" in headers_text:
+            return table
+    return None
 
 
 headers = {
@@ -378,7 +389,22 @@ if missing:
 
 
 # 6. Historische Einzelturniere von /breakdown?oom=big&p=<id>&sort=asc abrufen (reine Rohdaten)
-print(f"\nLade historische Order-of-Merit-Breakdowns von dartsrankings.com ...")
+def extract_not_counting_years(soup):
+    not_counting = set()
+    for table in soup.find_all("table"):
+        headers_text = [th.get_text(" ", strip=True).lower() for th in table.find_all("th")]
+        if "season" in headers_text and "ranking money" in headers_text:
+            for row in table.find_all("tr")[1:]:
+                cols = row.find_all("td")
+                if len(cols) >= 2:
+                    year_text = cols[0].get_text(strip=True)
+                    money_text = cols[1].get_text(strip=True).lower()
+                    if year_text.isdigit() and "not counting" in money_text:
+                        not_counting.add(year_text)
+    return not_counting
+
+total_players = len(players_data)
+print(f"\nLade historische Order-of-Merit-Breakdowns von dartsrankings.com ({total_players} Spieler) ...")
 breakdown_rows = []
 warnings_list = []
 
@@ -386,6 +412,7 @@ with requests.Session() as session:
     session.headers.update(headers)
 
     for rank_index, (name, data) in enumerate(players_data.items(), start=1):
+        print(f"\r  Fortschritt: [{rank_index}/{total_players}] {name:<30}", end="", flush=True)
         expected_total_k = float(data.get("price_money", 0.0))
         dr_id = data.get("dartsrankings_id")
 
@@ -393,7 +420,7 @@ with requests.Session() as session:
             if expected_total_k > 0.0:
                 msg = f"Rang #{rank_index} {name} (£{expected_total_k * 1000:,.0f}): Keine Detailseiten-ID (?p=) gefunden."
                 warnings_list.append(msg)
-                print(f"  WARNUNG: {msg}")
+                print(f"\n  WARNUNG: {msg}")
             continue
 
         bd_url = f"https://www.dartsrankings.com/breakdown?oom=big&p={dr_id}&sort=asc"
@@ -402,30 +429,31 @@ with requests.Session() as session:
         except requests.exceptions.RequestException as e:
             msg = f"Rang #{rank_index} {name} (p={dr_id}): Netzwerkfehler beim Laden des Breakdowns: {e}"
             warnings_list.append(msg)
-            print(f"  WARNUNG: {msg}")
+            print(f"\n  WARNUNG: {msg}")
             time.sleep(random.uniform(0.35, 0.75))
             continue
 
         if bd_resp.status_code in (429, 403):
             msg = f"ABBRUCH bei Rang #{rank_index} {name} (p={dr_id}): HTTP-Status {bd_resp.status_code} (Rate-Limit/Blockierung)."
             warnings_list.append(msg)
-            print(f"  {msg}")
+            print(f"\n  {msg}")
             break
 
         if bd_resp.status_code != 200:
             msg = f"Rang #{rank_index} {name} (p={dr_id}): Detailseite lieferte HTTP-Status {bd_resp.status_code}."
             warnings_list.append(msg)
-            print(f"  WARNUNG: {msg}")
+            print(f"\n  WARNUNG: {msg}")
             time.sleep(random.uniform(0.35, 0.75))
             continue
 
         bd_soup = BeautifulSoup(bd_resp.text, "html.parser")
-        bd_table = bd_soup.find("table")
+        not_counting_years = extract_not_counting_years(bd_soup)
+        bd_table = find_breakdown_table(bd_soup)
         if not bd_table:
             if expected_total_k > 0.0:
-                msg = f"Rang #{rank_index} {name} (p={dr_id}, £{expected_total_k * 1000:,.0f}): Keine Tabelle auf Detailseite gefunden."
+                msg = f"Rang #{rank_index} {name} (p={dr_id}, £{expected_total_k * 1000:,.0f}): Keine Breakdown-Tabelle auf Detailseite gefunden."
                 warnings_list.append(msg)
-                print(f"  WARNUNG: {msg}")
+                print(f"\n  WARNUNG: {msg}")
             time.sleep(random.uniform(0.35, 0.75))
             continue
 
@@ -438,6 +466,10 @@ with requests.Session() as session:
             if "recently dropped" in row_text or "upcoming events" in row_text:
                 break
 
+            row_classes = [c.lower() for c in (row.get("class") or [])]
+            if any("notcounting" in c or "not-counting" in c for c in row_classes):
+                continue
+
             cols = row.find_all("td")
             if len(cols) < 3:
                 continue
@@ -448,6 +480,9 @@ with requests.Session() as session:
 
             # Nur echte Datumszeilen (z. B. 2025.01.03 oder 2025-01-03) verarbeiten
             if not re.match(r"^\d{4}[.-]\d{2}[.-]\d{2}$", event_date):
+                continue
+
+            if event_date[:4] in not_counting_years:
                 continue
 
             money_k = parse_money_in_thousands(raw_money, f"{name} | {event_date} | {raw_tournament}")
@@ -464,12 +499,12 @@ with requests.Session() as session:
                 f"weicht von Haupttabelle (£{expected_total_k * 1000:,.0f}) ab."
             )
             warnings_list.append(msg)
-            print(f"  WARNUNG: {msg}")
+            print(f"\n  WARNUNG: {msg}")
 
         breakdown_rows.extend(player_entries)
         time.sleep(random.uniform(0.35, 0.75))
 
-print(f"Breakdown-Einträge geladen: {len(breakdown_rows)}")
+print(f"\nBreakdown-Einträge geladen: {len(breakdown_rows)}")
 if warnings_list:
     print(f"\n=== ZUSAMMENFASSUNG WARNUNGEN ({len(warnings_list)}) ===")
     for w in warnings_list:

@@ -8,3 +8,5 @@
 .externalNativeBuild
 .cxx
 local.properties
+/scripts/darts_rankings.csv
+/scripts/initial_placements.csv
