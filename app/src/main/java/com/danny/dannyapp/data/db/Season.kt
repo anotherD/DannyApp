@@ -31,6 +31,6 @@ data class Season(
     val createdAt: Long = System.currentTimeMillis()
 ) {
     init {
-        require(seasonNumber >= 1) { "Season number must be at least 1, got $seasonNumber" }
+        require(seasonNumber >= -1) { "Season number must be at least -1, got $seasonNumber" }
     }
 }

@@ -146,6 +146,23 @@ class SeasonRepository(
     }
 
     /**
+     * Erstellt eine historische Vor-Saison (-1 oder 0) für eine Karriere und generiert den Saisonkalender.
+     */
+    suspend fun createHistoricalSeason(careerId: Long, seasonNumber: Int): Long = withContext(Dispatchers.IO) {
+        require(careerId > 0L) { "Ungültige Karriere-ID: $careerId" }
+        require(seasonNumber == -1 || seasonNumber == 0) { "Historische Saisonnummer muss -1 oder 0 sein, war: $seasonNumber" }
+        val newSeason = Season(
+            careerId = careerId,
+            seasonNumber = seasonNumber,
+            isCompleted = true
+        )
+        val seasonId = seasonDao.insertSeason(newSeason)
+        val generateCalendarUseCase = GenerateSeasonCalendarUseCase(tournamentRepository)
+        generateCalendarUseCase(seasonId)
+        seasonId
+    }
+
+    /**
      * Erstellt eine neue Saison für eine Karriere und generiert den Saisonkalender sowie die Tour-Cards.
      */
     suspend fun createSeason(careerId: Long): Long = withContext(Dispatchers.IO) {

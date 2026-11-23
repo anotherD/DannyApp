@@ -1,12 +1,14 @@
 package com.danny.dannyapp.data.db
 
+import com.danny.dannyapp.domain.usecase.InitializeCareerOomUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 
 class CareerRepository(
     private val careerDao: CareerDao,
-    private val seasonRepository: SeasonRepository
+    private val seasonRepository: SeasonRepository,
+    private val initializeCareerOomUseCase: InitializeCareerOomUseCase? = null
 ) {
 
     val careersFlow: Flow<List<CareerWithProfile>> = careerDao.getAllCareers()
@@ -31,10 +33,14 @@ class CareerRepository(
         careerDao.getCareerCountForProfile(profileId)
     }
 
-    suspend fun saveCareer(career: Career): Long = withContext(Dispatchers.IO) {
+    suspend fun saveCareer(career: Career, prefillOrderOfMerit: Boolean = true): Long = withContext(Dispatchers.IO) {
         val isNewCareer = career.id == 0L
         val careerId = careerDao.insertCareer(career)
         if (isNewCareer) {
+            if (prefillOrderOfMerit) {
+                checkNotNull(initializeCareerOomUseCase) { "InitializeCareerOomUseCase wurde nicht initialisiert" }
+                initializeCareerOomUseCase(careerId)
+            }
             seasonRepository.createSeason(careerId)
         }
         careerId

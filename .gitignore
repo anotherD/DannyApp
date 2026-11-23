@@ -10,3 +10,4 @@
 local.properties
 /scripts/darts_rankings.csv
 /scripts/initial_placements.csv
+/app/src/main/assets/initial_placements.csv

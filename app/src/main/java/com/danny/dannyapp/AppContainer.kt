@@ -17,6 +17,7 @@ import com.danny.dannyapp.domain.usecase.GenerateSeasonCalendarUseCase
 import com.danny.dannyapp.domain.usecase.GetOrderOfMeritUseCase
 import com.danny.dannyapp.domain.usecase.GetPlayersUseCase
 import com.danny.dannyapp.domain.usecase.GetTournamentSummaryUseCase
+import com.danny.dannyapp.domain.usecase.InitializeCareerOomUseCase
 import com.danny.dannyapp.domain.usecase.TournamentProgressionUseCase
 import com.danny.dannyapp.domain.usecase.TournamentQualificationUseCase
 import kotlinx.coroutines.CancellationException
@@ -101,9 +102,32 @@ class AppContainer(context: Context) {
     }
 
     /**
+     * Use case for initializing career Order of Merit with historical placements.
+     */
+    val initializeCareerOomUseCase: InitializeCareerOomUseCase by lazy {
+        InitializeCareerOomUseCase(
+            seasonRepository = seasonRepository,
+            tournamentRepository = tournamentRepository,
+            playerRepository = playerRepository,
+            readInitialPlacementsLines = {
+                appContext.assets.open("initial_placements.csv")
+                    .bufferedReader(Charsets.UTF_8)
+                    .use { it.readLines() }
+                    .asSequence()
+            }
+        )
+    }
+
+    /**
      * Singleton instance of career repository.
      */
-    val careerRepository: CareerRepository by lazy { CareerRepository(database.careerDao(), seasonRepository) }
+    val careerRepository: CareerRepository by lazy {
+        CareerRepository(
+            database.careerDao(),
+            seasonRepository,
+            initializeCareerOomUseCase
+        )
+    }
 
     /**
      * Use case for generating season calendar.
