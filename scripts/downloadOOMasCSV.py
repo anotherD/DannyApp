@@ -485,8 +485,8 @@ with requests.Session() as session:
             if event_date[:4] in not_counting_years:
                 continue
 
-            money_k = parse_money_in_thousands(raw_money, f"{name} | {event_date} | {raw_tournament}")
-            if money_k is None:
+            # Tour-Card-Reset greift erst nach der WM im Januar (WM-Preisgeld vor Q-School zählt nicht)
+            if not_counting_years and event_date.startswith("2026.01") and "world championship" in raw_tournament.lower():
                 continue
 
             player_sum_k += money_k
