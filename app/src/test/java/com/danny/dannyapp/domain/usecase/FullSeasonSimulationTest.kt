@@ -206,42 +206,52 @@ class FullSeasonSimulationTest {
 
     @Test
     fun simulateCompleteSeason_runsAllTournamentsWithoutErrors() {
-        org.junit.Assume.assumeTrue("Manueller Test: Starte mit -DrunSim=true", System.getProperty("runSim") == "true")
+        org.junit.Assume.assumeTrue(
+            "Manueller Test: Starte mit RUN_SIM=true",
+            System.getenv("RUN_SIM") == "true"
+        )
         runBlocking {
-        val career = Career(
-            id = 1L,
-            name = "Test",
-            level = 10,
-            season = 1,
-            profileId = 1L,
-            matchDistancePreset = MatchDistancePreset.RAPID.name
-        )
-        careerDao.insertCareer(career)
+            val career = Career(
+                id = 1L,
+                name = "Test",
+                level = 10,
+                season = 1,
+                profileId = 1L,
+                matchDistancePreset = MatchDistancePreset.RAPID.name
+            )
+            careerDao.insertCareer(career)
 
-        initializeCareerOomUseCase(1L)
-        val seasonId = seasonRepository.createSeason(1L)
+            initializeCareerOomUseCase(1L)
+            val seasonId = seasonRepository.createSeason(1L)
 
-        val seasonTournaments = tournamentRepository.getTournamentsListForSeason(seasonId)
-            .sortedBy { it.order }
+            val seasonTournaments = tournamentRepository.getTournamentsListForSeason(seasonId)
+                .sortedBy { it.order }
 
-        assertTrue("Saison 1 muss Turniere enthalten", seasonTournaments.isNotEmpty())
+            assertTrue("Saison 1 muss Turniere enthalten", seasonTournaments.isNotEmpty())
 
-        for (tournament in seasonTournaments) {
-            println("Simuliere #${tournament.order}: ${tournament.name} (${tournament.type})")
-            tournamentProgressionUseCase.simulateCompleteTournament(tournament.id)
-            val completedTournament = tournamentRepository.getTournamentById(tournament.id)
-            assertTrue("Turnier ${tournament.name} muss erfolgreich simuliert werden", completedTournament.isCompleted)
-        }
+            for (tournament in seasonTournaments) {
+                println("Simuliere #${tournament.order}: ${tournament.name} (${tournament.type})")
+                tournamentProgressionUseCase.simulateCompleteTournament(tournament.id)
+                val completedTournament = tournamentRepository.getTournamentById(tournament.id)
+                assertTrue(
+                    "Turnier ${tournament.name} muss erfolgreich simuliert werden",
+                    completedTournament.isCompleted
+                )
+            }
 
-        val updatedTournaments = tournamentRepository.getTournamentsListForSeason(seasonId)
-        assertTrue(
-            "Alle Turniere müssen nach der Simulation isCompleted == true haben",
-            updatedTournaments.all { it.isCompleted }
-        )
+            val updatedTournaments = tournamentRepository.getTournamentsListForSeason(seasonId)
+            assertTrue(
+                "Alle Turniere müssen nach der Simulation isCompleted == true haben",
+                updatedTournaments.all { it.isCompleted }
+            )
 
-        for (oomType in OrderOfMeritType.entries) {
-            val oomEntries = getOrderOfMeritUseCase(1L, oomType)
-            assertTrue("Order of Merit ($oomType) darf nicht leer sein", oomEntries.isNotEmpty())
+            for (oomType in OrderOfMeritType.entries) {
+                val oomEntries = getOrderOfMeritUseCase(1L, oomType)
+                assertTrue(
+                    "Order of Merit ($oomType) darf nicht leer sein",
+                    oomEntries.isNotEmpty()
+                )
+            }
         }
     }
 
