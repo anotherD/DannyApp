@@ -98,10 +98,12 @@ object TournamentConfigLoader {
             val eventName = keys.next()
             val event = TournamentEvent.valueOf(eventName)
             val eventJson = eventsJson.getJSONObject(eventName)
+            val format = MatchFormatType.valueOf(eventJson.getString("format"))
+            val twoClearLegsRule = eventJson.getBoolean("twoClearLegsRule")
             events[event] = EventRuleConfig(
                 totalPrizeFund = eventJson.getDouble("totalPrizeFund"),
                 prizes = parsePrizes(eventJson.getJSONObject("prizes")),
-                distances = parseDistances(eventJson.getJSONObject("distances"))
+                distances = parseDistances(event, eventJson.getJSONObject("distances"), format, twoClearLegsRule)
             )
         }
         return events
@@ -117,7 +119,12 @@ object TournamentConfigLoader {
         return prizes
     }
 
-    private fun parseDistances(distancesJson: JSONObject): Map<TournamentRound, Map<MatchDistancePreset, MatchDistance>> {
+    private fun parseDistances(
+        event: TournamentEvent,
+        distancesJson: JSONObject,
+        format: MatchFormatType,
+        twoClearLegsRule: Boolean
+    ): Map<TournamentRound, Map<MatchDistancePreset, MatchDistance>> {
         val distances = mutableMapOf<TournamentRound, Map<MatchDistancePreset, MatchDistance>>()
         val keys = distancesJson.keys()
         while (keys.hasNext()) {
@@ -127,13 +134,40 @@ object TournamentConfigLoader {
             val presetKeys = roundJson.keys()
             while (presetKeys.hasNext()) {
                 val presetName = presetKeys.next()
-                val distanceJson = roundJson.getJSONObject(presetName)
                 val preset = MatchDistancePreset.valueOf(presetName)
+                val value = roundJson.get(presetName)
+                val bestOf: Int
+                val legsPerSet: Int
+
+                if (format == MatchFormatType.LEGS) {
+                    if (value is org.json.JSONArray) {
+                        throw IllegalStateException(
+                            "Erwartete Ganzzahl für bestOf bei LEGS-Format in Preset '$presetName', Runde '$roundName', Turnier '$event', aber JSONArray erhalten."
+                        )
+                    }
+                    bestOf = roundJson.getInt(presetName)
+                    legsPerSet = 1
+                } else {
+                    if (value !is org.json.JSONArray) {
+                        throw IllegalStateException(
+                            "Erwartete JSONArray [bestOf, legsPerSet] für Set-Format '$format' in Preset '$presetName', Runde '$roundName', Turnier '$event'."
+                        )
+                    }
+                    val arr = roundJson.getJSONArray(presetName)
+                    if (arr.length() != 2) {
+                        throw IllegalStateException(
+                            "JSONArray für Set-Format '$format' muss genau 2 Elemente [bestOf, legsPerSet] enthalten, hat aber ${arr.length()} bei Preset '$presetName', Runde '$roundName' im Turnier '$event'."
+                        )
+                    }
+                    bestOf = arr.getInt(0)
+                    legsPerSet = arr.getInt(1)
+                }
+
                 presetMap[preset] = MatchDistance(
-                    bestOf = distanceJson.getInt("bestOf"),
-                    format = MatchFormatType.valueOf(distanceJson.getString("format")),
-                    legsPerSet = distanceJson.getInt("legsPerSet"),
-                    twoClearLegsRule = distanceJson.getBoolean("twoClearLegsRule")
+                    bestOf = bestOf,
+                    format = format,
+                    legsPerSet = legsPerSet,
+                    twoClearLegsRule = twoClearLegsRule
                 )
             }
             distances[TournamentRound.valueOf(roundName)] = presetMap
