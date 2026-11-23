@@ -31,6 +31,7 @@ SPORT_OVERRIDES = {
     "ie": "IRL",   # WorldCup nutzt IRE statt IRL  IOC/FIFA/ISO nutzen alle IRL
     "ire": "IRL",   # WorldCup nutzt IRE statt IRL  IOC/FIFA/ISO nutzen alle IRL
     "DEU": "DEU",
+    "ger": "DEU",
     "ned": "NLD",
     "sui": "CHE",
     "den": "DNK",

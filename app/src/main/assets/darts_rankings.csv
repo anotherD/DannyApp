@@ -18,7 +18,7 @@ rank;name;country;tour_card_year;price_money;yeartodate2025;yeartodate2026;skill
 17;Luke Woodhouse;ENG;2;511.0;218.5;257.5;6
 18;Jermaine Wattimena;NLD;2;504.0;236.0;243.0;6
 19;Krzysztof Ratajski;POL;2;498.75;224.5;249.25;5
-20;Martin Schindler;GER;2;468.0;249.75;203.25;5
+20;Martin Schindler;DEU;2;468.0;249.75;203.25;5
 21;Kevin Doets;NLD;2;456.75;131.5;290.25;5
 22;Damon Heta;AUS;2;416.75;227.0;164.75;5
 23;Dirk van Duijvenbode;NLD;2;396.75;186.25;195.5;5
@@ -28,11 +28,11 @@ rank;name;country;tour_card_year;price_money;yeartodate2025;yeartodate2026;skill
 27;Andrew Gilding;ENG;2;355.5;157.0;173.5;5
 28;Niels Zonneveld;NLD;2;338.75;113.0;218.25;5
 29;William O'Connor;IRL;2;287.5;132.0;148.0;4
-30;Niko Springer;GER;2;286.75;129.75;157.0;4
+30;Niko Springer;DEU;2;286.75;129.75;157.0;4
 31;Daryl Gurney;NIR;2;280.5;172.0;83.5;4
 32;Dave Chisnall;ENG;2;276.25;129.0;132.25;4
 33;Joe Cullen;ENG;2;275.5;142.5;108.0;4
-34;Ricardo Pietreczko;GER;2;227.25;146.5;45.75;4
+34;Ricardo Pietreczko;DEU;2;227.25;146.5;45.75;4
 35;Mike De Decker;BEL;2;220.25;146.0;59.25;4
 36;Peter Wright;SCO;2;220.0;134.5;35.5;4
 37;Michael Smith;ENG;2;208.25;119.5;73.75;4
@@ -41,7 +41,7 @@ rank;name;country;tour_card_year;price_money;yeartodate2025;yeartodate2026;skill
 40;Callan Rydz;ENG;2;191.25;86.5;54.75;4
 41;Jeffrey de Graaf;SWE;2;190.0;64.5;90.5;4
 42;Sebastian Bialecki;POL;2;181.25;63.75;117.5;4
-43;Gabriel Clemens;GER;2;177.0;74.75;87.25;4
+43;Gabriel Clemens;DEU;2;177.0;74.75;87.25;4
 44;Ricky Evans;ENG;2;177.0;103.75;48.25;4
 45;James Hurrell;ENG;2;174.5;101.25;58.25;4
 46;Kim Huybrechts;BEL;2;174.0;53.0;113.5;4
@@ -60,9 +60,9 @@ rank;name;country;tour_card_year;price_money;yeartodate2025;yeartodate2026;skill
 59;Ritchie Edhouse;ENG;2;134.0;72.75;46.25;3
 60;Rob Owen;WAL;2;128.25;33.25;60.0;3
 61;Dimitri Van den Bergh;BEL;2;120.25;74.5;20.75;3
-62;Lukas Wenig;GER;2;119.5;79.75;39.75;3
+62;Lukas Wenig;DEU;2;119.5;79.75;39.75;3
 63;Cristo Reyes;ESP;1;117.25;15.0;117.25;3
-64;Max Hopp;GER;2;116.25;58.25;58.0;3
+64;Max Hopp;DEU;2;116.25;58.25;58.0;3
 65;Nick Kenny;WAL;2;116.0;56.5;34.5;3
 66;Cam Crabtree;ENG;2;112.75;73.0;39.75;3
 67;Maik Kuivenhoven;NLD;2;111.25;26.0;85.25;3
@@ -79,7 +79,7 @@ rank;name;country;tour_card_year;price_money;yeartodate2025;yeartodate2026;skill
 78;Darryl Pilgrim;ENG;2;72.0;24.25;47.75;2
 79;Tommy Morris;ENG;0;69.75;1.0;69.75;2
 80;Cor Dekker;NOR;2;68.75;41.25;27.5;2
-81;Dominik Gruellich;GER;2;65.25;44.25;21.0;2
+81;Dominik Gruellich;DEU;2;65.25;44.25;21.0;2
 82;Christian Kist;NLD;2;63.0;20.0;43.0;2
 83;Andy Boulton;SCO;2;57.25;26.0;31.25;2
 84;Jim Long;CAN;2;56.5;17.25;39.25;2
@@ -89,7 +89,7 @@ rank;name;country;tour_card_year;price_money;yeartodate2025;yeartodate2026;skill
 88;Darius Labanauskas;LTU;1;46.25;46.75;46.25;2
 89;Jimmy van Schie;NLD;1;46.25;12.5;46.25;2
 90;Thomas Lovely;ENG;2;44.25;17.25;27.0;2
-91;Leon Weber;GER;2;41.25;19.75;21.5;2
+91;Leon Weber;DEU;2;41.25;19.75;21.5;2
 92;Viktor Tingstrom;SWE;2;41.0;16.0;25.0;2
 93;Shane McGuirk;IRL;1;39.25;0;39.25;2
 94;Marvin van Velzen;NLD;2;39.0;17.25;21.75;2
@@ -100,7 +100,7 @@ rank;name;country;tour_card_year;price_money;yeartodate2025;yeartodate2026;skill
 99;Jurjen van der Velde;NLD;1;35.0;32.25;35.0;2
 100;Greg Ritchie;SCO;2;34.75;13.5;21.25;2
 101;Jeffrey De Zwaan;NLD;1;34.0;1.25;34.0;2
-102;Kai Gotthardt;GER;2;33.0;5.0;28.0;2
+102;Kai Gotthardt;DEU;2;33.0;5.0;28.0;2
 103;Adam Paxton;ENG;2;32.75;11.75;21.0;2
 104;David Sharp;SCO;1;32.5;0;32.5;2
 105;Stephen Burton;ENG;1;32.25;43.0;32.25;1
@@ -123,8 +123,8 @@ rank;name;country;tour_card_year;price_money;yeartodate2025;yeartodate2026;skill
 122;Steve Lennon;IRL;0;22.0;46.25;22.0;1
 123;Carl Sneyd;ENG;1;21.75;12.5;21.75;1
 124;Jack Tweddell;ENG;0;21.75;5.5;21.75;1
-125;Arno Merk;GER;1;21.5;37.5;21.5;1
-126;Maximilian Czerwinski;GER;2;20.0;11.25;8.75;1
+125;Arno Merk;DEU;1;21.5;37.5;21.5;1
+126;Maximilian Czerwinski;DEU;2;20.0;11.25;8.75;1
 127;Stephen Rosney;IRL;1;19.5;0;19.5;1
 128;Rhys Griffin;WAL;1;19.25;15.5;19.25;1
 129;Stefaan Henderyck;BEL;2;18.0;8.5;9.5;1
@@ -133,20 +133,20 @@ rank;name;country;tour_card_year;price_money;yeartodate2025;yeartodate2026;skill
 132;Harry Ward;ENG;0;16.25;0;16.25;1
 133;Tytus Kanik;POL;2;15.0;9.25;5.75;1
 134;Samuel Price;ENG;1;14.0;0;14.0;1
-135;Daniel Klose;GER;0;13.25;5.0;13.25;1
+135;Daniel Klose;DEU;0;13.25;5.0;13.25;1
 136;Jack Aldridge;ENG;0;13.0;0;13.0;1
 137;Daniel Ayres;ENG;0;12.75;0;12.75;1
 138;Paolo Nebrida;PHL;0;12.5;15.0;12.5;1
-139;Yorick Hofkens;GER;1;12.5;1.25;12.5;1
+139;Yorick Hofkens;DEU;1;12.5;1.25;12.5;1
 140;Lewis Pride;ENG;0;12.25;0;12.25;1
-141;Pascal Rupprecht;GER;1;12.25;0;12.25;1
-142;Jan Schmidt;GER;0;12.0;0;12.0;1
-143;Marvin Kraft;GER;1;11.5;0;11.5;1
+141;Pascal Rupprecht;DEU;1;12.25;0;12.25;1
+142;Jan Schmidt;DEU;0;12.0;0;12.0;1
+143;Marvin Kraft;DEU;1;11.5;0;11.5;1
 144;Andy Baetens;BEL;0;11.5;42.5;11.5;1
-145;Paul Krohne;GER;0;9.5;2.5;9.5;1
+145;Paul Krohne;DEU;0;9.5;2.5;9.5;1
 146;Boris Krcmar;HRV;0;8.5;24.0;8.5;1
 147;Jonas Masalin;FIN;0;7.5;0;7.5;1
-148;Michael Unterbuchner;GER;0;7.5;8.25;7.5;1
+148;Michael Unterbuchner;DEU;0;7.5;8.25;7.5;1
 149;Patrik Kovacs;HUN;0;7.0;15.0;7.0;1
 150;Pero Ljubic;HRV;2;6.5;5.25;1.25;1
 151;Archie Self;ENG;0;6.25;0;6.25;1
@@ -154,8 +154,8 @@ rank;name;country;tour_card_year;price_money;yeartodate2025;yeartodate2026;skill
 153;Johan Engstrom;SWE;0;6.0;5.0;6.0;1
 154;Patrik Williams;ENG;0;5.5;0;5.5;1
 155;Nandor Major;HUN;0;5.5;1.25;5.5;1
-156;Dragutin Horvat;GER;0;5.5;3.75;5.5;1
-157;Marcel Hausotter;GER;0;5.5;0;5.5;1
+156;Dragutin Horvat;DEU;0;5.5;3.75;5.5;1
+157;Marcel Hausotter;DEU;0;5.5;0;5.5;1
 158;Adam Sevada;USA;0;5.0;25.0;5.0;1
 159;Lisa Ashton;ENG;0;5.0;20.0;5.0;1
 160;Raymond Smith;AUS;0;5.0;0;5.0;1
@@ -163,7 +163,7 @@ rank;name;country;tour_card_year;price_money;yeartodate2025;yeartodate2026;skill
 162;Krzysztof Kciuk;POL;0;4.0;15.0;4.0;1
 163;Gyorgy Jehirszki;HUN;0;4.0;1.25;4.0;1
 164;Jani Haavisto;FIN;0;4.0;0;4.0;1
-165;Finn Behrens;GER;0;4.0;1.25;4.0;1
+165;Finn Behrens;DEU;0;4.0;1.25;4.0;1
 166;Callum Goffin;WAL;0;4.0;0;4.0;1
 167;Ted Evetts;ENG;0;3.75;25.0;3.75;1
 168;Aden Kirk;ENG;0;3.75;3.75;3.75;1
@@ -203,14 +203,14 @@ rank;name;country;tour_card_year;price_money;yeartodate2025;yeartodate2026;skill
 202;Aaron Hardy;AUT;0;2.0;0;2.0;1
 203;Nick Zwittnigg;AUT;0;2.0;0;2.0;1
 204;Zoran Lerchbacher;AUT;0;2.0;1.25;2.0;1
-205;Michael Hurtz;GER;0;2.0;0;2.0;1
+205;Michael Hurtz;DEU;0;2.0;0;2.0;1
 206;Petr Krivka;CZE;0;2.0;2.5;2.0;1
-207;Robin Masino;GER;0;2.0;0;2.0;1
-208;Kevin Troppmann;GER;0;2.0;2.5;2.0;1
+207;Robin Masino;DEU;0;2.0;0;2.0;1
+208;Kevin Troppmann;DEU;0;2.0;2.5;2.0;1
 209;Francois Schweyen;BEL;0;2.0;2.5;2.0;1
 210;Pascal Devroey;BEL;0;2.0;0;2.0;1
-211;Florian Hempel;GER;0;2.0;25.5;2.0;1
-212;Florian Preis;GER;0;2.0;0;2.0;1
+211;Florian Hempel;DEU;0;2.0;25.5;2.0;1
+212;Florian Preis;DEU;0;2.0;0;2.0;1
 213;Wojciech Brulinski;POL;0;2.0;0;2.0;1
 214;Sam Spivey;ENG;0;2.0;2.5;2.0;1
 215;Andreas Harrysson;SWE;0;2.0;77.75;2.0;1
@@ -220,7 +220,7 @@ rank;name;country;tour_card_year;price_money;yeartodate2025;yeartodate2026;skill
 219;Levy Frauenfelder;NLD;0;1.25;0;1.25;1
 220;Kevin Burness;NIR;0;1.25;9.5;1.25;1
 221;Danny Trueman;SCO;0;1.25;0;1.25;1
-222;Matthias Ehlers;GER;1;1.25;0;1.25;1
+222;Matthias Ehlers;DEU;1;1.25;0;1.25;1
 223;Jack Todd;ENG;0;1.25;0;1.25;1
 224;Jamai van den Herik;NLD;0;1.25;32.5;1.25;1
 225;Oliver King;ENG;0;1.25;0;1.25;1
