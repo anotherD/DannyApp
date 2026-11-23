@@ -13,6 +13,7 @@ csv_filename = "darts_rankings.csv"
 placements_csv_filename = "initial_placements.csv"
 players_data = defaultdict(dict)
 suffixList = []
+warnings_list = []
 
 # Spieler, zu denen keine Nation gefunden werden konnte, werden hier als Manuelles Mapping ergänzt
 MANUAL_COUNTRY_OVERRIDES = {
@@ -350,11 +351,33 @@ try:
 except requests.exceptions.RequestException as e:
     print(f"  Netzwerkfehler beim Laden des Mappings: {e}")
 
-print(f"Fehlende Nationen zugeordnet: {found_count}")
+print(f"  Fehlende Nationen zugeordnet: {found_count}")
 # Spieler ausgeben, die trotzdem noch keine Nation haben
 missing = [name for name, data in players_data.items() if not data.get("country")]
 if missing:
-    print(f"Noch ohne Nation ({len(missing)}): {', '.join(missing)}")
+    print(f"  Noch ohne Nation ({len(missing)})")
+    for player_name in missing:
+        print(f"    {player_name}")
+
+# 5c. Fehlende Nationen über manuelles Mapping
+print("Ermittle fehlende Nationen über manuelles mapping ...")
+found_count_manual = 0
+
+for player_name, country_code in MANUAL_COUNTRY_OVERRIDES.items():
+    if player_name in players_data and not players_data[player_name].get("country"):
+        players_data[player_name]["country"] = country_code
+        print(f"  Zugeordnet: {player_name} -> {players_data[player_name]["country"]}")
+        found_count_manual += 1
+
+print(f"  Fehlende Nationen zugeordnet: {found_count_manual}")
+
+missing = [name for name, data in players_data.items() if not data.get("country")]
+if missing:
+    print(f"  Noch ohne Nation ({len(missing)})")
+    for player_name in missing:
+        print(f"    {player_name}")
+        msg = f"Spieler ohne Nation: {player_name}"
+        warnings_list.append(msg)
 
 ### Falls der sammellink nicht funktioniert, kann man die spieler hier einzelnd abrufen.
 ### Ggf. auch interessant für weitere Daten z.B. Geburtsdatum
@@ -414,7 +437,6 @@ def extract_not_counting_years(soup):
 total_players = len(players_data)
 print(f"\nLade historische Order-of-Merit-Breakdowns von dartsrankings.com ({total_players} Spieler) ...")
 breakdown_rows = []
-warnings_list = []
 
 with requests.Session() as session:
     session.headers.update(headers)
@@ -490,11 +512,14 @@ with requests.Session() as session:
             if not re.match(r"^\d{4}[.-]\d{2}[.-]\d{2}$", event_date):
                 continue
 
-            if event_date[:4] in not_counting_years:
-                continue
+            # Die World Championship im Januar (z. B. 2026.01.03) ist das Saisonfinale des Vorjahres (2025)
+            effective_season_year = (
+                str(int(event_date[:4]) - 1)
+                if event_date[5:7] == "01" and "world championship" in raw_tournament.lower()
+                else event_date[:4]
+            )
 
-            # Tour-Card-Reset greift erst nach der WM im Januar (WM-Preisgeld vor Q-School zählt nicht)
-            if not_counting_years and event_date.startswith("2026.01") and "world championship" in raw_tournament.lower():
+            if effective_season_year in not_counting_years:
                 continue
 
             money_k = parse_money_in_thousands(raw_money, f"{name} | {event_date} | {raw_tournament}")
@@ -505,10 +530,12 @@ with requests.Session() as session:
             if money_k > 0.0:
                 player_entries.append((name, event_date, raw_tournament, round(money_k * 1000.0, 2)))
 
-        if abs(player_sum_k - expected_total_k) > 0.01:
+        diff_k = player_sum_k - expected_total_k
+        if abs(diff_k) > 0.01:
             msg = (
                 f"Rang #{rank_index} {name} (p={dr_id}): Breakdown-Summe (£{player_sum_k * 1000:,.0f}) "
-                f"weicht von Haupttabelle (£{expected_total_k * 1000:,.0f}) ab."
+                f"weicht um £{diff_k * 1000:+,.0f} von Haupttabelle (£{expected_total_k * 1000:,.0f}) ab "
+                f"(prüfe Tour-Card-Reset / 'not counting'-Jahre auf der Detailseite; App nutzt im Zweifel den Fallback)."
             )
             warnings_list.append(msg)
             print(f"\n  WARNUNG: {msg}")
