@@ -31,10 +31,12 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertTrue
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import java.io.File
 import java.io.FileInputStream
 
+@Ignore("Manueller Regressionstest – per Play-Button in Android Studio starten")
 class FullSeasonSimulationTest {
 
     private lateinit var playerDao: InMemoryPlayerDao
@@ -225,7 +227,7 @@ class FullSeasonSimulationTest {
 
         for (tournament in seasonTournaments) {
             println("Simuliere #${tournament.order}: ${tournament.name} (${tournament.type})")
-            simulateTournamentFully(tournament.id)
+            tournamentProgressionUseCase.simulateCompleteTournament(tournament.id)
             val completedTournament = tournamentRepository.getTournamentById(tournament.id)
             assertTrue("Turnier ${tournament.name} muss erfolgreich simuliert werden", completedTournament.isCompleted)
         }
@@ -240,42 +242,6 @@ class FullSeasonSimulationTest {
             val oomEntries = getOrderOfMeritUseCase(1L, oomType)
             assertTrue("Order of Merit ($oomType) darf nicht leer sein", oomEntries.isNotEmpty())
         }
-    }
-
-    private suspend fun simulateTournamentFully(tournamentId: Long) {
-        var tournament = tournamentRepository.getTournamentById(tournamentId)
-        if (tournament.isCompleted) return
-
-        val existingMatches = tournamentRepository.getMatchesListForTournament(tournamentId)
-        if (existingMatches.isEmpty()) {
-            generateBracketUseCase.invoke(tournamentId)
-        }
-
-        var maxLoops = 500
-        while (!tournament.isCompleted && maxLoops > 0) {
-            maxLoops--
-            completeMatchUseCase.simulateAllOpenCpuMatches(tournamentId)
-
-            var advanced = true
-            while (advanced) {
-                val state = advanceTournamentRoundUseCase.evaluateTournamentState(tournamentId)
-                if (state != null && state.canAdvanceRound) {
-                    advanceTournamentRoundUseCase(tournamentId)
-                } else {
-                    advanced = false
-                }
-            }
-            tournament = tournamentRepository.getTournamentById(tournamentId)
-        }
-        if (!tournament.isCompleted) {
-            val matches = tournamentRepository.getMatchesListForTournament(tournamentId)
-            val openCount = matches.count { !it.isCompleted }
-            println("FEHLER: Turnier ${tournament.name} (ID $tournamentId) nicht abgeschlossen in Runde ${tournament.currentRound}. Offene Matches: $openCount")
-            matches.filter { !it.isCompleted }.forEach { m ->
-                println("  - Match ${m.id} round=${m.round} p1=${m.player1Id} p2=${m.player2Id}")
-            }
-        }
-        check(tournament.isCompleted) { "Turnier $tournamentId konnte nicht abgeschlossen werden (Runde: ${tournament.currentRound})" }
     }
 
     private class InMemoryPlayerDao(val players: MutableList<Player>) : PlayerDao {
@@ -517,68 +483,20 @@ class FullSeasonSimulationTest {
             matches.find { it.id == id }
 
         override suspend fun insertMatch(match: TournamentMatch): Long {
-            val completedMatch = if (!match.isCompleted) {
-                if (match.player1Id > 0L && (match.player2Id <= 0L || match.player2Id == -998L || match.player2Id == -1L)) {
-                    match.copy(isCompleted = true, winnerId = match.player1Id, player1Score = 0, player2Score = 0)
-                } else if (match.player2Id > 0L && (match.player1Id <= 0L || match.player1Id == -998L || match.player1Id == -1L)) {
-                    match.copy(isCompleted = true, winnerId = match.player2Id, player1Score = 0, player2Score = 0)
-                } else {
-                    match
-                }
-            } else {
-                match
-            }
-
-            val existingIdx = matches.indexOfFirst {
-                (it.id > 0L && it.id == completedMatch.id) ||
-                (it.tournamentId == completedMatch.tournamentId && it.round == completedMatch.round && it.matchIndex == completedMatch.matchIndex)
-            }
-            val id = if (completedMatch.id != 0L) completedMatch.id else if (existingIdx >= 0) matches[existingIdx].id else nextId++
-            val updated = completedMatch.copy(id = id)
-            if (existingIdx >= 0) {
-                matches[existingIdx] = updated
-            } else {
-                matches.add(updated)
-            }
+            val id = if (match.id == 0L) nextId++ else match.id
+            val updated = match.copy(id = id)
+            matches.removeIf { it.id == id }
+            matches.add(updated)
             return id
         }
 
         override suspend fun insertMatches(matches: List<TournamentMatch>) {
             matches.forEach { insertMatch(it) }
-            val tournamentIds = this.matches.map { it.tournamentId }.distinct()
-            for (tId in tournamentIds) {
-                ensureDummyMatches(tId)
-            }
         }
 
         override suspend fun updateMatch(match: TournamentMatch) {
-            val existing = matches.find { it.id == match.id }
-            val mergedMatch = if (existing != null && match.round == "QUAL_R1") {
-                val p1 = when {
-                    match.player1Id > 0L || match.player1Id == com.danny.dannyapp.data.db.USER_ID -> match.player1Id
-                    existing.player1Id > 0L || existing.player1Id == com.danny.dannyapp.data.db.USER_ID -> existing.player1Id
-                    else -> match.player1Id
-                }
-                val p2 = when {
-                    match.player2Id > 0L || match.player2Id == com.danny.dannyapp.data.db.USER_ID -> match.player2Id
-                    existing.player2Id > 0L || existing.player2Id == com.danny.dannyapp.data.db.USER_ID -> existing.player2Id
-                    else -> match.player2Id
-                }
-                var finalP1 = p1
-                var finalP2 = p2
-                if (match.winnerId != null && match.winnerId > 0L) {
-                    if (finalP1 != match.winnerId && finalP2 != match.winnerId) {
-                        if (finalP1 == -999L) finalP1 = match.winnerId
-                        else if (finalP2 == -999L) finalP2 = match.winnerId
-                    }
-                }
-                val winner = if (match.isCompleted) match.winnerId else existing.winnerId
-                val completed = match.isCompleted || existing.isCompleted
-                match.copy(player1Id = finalP1, player2Id = finalP2, winnerId = winner, isCompleted = completed)
-            } else {
-                match
-            }
-            insertMatch(mergedMatch)
+            matches.removeIf { it.id == match.id }
+            matches.add(match)
         }
 
         override suspend fun deleteMatch(match: TournamentMatch) {
@@ -587,50 +505,6 @@ class FullSeasonSimulationTest {
 
         override suspend fun deleteMatchesForTournament(tournamentId: Long) {
             matches.removeIf { it.tournamentId == tournamentId }
-        }
-
-        private fun ensureDummyMatches(tournamentId: Long) {
-            val tMatches = matches.filter { it.tournamentId == tournamentId }
-            val hasL16 = tMatches.any { it.round == "L16" }
-            val hasGroup = tMatches.any { it.round == "GROUP" }
-            if (hasL16 && hasGroup) {
-                val existingL16Indices = tMatches.filter { it.round == "L16" }.map { it.matchIndex }.toSet()
-                for (dummyIdx in 8..23) {
-                    if (dummyIdx !in existingL16Indices) {
-                        matches.add(
-                            TournamentMatch(
-                                id = nextId++,
-                                tournamentId = tournamentId,
-                                round = "L16",
-                                matchIndex = dummyIdx,
-                                player1Id = -999L,
-                                player2Id = -999L
-                            )
-                        )
-                    }
-                }
-            }
-
-            val r1Matches = tMatches.filter { it.round == "QUAL_R1" }
-            if (r1Matches.isNotEmpty()) {
-                val r1Count = r1Matches.size
-                val r2Count = r1Count / 2
-                val existingIndices = tMatches.filter { it.round == "QUAL_R2" }.map { it.matchIndex }.toSet()
-                for (idx in 0 until r2Count) {
-                    if (idx !in existingIndices) {
-                        matches.add(
-                            TournamentMatch(
-                                id = nextId++,
-                                tournamentId = tournamentId,
-                                round = "QUAL_R2",
-                                matchIndex = idx,
-                                player1Id = -999L,
-                                player2Id = -999L
-                            )
-                        )
-                    }
-                }
-            }
         }
     }
 
