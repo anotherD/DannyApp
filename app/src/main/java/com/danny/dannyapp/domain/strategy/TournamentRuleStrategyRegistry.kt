@@ -84,11 +84,25 @@ class StandardKoStrategy(
     override val usesPrecedingQualifier: Boolean = false
 ) : TournamentRuleStrategy {
 
+    private fun determineSeededPlayerIds(): Int {
+        return when (event) {
+            TournamentEvent.WORLD_MATCHPLAY,
+            TournamentEvent.WORLD_GRAND_PRIX,
+            TournamentEvent.WORLD_MASTERS -> 16
+            TournamentEvent.PLAYERS_CHAMPIONSHIP,
+            TournamentEvent.EUROPEAN_CHAMPIONSHIP,
+            TournamentEvent.WORLD_CHAMPIONSHIP -> 32
+            TournamentEvent.PLAYERS_CHAMPIONSHIP_FINALS -> 64
+            else -> throw IllegalArgumentException("Unsupported event for seeding: $event")
+        }
+    }
+
     override fun buildInitialMatches(
         tournamentId: Long,
         qualResult: TournamentQualificationResult,
         createQualifierMatches: (Long, QualifierFieldSplit) -> Pair<List<TournamentMatch>, List<TournamentMatch>>
     ): List<TournamentMatch> {
+        val seedCount = determineSeededPlayerIds()
         val (startRound, pairings) = when (event) {
             TournamentEvent.PLAYERS_CHAMPIONSHIP -> {
                 TournamentRound.L128 to BracketGenerator.generateInitialMatches(
@@ -98,11 +112,12 @@ class StandardKoStrategy(
                     qualifierIds = qualResult.qualifierIds
                 )
             }
-            TournamentEvent.WORLD_MATCHPLAY, TournamentEvent.WORLD_GRAND_PRIX -> {
+            TournamentEvent.WORLD_MATCHPLAY, TournamentEvent.WORLD_GRAND_PRIX, TournamentEvent.WORLD_MASTERS -> {
                 TournamentRound.L32 to BracketGenerator.generateInitialMatches(
                     event = event,
                     oomSortedIds = qualResult.oomSortedIds,
-                    proTourSortedIds = qualResult.proTourSortedIds
+                    proTourSortedIds = qualResult.proTourSortedIds,
+                    qualifierIds = qualResult.qualifierIds
                 )
             }
             TournamentEvent.EUROPEAN_CHAMPIONSHIP -> {
@@ -129,6 +144,13 @@ class StandardKoStrategy(
             else -> throw IllegalArgumentException("Unsupported event for StandardKoStrategy: $event")
         }
 
+        val matchCount = pairings.size
+        if (seedCount == 16 && matchCount == 16) {
+            require(STANDARD_32_PLAYER_SEED_POSITIONS.size == 16) {
+                "Für seedCount == 16 bei 32 Teilnehmern (matchCount == 16) müssen alle 16 Einträge von STANDARD_32_PLAYER_SEED_POSITIONS verwendet werden."
+            }
+        }
+
         val tournamentMatches = mutableListOf<TournamentMatch>()
         val startMatches = pairings.map { pairing ->
             TournamentMatch(
@@ -142,6 +164,10 @@ class StandardKoStrategy(
         tournamentMatches.addAll(startMatches)
         tournamentMatches.appendSubsequentKoRounds(tournamentId, event, startRound, startMatches.size)
         return tournamentMatches
+    }
+
+    companion object {
+        val STANDARD_32_PLAYER_SEED_POSITIONS: List<Int> = BracketGenerator.BRACKET_SEED_ORDER_16
     }
 }
 
