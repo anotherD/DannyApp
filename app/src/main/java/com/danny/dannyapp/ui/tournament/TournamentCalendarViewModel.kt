@@ -25,9 +25,11 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+data class SimulationProgress(val current: Int, val total: Int, val tournamentName: String)
+
 sealed interface TournamentCalendarState {
     object Loading : TournamentCalendarState
-    data class Success(val seasonId: Long, val tournaments: List<TournamentUiModel>, val simulatingTournamentId: Long? = null) : TournamentCalendarState
+    data class Success(val seasonId: Long, val tournaments: List<TournamentUiModel>, val simulationProgress: SimulationProgress? = null) : TournamentCalendarState
     data class Error(val message: String) : TournamentCalendarState
 }
 
@@ -44,7 +46,7 @@ class TournamentCalendarViewModel(application: Application) : AndroidViewModel(a
     private val tournamentProgressionUseCase = application.appContainer.tournamentProgressionUseCase
     private val getTournamentSummaryUseCase = application.appContainer.getTournamentSummaryUseCase
 
-    private val _simulatingTournamentId = MutableStateFlow<Long?>(null)
+    private val _simulationProgress = MutableStateFlow<SimulationProgress?>(null)
 
     private val _uiState = MutableStateFlow<TournamentCalendarState>(TournamentCalendarState.Loading)
     val uiState: StateFlow<TournamentCalendarState> = _uiState.asStateFlow()
@@ -72,10 +74,10 @@ class TournamentCalendarViewModel(application: Application) : AndroidViewModel(a
                     tournamentRepository.getTournamentsForSeason(season.id),
                     tournamentRepository.getMatchesFlowForSeason(season.id),
                     tournamentRepository.getPlacementsFlowForSeasons(listOf(season.id)),
-                    _simulatingTournamentId
-                ) { tournaments, matches, placements, simulatingId ->
+                    _simulationProgress
+                ) { tournaments, matches, placements, simulationProgress ->
                     val uiModels = buildTournamentUiModels(tournaments, matches, placements, allPlayers, careerWithProfile)
-                    TournamentCalendarState.Success(season.id, uiModels, simulatingId)
+                    TournamentCalendarState.Success(season.id, uiModels, simulationProgress)
                 }.collect { state ->
                     _uiState.value = state
                 }
@@ -170,23 +172,20 @@ class TournamentCalendarViewModel(application: Application) : AndroidViewModel(a
     }
 
     /**
-     * Simuliert ein komplettes Turnier bis zum Ende.
+     * Simuliert alle Turniere einer Saison bis einschließlich zum angegebenen Zielturnier.
      */
-    fun simulateCompleteTournament(tournamentId: Long) {
-        if (_simulatingTournamentId.value != null) return
+    fun simulateUpToTournament(targetTournamentId: Long) {
+        if (_simulationProgress.value != null) return
         viewModelScope.launch {
-            _simulatingTournamentId.value = tournamentId
+            _simulationProgress.value = SimulationProgress(1, 1, "")
             try {
-                withContext(Dispatchers.IO) {
-                    val tournament = tournamentRepository.getTournamentById(tournamentId)
-                    if (tournament.isCompleted) return@withContext
-
-                    tournamentProgressionUseCase.simulateCompleteTournament(tournamentId)
+                tournamentProgressionUseCase.simulateSeasonUpToTournament(targetTournamentId) { current, total, name ->
+                    _simulationProgress.value = SimulationProgress(current, total, name)
                 }
             } catch (e: Exception) {
-                getApplication<Application>().appContainer.reportError("Turnier simulieren", e)
+                getApplication<Application>().appContainer.reportError("Saison simulieren", e)
             } finally {
-                _simulatingTournamentId.value = null
+                _simulationProgress.value = null
             }
         }
     }

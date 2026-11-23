@@ -108,7 +108,8 @@ class CareerOverviewFragment : Fragment(R.layout.fragment_career_overview) {
                             if (targetModel != null) {
                                 tvNoActiveTournament.visibility = View.GONE
                                 containerActiveTournament.visibility = View.VISIBLE
-                                bindActiveTournament(containerActiveTournament, targetModel, state.simulatingTournamentId)
+                                val isSimulating = state.simulationProgress != null
+                                bindActiveTournament(containerActiveTournament, targetModel, if (isSimulating) targetModel.tournament.id else null)
                             } else {
                                 containerActiveTournament.removeAllViews()
                                 containerActiveTournament.visibility = View.GONE
@@ -190,7 +191,7 @@ class CareerOverviewFragment : Fragment(R.layout.fragment_career_overview) {
             },
             onSimulateCompleteClick = { uiModel ->
                 viewLifecycleOwner.lifecycleScope.launch {
-                    calendarViewModel.simulateCompleteTournament(uiModel.tournament.id)
+                    calendarViewModel.simulateUpToTournament(uiModel.tournament.id)
                 }
             },
             simulatingTournamentId = simulatingTournamentId

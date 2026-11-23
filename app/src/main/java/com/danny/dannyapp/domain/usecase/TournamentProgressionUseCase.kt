@@ -80,4 +80,29 @@ class TournamentProgressionUseCase(
         }
         return@withContext true
     }
+
+    /**
+     * Simuliert alle nicht abgeschlossenen Turniere einer Saison chronologisch bis einschließlich zum angegebenen Zielturnier.
+     *
+     * @param targetTournamentId ID des Zielturniers, bis zu dem simuliert werden soll.
+     * @param onProgress Callback für Fortschritts-Updates (aktueller Index, Gesamtanzahl, Name des Turniers).
+     */
+    suspend fun simulateSeasonUpToTournament(
+        targetTournamentId: Long,
+        onProgress: suspend (currentIndex: Int, totalCount: Int, tournamentName: String) -> Unit
+    ) = withContext(Dispatchers.IO) {
+        val targetTournament = tournamentRepository.getTournamentById(targetTournamentId)
+        val seasonTournaments = tournamentRepository.getTournamentsListForSeason(targetTournament.seasonId)
+        val toSimulate = seasonTournaments
+            .filter { !it.isCompleted && it.order <= targetTournament.order }
+            .sortedBy { it.order }
+
+        if (toSimulate.isEmpty()) return@withContext
+
+        for (index in 0 until toSimulate.size) {
+            val tournament = toSimulate[index]
+            onProgress(index + 1, toSimulate.size, tournament.name)
+            simulateCompleteTournament(tournament.id)
+        }
+    }
 }

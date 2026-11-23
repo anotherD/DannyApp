@@ -121,6 +121,8 @@
     <string name="player_with_seed_right">%1$s (%2$d)</string>
     <string name="qualifier_winners_header">Qualifier-Gewinner:</string>
     <string name="simulating_tournament">Turnier wird simuliert…</string>
+    <string name="simulating_season_progress_format">Simuliere Turnier %1$d/%2$d:\n%3$s</string>
+    <string name="cd_simulate_up_to_here">Bis hier simulieren</string>
     <string name="draw_after_round_info">Auslosung nach Abschluss von %1$s</string>
     <string name="season_format">Saison %d</string>
     <string name="breadcrumb_career_season_format">Karrieren > %1$s (Saison %2$d)</string>

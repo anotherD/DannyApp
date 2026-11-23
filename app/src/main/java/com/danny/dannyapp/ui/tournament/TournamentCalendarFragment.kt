@@ -64,7 +64,7 @@ class TournamentCalendarFragment : Fragment(R.layout.fragment_tournament_calenda
             },
             onSimulateCompleteClick = { model ->
                 viewLifecycleOwner.lifecycleScope.launch {
-                    viewModel.simulateCompleteTournament(model.tournament.id)
+                    viewModel.simulateUpToTournament(model.tournament.id)
                 }
             }
         )
@@ -88,7 +88,7 @@ class TournamentCalendarFragment : Fragment(R.layout.fragment_tournament_calenda
                             rvTournaments.visibility = RecyclerView.GONE
                         }
                         is TournamentCalendarState.Success -> {
-                            adapter.simulatingTournamentId = state.simulatingTournamentId
+                            adapter.simulatingTournamentId = if (state.simulationProgress != null) -1L else null
                             adapter.submitList(state.tournaments) {
                                 if (!hasScrolledToActive && state.tournaments.isNotEmpty()) {
                                     val targetIndex = state.tournaments.indexOfFirst { it.status == TournamentStatus.ACTIVE || it.isNextPlanned }
