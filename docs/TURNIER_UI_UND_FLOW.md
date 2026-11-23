@@ -24,7 +24,7 @@ Dieses Dokument beschreibt die Benutzeroberfläche und den Interaktions-Flow fü
     * **Abgeschlossen:** Zeigt bei Einzelsieger-Turnieren den Turniersieger an. Bei Multi-Sieger-Qualifiern (`QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIFIER_WM`) steht im Kalender nur *„Abgeschlossen“* ohne Einzel-Pokal und ohne Gewinnerliste (diese wird erst im Turnier-Rückblick gezeigt).
     * **Aktiv:** Zeigt die aktuell laufende Turnierrunde an.
     * **Geplant:** Das nächste anstehende Turnier bietet den Button **„Turnier starten“**.
-* **Debug-Funktion:** Bei aktiviertem Debug-Modus steht am aktiven bzw. nächsten Turnier der Button **„Turnier simulieren“** zur Verfügung.
+* **Debug-Funktion:** Bei aktiviertem Debug-Modus steht an jedem nicht abgeschlossenen Turnier ein kompakter Fast-Forward-Button (`⏩`) zur Verfügung, der alle offenen Turniere der Saison chronologisch bis einschließlich zum gewählten Turnier mit Fortschritts-Overlay durchsimuliert.
 
 ---
 
