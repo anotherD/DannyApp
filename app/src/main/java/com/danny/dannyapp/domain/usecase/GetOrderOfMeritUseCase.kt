@@ -50,13 +50,15 @@ class GetOrderOfMeritUseCase(
         }.thenByDescending { it.order }
             .thenByDescending { it.id }
 
-        val oomTournaments = allTournaments.groupBy { it.name }
+        val startedOrCompletedTournaments = allTournaments.filter { it.isCompleted || it.currentRound != null }
+
+        val oomTournaments = startedOrCompletedTournaments.groupBy { it.name }
             .flatMap { (_, tournaments) ->
                 tournaments.sortedWith(tournamentChronologicalDescendingComparator).take(2)
             }
             .sortedWith(tournamentChronologicalDescendingComparator)
 
-        val ptOomTournaments = allTournaments.filter {
+        val ptOomTournaments = startedOrCompletedTournaments.filter {
             val tournamentType = it.type.uppercase()
             tournamentType.contains("PLAYERS_CHAMPIONSHIP") || tournamentType.contains("EUROPEAN_TOUR")
         }.groupBy { it.name }

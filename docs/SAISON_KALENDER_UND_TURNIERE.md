@@ -611,10 +611,14 @@ Das System führt getrennte, dynamische Ranglisten, basierend auf den kumulierte
 
 Alle Ranglisten errechnen sich aus den Preisgeldern (`TournamentPlacement.prize_money`) der in dieser Karriere gespielten Turniere (inklusive der optional beim Karrierestart importierten historischen Vor-Saisons `-1` und `0` aus `initial_placements.csv`; Details siehe [SAISON_LOGIK.md](SAISON_LOGIK.md#21-optionale-initiale-order-of-merit-karrierestart)).
 
-1. **Order of Merit:** Kürzel: "OOM". Preisgelder aller Ranking-Turniere der letzten zwei Jahre. Das heißt, die jüngsten zwei Austragungen jedes Turniers werden berücksichtigt (saisonübergreifend).
-2. **Pro Tour Order of Merit:** Kürzel: "PT OOM". Preisgeld aus `PLAYERS_CHAMPIONSHIP` und `EUROPEAN_TOUR`. Nur die jüngsten Austragungen jedes Turniers werden berücksichtigt (saisonübergreifend, 1-Jahres-Fenster).
+1. **Order of Merit:** Kürzel: "OOM". Preisgelder aller Ranking-Turniere der letzten zwei Jahre. Das heißt, die jüngsten zwei bereits gestarteten oder abgeschlossenen Austragungen jedes Turniers werden berücksichtigt (saisonübergreifend).
+2. **Pro Tour Order of Merit:** Kürzel: "PT OOM". Preisgeld aus `PLAYERS_CHAMPIONSHIP` und `EUROPEAN_TOUR`. Nur die jüngste bereits gestartete oder abgeschlossene Austragung jedes Turniers wird berücksichtigt (saisonübergreifend, 1-Jahres-Fenster).
 3. **Players Championship Order of Merit:** Kürzel: "PC OOM". Ausschließlich Preisgelder aus `PLAYERS_CHAMPIONSHIP` der aktuellen Saison.
 4. **European Tour Order of Merit:** Kürzel: "ET OOM". Ausschließlich Preisgelder aus `EUROPEAN_TOUR` der aktuellen Saison.
+
+#### Zeitpunkt des Preisgeld-Verfalls (Live-OOM vs. Stichtag)
+* **Offizielle PDC-Regel:** In den offiziellen Ranglisten der PDC verfällt das zu verteidigende Preisgeld einer Vorjahres-Austragung erst nach Abschluss des Turniers; für Qualifikations- und Setzlisten-Stichtage zählt stets der offizielle Stand der bereits abgeschlossenen Turniere.
+* **Abbildung in der App (Live-OOM):** Da immer nur ein Turnier gleichzeitig aktiv sein darf, stimmt für jede Qualifikation und jeden Qualifier-Start vor Turnierbeginn automatisch die offizielle Rangliste. Sobald ein Turnier in der App gestartet wird (`currentRound != null`), werden die garantierten Einstiegspreisgelder gebucht und die ältere Austragung fällt aus dem rollierenden Fenster (`OOM` / `PT OOM`), sodass die Ranglisten während eines laufenden Turniers den Live-Stand anzeigen.
 
 #### Gleichstands-Regelung (PDC Countback Rule, Section 3.2)
 Haben zwei oder mehr Spieler exakt dasselbe Preisgeld in einer Rangliste, entscheidet **nicht** der Spielstärke-Wert oder der Name, sondern die offizielle PDC-Countback-Regel:
