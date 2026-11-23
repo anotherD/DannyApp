@@ -65,8 +65,15 @@ class TournamentProgressionUseCase(
             }
 
             val updatedState = advanceTournamentRoundUseCase.evaluateTournamentState(tournamentId)
+            val hasNewPlayableMatchesInRound = tournamentRepository.getMatchesListForTournament(tournamentId).any {
+                it.round == activeRound.name && !it.isCompleted && (it.player1Id > 0L || it.player1Id == USER_ID) && (it.player2Id > 0L || it.player2Id == USER_ID)
+            }
+
             if (updatedState != null && updatedState.canAdvanceRound) {
                 advanceTournamentRoundUseCase(tournamentId)
+            } else if (hasNewPlayableMatchesInRound) {
+                // Continue loop to simulate newly unlocked matches in the same round (e.g., Grand Slam of Darts group stage days 2/3)
+                continue
             } else {
                 val openMatches = tournamentRepository.getMatchesListForTournament(tournamentId)
                     .count { it.round == activeRound.name && !it.isCompleted }
