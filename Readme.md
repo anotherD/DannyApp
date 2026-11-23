@@ -32,7 +32,7 @@ Ausführliche Fachkonzepte, Forschungsberichte und Architekturbeschreibungen bef
 
 ### ✅ Bereits umgesetzt
 - [x] **Scolia Hardware-Sensor:** WebView mit WebSocket-Proxy, Tracking-Blocker, JSON-Parser & Event-Logger (`scolia_events.log`).
-- [x] **Stammdaten & Profile:** User-Profile anlegen/bearbeiten/löschen, CSV-Spielerimport (`players.csv`), Spieler-Übersicht.
+- [x] **Stammdaten & Profile:** User-Profile anlegen/bearbeiten/löschen, CSV-Spielerimport (`darts_rankings.csv`), Spieler-Übersicht.
 - [x] **Karriere & Saison-Basis:** Karrieren anlegen, 128er-Tour-Card-Vergabe für Saison 1 (`USER_ID = -1L`), Room DB.
 - [x] **Turnier-Engine & Kalender (2027):** Zentrale JSON-Konfiguration (`season_calendar_2027.json`) für alle Saisonturniere (PC, ET, Majors & TCH-Qualifier), Auslosung, Runden-Progression, Preisgeld-Ausnahmen & 4 dynamische Orders of Merit.
 - [x] **Turnier- & Ranglisten-UI:** Saisonkalender, Ranglisten-Ansicht mit 4 dynamischen Ranglisten, Turnieransicht (Vorschau, Aktiv, Rückblick) inkl. Test-Modi.
@@ -80,7 +80,7 @@ Ausführliche Fachkonzepte, Forschungsberichte und Architekturbeschreibungen bef
 ## 🚀 Geplante Ausbaustufen (Roadmap)
 
 ### 1. Realismus, Simulation & Karrieretiefe
-- [ ] **Initiale Order of Merit (Karrierestart):** Checkbox beim Anlegen einer Karriere (Standard: aktiv), um mit realen `players.csv`-Preisgeldern zu starten und Vorjahrespreisgelder (`yeartodate2025`) über die Saison hinweg anteilig (mit Major-Gewichtung) abzuschmelzen.
+- [ ] **Initiale Order of Merit (Karrierestart):** Checkbox beim Anlegen einer Karriere (Standard: aktiv), um mit realen `darts_rankings.csv`-Preisgeldern zu starten und Vorjahrespreisgelder (`yeartodate2025`) über die Saison hinweg anteilig (mit Major-Gewichtung) abzuschmelzen.
 - [ ] **Erweiterte Simulations-Anzeige (Konfigurierbar):**
     - [ ] Im Simulations-Overlay anzeigen, welche Runde gerade simuliert wird (in den Einstellungen ein-/ausschaltbar).
     - [ ] Optionale(Settings) Live-Simulation der CPU-Matches: Match wird markiert, Ergebnis poppt auf, konfigurierbare Wartezeit (z. B. 1–3 Sekunden oder deaktivierbar), weiter zum nächsten Match.
@@ -106,7 +106,7 @@ Ausführliche Fachkonzepte, Forschungsberichte und Architekturbeschreibungen bef
 
 ---
 
-## 📊 CSV-Spielerdatenbank & Updates (`players.csv`)
+## 📊 CSV-Spielerdatenbank & Updates (`darts_rankings.csv`)
 
-Die App importiert beim ersten Start die Spielerdaten aus `app/src/main/assets/players.csv` in die lokale Room-Datenbank.
-- 💡 **Anleitung für Updates:** Wie du `players.csv` aktualisiert und die `CURRENT_CSV_VERSION` in `AppDatabase.kt` anpasst, findest du direkt in der [System-Architektur & Datenmodell Dokumentation (Abschnitt 3.1)](docs/ARCHITEKTUR.md#31-anleitung-so-führst-du-ein-update-der-spielerdaten-durch).
+Die App importiert beim ersten Start die Spielerdaten aus `app/src/main/assets/darts_rankings.csv` und  `app/src/main/assets/initial_placements.csv` in die lokale Room-Datenbank.
+- 💡 **Anleitung für Updates:** Wie du die CSV Dateien aktualisiert und die `CURRENT_CSV_VERSION` in `AppDatabase.kt` anpasst, findest du direkt in der [System-Architektur & Datenmodell Dokumentation (Abschnitt 3.1)](docs/ARCHITEKTUR.md#31-anleitung-so-führst-du-ein-update-der-spielerdaten-durch).

@@ -176,7 +176,7 @@ abstract class AppDatabase : RoomDatabase() {
                         val playerCount = getDatabase(context).playerDao().getPlayerCount()
 
                         if (lastSyncedVersion < CURRENT_CSV_VERSION || playerCount == 0) {
-                            val playersFromCsv = loadPlayersFromAssets(context, "players.csv")
+                            val playersFromCsv = loadPlayersFromAssets(context, "darts_rankings.csv")
                             if (playersFromCsv.isNotEmpty()) {
                                 getDatabase(context).playerDao().syncPlayersFromCsv(playersFromCsv)
                                 prefs.edit { putInt(KEY_CSV_DATA_VERSION, CURRENT_CSV_VERSION) }

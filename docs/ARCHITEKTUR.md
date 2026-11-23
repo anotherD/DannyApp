@@ -45,12 +45,12 @@ Die App folgt dem **Model-View-ViewModel (MVVM)** Muster mit **Kotlin Coroutines
 
 ## 🔄 3. CSV-Spielerimport & Synchronisation
 
-* Stammdaten der CPU-Spieler liegen in `app/src/main/assets/players.csv`, historische Einzelergebnisse der letzten 24 Monate in `app/src/main/assets/initial_placements.csv` (erzeugt durch `scripts/downloadOOMasCSV.py` als reiner Rohdaten-Fetcher ohne App-Mapping-Logik).
+* Stammdaten der CPU-Spieler liegen in `app/src/main/assets/darts_rankings.csv`, historische Einzelergebnisse der letzten 24 Monate in `app/src/main/assets/initial_placements.csv` (erzeugt durch `scripts/downloadOOMasCSV.py` als reiner Rohdaten-Fetcher ohne App-Mapping-Logik).
 * Beim ersten Start oder bei Erhöhung von `CURRENT_CSV_VERSION` in `AppDatabase.kt` führt `syncPlayersFromCsv` neue Spieler hinzu und aktualisiert bestehende Stammdaten, ohne deren Datenbank-ID zu verändern.
 * Beim Anlegen einer neuen Karriere mit aktiver Option *„Order of Merit vorbefüllen“* importiert die App `initial_placements.csv` in zwei abgeschlossene historische Vor-Saisons (`seasonNumber = -1` und `0`) und übernimmt das Turnier-Mapping sowie den anteiligen Preisgeld-Fallback für Spieler ohne Detailseite.
 
 ### 3.1 Anleitung: Update der Spielerdaten durchführen
-Wenn du `players.csv` in den Assets bearbeitest:
+Wenn du `initial_placements.csv` in den Assets bearbeitest:
 
 1. Öffne `app/src/main/java/com/danny/dannyapp/data/db/AppDatabase.kt`.
 2. Erhöhe die Konstante `CURRENT_CSV_VERSION` um `1`:

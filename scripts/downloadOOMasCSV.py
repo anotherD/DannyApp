@@ -14,6 +14,12 @@ placements_csv_filename = "initial_placements.csv"
 players_data = defaultdict(dict)
 suffixList = []
 
+# Spieler, zu denen keine Nation gefunden werden konnte, werden hier als Manuelles Mapping ergänzt
+MANUAL_COUNTRY_OVERRIDES = {
+    "Michael Rosenauer": "DEU",
+    "Levente Sarai": "HUN",
+}
+
 # Nur die wenigen Darts-/Sport-Sonderfälle, die vom reinen ISO-3-Code abweichen
 # Ich arbeite intern mit ISO-codes. damit die Landesflaggen-icons und convertierungen und Namensanzeogen korrekt sind !!
 SPORT_OVERRIDES = {
@@ -220,7 +226,7 @@ try:
                     player_name = cols[1].text.strip()
                     row_classes = row.get("class") or []
 
-                    if player_name:
+                    if player_name and player_name in players_data:
                         # Jeder Spieler OHNE 'notourcard' besitzt aktuell eine Tour Card
                         if "notourcard" not in row_classes:
                             found_count += 1
@@ -491,6 +497,10 @@ with requests.Session() as session:
             if not_counting_years and event_date.startswith("2026.01") and "world championship" in raw_tournament.lower():
                 continue
 
+            money_k = parse_money_in_thousands(raw_money, f"{name} | {event_date} | {raw_tournament}")
+            if money_k is None:
+                continue
+
             player_sum_k += money_k
             if money_k > 0.0:
                 player_entries.append((name, event_date, raw_tournament, round(money_k * 1000.0, 2)))
@@ -529,7 +539,7 @@ with open(csv_filename, mode="w", newline="", encoding="utf-8") as file:
             index,
             name,
             data.get("country", ""),
-            data.get("tour_card_year", ""),
+            data.get("tour_card_year", 0),
             *[data.get(suffix, "0") for suffix in suffixList],
             data.get("skillLevel", 1),
         ]
