@@ -347,8 +347,9 @@ class AdvanceTournamentRoundUseCase(
         val tournament = tournamentRepository.getTournamentById(match.tournamentId)
         val event = TournamentEvent.valueOf(tournament.type)
         val strategy = TournamentRuleStrategyRegistry.getStrategy(event)
+        val allMatches = tournamentRepository.getMatchesListForTournament(match.tournamentId)
         val winnerId = requireNotNull(match.winnerId) { "Abgeschlossenes Match ${match.id} hat keinen winnerId" }
-        val roundSequence = event.getRoundSequence()
+        val roundSequence = QualificationHelper.getRoundSequence(event, allMatches)
         val currentRoundEnum = TournamentRound.valueOf(match.round)
 
         if (strategy.awardsPrizeMoneyAndPlacements && currentRoundEnum != TournamentRound.GROUP) {
@@ -373,8 +374,6 @@ class AdvanceTournamentRoundUseCase(
         if (event == TournamentEvent.UK_OPEN || event == TournamentEvent.EUROPEAN_OPEN) {
             return@withContext
         }
-
-        val allMatches = tournamentRepository.getMatchesListForTournament(match.tournamentId)
 
         if (event == TournamentEvent.GRAND_SLAM_OF_DARTS && match.round == TournamentRound.GROUP.name && match.matchIndex in 0..15) {
             val groupIdx = match.matchIndex
