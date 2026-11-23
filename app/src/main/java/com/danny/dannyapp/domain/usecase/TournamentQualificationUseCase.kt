@@ -53,7 +53,9 @@ data class QualifierFieldSplit(
     val prelimPlayers: List<Long>,
     val byePlayers: List<Long>,
     val seedCount: Int
-)
+) {
+    val directR1Players: List<Long> get() = byePlayers
+}
 
 /**
  * Strukturiertes Ergebnis der Qualifikations- und Teilnehmerpool-Ermittlung

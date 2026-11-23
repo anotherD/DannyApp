@@ -391,29 +391,25 @@ class AdvanceTournamentRoundUseCase(
             return@withContext
         }
 
-        if (match.round == TournamentRound.QUAL_PRELIM.name) {
-            val qualR1Matches = allMatches.filter { it.round == TournamentRound.QUAL_R1.name }
-            val placeholderId = -1000L - match.matchIndex
-            var matchedAny = false
-            for (qualMatch in qualR1Matches) {
-                var updated = qualMatch
-                var changed = false
-                if (qualMatch.player1Id == placeholderId) {
-                    updated = updated.copy(player1Id = winnerId)
-                    changed = true
-                }
-                if (qualMatch.player2Id == placeholderId) {
-                    updated = updated.copy(player2Id = winnerId)
-                    changed = true
-                }
-                if (changed) {
-                    tournamentRepository.updateMatch(updated)
-                    matchedAny = true
-                }
+        if (currentRoundEnum == TournamentRound.QUAL_PRELIM) {
+            val r1Matches = allMatches.filter { it.round == TournamentRound.QUAL_R1.name }
+            val prelimMatches = allMatches.filter { it.round == TournamentRound.QUAL_PRELIM.name }
+
+            val directR1PlayerCount = (r1Matches.size * 2) - prelimMatches.size
+            val targetSlot = directR1PlayerCount + match.matchIndex
+            val targetMatchIndex = targetSlot / 2
+            val putIntoPlayer1 = (targetSlot % 2 == 0)
+
+            val targetMatch = requireNotNull(r1Matches.find { it.matchIndex == targetMatchIndex }) {
+                "QUAL_R1 Match mit Index $targetMatchIndex für Vorrundensieger $winnerId (Prelim Match ${match.matchIndex}) nicht gefunden"
             }
-            check(matchedAny) {
-                "Vorrundensieger $winnerId für Match ${match.matchIndex} (Placeholder $placeholderId) wurde in keinem QUAL_R1-Match eingetragen"
+
+            val updatedMatch = if (putIntoPlayer1) {
+                targetMatch.copy(player1Id = winnerId)
+            } else {
+                targetMatch.copy(player2Id = winnerId)
             }
+            tournamentRepository.updateMatch(updatedMatch)
             return@withContext
         }
 

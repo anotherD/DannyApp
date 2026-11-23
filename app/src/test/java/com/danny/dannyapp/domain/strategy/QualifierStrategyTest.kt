@@ -1,7 +1,6 @@
 package com.danny.dannyapp.domain.strategy
 
 import com.danny.dannyapp.data.db.PLACEHOLDER_OPEN_DRAW_ID
-import com.danny.dannyapp.data.db.TournamentMatch
 import com.danny.dannyapp.domain.enums.TournamentEvent
 import com.danny.dannyapp.domain.enums.TournamentRound
 import com.danny.dannyapp.domain.usecase.QualifierFieldSplit
@@ -22,31 +21,25 @@ class QualifierStrategyTest {
             boardCount = 2,
             boardSizePerBoard = 8,
             prelimPlayers = emptyList(),
-            byePlayers = listOf(1L, 2L, 3L, 4L),
+            byePlayers = listOf(
+                100L, PLACEHOLDER_OPEN_DRAW_ID,
+                PLACEHOLDER_OPEN_DRAW_ID, 101L,
+                102L, 103L,
+                104L, 105L,
+                106L, 107L,
+                108L, 109L,
+                110L, 111L,
+                112L, 113L
+            ),
             seedCount = 4
         )
 
         val qualResult = TournamentQualificationResult(qualifierFieldSplit = split)
 
-        // 8 R1 matches total (4 per board)
-        // Match 0: even matchIndex -> player2 is PLACEHOLDER_OPEN_DRAW_ID
-        // Match 1: odd matchIndex -> player1 is PLACEHOLDER_OPEN_DRAW_ID
-        // Match 2: normal match
-        val r1Matches = listOf(
-            TournamentMatch(tournamentId = 1L, round = TournamentRound.QUAL_R1.name, matchIndex = 0, player1Id = 100L, player2Id = PLACEHOLDER_OPEN_DRAW_ID),
-            TournamentMatch(tournamentId = 1L, round = TournamentRound.QUAL_R1.name, matchIndex = 1, player1Id = PLACEHOLDER_OPEN_DRAW_ID, player2Id = 101L),
-            TournamentMatch(tournamentId = 1L, round = TournamentRound.QUAL_R1.name, matchIndex = 2, player1Id = 102L, player2Id = 103L),
-            TournamentMatch(tournamentId = 1L, round = TournamentRound.QUAL_R1.name, matchIndex = 3, player1Id = 104L, player2Id = 105L),
-            TournamentMatch(tournamentId = 1L, round = TournamentRound.QUAL_R1.name, matchIndex = 4, player1Id = 106L, player2Id = 107L),
-            TournamentMatch(tournamentId = 1L, round = TournamentRound.QUAL_R1.name, matchIndex = 5, player1Id = 108L, player2Id = 109L),
-            TournamentMatch(tournamentId = 1L, round = TournamentRound.QUAL_R1.name, matchIndex = 6, player1Id = 110L, player2Id = 111L),
-            TournamentMatch(tournamentId = 1L, round = TournamentRound.QUAL_R1.name, matchIndex = 7, player1Id = 112L, player2Id = 113L)
-        )
-
         val matches = strategy.buildInitialMatches(
             tournamentId = 1L,
             qualResult = qualResult,
-            createQualifierMatches = { _, _ -> Pair(emptyList(), r1Matches) }
+            createQualifierMatches = { _, _ -> Pair(emptyList(), emptyList()) }
         )
 
         // Verify Match 0 (R1, index 0)
@@ -71,5 +64,46 @@ class QualifierStrategyTest {
         val r2m0 = matches.first { it.round == TournamentRound.QUAL_R2.name && it.matchIndex == 0 }
         assertEquals(100L, r2m0.player1Id)
         assertEquals(101L, r2m0.player2Id)
+    }
+
+    @Test
+    fun `buildInitialMatches creates correct match count and placeholders for odd prelim matches`() {
+        val strategy = QualifierStrategy(TournamentEvent.QUALIFIER_GRAND_SLAM)
+
+        // 25 direct R1 players, 6 prelim players (3 prelim matches -> odd number)
+        val split = QualifierFieldSplit(
+            preQualifiedIds = emptyList(),
+            nonPrequalifiedIds = emptyList(),
+            boardCount = 4,
+            boardSizePerBoard = 8,
+            prelimPlayers = listOf(1L, 2L, 3L, 4L, 5L, 6L),
+            byePlayers = (101L..125L).toList(),
+            seedCount = 8
+        )
+
+        val qualResult = TournamentQualificationResult(qualifierFieldSplit = split)
+
+        val matches = strategy.buildInitialMatches(
+            tournamentId = 1L,
+            qualResult = qualResult,
+            createQualifierMatches = { _, _ -> Pair(emptyList(), emptyList()) }
+        )
+
+        val prelimMatches = matches.filter { it.round == TournamentRound.QUAL_PRELIM.name }
+        assertEquals(3, prelimMatches.size)
+
+        val r1Matches = matches.filter { it.round == TournamentRound.QUAL_R1.name }
+        // totalR1Slots = 25 + 3 = 28 -> 14 R1 matches
+        assertEquals(14, r1Matches.size)
+
+        // Match 12 has player1 = 125L, player2 = PLACEHOLDER_PREVIOUS_WINNER_ID
+        val m12 = r1Matches.first { it.matchIndex == 12 }
+        assertEquals(125L, m12.player1Id)
+        assertEquals(com.danny.dannyapp.data.db.PLACEHOLDER_PREVIOUS_WINNER_ID, m12.player2Id)
+
+        // Match 13 has both players = PLACEHOLDER_PREVIOUS_WINNER_ID
+        val m13 = r1Matches.first { it.matchIndex == 13 }
+        assertEquals(com.danny.dannyapp.data.db.PLACEHOLDER_PREVIOUS_WINNER_ID, m13.player1Id)
+        assertEquals(com.danny.dannyapp.data.db.PLACEHOLDER_PREVIOUS_WINNER_ID, m13.player2Id)
     }
 }
