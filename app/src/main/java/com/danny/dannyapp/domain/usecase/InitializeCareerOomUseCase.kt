@@ -154,8 +154,8 @@ class InitializeCareerOomUseCase(
 
         for (seasonTournaments in seasonsWithTournaments) {
             val rankingTournaments = seasonTournaments.filter { t ->
-                val event = runCatching { TournamentEvent.valueOf(t.type) }.getOrNull()
-                event != null && !event.isQualifier && event.effectiveTotalPrizeFund > 0.0
+                val event = TournamentEvent.valueOf(t.type)
+                !event.isQualifier && event.effectiveTotalPrizeFund > 0.0
             }
             val totalWeight = rankingTournaments.sumOf { t ->
                 TournamentEvent.valueOf(t.type).effectiveTotalPrizeFund

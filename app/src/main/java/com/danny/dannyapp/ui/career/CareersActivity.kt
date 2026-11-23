@@ -175,6 +175,7 @@ class CareersActivity : BaseActivity() {
 
         val autoCompleteMatchDistance = dialogView.findViewById<AutoCompleteTextView>(R.id.autoCompleteMatchDistance)
         val btnMatchDistanceInfo = dialogView.findViewById<android.widget.ImageView>(R.id.btnMatchDistanceInfo)
+        val cbPrefillOom = dialogView.findViewById<com.google.android.material.checkbox.MaterialCheckBox>(R.id.cbPrefillOom)
 
         val matchDistancePresets = MatchDistancePreset.entries
         var selectedMatchDistancePreset = MatchDistancePreset.DEFAULT
@@ -225,6 +226,7 @@ class CareersActivity : BaseActivity() {
                     UIHelper.showSnackbar(dialog.window!!.decorView, getString(R.string.careers_create_error_empty_profile), isError = true)
                 } else {
                     val level = numberPickerLevel.value
+                    val prefillOom = cbPrefillOom.isChecked
                     val newCareer = Career(
                         name = careerName,
                         level = level,
@@ -232,7 +234,7 @@ class CareersActivity : BaseActivity() {
                         matchDistancePreset = selectedMatchDistancePreset.name
                     )
                     lifecycleScope.launch {
-                        when (val result = viewModel.saveCareer(newCareer)) {
+                        when (val result = viewModel.saveCareer(newCareer, prefillOom)) {
                             is SaveCareerResult.Success -> {
                                 showMessage(getString(R.string.careers_career_created, result.careerName, result.level))
                                 dialog.dismiss()

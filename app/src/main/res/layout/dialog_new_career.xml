@@ -102,4 +102,12 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
+    <com.google.android.material.checkbox.MaterialCheckBox
+        android:id="@+id/cbPrefillOom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/careers_create_prefill_oom"
+        android:checked="true" />
+
 </LinearLayout>
