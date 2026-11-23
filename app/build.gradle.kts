@@ -32,6 +32,14 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
+    testOptions {
+        unitTests.all {
+            if (!project.hasProperty("runSimTest")) {
+                it.exclude("**/FullSeasonSimulationTest*")
+            }
+        }
+    }
 }
 
 kotlin {
