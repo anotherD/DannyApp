@@ -573,8 +573,7 @@ Das System führt getrennte, dynamische Ranglisten, basierend auf den kumulierte
 
 ### 3.1 Die 4 Ranglisten
 
-Alle Ranglisten errechnen sich aus den Preisgeldern (`TournamentPlacement.prize_money`) der in dieser Karriere gespielten Turniere.
-Der Stammdatenwert `players.prizeMoney` wird aktuell nicht verwendet (kann in einer späteren Ausbaustufe optional als historischer Startwert vor Karrierebeginn dienen).
+Alle Ranglisten errechnen sich aus den Preisgeldern (`TournamentPlacement.prize_money`) der in dieser Karriere gespielten Turniere (inklusive der optional beim Karrierestart importierten historischen Vor-Saisons `-1` und `0` aus `initial_placements.csv`; Details siehe [SAISON_LOGIK.md](SAISON_LOGIK.md#21-optionale-initiale-order-of-merit-karrierestart)).
 
 1. **Order of Merit:** Kürzel: "OOM". Preisgelder aller Ranking-Turniere der letzten zwei Jahre. Das heißt, die jüngsten zwei Austragungen jedes Turniers werden berücksichtigt (saisonübergreifend).
 2. **Pro Tour Order of Merit:** Kürzel: "PT OOM". Preisgeld aus `PLAYERS_CHAMPIONSHIP` und `EUROPEAN_TOUR`. Nur die jüngsten Austragungen jedes Turniers werden berücksichtigt (saisonübergreifend, 1-Jahres-Fenster).

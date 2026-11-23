@@ -5,10 +5,12 @@ import re
 import time
 import random
 
+from urllib.parse import urlparse, parse_qs
 from bs4 import BeautifulSoup
 from collections import defaultdict
 
 csv_filename = "darts_rankings.csv"
+placements_csv_filename = "initial_placements.csv"
 players_data = defaultdict(dict)
 suffixList = []
 
@@ -36,6 +38,7 @@ SPORT_OVERRIDES = {
     "uae": "ARE",
     "bah": "BHS",
     "crc": "CRI",
+}
 
 #    "de": "DEU",   # ISO wäre DEU
 #    "nl": "NED",   # ISO wäre NLD
@@ -55,22 +58,48 @@ SPORT_OVERRIDES = {
 #    "bs": "BAH",   # ISO wäre BHS
 #    "cr": "CRC",   # ISO wäre CRI
 #    "gi": "GIB",   # ISO wäre GIB (gleich)
-}
+
 def normalize_country_code(raw_code):
     code = raw_code.strip().lower()
     if not code:
         return ""
-    
+
     # 1. Prüfen, ob ein Darts-Sonderkürzel vorliegt (z. B. GB-ENG -> ENG, DE -> DEU)
     if code in SPORT_OVERRIDES:
         return SPORT_OVERRIDES[code]
-    
+
     # 2. Alle übrigen ~240 Länder automatisch über offiziellen ISO-Standard (Alpha-2 -> Alpha-3)
     country = pycountry.countries.get(alpha_2=code.upper())
     if country:
         return country.alpha_3
-        
+
     return code.upper()
+
+
+def extract_player_id(cell):
+    link = cell.find("a", href=True)
+    if not link:
+        return None
+    href = link["href"]
+    parsed = urlparse(href)
+    query_params = parse_qs(parsed.query)
+    player_ids = query_params.get("p")
+    if player_ids and player_ids[0].isdigit():
+        return int(player_ids[0])
+    match = re.search(r"[?&]p=(\d+)", href)
+    return int(match.group(1)) if match else None
+
+
+def parse_money_in_thousands(raw_text, context_label=""):
+    cleaned = raw_text.strip().replace(",", "")
+    if not cleaned or cleaned in ("-", "–", "—"):
+        return None
+    try:
+        return float(cleaned)
+    except (ValueError, TypeError) as e:
+        print(f"  WARNUNG: Preisgeld-Wert '{raw_text.strip()}' konnte nicht geparst werden ({context_label}): {e}")
+        return None
+
 
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
@@ -88,44 +117,46 @@ for url in URLS:
     # Erzeugt dynamisch das Suffix ("price_money", "yeartodate2025", "yeartodate2026")
     suffix = url.split("/")[-1] if url.split("/")[-1] else "price_money"
     suffixList.append(suffix)
-    
+
     print(f"  Lade Daten von {url}...")
     try:
         response = requests.get(url, headers=headers, timeout=10)
     except requests.exceptions.RequestException as e:
         print(f"  Netzwerkfehler bei {url}: {e}\n")
         continue
-    
+
     if response.status_code == 200:
         soup = BeautifulSoup(response.text, "html.parser")
         table = soup.find("table")
-        
+
         if table:
             rows = table.find_all("tr")
-            
+
             for row in rows[1:]:
                 cols = row.find_all("td")
                 if not cols:
                     continue
-                
+
                 # Hauptseite: Hat meistens 4 oder mehr Spalten (Rk, +/-, Name, Prize Money...)
                 if len(cols) >= 4:
-                    name = cols[2].text.strip()
+                    name_col = cols[2]
+                    name = name_col.text.strip()
                     prize_money = cols[3].text.strip()
-                
                 # Year-to-Date Seite: Hat nur 3 Spalten (Rk, Name, Prize Money)
                 elif len(cols) == 3:
-                    name = cols[1].text.strip()
+                    name_col = cols[1]
+                    name = name_col.text.strip()
                     prize_money = cols[2].text.strip()
                 else:
                     continue  # Überspringt Zeilen, die gar nicht passen
-                
+
                 # Validierung, damit keine Header oder reinen Zahlen-Zeilen reinrutschen
                 if name and not name.replace('.', '', 1).isdigit():
-                    try:
-                        players_data[name][suffix] = float(prize_money)
-                    except (ValueError, TypeError):
-                        players_data[name][suffix] = 0.0
+                    parsed_money = parse_money_in_thousands(prize_money, f"{name} @ {suffix}")
+                    players_data[name][suffix] = parsed_money if parsed_money is not None else 0.0
+                    player_id = extract_player_id(name_col)
+                    if player_id is not None and "dartsrankings_id" not in players_data[name]:
+                        players_data[name]["dartsrankings_id"] = player_id
 
         else:
             print(f"  Fehler: Keine Tabelle auf {url} gefunden.\n")
@@ -155,7 +186,7 @@ SKILL_THRESHOLDS = [
 for index, (name, data) in enumerate(players_data.items(), start=1):
     # Findet das erste passende Level; falls index > 104, wird 1 genommen
     data["skillLevel"] = next(
-        (level for limit, level in SKILL_THRESHOLDS if index <= limit), 
+        (level for limit, level in SKILL_THRESHOLDS if index <= limit),
         1
     )
 
@@ -164,8 +195,8 @@ for index, (name, data) in enumerate(players_data.items(), start=1):
 tc_url = "https://www.dartsrankings.com/postwch"
 print(f"\nErmittle Tour Card Status aus {tc_url}")
 
-found_count = 0;
-found_count_first = 0;
+found_count = 0
+found_count_first = 0
 try:
     tc_resp = requests.get(tc_url, headers=headers, timeout=10)
     if tc_resp.status_code == 200:
@@ -177,16 +208,16 @@ try:
                 if len(cols) >= 2:
                     player_name = cols[1].text.strip()
                     row_classes = row.get("class") or []
-                    
+
                     if player_name:
                         # Jeder Spieler OHNE 'notourcard' besitzt aktuell eine Tour Card
                         if "notourcard" not in row_classes:
-                            found_count+=1
+                            found_count += 1
 
                             # Spieler im ersten Jahr der 2-Jahres-Tourkarte merken
                             if "twoyear" in row_classes:
                                 players_data[player_name]["tour_card_year"] = 1
-                                found_count_first+=1
+                                found_count_first += 1
                             else:
                                 players_data[player_name]["tour_card_year"] = 2
 except requests.exceptions.RequestException as e:
@@ -206,13 +237,13 @@ try:
         for row in wc_soup.find_all("tr"):
             name_span = row.find("span", class_="playername")
             flag_img = row.find("img", class_="flag")
-            
+
             if name_span and flag_img:
                 p_name = name_span.text.strip()
                 p_nation = flag_img.get("alt", "").strip()
                 if p_name and p_nation and p_name in players_data:
                     players_data[p_name]["country"] = normalize_country_code(p_nation)
-                    found_count+=1;
+                    found_count += 1
 except requests.exceptions.RequestException as e:
     print(f"  Fehler beim Laden der Nationen: {e}")
 
@@ -227,9 +258,11 @@ api_headers = {
     "Referer": "https://dartslytics.com"
 }
 
+
 def make_slug(text):
     # Entfernt Sonderzeichen/Apostrophe und vereinheitlicht Leerzeichen/Bindestriche
     return re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")
+
 
 found_count = 0
 players_mapping = {}          # Exakter Key: "Luke Littler"
@@ -246,7 +279,7 @@ try:
         with open(backup_filename, mode="w", newline="", encoding="utf-8") as backup_file:
             backup_writer = csv.writer(backup_file, delimiter=";")
             backup_writer.writerow(["id", "first_name", "last_name", "full_name", "slug", "country_raw", "country_iso"])
-            
+
             for player_id, info in raw_mapping.items():
                 first = (info.get("first_name") or "").strip()
                 last = (info.get("last_name") or "").strip()
@@ -254,9 +287,9 @@ try:
                 slug = (info.get("slug") or "").strip()
                 raw_code = (info.get("country") or "").strip()
                 iso_code = normalize_country_code(raw_code) if raw_code else ""
-                
+
                 backup_writer.writerow([player_id, first, last, full_name, slug, raw_code, iso_code])
-                
+
         print(f"  Backup gespeichert in '{backup_filename}' ({len(raw_mapping)} Einträge).")
 
         # Dictionary aufbauen: {"Luke Littler": {"first_name": ..., "country": "GB-ENG"}, ...}
@@ -266,13 +299,11 @@ try:
             full_name = f"{first} {last}".strip()
             slug = (info.get("slug") or make_slug(full_name)).strip().lower()
 
-           
             if full_name:
                 players_mapping[full_name] = info
                 players_mapping_lower[full_name.lower()] = info
             if slug:
                 players_mapping_slug[slug] = info
-
 
         # Fehlende Nationen in 3 Stufen zuordnen
         for name, data in players_data.items():
@@ -280,15 +311,15 @@ try:
                 continue
             # Stufe 1: Exakter Treffer ("Vorname Nachname")
             info = players_mapping.get(name)
-            
+
             # Stufe 2: Groß-/Kleinschreibung ignorieren ("McDonald" vs "Mcdonald")
             if not info:
                 info = players_mapping_lower.get(name.lower())
-                
+
             # Stufe 3: Abgleich über normalisierten Slug ("O'Connor" vs "O Connor")
             if not info:
                 info = players_mapping_slug.get(make_slug(name))
-            
+
             if info:
                 raw_code = (info.get("country") or "").strip()
                 if raw_code:
@@ -306,14 +337,13 @@ missing = [name for name, data in players_data.items() if not data.get("country"
 if missing:
     print(f"Noch ohne Nation ({len(missing)}): {', '.join(missing)}")
 
-
-
-###########################
+### Falls der sammellink nicht funktioniert, kann man die spieler hier einzelnd abrufen.
+### Ggf. auch interessant für weitere Daten z.B. Geburtsdatum
 #found_count = 0
 # Eine Session hält die Verbindung offen (schont den Server)
 #with requests.Session() as session:
 #    session.headers.update(api_headers)
-#  
+#
 #    for name, data in players_data.items():
 #        if data.get("country"):
 #            continue
@@ -333,7 +363,7 @@ if missing:
 #                    found_count += 1
 #                else:
 #                    print(f"Warnung für {name} ({slug}): JSON-Key 'player.country' fehlt oder ist leer.")
-#                    
+#
 #            elif r.status_code in (429, 403):
 #                print(f"ABBRUCH: Rate-Limit oder Blockierung (Status {r.status_code}) bei {name}! Breche weitere API-Abfragen ab.")
 #                break
@@ -346,16 +376,116 @@ if missing:
 #        time.sleep(random.uniform(0.3, 0.7))
 #print(f"Fehlende Nationen zugeordnet: {found_count}")
 
+
+# 6. Historische Einzelturniere von /breakdown?oom=big&p=<id>&sort=asc abrufen (reine Rohdaten)
+print(f"\nLade historische Order-of-Merit-Breakdowns von dartsrankings.com ...")
+breakdown_rows = []
+warnings_list = []
+
+with requests.Session() as session:
+    session.headers.update(headers)
+
+    for rank_index, (name, data) in enumerate(players_data.items(), start=1):
+        expected_total_k = float(data.get("price_money", 0.0))
+        dr_id = data.get("dartsrankings_id")
+
+        if not dr_id:
+            if expected_total_k > 0.0:
+                msg = f"Rang #{rank_index} {name} (£{expected_total_k * 1000:,.0f}): Keine Detailseiten-ID (?p=) gefunden."
+                warnings_list.append(msg)
+                print(f"  WARNUNG: {msg}")
+            continue
+
+        bd_url = f"https://www.dartsrankings.com/breakdown?oom=big&p={dr_id}&sort=asc"
+        try:
+            bd_resp = session.get(bd_url, timeout=10)
+        except requests.exceptions.RequestException as e:
+            msg = f"Rang #{rank_index} {name} (p={dr_id}): Netzwerkfehler beim Laden des Breakdowns: {e}"
+            warnings_list.append(msg)
+            print(f"  WARNUNG: {msg}")
+            time.sleep(random.uniform(0.35, 0.75))
+            continue
+
+        if bd_resp.status_code in (429, 403):
+            msg = f"ABBRUCH bei Rang #{rank_index} {name} (p={dr_id}): HTTP-Status {bd_resp.status_code} (Rate-Limit/Blockierung)."
+            warnings_list.append(msg)
+            print(f"  {msg}")
+            break
+
+        if bd_resp.status_code != 200:
+            msg = f"Rang #{rank_index} {name} (p={dr_id}): Detailseite lieferte HTTP-Status {bd_resp.status_code}."
+            warnings_list.append(msg)
+            print(f"  WARNUNG: {msg}")
+            time.sleep(random.uniform(0.35, 0.75))
+            continue
+
+        bd_soup = BeautifulSoup(bd_resp.text, "html.parser")
+        bd_table = bd_soup.find("table")
+        if not bd_table:
+            if expected_total_k > 0.0:
+                msg = f"Rang #{rank_index} {name} (p={dr_id}, £{expected_total_k * 1000:,.0f}): Keine Tabelle auf Detailseite gefunden."
+                warnings_list.append(msg)
+                print(f"  WARNUNG: {msg}")
+            time.sleep(random.uniform(0.35, 0.75))
+            continue
+
+        player_sum_k = 0.0
+        player_entries = []
+
+        for row in bd_table.find_all("tr"):
+            row_text = row.get_text(" ", strip=True).lower()
+            # Stoppe vor den historischen/zukünftigen Sektionen ("Recently dropped" / "Upcoming events")
+            if "recently dropped" in row_text or "upcoming events" in row_text:
+                break
+
+            cols = row.find_all("td")
+            if len(cols) < 3:
+                continue
+
+            event_date = cols[0].text.strip()
+            raw_tournament = cols[1].text.strip()
+            raw_money = cols[2].text.strip()
+
+            # Nur echte Datumszeilen (z. B. 2025.01.03 oder 2025-01-03) verarbeiten
+            if not re.match(r"^\d{4}[.-]\d{2}[.-]\d{2}$", event_date):
+                continue
+
+            money_k = parse_money_in_thousands(raw_money, f"{name} | {event_date} | {raw_tournament}")
+            if money_k is None:
+                continue
+
+            player_sum_k += money_k
+            if money_k > 0.0:
+                player_entries.append((name, event_date, raw_tournament, round(money_k * 1000.0, 2)))
+
+        if abs(player_sum_k - expected_total_k) > 0.01:
+            msg = (
+                f"Rang #{rank_index} {name} (p={dr_id}): Breakdown-Summe (£{player_sum_k * 1000:,.0f}) "
+                f"weicht von Haupttabelle (£{expected_total_k * 1000:,.0f}) ab."
+            )
+            warnings_list.append(msg)
+            print(f"  WARNUNG: {msg}")
+
+        breakdown_rows.extend(player_entries)
+        time.sleep(random.uniform(0.35, 0.75))
+
+print(f"Breakdown-Einträge geladen: {len(breakdown_rows)}")
+if warnings_list:
+    print(f"\n=== ZUSAMMENFASSUNG WARNUNGEN ({len(warnings_list)}) ===")
+    for w in warnings_list:
+        print(f"  - {w}")
+
+
 # 10. CSV schreiben
 print(f"\nSpeichere alle Daten in '{csv_filename}'...")
 
 with open(csv_filename, mode="w", newline="", encoding="utf-8") as file:
     writer = csv.writer(file, delimiter=";")
-    
+
     # Header schreiben
     header_row = ["rank", "name", "country", "tour_card_year"] + suffixList + ["skill_level"]
     writer.writerow(header_row)
-    
+
     # Zeilen für jeden Spieler schreiben
     for index, (name, data) in enumerate(players_data.items(), start=1):
         row = [
@@ -365,7 +495,14 @@ with open(csv_filename, mode="w", newline="", encoding="utf-8") as file:
             data.get("tour_card_year", ""),
             *[data.get(suffix, "0") for suffix in suffixList],
             data.get("skillLevel", 1),
-        ]    
+        ]
         writer.writerow(row)
+
+print(f"Speichere historische Rohdaten in '{placements_csv_filename}'...")
+with open(placements_csv_filename, mode="w", newline="", encoding="utf-8") as p_file:
+    p_writer = csv.writer(p_file, delimiter=";")
+    p_writer.writerow(["player_name", "date", "raw_tournament_name", "prize_money"])
+    for entry in breakdown_rows:
+        p_writer.writerow(entry)
 
 print("Fertig!")
