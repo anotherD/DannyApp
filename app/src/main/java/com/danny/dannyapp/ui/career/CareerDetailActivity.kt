@@ -1,6 +1,9 @@
 package com.danny.dannyapp.ui.career
 
 import android.os.Bundle
+import android.view.View
+import android.widget.TextView
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -9,6 +12,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.danny.dannyapp.R
 import com.danny.dannyapp.ui.BaseActivity
 import com.danny.dannyapp.ui.oom.OrderOfMeritViewModel
+import com.danny.dannyapp.ui.tournament.TournamentCalendarState
 import com.danny.dannyapp.ui.tournament.TournamentCalendarViewModel
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
@@ -22,6 +26,8 @@ class CareerDetailActivity : BaseActivity() {
 
     private lateinit var tabLayoutCareer: TabLayout
     private lateinit var viewPagerCareer: ViewPager2
+    private lateinit var layoutCareerSimulatingOverlay: View
+    private lateinit var tvCareerSimulationProgress: TextView
 
     private var careerId: Long = -1L
     private var careerName: String = ""
@@ -40,6 +46,8 @@ class CareerDetailActivity : BaseActivity() {
 
         tabLayoutCareer = findViewById(R.id.tabLayoutCareer)
         viewPagerCareer = findViewById(R.id.viewPagerCareer)
+        layoutCareerSimulatingOverlay = findViewById(R.id.layoutCareerSimulatingOverlay)
+        tvCareerSimulationProgress = findViewById(R.id.tvCareerSimulationProgress)
 
         viewPagerCareer.adapter = CareerDetailPagerAdapter(this, careerId, careerName)
 
@@ -52,6 +60,13 @@ class CareerDetailActivity : BaseActivity() {
         TabLayoutMediator(tabLayoutCareer, viewPagerCareer) { tab, position ->
             tab.text = titles.getOrElse(position) { "" }
         }.attach()
+
+        val simulationBackPressedCallback = object : OnBackPressedCallback(false) {
+            override fun handleOnBackPressed() {
+                // Block back navigation during active simulation
+            }
+        }
+        onBackPressedDispatcher.addCallback(this, simulationBackPressedCallback)
 
         setupViewPagerBackToHome(viewPagerCareer)
 
@@ -82,6 +97,28 @@ class CareerDetailActivity : BaseActivity() {
                                 )
                             }
                             else -> {}
+                        }
+                    }
+                }
+                launch {
+                    calendarViewModel.uiState.collect { state ->
+                        if (state is TournamentCalendarState.Success) {
+                            val progress = state.simulationProgress
+                            val simulating = progress != null
+                            layoutCareerSimulatingOverlay.visibility = if (simulating) View.VISIBLE else View.GONE
+                            simulationBackPressedCallback.isEnabled = simulating
+                            if (progress != null) {
+                                if (progress.tournamentName.isNotBlank()) {
+                                    tvCareerSimulationProgress.text = getString(
+                                        R.string.simulating_season_progress_format,
+                                        progress.current,
+                                        progress.total,
+                                        progress.tournamentName
+                                    )
+                                } else {
+                                    tvCareerSimulationProgress.text = getString(R.string.simulating_tournament)
+                                }
+                            }
                         }
                     }
                 }

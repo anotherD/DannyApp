@@ -15,6 +15,7 @@ import com.danny.dannyapp.ui.UIHelper
 import com.danny.dannyapp.ui.enums.TournamentStatus
 import com.danny.dannyapp.ui.model.PlayerUiInfo
 import com.danny.dannyapp.ui.model.TournamentUiModel
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 
 object TournamentUiHelper {
@@ -213,7 +214,7 @@ object TournamentUiHelper {
         val tvTournamentStatus: TextView = itemView.findViewById(R.id.tvTournamentStatus)
         val tvTournamentDetails: TextView = itemView.findViewById(R.id.tvTournamentDetails)
         val btnStartTournament: Button = itemView.findViewById(R.id.btnStartTournament)
-        val btnSimulateCompleteTournament: Button = itemView.findViewById(R.id.btnSimulateCompleteTournament)
+        val btnSimulateCompleteTournament: MaterialButton = itemView.findViewById(R.id.btnSimulateCompleteTournament)
 
         tvTournamentName.text = context.getString(R.string.tournament_order_name_format, tournament.order, tournament.name)
 
@@ -249,7 +250,6 @@ object TournamentUiHelper {
         }
 
         val isSimulatingAny = simulatingTournamentId != null
-        val isThisSimulating = simulatingTournamentId == tournament.id
 
         if (model.status == TournamentStatus.PLANNED && model.isNextPlanned) {
             btnStartTournament.visibility = View.VISIBLE
@@ -260,15 +260,10 @@ object TournamentUiHelper {
         }
 
         val debugMode = context.appContainer.settingsManager.debugMode
-        val isEligibleForQuickSim = debugMode && (model.status == TournamentStatus.ACTIVE || (model.status == TournamentStatus.PLANNED && model.isNextPlanned))
+        val isEligibleForQuickSim = debugMode && model.status != TournamentStatus.COMPLETED
         if (isEligibleForQuickSim) {
             btnSimulateCompleteTournament.visibility = View.VISIBLE
             btnSimulateCompleteTournament.isEnabled = !isSimulatingAny
-            if (isThisSimulating) {
-                btnSimulateCompleteTournament.text = context.getString(R.string.simulating_short)
-            } else {
-                btnSimulateCompleteTournament.text = context.getString(R.string.tournament_simulate_complete)
-            }
             btnSimulateCompleteTournament.setOnClickListener { if (!isSimulatingAny) onSimulateCompleteClick(model) }
         } else {
             btnSimulateCompleteTournament.visibility = View.GONE
