@@ -340,34 +340,7 @@ class QualifierStrategy(
         val split = qualResult.qualifierFieldSplit
             ?: throw IllegalStateException("QualifierFieldSplit missing for qualifier tournament $tournamentId")
 
-        val prelimMatchCount = split.prelimPlayers.size / 2
-        val prelimMatches = (0 until prelimMatchCount).map { matchIndex ->
-            TournamentMatch(
-                tournamentId = tournamentId,
-                round = TournamentRound.QUAL_PRELIM.name,
-                matchIndex = matchIndex,
-                player1Id = split.prelimPlayers[matchIndex],
-                player2Id = split.prelimPlayers[2 * prelimMatchCount - 1 - matchIndex]
-            )
-        }
-
-        val totalR1Slots = split.directR1Players.size + prelimMatchCount
-        val r1MatchCount = totalR1Slots / 2
-        val r1Matches = (0 until r1MatchCount).map { matchIndex ->
-            val slot1 = 2 * matchIndex
-            val slot2 = 2 * matchIndex + 1
-
-            val p1 = if (slot1 < split.directR1Players.size) split.directR1Players[slot1] else PLACEHOLDER_PREVIOUS_WINNER_ID
-            val p2 = if (slot2 < split.directR1Players.size) split.directR1Players[slot2] else PLACEHOLDER_PREVIOUS_WINNER_ID
-
-            TournamentMatch(
-                tournamentId = tournamentId,
-                round = TournamentRound.QUAL_R1.name,
-                matchIndex = matchIndex,
-                player1Id = p1,
-                player2Id = p2
-            )
-        }
+        val (prelimMatches, r1Matches) = createQualifierMatches(tournamentId, split)
 
         val processedR1Matches = r1Matches.map { match ->
             if (match.player2Id == PLACEHOLDER_OPEN_DRAW_ID && match.player1Id != PLACEHOLDER_OPEN_DRAW_ID && match.player1Id != PLACEHOLDER_PREVIOUS_WINNER_ID) {
