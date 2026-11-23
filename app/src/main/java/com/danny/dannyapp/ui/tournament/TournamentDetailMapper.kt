@@ -170,15 +170,6 @@ object TournamentDetailMapper {
         preset: MatchDistancePreset = MatchDistancePreset.DEFAULT
     ): List<PrizeMoneyItem> {
         val reversedSequence = sequence.reversed()
-        val winnerPrize = event.getRankingPrizeMoney(TournamentRound.WINNER)
-        val winnerPrizeText = if (winnerPrize > 0) "£%,d".format(Locale.US, winnerPrize.toLong()) else "£0"
-        val winnerDistance = event.getMatchDistance(TournamentRound.F, preset)
-        val winnerItem = PrizeMoneyItem(
-            roundName = TournamentUiHelper.getDisplayRoundName(TournamentRound.WINNER.name, context),
-            matchDistanceText = formatMatchDistance(context, winnerDistance),
-            prizeMoneyText = winnerPrizeText
-        )
-
         val roundItems = reversedSequence.map { round ->
             val prize = event.getRankingPrizeMoney(round)
             val prizeText = if (prize > 0) "£%,d".format(Locale.US, prize.toLong()) else "£0"
@@ -189,6 +180,18 @@ object TournamentDetailMapper {
                 prizeMoneyText = prizeText
             )
         }
+        if (event.isQualifier) {
+            return roundItems
+        }
+
+        val winnerPrize = event.getRankingPrizeMoney(TournamentRound.WINNER)
+        val winnerPrizeText = if (winnerPrize > 0) "£%,d".format(Locale.US, winnerPrize.toLong()) else "£0"
+        val winnerDistance = event.getMatchDistance(TournamentRound.F, preset)
+        val winnerItem = PrizeMoneyItem(
+            roundName = TournamentUiHelper.getDisplayRoundName(TournamentRound.WINNER.name, context),
+            matchDistanceText = formatMatchDistance(context, winnerDistance),
+            prizeMoneyText = winnerPrizeText
+        )
         return listOf(winnerItem) + roundItems
     }
 

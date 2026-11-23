@@ -417,6 +417,10 @@ class AdvanceTournamentRoundUseCase(
             return@withContext
         }
 
+        if (currentRoundEnum == TournamentRound.F || currentRoundEnum == TournamentRound.QUAL_FINAL) {
+            return@withContext
+        }
+
         val currentIdx = roundSequence.indexOf(currentRoundEnum)
         check(currentIdx in 0 until roundSequence.lastIndex) {
             "Keine Folgerunde für Match ${match.id} (Runde $currentRoundEnum, Index $currentIdx in $event)"
