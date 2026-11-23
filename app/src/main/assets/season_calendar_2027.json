@@ -16,46 +16,186 @@
       },
       "distances": {
         "L128": {
-          "bestOf": 11,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 11,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 9,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 5,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 3,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         },
         "L64": {
-          "bestOf": 11,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 11,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 9,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 5,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 3,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         },
         "L32": {
-          "bestOf": 11,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 11,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 9,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 5,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 3,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         },
         "L16": {
-          "bestOf": 11,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 11,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 9,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 5,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 3,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         },
         "QF": {
-          "bestOf": 11,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 11,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 9,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 5,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 3,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         },
         "SF": {
-          "bestOf": 13,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 13,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 9,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 7,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 3,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         },
         "F": {
-          "bestOf": 15,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 15,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 11,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 7,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 3,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         }
       }
     },
@@ -72,40 +212,160 @@
       },
       "distances": {
         "L48": {
-          "bestOf": 11,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 11,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 9,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 5,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 3,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         },
         "L32": {
-          "bestOf": 11,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 11,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 9,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 5,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 3,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         },
         "L16": {
-          "bestOf": 11,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 11,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 9,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 5,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 3,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         },
         "QF": {
-          "bestOf": 11,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 11,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 9,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 5,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 3,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         },
         "SF": {
-          "bestOf": 13,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 13,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 9,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 7,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 3,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         },
         "F": {
-          "bestOf": 15,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 15,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 11,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 7,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 3,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         }
       }
     },
@@ -125,58 +385,238 @@
       },
       "distances": {
         "R1_160": {
-          "bestOf": 11,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 11,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 9,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 5,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 3,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         },
         "R2_128": {
-          "bestOf": 11,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 11,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 9,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 5,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 3,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         },
         "R3_96": {
-          "bestOf": 11,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 11,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 9,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 5,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 3,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         },
         "L64": {
-          "bestOf": 19,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 19,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 15,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 9,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 5,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         },
         "L32": {
-          "bestOf": 19,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 19,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 15,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 9,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 5,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         },
         "L16": {
-          "bestOf": 19,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 19,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 15,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 9,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 5,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         },
         "QF": {
-          "bestOf": 19,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 19,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 15,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 9,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 5,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         },
         "SF": {
-          "bestOf": 21,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 21,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 15,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 11,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 5,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         },
         "F": {
-          "bestOf": 21,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 21,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 15,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 11,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 5,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         }
       }
     },
@@ -196,58 +636,238 @@
       },
       "distances": {
         "R1_160": {
-          "bestOf": 11,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 11,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 9,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 5,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 3,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         },
         "R2_128": {
-          "bestOf": 11,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 11,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 9,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 5,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 3,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         },
         "R3_96": {
-          "bestOf": 11,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 11,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 9,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 5,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 3,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         },
         "L64": {
-          "bestOf": 19,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 19,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 15,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 9,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 5,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         },
         "L32": {
-          "bestOf": 19,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 19,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 15,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 9,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 5,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         },
         "L16": {
-          "bestOf": 19,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 19,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 15,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 9,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 5,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         },
         "QF": {
-          "bestOf": 19,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 19,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 15,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 9,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 5,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         },
         "SF": {
-          "bestOf": 21,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 21,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 15,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 11,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 5,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         },
         "F": {
-          "bestOf": 21,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 21,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 15,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 11,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 5,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         }
       }
     },
@@ -263,34 +883,134 @@
       },
       "distances": {
         "L32": {
-          "bestOf": 19,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": true
+          "ORIGINAL": {
+            "bestOf": 19,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": true
+          },
+          "SHORTENED": {
+            "bestOf": 15,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": true
+          },
+          "COMPACT": {
+            "bestOf": 9,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": true
+          },
+          "RAPID": {
+            "bestOf": 5,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": true
+          }
         },
         "L16": {
-          "bestOf": 21,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": true
+          "ORIGINAL": {
+            "bestOf": 21,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": true
+          },
+          "SHORTENED": {
+            "bestOf": 15,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": true
+          },
+          "COMPACT": {
+            "bestOf": 11,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": true
+          },
+          "RAPID": {
+            "bestOf": 5,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": true
+          }
         },
         "QF": {
-          "bestOf": 31,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": true
+          "ORIGINAL": {
+            "bestOf": 31,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": true
+          },
+          "SHORTENED": {
+            "bestOf": 23,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": true
+          },
+          "COMPACT": {
+            "bestOf": 15,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": true
+          },
+          "RAPID": {
+            "bestOf": 7,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": true
+          }
         },
         "SF": {
-          "bestOf": 33,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": true
+          "ORIGINAL": {
+            "bestOf": 33,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": true
+          },
+          "SHORTENED": {
+            "bestOf": 25,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": true
+          },
+          "COMPACT": {
+            "bestOf": 17,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": true
+          },
+          "RAPID": {
+            "bestOf": 9,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": true
+          }
         },
         "F": {
-          "bestOf": 35,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": true
+          "ORIGINAL": {
+            "bestOf": 35,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": true
+          },
+          "SHORTENED": {
+            "bestOf": 27,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": true
+          },
+          "COMPACT": {
+            "bestOf": 17,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": true
+          },
+          "RAPID": {
+            "bestOf": 9,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": true
+          }
         }
       }
     },
@@ -306,34 +1026,134 @@
       },
       "distances": {
         "L32": {
-          "bestOf": 3,
-          "format": "SETS_DOUBLE_IN_OUT",
-          "legsPerSet": 3,
-          "twoClearLegsRule": true
+          "ORIGINAL": {
+            "bestOf": 3,
+            "format": "SETS_DOUBLE_IN_OUT",
+            "legsPerSet": 5,
+            "twoClearLegsRule": true
+          },
+          "SHORTENED": {
+            "bestOf": 3,
+            "format": "SETS_DOUBLE_IN_OUT",
+            "legsPerSet": 5,
+            "twoClearLegsRule": true
+          },
+          "COMPACT": {
+            "bestOf": 3,
+            "format": "SETS_DOUBLE_IN_OUT",
+            "legsPerSet": 3,
+            "twoClearLegsRule": true
+          },
+          "RAPID": {
+            "bestOf": 3,
+            "format": "SETS_DOUBLE_IN_OUT",
+            "legsPerSet": 3,
+            "twoClearLegsRule": true
+          }
         },
         "L16": {
-          "bestOf": 5,
-          "format": "SETS_DOUBLE_IN_OUT",
-          "legsPerSet": 3,
-          "twoClearLegsRule": true
+          "ORIGINAL": {
+            "bestOf": 5,
+            "format": "SETS_DOUBLE_IN_OUT",
+            "legsPerSet": 5,
+            "twoClearLegsRule": true
+          },
+          "SHORTENED": {
+            "bestOf": 3,
+            "format": "SETS_DOUBLE_IN_OUT",
+            "legsPerSet": 5,
+            "twoClearLegsRule": true
+          },
+          "COMPACT": {
+            "bestOf": 3,
+            "format": "SETS_DOUBLE_IN_OUT",
+            "legsPerSet": 3,
+            "twoClearLegsRule": true
+          },
+          "RAPID": {
+            "bestOf": 3,
+            "format": "SETS_DOUBLE_IN_OUT",
+            "legsPerSet": 3,
+            "twoClearLegsRule": true
+          }
         },
         "QF": {
-          "bestOf": 5,
-          "format": "SETS_DOUBLE_IN_OUT",
-          "legsPerSet": 3,
-          "twoClearLegsRule": true
+          "ORIGINAL": {
+            "bestOf": 5,
+            "format": "SETS_DOUBLE_IN_OUT",
+            "legsPerSet": 5,
+            "twoClearLegsRule": true
+          },
+          "SHORTENED": {
+            "bestOf": 3,
+            "format": "SETS_DOUBLE_IN_OUT",
+            "legsPerSet": 5,
+            "twoClearLegsRule": true
+          },
+          "COMPACT": {
+            "bestOf": 3,
+            "format": "SETS_DOUBLE_IN_OUT",
+            "legsPerSet": 3,
+            "twoClearLegsRule": true
+          },
+          "RAPID": {
+            "bestOf": 3,
+            "format": "SETS_DOUBLE_IN_OUT",
+            "legsPerSet": 3,
+            "twoClearLegsRule": true
+          }
         },
         "SF": {
-          "bestOf": 9,
-          "format": "SETS_DOUBLE_IN_OUT",
-          "legsPerSet": 3,
-          "twoClearLegsRule": true
+          "ORIGINAL": {
+            "bestOf": 9,
+            "format": "SETS_DOUBLE_IN_OUT",
+            "legsPerSet": 5,
+            "twoClearLegsRule": true
+          },
+          "SHORTENED": {
+            "bestOf": 7,
+            "format": "SETS_DOUBLE_IN_OUT",
+            "legsPerSet": 5,
+            "twoClearLegsRule": true
+          },
+          "COMPACT": {
+            "bestOf": 5,
+            "format": "SETS_DOUBLE_IN_OUT",
+            "legsPerSet": 5,
+            "twoClearLegsRule": true
+          },
+          "RAPID": {
+            "bestOf": 3,
+            "format": "SETS_DOUBLE_IN_OUT",
+            "legsPerSet": 3,
+            "twoClearLegsRule": true
+          }
         },
         "F": {
-          "bestOf": 11,
-          "format": "SETS_DOUBLE_IN_OUT",
-          "legsPerSet": 3,
-          "twoClearLegsRule": true
+          "ORIGINAL": {
+            "bestOf": 11,
+            "format": "SETS_DOUBLE_IN_OUT",
+            "legsPerSet": 5,
+            "twoClearLegsRule": true
+          },
+          "SHORTENED": {
+            "bestOf": 9,
+            "format": "SETS_DOUBLE_IN_OUT",
+            "legsPerSet": 5,
+            "twoClearLegsRule": true
+          },
+          "COMPACT": {
+            "bestOf": 5,
+            "format": "SETS_DOUBLE_IN_OUT",
+            "legsPerSet": 5,
+            "twoClearLegsRule": true
+          },
+          "RAPID": {
+            "bestOf": 3,
+            "format": "SETS_DOUBLE_IN_OUT",
+            "legsPerSet": 3,
+            "twoClearLegsRule": true
+          }
         }
       }
     },
@@ -349,34 +1169,134 @@
       },
       "distances": {
         "L32": {
-          "bestOf": 11,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 11,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 9,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 5,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 3,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         },
         "L16": {
-          "bestOf": 19,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 19,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 15,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 9,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 5,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         },
         "QF": {
-          "bestOf": 19,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 19,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 15,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 9,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 5,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         },
         "SF": {
-          "bestOf": 21,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 21,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 15,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 11,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 5,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         },
         "F": {
-          "bestOf": 21,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 21,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 15,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 11,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 5,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         }
       }
     },
@@ -393,34 +1313,134 @@
       },
       "distances": {
         "GROUP": {
-          "bestOf": 9,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 9,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 7,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 5,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 3,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         },
         "L16": {
-          "bestOf": 19,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 19,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 15,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 9,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 5,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         },
         "QF": {
-          "bestOf": 31,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 31,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 23,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 15,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 7,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         },
         "SF": {
-          "bestOf": 31,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 31,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 23,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 15,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 7,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         },
         "F": {
-          "bestOf": 31,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 31,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 23,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 15,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 7,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         }
       }
     },
@@ -437,40 +1457,160 @@
       },
       "distances": {
         "L64": {
-          "bestOf": 11,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 11,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 9,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 5,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 3,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         },
         "L32": {
-          "bestOf": 11,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 11,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 9,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 5,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 3,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         },
         "L16": {
-          "bestOf": 19,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 19,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 15,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 9,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 5,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         },
         "QF": {
-          "bestOf": 19,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 19,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 15,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 9,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 5,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         },
         "SF": {
-          "bestOf": 21,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 21,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 15,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 11,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 5,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         },
         "F": {
-          "bestOf": 21,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 21,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 15,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 11,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 5,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         }
       }
     },
@@ -488,46 +1628,186 @@
       },
       "distances": {
         "L128": {
-          "bestOf": 5,
-          "format": "SETS_BEST_OF_5_LEGS",
-          "legsPerSet": 5,
-          "twoClearLegsRule": true
+          "ORIGINAL": {
+            "bestOf": 5,
+            "format": "SETS_BEST_OF_5_LEGS",
+            "legsPerSet": 5,
+            "twoClearLegsRule": true
+          },
+          "SHORTENED": {
+            "bestOf": 3,
+            "format": "SETS_BEST_OF_5_LEGS",
+            "legsPerSet": 5,
+            "twoClearLegsRule": true
+          },
+          "COMPACT": {
+            "bestOf": 3,
+            "format": "SETS_BEST_OF_5_LEGS",
+            "legsPerSet": 3,
+            "twoClearLegsRule": true
+          },
+          "RAPID": {
+            "bestOf": 3,
+            "format": "SETS_BEST_OF_5_LEGS",
+            "legsPerSet": 3,
+            "twoClearLegsRule": true
+          }
         },
         "L64": {
-          "bestOf": 5,
-          "format": "SETS_BEST_OF_5_LEGS",
-          "legsPerSet": 5,
-          "twoClearLegsRule": true
+          "ORIGINAL": {
+            "bestOf": 5,
+            "format": "SETS_BEST_OF_5_LEGS",
+            "legsPerSet": 5,
+            "twoClearLegsRule": true
+          },
+          "SHORTENED": {
+            "bestOf": 3,
+            "format": "SETS_BEST_OF_5_LEGS",
+            "legsPerSet": 5,
+            "twoClearLegsRule": true
+          },
+          "COMPACT": {
+            "bestOf": 3,
+            "format": "SETS_BEST_OF_5_LEGS",
+            "legsPerSet": 3,
+            "twoClearLegsRule": true
+          },
+          "RAPID": {
+            "bestOf": 3,
+            "format": "SETS_BEST_OF_5_LEGS",
+            "legsPerSet": 3,
+            "twoClearLegsRule": true
+          }
         },
         "L32": {
-          "bestOf": 7,
-          "format": "SETS_BEST_OF_5_LEGS",
-          "legsPerSet": 5,
-          "twoClearLegsRule": true
+          "ORIGINAL": {
+            "bestOf": 7,
+            "format": "SETS_BEST_OF_5_LEGS",
+            "legsPerSet": 5,
+            "twoClearLegsRule": true
+          },
+          "SHORTENED": {
+            "bestOf": 5,
+            "format": "SETS_BEST_OF_5_LEGS",
+            "legsPerSet": 5,
+            "twoClearLegsRule": true
+          },
+          "COMPACT": {
+            "bestOf": 5,
+            "format": "SETS_BEST_OF_5_LEGS",
+            "legsPerSet": 3,
+            "twoClearLegsRule": true
+          },
+          "RAPID": {
+            "bestOf": 3,
+            "format": "SETS_BEST_OF_5_LEGS",
+            "legsPerSet": 3,
+            "twoClearLegsRule": true
+          }
         },
         "L16": {
-          "bestOf": 7,
-          "format": "SETS_BEST_OF_5_LEGS",
-          "legsPerSet": 5,
-          "twoClearLegsRule": true
+          "ORIGINAL": {
+            "bestOf": 7,
+            "format": "SETS_BEST_OF_5_LEGS",
+            "legsPerSet": 5,
+            "twoClearLegsRule": true
+          },
+          "SHORTENED": {
+            "bestOf": 5,
+            "format": "SETS_BEST_OF_5_LEGS",
+            "legsPerSet": 5,
+            "twoClearLegsRule": true
+          },
+          "COMPACT": {
+            "bestOf": 5,
+            "format": "SETS_BEST_OF_5_LEGS",
+            "legsPerSet": 3,
+            "twoClearLegsRule": true
+          },
+          "RAPID": {
+            "bestOf": 3,
+            "format": "SETS_BEST_OF_5_LEGS",
+            "legsPerSet": 3,
+            "twoClearLegsRule": true
+          }
         },
         "QF": {
-          "bestOf": 9,
-          "format": "SETS_BEST_OF_5_LEGS",
-          "legsPerSet": 5,
-          "twoClearLegsRule": true
+          "ORIGINAL": {
+            "bestOf": 9,
+            "format": "SETS_BEST_OF_5_LEGS",
+            "legsPerSet": 5,
+            "twoClearLegsRule": true
+          },
+          "SHORTENED": {
+            "bestOf": 7,
+            "format": "SETS_BEST_OF_5_LEGS",
+            "legsPerSet": 5,
+            "twoClearLegsRule": true
+          },
+          "COMPACT": {
+            "bestOf": 5,
+            "format": "SETS_BEST_OF_5_LEGS",
+            "legsPerSet": 5,
+            "twoClearLegsRule": true
+          },
+          "RAPID": {
+            "bestOf": 3,
+            "format": "SETS_BEST_OF_5_LEGS",
+            "legsPerSet": 3,
+            "twoClearLegsRule": true
+          }
         },
         "SF": {
-          "bestOf": 11,
-          "format": "SETS_BEST_OF_5_LEGS",
-          "legsPerSet": 5,
-          "twoClearLegsRule": true
+          "ORIGINAL": {
+            "bestOf": 11,
+            "format": "SETS_BEST_OF_5_LEGS",
+            "legsPerSet": 5,
+            "twoClearLegsRule": true
+          },
+          "SHORTENED": {
+            "bestOf": 9,
+            "format": "SETS_BEST_OF_5_LEGS",
+            "legsPerSet": 5,
+            "twoClearLegsRule": true
+          },
+          "COMPACT": {
+            "bestOf": 5,
+            "format": "SETS_BEST_OF_5_LEGS",
+            "legsPerSet": 5,
+            "twoClearLegsRule": true
+          },
+          "RAPID": {
+            "bestOf": 3,
+            "format": "SETS_BEST_OF_5_LEGS",
+            "legsPerSet": 3,
+            "twoClearLegsRule": true
+          }
         },
         "F": {
-          "bestOf": 13,
-          "format": "SETS_BEST_OF_5_LEGS",
-          "legsPerSet": 5,
-          "twoClearLegsRule": true
+          "ORIGINAL": {
+            "bestOf": 13,
+            "format": "SETS_BEST_OF_5_LEGS",
+            "legsPerSet": 5,
+            "twoClearLegsRule": true
+          },
+          "SHORTENED": {
+            "bestOf": 9,
+            "format": "SETS_BEST_OF_5_LEGS",
+            "legsPerSet": 5,
+            "twoClearLegsRule": true
+          },
+          "COMPACT": {
+            "bestOf": 7,
+            "format": "SETS_BEST_OF_5_LEGS",
+            "legsPerSet": 5,
+            "twoClearLegsRule": true
+          },
+          "RAPID": {
+            "bestOf": 3,
+            "format": "SETS_BEST_OF_5_LEGS",
+            "legsPerSet": 3,
+            "twoClearLegsRule": true
+          }
         }
       }
     },
@@ -536,34 +1816,134 @@
       "prizes": {},
       "distances": {
         "QUAL_PRELIM": {
-          "bestOf": 11,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 11,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 9,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 5,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 3,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         },
         "QUAL_R1": {
-          "bestOf": 11,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 11,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 9,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 5,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 3,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         },
         "QUAL_R2": {
-          "bestOf": 11,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 11,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 9,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 5,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 3,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         },
         "QUAL_R3": {
-          "bestOf": 11,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 11,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 9,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 5,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 3,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         },
         "QUAL_FINAL": {
-          "bestOf": 11,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 11,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 9,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 5,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 3,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         }
       }
     },
@@ -572,34 +1952,134 @@
       "prizes": {},
       "distances": {
         "QUAL_PRELIM": {
-          "bestOf": 11,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 11,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 9,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 5,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 3,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         },
         "QUAL_R1": {
-          "bestOf": 11,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 11,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 9,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 5,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 3,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         },
         "QUAL_R2": {
-          "bestOf": 11,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 11,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 9,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 5,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 3,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         },
         "QUAL_R3": {
-          "bestOf": 11,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 11,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 9,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 5,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 3,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         },
         "QUAL_FINAL": {
-          "bestOf": 11,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 11,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 9,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 5,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 3,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         }
       }
     },
@@ -608,34 +2088,134 @@
       "prizes": {},
       "distances": {
         "QUAL_PRELIM": {
-          "bestOf": 11,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 11,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 9,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 5,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 3,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         },
         "QUAL_R1": {
-          "bestOf": 11,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 11,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 9,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 5,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 3,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         },
         "QUAL_R2": {
-          "bestOf": 11,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 11,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 9,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 5,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 3,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         },
         "QUAL_R3": {
-          "bestOf": 11,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 11,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 9,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 5,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 3,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         },
         "QUAL_FINAL": {
-          "bestOf": 11,
-          "format": "LEGS",
-          "legsPerSet": 1,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 11,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 9,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 5,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 3,
+            "format": "LEGS",
+            "legsPerSet": 1,
+            "twoClearLegsRule": false
+          }
         }
       }
     },
@@ -651,34 +2231,134 @@
       },
       "distances": {
         "L32": {
-          "bestOf": 5,
-          "format": "SETS_BEST_OF_3_LEGS",
-          "legsPerSet": 3,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 5,
+            "format": "SETS_BEST_OF_3_LEGS",
+            "legsPerSet": 3,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 3,
+            "format": "SETS_BEST_OF_3_LEGS",
+            "legsPerSet": 3,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 3,
+            "format": "SETS_BEST_OF_3_LEGS",
+            "legsPerSet": 3,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 3,
+            "format": "SETS_BEST_OF_3_LEGS",
+            "legsPerSet": 3,
+            "twoClearLegsRule": false
+          }
         },
         "L16": {
-          "bestOf": 7,
-          "format": "SETS_BEST_OF_3_LEGS",
-          "legsPerSet": 3,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 7,
+            "format": "SETS_BEST_OF_3_LEGS",
+            "legsPerSet": 3,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 5,
+            "format": "SETS_BEST_OF_3_LEGS",
+            "legsPerSet": 3,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 5,
+            "format": "SETS_BEST_OF_3_LEGS",
+            "legsPerSet": 3,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 3,
+            "format": "SETS_BEST_OF_3_LEGS",
+            "legsPerSet": 3,
+            "twoClearLegsRule": false
+          }
         },
         "QF": {
-          "bestOf": 7,
-          "format": "SETS_BEST_OF_3_LEGS",
-          "legsPerSet": 3,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 7,
+            "format": "SETS_BEST_OF_3_LEGS",
+            "legsPerSet": 3,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 5,
+            "format": "SETS_BEST_OF_3_LEGS",
+            "legsPerSet": 3,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 5,
+            "format": "SETS_BEST_OF_3_LEGS",
+            "legsPerSet": 3,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 3,
+            "format": "SETS_BEST_OF_3_LEGS",
+            "legsPerSet": 3,
+            "twoClearLegsRule": false
+          }
         },
         "SF": {
-          "bestOf": 9,
-          "format": "SETS_BEST_OF_3_LEGS",
-          "legsPerSet": 3,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 9,
+            "format": "SETS_BEST_OF_3_LEGS",
+            "legsPerSet": 3,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 7,
+            "format": "SETS_BEST_OF_3_LEGS",
+            "legsPerSet": 3,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 5,
+            "format": "SETS_BEST_OF_3_LEGS",
+            "legsPerSet": 3,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 3,
+            "format": "SETS_BEST_OF_3_LEGS",
+            "legsPerSet": 3,
+            "twoClearLegsRule": false
+          }
         },
         "F": {
-          "bestOf": 11,
-          "format": "SETS_BEST_OF_3_LEGS",
-          "legsPerSet": 3,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 11,
+            "format": "SETS_BEST_OF_3_LEGS",
+            "legsPerSet": 3,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 9,
+            "format": "SETS_BEST_OF_3_LEGS",
+            "legsPerSet": 3,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 7,
+            "format": "SETS_BEST_OF_3_LEGS",
+            "legsPerSet": 3,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 3,
+            "format": "SETS_BEST_OF_3_LEGS",
+            "legsPerSet": 3,
+            "twoClearLegsRule": false
+          }
         }
       }
     },
@@ -687,34 +2367,134 @@
       "prizes": {},
       "distances": {
         "QUAL_PRELIM": {
-          "bestOf": 5,
-          "format": "SETS_BEST_OF_3_LEGS",
-          "legsPerSet": 3,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 5,
+            "format": "SETS_BEST_OF_3_LEGS",
+            "legsPerSet": 3,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 3,
+            "format": "SETS_BEST_OF_3_LEGS",
+            "legsPerSet": 3,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 3,
+            "format": "SETS_BEST_OF_3_LEGS",
+            "legsPerSet": 3,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 3,
+            "format": "SETS_BEST_OF_3_LEGS",
+            "legsPerSet": 3,
+            "twoClearLegsRule": false
+          }
         },
         "QUAL_R1": {
-          "bestOf": 5,
-          "format": "SETS_BEST_OF_3_LEGS",
-          "legsPerSet": 3,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 5,
+            "format": "SETS_BEST_OF_3_LEGS",
+            "legsPerSet": 3,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 3,
+            "format": "SETS_BEST_OF_3_LEGS",
+            "legsPerSet": 3,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 3,
+            "format": "SETS_BEST_OF_3_LEGS",
+            "legsPerSet": 3,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 3,
+            "format": "SETS_BEST_OF_3_LEGS",
+            "legsPerSet": 3,
+            "twoClearLegsRule": false
+          }
         },
         "QUAL_R2": {
-          "bestOf": 5,
-          "format": "SETS_BEST_OF_3_LEGS",
-          "legsPerSet": 3,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 5,
+            "format": "SETS_BEST_OF_3_LEGS",
+            "legsPerSet": 3,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 3,
+            "format": "SETS_BEST_OF_3_LEGS",
+            "legsPerSet": 3,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 3,
+            "format": "SETS_BEST_OF_3_LEGS",
+            "legsPerSet": 3,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 3,
+            "format": "SETS_BEST_OF_3_LEGS",
+            "legsPerSet": 3,
+            "twoClearLegsRule": false
+          }
         },
         "QUAL_R3": {
-          "bestOf": 5,
-          "format": "SETS_BEST_OF_3_LEGS",
-          "legsPerSet": 3,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 5,
+            "format": "SETS_BEST_OF_3_LEGS",
+            "legsPerSet": 3,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 3,
+            "format": "SETS_BEST_OF_3_LEGS",
+            "legsPerSet": 3,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 3,
+            "format": "SETS_BEST_OF_3_LEGS",
+            "legsPerSet": 3,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 3,
+            "format": "SETS_BEST_OF_3_LEGS",
+            "legsPerSet": 3,
+            "twoClearLegsRule": false
+          }
         },
         "QUAL_FINAL": {
-          "bestOf": 5,
-          "format": "SETS_BEST_OF_3_LEGS",
-          "legsPerSet": 3,
-          "twoClearLegsRule": false
+          "ORIGINAL": {
+            "bestOf": 5,
+            "format": "SETS_BEST_OF_3_LEGS",
+            "legsPerSet": 3,
+            "twoClearLegsRule": false
+          },
+          "SHORTENED": {
+            "bestOf": 3,
+            "format": "SETS_BEST_OF_3_LEGS",
+            "legsPerSet": 3,
+            "twoClearLegsRule": false
+          },
+          "COMPACT": {
+            "bestOf": 3,
+            "format": "SETS_BEST_OF_3_LEGS",
+            "legsPerSet": 3,
+            "twoClearLegsRule": false
+          },
+          "RAPID": {
+            "bestOf": 3,
+            "format": "SETS_BEST_OF_3_LEGS",
+            "legsPerSet": 3,
+            "twoClearLegsRule": false
+          }
         }
       }
     }
@@ -730,7 +2510,7 @@
     },
     {
       "order": 2,
-      "name": "Winmau World Masters",
+      "name": "World Masters",
       "type": "WORLD_MASTERS",
       "hostCountry": "ENG",
       "hostCity": "Milton Keynes",
