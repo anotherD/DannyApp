@@ -100,6 +100,7 @@ object CareerDistanceInfoDialog {
     ) : RecyclerView.Adapter<CareerDistancePresetPagerAdapter.PresetViewHolder>() {
 
         private val categories = listOf(
+            TournamentCategoryInfo(R.string.career_distance_category_world_masters, TournamentEvent.WORLD_MASTERS),
             TournamentCategoryInfo(R.string.career_distance_category_players_championship, TournamentEvent.PLAYERS_CHAMPIONSHIP),
             TournamentCategoryInfo(R.string.career_distance_category_european_tour, TournamentEvent.EUROPEAN_TOUR),
             TournamentCategoryInfo(R.string.career_distance_category_qualifier, TournamentEvent.QUALIFIER_ET),

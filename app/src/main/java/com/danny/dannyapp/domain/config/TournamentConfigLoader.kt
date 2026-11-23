@@ -269,6 +269,7 @@ object TournamentConfigLoader {
         }
 
         val majorEvents = listOf(
+            TournamentEvent.WORLD_MASTERS,
             TournamentEvent.UK_OPEN,
             TournamentEvent.EUROPEAN_OPEN,
             TournamentEvent.WORLD_MATCHPLAY,
@@ -331,6 +332,19 @@ object TournamentConfigLoader {
         if (wmQualifiers[0].order >= wmEvent.order) {
             throw IllegalStateException(
                 "QUALIFIER_WM (order=${wmQualifiers[0].order}) muss vor WORLD_CHAMPIONSHIP (order=${wmEvent.order}) stattfinden."
+            )
+        }
+
+        val worldMastersQualifiers = calendar.filter { it.type == TournamentEvent.QUALIFIER_WORLD_MASTERS }
+        if (worldMastersQualifiers.size != 1) {
+            throw IllegalStateException(
+                "Es muss genau einen QUALIFIER_WORLD_MASTERS im Kalender geben, Ist: ${worldMastersQualifiers.size}."
+            )
+        }
+        val worldMastersEvent = calendar.single { it.type == TournamentEvent.WORLD_MASTERS }
+        if (worldMastersQualifiers[0].order >= worldMastersEvent.order) {
+            throw IllegalStateException(
+                "QUALIFIER_WORLD_MASTERS (order=${worldMastersQualifiers[0].order}) muss vor WORLD_MASTERS (order=${worldMastersEvent.order}) stattfinden."
             )
         }
 

@@ -25,6 +25,10 @@ object BracketGenerator {
         dynamicBoardCount: Int? = null
     ): List<MatchPairing> {
         return when (event) {
+            TournamentEvent.WORLD_MASTERS -> generateWorldMastersRound1(
+                top16Oom = oomSortedIds.take(16),
+                unseeded16 = (oomSortedIds.drop(16).take(8) + qualifierIds).take(16)
+            )
             TournamentEvent.WORLD_MATCHPLAY -> generateWorldMatchplayRound1(
                 top16Oom = oomSortedIds.take(16),
                 top16ProTour = proTourSortedIds.take(16)
@@ -66,7 +70,8 @@ object BracketGenerator {
             )
             TournamentEvent.QUALIFIER_ET,
             TournamentEvent.QUALIFIER_GRAND_SLAM,
-            TournamentEvent.QUALIFIER_WM -> generateQualifierInitialMatches(
+            TournamentEvent.QUALIFIER_WM,
+            TournamentEvent.QUALIFIER_WORLD_MASTERS -> generateQualifierInitialMatches(
                 event = event,
                 oomSortedIds = oomSortedIds,
                 dynamicBoardCount = dynamicBoardCount
@@ -117,6 +122,29 @@ object BracketGenerator {
                 matchIndex = matchIndex,
                 player1Id = top16Oom[seedIndex],
                 player2Id = shuffledProTour[matchIndex]
+            )
+        }
+    }
+
+    /**
+     * World Masters R1:
+     * Top 16 OOM sind im Turnierbaum gesetzt (1..16).
+     * Die 16 ungesetzten Spieler (OOM 17-24 + 8 Qualifier-Sieger) werden ihnen in Runde 1 frei zugelost.
+     */
+    private fun generateWorldMastersRound1(
+        top16Oom: List<Long>,
+        unseeded16: List<Long>
+    ): List<MatchPairing> {
+        require(top16Oom.size == 16 && unseeded16.size == 16) {
+            "World Masters R1 erfordert 16 Top-OOM-Seeds und 16 ungesetzte Spieler"
+        }
+        val shuffledUnseeded = unseeded16.shuffled()
+        return BRACKET_SEED_ORDER_16.mapIndexed { matchIndex, seedIndex ->
+            MatchPairing(
+                round = TournamentRound.L32,
+                matchIndex = matchIndex,
+                player1Id = top16Oom[seedIndex],
+                player2Id = shuffledUnseeded[matchIndex]
             )
         }
     }
@@ -385,7 +413,7 @@ object BracketGenerator {
     ): List<MatchPairing> {
         val boardCount = dynamicBoardCount ?: when (event) {
             TournamentEvent.QUALIFIER_ET -> 10
-            TournamentEvent.QUALIFIER_GRAND_SLAM -> 8
+            TournamentEvent.QUALIFIER_GRAND_SLAM, TournamentEvent.QUALIFIER_WORLD_MASTERS -> 8
             TournamentEvent.QUALIFIER_WM -> 2
             else -> 8
         }

@@ -44,8 +44,8 @@ Eine Saison umfasst folgende Turnierkategorien (konfiguriert in `season_calendar
 * PC: Players Championship
 * ET: European Tour
 * ET Tour Card Qualifier (`QUALIFIER_ET`)
-* MAJOR: Major-Turniere, 8 pro Saison (`UK Open`, `European Open`, `World Matchplay`, `World Grand Prix`, `European Championship`, `Grand Slam of Darts`, `Players Championship Finals`, `World Championship`)
-* Major Qualifiers: 2 pro Saison (`QUALIFIER_GRAND_SLAM` vor dem Grand Slam of Darts, `QUALIFIER_WM` vor der World Championship)
+* MAJOR: Major-Turniere, 9 pro Saison ( `WORLD_MASTERS`, `UK Open`, `European Open`, `World Matchplay`, `World Grand Prix`, `European Championship`, `Grand Slam of Darts`, `Players Championship Finals`, `World Championship`)
+* Major Qualifiers: 3 pro Saison ( `QUALIFIER_WORLD_MASTERS` vor dem World Masters, `QUALIFIER_GRAND_SLAM` vor dem Grand Slam of Darts, `QUALIFIER_WM` vor der World Championship)
 * **Zentrale Kalender- & Turnier-Konfiguration (`app/src/main/assets/season_calendar_2027.json`):** Die exakte chronologische Reihenfolge aller Saisonturniere (`order`), deren Austragungsstädte (`hostCity`) und Gastgeberländer (`hostCountry`), alle Runden-Preisgelder und Match-Distanzen (`events`) sowie die Dokumentationsfelder `date` und `date_source` zur Nachvollziehbarkeit sind zentral in `season_calendar_2027.json` gepflegt (Single Source of Truth).
 
 Für die Turnier-Vorschau, Setzlisten-, Qualifikations- und Gruppenberechnung greifen das System sowie UI-Komponenten auf die zentralen `TournamentEvent`-Properties (`isQualifier`, `isMajor`, `qualifierBoardCount`) sowie auf dedizierte Use-Cases wie `TournamentQualificationUseCase`, `CalculateGroupStandingsUseCase` und `GetTournamentSummaryUseCase` zurück.
@@ -218,6 +218,25 @@ Für Qualifikationswege ohne Länderbindung, die über Geschlecht, Alter oder Q-
 ### 2.4 Die Major-Turniere
 
 **Major-Turniere folgen spezifischen Format- und Qualifikationsregeln (Austragungsorte siehe [season_calendar_2027.json](../app/src/main/assets/season_calendar_2027.json)).**
+
+#### 2.4.0 World Masters
+* **Rahmendaten:**
+  * **Gastgeberland & Austragungsort:** Arena MK, Milton Keynes, England (`host_country = "ENG"`, `host_city = "Milton Keynes"`).
+  * **Teilnehmer (Hauptfeld):** 32 Spieler.
+  * **Modus:** K.o.-System, **Sets (Best-of 3 Legs pro Set)**, ohne Two-Clear-Legs-Regel.
+* **Teilnehmer & Qualifikation:**
+  1. **Top 24 der PDC Order of Merit (`OOM`)** sind direkt vorqualifiziert (Plätze 1–16 gesetzt nach `BRACKET_SEED_ORDER_16`, Plätze 17–24 ungesetzt).
+  2. **8 Sieger des World Masters Tour Card Holder Qualifiers (`QUALIFIER_WORLD_MASTERS`, `K = 8` Boards, Best-of 5 Sets à 3 Legs, £0 Preisgeld).**
+* **Setzliste & Auslosung:**
+  * Die **Top 16 der `OOM`** sind auf den Positionen 1–16 im offiziellen 16er-Standard-Setzbaum (`BRACKET_SEED_ORDER_16`) gesetzt.
+  * Die ungesetzten 16 Teilnehmer (OOM Plätze 17–24 + 8 Qualifier-Sieger) werden den 16 gesetzten Spielern in Runde 1 (`L32`) frei zugelost.
+* **Turnierverlauf & Paarungslogik:**
+  * Vorgeschalteter Qualifier (`QUALIFIER_WORLD_MASTERS`, 8 Boards) → Hauptfeld `L32` → `L16` → `QF` → `SF` → `F`.
+* **Preisgeld & Ranglisten-Ausnahmen (Hauptfeld-Gesamttopf: £440.000):**
+  * `WINNER`: £100.000 | `F`: £50.000 | `SF`: £30.000 | `QF`: £17.500 | `L16`: £10.000 | `L32`: £5.000 (fließt voll in die `OOM`).
+* **App-Vereinfachung vs. reale PDC-Regeln:**
+  * *Reale PDC:* Gesamttopf £500.000 inkl. £60.000 für Vorrunden-Verlierer (über 160 Spieler aus Tour Card, Secondary Tours & JDC).
+  * *App-Vereinfachung:* Hauptfeld-Gesamttopf £440.000 (exakte Summe der 32 Hauptfeld-Plätze); die 8 Qualifier-Plätze werden über den `QUALIFIER_WORLD_MASTERS` der nicht vorqualifizierten Tour-Card-Inhaber ausgespielt.
 
 #### 2.4.1 UK Open
 * **Rahmendaten:**
@@ -415,7 +434,7 @@ Für Qualifikationswege ohne Länderbindung, die über Geschlecht, Alter oder Q-
      * Premier League (Siehe **App-Vereinfachung vs. reale PDC-Regeln:**)
      * World Matchplay
      * World Grand Prix
-     * World Masters (Siehe **App-Vereinfachung vs. reale PDC-Regeln:**)
+     * World Masters
      * UK Open
      * European Championship
      * Players Championship Finals
@@ -473,8 +492,8 @@ Für Qualifikationswege ohne Länderbindung, die über Geschlecht, Alter oder Q-
 
   * **Ranglisten-Zuordnung:** Das Preisgeld fließt voll in die **PDC Order of Merit (`OOM`)** ein (nicht in `PT OOM`, `PC OOM` oder `ET OOM`).
 * **App-Vereinfachung vs. reale PDC-Regeln:**
-  * Da Non-Ranking-Events (*Premier League, World Masters, World Series, World Cup*) sowie Secondary/Regional Tours (*World Youth, Challenge Tour, Development Tour, Women's Series, Asian/North American/Nordic & Baltic/ANZ*) in der App nicht simuliert werden, ergeben sich für die App folgende Änderungen:
-    1. Sieger und Finalisten der Premier League, World Masters, World Series und World Cup werden nicht berücksichtigt (Turniere nicht in App abgebildet).
+  * Da Non-Ranking-Events (*Premier League, World Series, World Cup*) sowie Secondary/Regional Tours (*World Youth, Challenge Tour, Development Tour, Women's Series, Asian/North American/Nordic & Baltic/ANZ*) in der App nicht simuliert werden, ergeben sich für die App folgende Änderungen:
+    1. Sieger und Finalisten der Premier League, World Series und World Cup werden nicht berücksichtigt (Turniere nicht in App abgebildet).
     2. **12 Nicht-Tourcard-Qualifier (`tour_card_year == 0`)** als Stellvertreter für die Additional Qualifiers: **4 regionale Champions** (*Asian Championship*, *North American Championship*, *Nordic & Baltic Championship*, *ANZ Premier League*) gemäß **Abschnitt 2.0 A** (`OOM DESC`) sowie **8 Tour-/Damen-/Youth-Qualifier** (*World Youth* 2x, *Development Tour*, *Challenge Tour*, *Women's World Matchplay*, *Women's Series*, plus 2 Reserve-Plätze) gemäß **Abschnitt 2.0 B** (`.shuffled()`).
 * **Verifizierte Quellen:**
   * [PDC News – 2026 Grand Slam of Darts qualification latest](https://www.pdc.tv/news/2026/october/07/2026-mr-vegas-grand-slam-of-darts-qualification-latest/)
@@ -608,7 +627,7 @@ Ergänzend zu den jeweiligen Turnierregeln in Abschnitt 2 gelten für die Simula
 ### 3.3 Spielformate & Sonderregeln (Zentrale Definition)
 Alle konkreten Basis-Runden-Distanzen (Best-of-Legs/Sets) aller Turniere sind zentral in `app/src/main/assets/season_calendar_2027.json` (`events.<EVENT>.distances`) definiert (Single Source of Truth). Für die Spiel-Engine gelten folgende zentrale Formatregeln:
 
-* **Set-Format:** Standardmäßig besteht ein Set aus *Best-of 5 Legs* (First to 3 Legs) – das gilt sowohl für die *World Championship* als auch für den *World Grand Prix* im Original-Modus (100 %). (Ausnahme bei nicht-simulierten Non-Ranking-Events: *World Masters* mit Best-of 3 Legs pro Set).
+* **Set-Format:** Standardmäßig besteht ein Set aus *Best-of 5 Legs* (First to 3 Legs) – das gilt sowohl für die *World Championship* als auch für den *World Grand Prix* im Original-Modus (100 %). (Ausnahme bei *World Masters* mit Best-of 3 Legs pro Set).
 * **Modifizierbare Match-Distanzen vor Karrierestart (`MatchDistancePreset`):**
   * Jede Karriere legt vor dem Start dauerhaft eine Distanz-Stufe fest (nicht nachträglich änderbar, um Karriere-Statistiken konsistent zu halten):
     1. **Original (100 %):** Unveränderte offizielle PDC-Distanzen.

@@ -652,6 +652,7 @@ class TournamentDetailViewModel(
                 TournamentEvent.QUALIFIER_ET -> getApplication<Application>().getString(R.string.qualifier_name_et)
                 TournamentEvent.QUALIFIER_GRAND_SLAM -> getApplication<Application>().getString(R.string.qualifier_name_grand_slam)
                 TournamentEvent.QUALIFIER_WM -> getApplication<Application>().getString(R.string.qualifier_name_wm)
+                TournamentEvent.QUALIFIER_WORLD_MASTERS -> getApplication<Application>().getString(R.string.qualifier_name_world_masters)
                 else -> null
             }
             if (qualifierName != null) {

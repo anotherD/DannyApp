@@ -4,6 +4,8 @@ import com.danny.dannyapp.domain.config.TournamentConfigLoader
 import com.danny.dannyapp.domain.model.MatchDistance
 
 enum class TournamentEvent(val totalPrizeFund: Double) {
+    // PDC World Masters: Vorrunden-Preisgelder (£60.000 der realen PDC für Vorrunden-Verlierer außerhalb des 32er-Hauptfelds) entfallen in der App.
+    WORLD_MASTERS(440_000.0),
     PLAYERS_CHAMPIONSHIP(150_000.0),
     EUROPEAN_TOUR(230_000.0),
     UK_OPEN(750_000.0),
@@ -16,13 +18,14 @@ enum class TournamentEvent(val totalPrizeFund: Double) {
     // 2027-Update angekündigt (PDC 25.09.2026): Erweiterung auf 128 Spieler im Mehrbrett-Modus in Minehead. Detaillierte Preisgeldverteilung und Setzlisten-Regeln für 128 Spieler sind von der PDC noch nicht veröffentlicht – daher vorerst 64er-Schema.
     PLAYERS_CHAMPIONSHIP_FINALS(750_000.0),
     WORLD_CHAMPIONSHIP(5_000_000.0),
+    QUALIFIER_WORLD_MASTERS(0.0),
     QUALIFIER_ET(0.0),
     QUALIFIER_GRAND_SLAM(0.0),
     QUALIFIER_WM(0.0);
 
     /** Prüft, ob es sich um ein Qualifier-Turnier handelt. */
     val isQualifier: Boolean
-        get() = this == QUALIFIER_ET || this == QUALIFIER_GRAND_SLAM || this == QUALIFIER_WM
+        get() = this == QUALIFIER_ET || this == QUALIFIER_GRAND_SLAM || this == QUALIFIER_WM || this == QUALIFIER_WORLD_MASTERS
 
     /** Liefert das zugehörige Hauptturnier, falls es sich um einen Qualifier handelt, sonst null. */
     val mainEventForQualifier: TournamentEvent?
@@ -30,6 +33,7 @@ enum class TournamentEvent(val totalPrizeFund: Double) {
             QUALIFIER_ET -> EUROPEAN_TOUR
             QUALIFIER_GRAND_SLAM -> GRAND_SLAM_OF_DARTS
             QUALIFIER_WM -> WORLD_CHAMPIONSHIP
+            QUALIFIER_WORLD_MASTERS -> WORLD_MASTERS
             else -> null
         }
 
@@ -39,16 +43,17 @@ enum class TournamentEvent(val totalPrizeFund: Double) {
             PLAYERS_CHAMPIONSHIP -> 128
             EUROPEAN_TOUR -> 48
             UK_OPEN, EUROPEAN_OPEN -> 160
-            WORLD_MATCHPLAY, WORLD_GRAND_PRIX, EUROPEAN_CHAMPIONSHIP -> 32
+            WORLD_MATCHPLAY, WORLD_GRAND_PRIX, EUROPEAN_CHAMPIONSHIP, WORLD_MASTERS -> 32
             GRAND_SLAM_OF_DARTS -> 48
             PLAYERS_CHAMPIONSHIP_FINALS -> 64
             WORLD_CHAMPIONSHIP -> 128
-            QUALIFIER_ET, QUALIFIER_GRAND_SLAM, QUALIFIER_WM -> 0
+            QUALIFIER_ET, QUALIFIER_GRAND_SLAM, QUALIFIER_WM, QUALIFIER_WORLD_MASTERS -> 0
         }
 
     /** Liefert den zugehörigen Qualifier, falls es sich um ein Hauptturnier mit Qualifier handelt, sonst null. */
     val qualifierEventForMain: TournamentEvent?
         get() = when (this) {
+            WORLD_MASTERS -> QUALIFIER_WORLD_MASTERS
             EUROPEAN_TOUR -> QUALIFIER_ET
             GRAND_SLAM_OF_DARTS -> QUALIFIER_GRAND_SLAM
             WORLD_CHAMPIONSHIP -> QUALIFIER_WM
@@ -58,7 +63,7 @@ enum class TournamentEvent(val totalPrizeFund: Double) {
     /** Prüft, ob es sich um ein Major-Turnier handelt. */
     val isMajor: Boolean
         get() = this in listOf(
-            UK_OPEN, EUROPEAN_OPEN, WORLD_MATCHPLAY, WORLD_GRAND_PRIX,
+            WORLD_MASTERS, UK_OPEN, EUROPEAN_OPEN, WORLD_MATCHPLAY, WORLD_GRAND_PRIX,
             EUROPEAN_CHAMPIONSHIP, GRAND_SLAM_OF_DARTS, PLAYERS_CHAMPIONSHIP_FINALS,
             WORLD_CHAMPIONSHIP
         )
@@ -94,7 +99,7 @@ enum class TournamentEvent(val totalPrizeFund: Double) {
      */
     fun getRoundSequence(): List<TournamentRound> {
         return when (this) {
-            QUALIFIER_ET, QUALIFIER_GRAND_SLAM, QUALIFIER_WM -> listOf(
+            QUALIFIER_ET, QUALIFIER_GRAND_SLAM, QUALIFIER_WM, QUALIFIER_WORLD_MASTERS -> listOf(
                 TournamentRound.QUAL_PRELIM,
                 TournamentRound.QUAL_R1,
                 TournamentRound.QUAL_R2,
@@ -114,7 +119,7 @@ enum class TournamentEvent(val totalPrizeFund: Double) {
                 TournamentRound.L64, TournamentRound.L32, TournamentRound.L16,
                 TournamentRound.QF, TournamentRound.SF, TournamentRound.F
             )
-            WORLD_MATCHPLAY, WORLD_GRAND_PRIX, EUROPEAN_CHAMPIONSHIP -> listOf(
+            WORLD_MATCHPLAY, WORLD_GRAND_PRIX, EUROPEAN_CHAMPIONSHIP, WORLD_MASTERS -> listOf(
                 TournamentRound.L32, TournamentRound.L16, TournamentRound.QF,
                 TournamentRound.SF, TournamentRound.F
             )

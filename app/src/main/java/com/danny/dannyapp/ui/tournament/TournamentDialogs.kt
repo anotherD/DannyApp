@@ -228,6 +228,7 @@ object TournamentDialogs {
 
     private fun getQualificationRulesResId(event: TournamentEvent): Int {
         return when (event) {
+            TournamentEvent.WORLD_MASTERS -> R.string.tournament_rules_world_masters
             TournamentEvent.PLAYERS_CHAMPIONSHIP -> R.string.tournament_rules_players_championship
             TournamentEvent.EUROPEAN_TOUR -> R.string.tournament_rules_european_tour
             TournamentEvent.UK_OPEN -> R.string.tournament_rules_uk_open
@@ -241,6 +242,7 @@ object TournamentDialogs {
             TournamentEvent.QUALIFIER_ET -> R.string.tournament_rules_qualifier_et
             TournamentEvent.QUALIFIER_GRAND_SLAM -> R.string.tournament_rules_qualifier_grand_slam
             TournamentEvent.QUALIFIER_WM -> R.string.tournament_rules_qualifier_wm
+            TournamentEvent.QUALIFIER_WORLD_MASTERS -> R.string.tournament_rules_qualifier_world_masters
         }
     }
 

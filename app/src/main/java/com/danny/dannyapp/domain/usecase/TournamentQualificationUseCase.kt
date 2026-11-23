@@ -189,7 +189,8 @@ class TournamentQualificationUseCase(
             )
             TournamentEvent.QUALIFIER_ET,
             TournamentEvent.QUALIFIER_GRAND_SLAM,
-            TournamentEvent.QUALIFIER_WM -> resolveQualifierQualification(
+            TournamentEvent.QUALIFIER_WM,
+            TournamentEvent.QUALIFIER_WORLD_MASTERS -> resolveQualifierQualification(
                 qualifierTournament = tournament,
                 seasonId = seasonId,
                 careerId = careerId,
@@ -242,6 +243,13 @@ class TournamentQualificationUseCase(
                 persistToDb = persistToDb
             )
             TournamentEvent.WORLD_CHAMPIONSHIP -> resolveWorldChampionshipQualification(
+                tournament = tournament,
+                seasonId = seasonId,
+                careerId = careerId,
+                precedingQualifierWinners = precedingQualifierWinners,
+                persistToDb = persistToDb
+            )
+            TournamentEvent.WORLD_MASTERS -> resolveWorldMastersQualification(
                 tournament = tournament,
                 seasonId = seasonId,
                 careerId = careerId,
@@ -668,6 +676,69 @@ class TournamentQualificationUseCase(
             oomSortedIds = top32Oom + ranks33To64,
             proTourSortedIds = emptyList(),
             qualifierIds = remaining64PoolRaw,
+            participants = allParticipants
+        )
+    }
+
+    /**
+     * Ermittelt Teilnehmer, gesetzte Spieler und Qualifier-Pools für das World Masters.
+     */
+    private suspend fun resolveWorldMastersQualification(
+        tournament: Tournament,
+        seasonId: Long,
+        careerId: Long,
+        precedingQualifierWinners: List<Long>,
+        persistToDb: Boolean = true
+    ): TournamentQualificationResult {
+        val tournamentId = tournament.id
+        var storedParticipants = tournamentRepository.getParticipantsForTournament(tournamentId)
+
+        if (storedParticipants.isEmpty()) {
+            val seasonTournaments = tournamentRepository.getTournamentsListForSeason(seasonId)
+            val qualTournament = preQualifyMainTournamentUseCase.findQualifierTournamentForMain(tournament, seasonTournaments)
+            if (qualTournament != null) {
+                storedParticipants = preQualifyMainTournamentUseCase.freezePreQualifiedParticipantsForMainTournament(qualTournament, seasonId, careerId, persistToDb)
+            }
+        }
+
+        val existingPlayerIds = storedParticipants.map { it.playerId }.toSet()
+        val neededQualifierCount = (TournamentEvent.WORLD_MASTERS.targetParticipantCount - storedParticipants.size).coerceAtLeast(0)
+
+        val wmWinners = precedingQualifierWinners.filterNot { it in existingPlayerIds }
+        if (persistToDb || wmWinners.isNotEmpty()) {
+            require(wmWinners.size == neededQualifierCount) {
+                "World Masters erfordert exakt $neededQualifierCount Qualifier-Sieger, erhalten: ${wmWinners.size}"
+            }
+        }
+
+        val newParticipants = wmWinners.filterNot { wId -> storedParticipants.any { it.playerId == wId } }.map { playerId ->
+            TournamentParticipant(
+                tournamentId = tournamentId,
+                playerId = playerId,
+                qualificationType = "QUALIFIER"
+            )
+        }
+
+        if (persistToDb && newParticipants.isNotEmpty()) {
+            tournamentRepository.insertParticipants(newParticipants)
+        }
+
+        val allParticipants = storedParticipants + newParticipants
+
+        val top16Oom = allParticipants.filter { it.qualificationType == "OOM" && it.seedNumber != null }
+            .sortedBy { it.seedNumber ?: Int.MAX_VALUE }
+            .map { it.playerId }
+        val unseededOom = allParticipants.filter { it.qualificationType == "OOM" && it.seedNumber == null }
+            .map { it.playerId }
+        val qualifiers = allParticipants.filter { it.qualificationType == "QUALIFIER" }
+            .map { it.playerId }
+
+        val unseededPool = unseededOom + qualifiers
+
+        return TournamentQualificationResult(
+            oomSortedIds = top16Oom,
+            proTourSortedIds = emptyList(),
+            qualifierIds = unseededPool,
             participants = allParticipants
         )
     }

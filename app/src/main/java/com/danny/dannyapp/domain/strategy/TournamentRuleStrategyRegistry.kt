@@ -16,6 +16,10 @@ object TournamentRuleStrategyRegistry {
 
     private val strategies: Map<TournamentEvent, TournamentRuleStrategy> = mapOf(
         TournamentEvent.PLAYERS_CHAMPIONSHIP to StandardKoStrategy(TournamentEvent.PLAYERS_CHAMPIONSHIP),
+        TournamentEvent.WORLD_MASTERS to StandardKoStrategy(
+            event = TournamentEvent.WORLD_MASTERS,
+            usesPrecedingQualifier = true
+        ),
         TournamentEvent.WORLD_MATCHPLAY to StandardKoStrategy(TournamentEvent.WORLD_MATCHPLAY),
         TournamentEvent.WORLD_GRAND_PRIX to StandardKoStrategy(TournamentEvent.WORLD_GRAND_PRIX),
         TournamentEvent.EUROPEAN_CHAMPIONSHIP to StandardKoStrategy(TournamentEvent.EUROPEAN_CHAMPIONSHIP),
@@ -30,7 +34,8 @@ object TournamentRuleStrategyRegistry {
         TournamentEvent.EUROPEAN_OPEN to OpenDrawMajorStrategy(TournamentEvent.EUROPEAN_OPEN),
         TournamentEvent.QUALIFIER_ET to QualifierStrategy(TournamentEvent.QUALIFIER_ET),
         TournamentEvent.QUALIFIER_GRAND_SLAM to QualifierStrategy(TournamentEvent.QUALIFIER_GRAND_SLAM),
-        TournamentEvent.QUALIFIER_WM to QualifierStrategy(TournamentEvent.QUALIFIER_WM)
+        TournamentEvent.QUALIFIER_WM to QualifierStrategy(TournamentEvent.QUALIFIER_WM),
+        TournamentEvent.QUALIFIER_WORLD_MASTERS to QualifierStrategy(TournamentEvent.QUALIFIER_WORLD_MASTERS)
     )
 
     fun getStrategy(event: TournamentEvent): TournamentRuleStrategy {

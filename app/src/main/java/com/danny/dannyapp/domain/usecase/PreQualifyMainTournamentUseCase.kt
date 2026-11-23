@@ -55,6 +55,11 @@ class PreQualifyMainTournamentUseCase(
                     it.type == TournamentEvent.WORLD_CHAMPIONSHIP.name
                 } ?: throw IllegalStateException("Hauptturnier WORLD_CHAMPIONSHIP für Qualifier (${qualifierTournament.id}) nicht gefunden.")
             }
+            TournamentEvent.QUALIFIER_WORLD_MASTERS -> {
+                seasonTournaments.firstOrNull {
+                    it.type == TournamentEvent.WORLD_MASTERS.name
+                } ?: throw IllegalStateException("Hauptturnier WORLD_MASTERS für Qualifier (${qualifierTournament.id}) nicht gefunden.")
+            }
             else -> throw IllegalStateException("Turnier ${qualifierTournament.name} (Typ: ${qualifierTournament.type}) ist kein vorgeschalteter Qualifier.")
         }
     }
@@ -84,6 +89,9 @@ class PreQualifyMainTournamentUseCase(
             }
             TournamentEvent.QUALIFIER_WM -> {
                 seasonTournaments.firstOrNull { it.type == TournamentEvent.QUALIFIER_WM.name }
+            }
+            TournamentEvent.QUALIFIER_WORLD_MASTERS -> {
+                seasonTournaments.firstOrNull { it.type == TournamentEvent.QUALIFIER_WORLD_MASTERS.name }
             }
             else -> null
         }
@@ -192,6 +200,34 @@ class PreQualifyMainTournamentUseCase(
                     oomEntries = oomEntries
                 )
                 participants.addAll(grandSlamPreQualified)
+            }
+
+            TournamentEvent.WORLD_MASTERS -> {
+                val sortedOom = QualificationHelper.sortPlayerIdsByOom(tourCardPlayerIds, oomEntries)
+                val top24Oom = sortedOom.take(24)
+                val top16Oom = top24Oom.take(16)
+                val ranks17To24Oom = top24Oom.drop(16)
+
+                top16Oom.forEachIndexed { index, playerId ->
+                    participants.add(
+                        TournamentParticipant(
+                            tournamentId = mainTournament.id,
+                            playerId = playerId,
+                            seedNumber = index + 1,
+                            qualificationType = "OOM"
+                        )
+                    )
+                }
+
+                ranks17To24Oom.forEach { playerId ->
+                    participants.add(
+                        TournamentParticipant(
+                            tournamentId = mainTournament.id,
+                            playerId = playerId,
+                            qualificationType = "OOM"
+                        )
+                    )
+                }
             }
 
             TournamentEvent.WORLD_CHAMPIONSHIP -> {

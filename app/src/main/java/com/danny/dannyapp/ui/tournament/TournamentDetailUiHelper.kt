@@ -145,7 +145,7 @@ object TournamentDetailUiHelper {
         if (!event.isQualifier) return 0
         return when (event) {
             TournamentEvent.QUALIFIER_ET -> 10
-            TournamentEvent.QUALIFIER_GRAND_SLAM -> 8
+            TournamentEvent.QUALIFIER_GRAND_SLAM, TournamentEvent.QUALIFIER_WORLD_MASTERS -> 8
             TournamentEvent.QUALIFIER_WM -> 2
             else -> 8
         }
