@@ -231,6 +231,8 @@ try:
                                 found_count_first += 1
                             else:
                                 players_data[player_name]["tour_card_year"] = 2
+                        else:
+                            players_data[player_name]["tour_card_year"] = 0
 except requests.exceptions.RequestException as e:
     print(f"  Fehler beim Laden der Tour-Card-Daten: {e}")
 

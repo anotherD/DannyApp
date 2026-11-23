@@ -222,7 +222,7 @@ Für Qualifikationswege ohne Länderbindung, die über Geschlecht, Alter oder Q-
 
 #### 2.4.0 World Masters
 * **Rahmendaten:**
-  * **Gastgeberland & Austragungsort:** Arena MK, Milton Keynes, England (`host_country = "ENG"`, `host_city = "Milton Keynes"`).
+  * **Gastgeberland & Austragungsort:** Aktuelle und verbindliche Informationen siehe [season_calendar_2027.json](../app/src/main/assets/season_calendar_2027.json) (2027: Arena MK, Milton Keynes, England).
   * **Teilnehmer (Hauptfeld):** 32 Spieler.
   * **Modus:** K.o.-System, **Sets (Best-of 3 Legs pro Set)**, ohne Two-Clear-Legs-Regel.
 * **Teilnehmer & Qualifikation:**
@@ -234,10 +234,26 @@ Für Qualifikationswege ohne Länderbindung, die über Geschlecht, Alter oder Q-
 * **Turnierverlauf & Paarungslogik:**
   * Vorgeschalteter Qualifier (`QUALIFIER_WORLD_MASTERS`, 8 Boards) → Hauptfeld `L32` → `L16` → `QF` → `SF` → `F`.
 * **Preisgeld & Ranglisten-Ausnahmen (Hauptfeld-Gesamttopf: £440.000):**
-  * `WINNER`: £100.000 | `F`: £50.000 | `SF`: £30.000 | `QF`: £17.500 | `L16`: £10.000 | `L32`: £5.000 (fließt voll in die `OOM`).
+  * **Ranglisten-Zuordnung:** Das Preisgeld fließt voll in die **PDC Order of Merit (`OOM`)** ein (nicht in `PT OOM`, `PC OOM` oder `ET OOM`).
+
+| Runde | Preisgeld pro Spieler |
+| :--- | :--- |
+| **Sieger (`WINNER`)** | £100.000 |
+| **Finale (`F`)** | £50.000 |
+| **Halbfinale (`SF`)** | £30.000 |
+| **Viertelfinale (`QF`)** | £17.500 |
+| **Achtelfinale (`L16`)** | £10.000 |
+| **Runde 1 (`L32`)** | £5.000 |
+
 * **App-Vereinfachung vs. reale PDC-Regeln:**
   * *Reale PDC:* Gesamttopf £500.000 inkl. £60.000 für Vorrunden-Verlierer (über 160 Spieler aus Tour Card, Secondary Tours & JDC).
   * *App-Vereinfachung:* Hauptfeld-Gesamttopf £440.000 (exakte Summe der 32 Hauptfeld-Plätze); die 8 Qualifier-Plätze werden über den `QUALIFIER_WORLD_MASTERS` der nicht vorqualifizierten Tour-Card-Inhaber ausgespielt.
+* **Verifizierte Quellen:**
+  * [PDC News – Winmau World Masters format, prize fund & qualification confirmed](https://pdc.tv)
+  * [PDC News – European Open & historic French event headline 2027 PDC calendar](https://www.pdc.tv/news/2026/september/25/european-open-historic-french-event-headline-2027-pdc-calendar/)
+  * [PDC News – £500,000 prize fund announced for 2025 Winmau World Masters](https://www.pdc.tv/news/2024/12/24/ps500000-prize-fund-announced-2025-winmau-world-masters)
+  * [PDC Tournaments – Winmau World Masters](https://www.pdc.tv/tournaments/winmau-world-masters)
+
 
 #### 2.4.1 UK Open
 * **Rahmendaten:**
