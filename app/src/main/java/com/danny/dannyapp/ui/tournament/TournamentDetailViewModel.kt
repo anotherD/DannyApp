@@ -884,8 +884,10 @@ class TournamentDetailViewModel(
         if (currentTournamentId > 0L && !_isSimulatingBatch.value) {
             viewModelScope.launch {
                 try {
-                    hasUserSelectedRound = false
-                    tournamentProgressionUseCase.applyAutoProgress(currentTournamentId)
+                    val roundAdvanced = tournamentProgressionUseCase.applyAutoProgress(currentTournamentId)
+                    if (roundAdvanced) {
+                        hasUserSelectedRound = false
+                    }
                 } catch (e: Exception) {
                     getApplication<Application>().appContainer.reportError("Auto-Fortschritt nach Einstellungen", e)
                 }

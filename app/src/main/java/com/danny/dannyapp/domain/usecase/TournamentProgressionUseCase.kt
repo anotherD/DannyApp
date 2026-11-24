@@ -37,9 +37,11 @@ class TournamentProgressionUseCase(
      * basierend auf den Einstellungen in SettingsManager.
      *
      * @param tournamentId Die ID des Turniers.
+     * @return `true` wenn mindestens einmal die Runde vorgerückt wurde, ansonsten `false`.
      */
-    suspend fun applyAutoProgress(tournamentId: Long) = withContext(Dispatchers.IO) {
+    suspend fun applyAutoProgress(tournamentId: Long): Boolean = withContext(Dispatchers.IO) {
         var loopCount = 0
+        var roundAdvanced = false
         val maxLoopCount = 200
 
         while (loopCount < maxLoopCount) {
@@ -58,11 +60,13 @@ class TournamentProgressionUseCase(
 
             if (settingsManager.autoAdvanceRound && updatedState.canAdvanceRound) {
                 advanceTournamentRoundUseCase(tournamentId)
+                roundAdvanced = true
                 continue
             }
 
             break
         }
+        roundAdvanced
     }
 
     /**
