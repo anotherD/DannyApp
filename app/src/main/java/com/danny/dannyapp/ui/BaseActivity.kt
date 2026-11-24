@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.annotation.StringRes
-import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -12,7 +11,6 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.viewpager2.widget.ViewPager2
 import com.danny.dannyapp.AppContainer
 import com.danny.dannyapp.DannyApp
 import com.danny.dannyapp.R
@@ -138,27 +136,5 @@ abstract class BaseActivity : AppCompatActivity() {
         onBackPressedDispatcher.onBackPressed()
     }
 
-    /**
-     * Central back-navigation helper for [ViewPager2]. Registers an OnBackPressedCallback that
-     * returns to the given home tab index when the back button is pressed on any other page.
-     * It also wires up ViewPager2's automatic page-change callback so the enabled state updates
-     * per position.
-     */
-    protected fun setupViewPagerBackToHome(
-        viewPager: ViewPager2,
-        homeTabIndex: Int = 0
-    ) {
-        val callback = object : OnBackPressedCallback(viewPager.currentItem != homeTabIndex) {
-            override fun handleOnBackPressed() {
-                viewPager.setCurrentItem(homeTabIndex, true)
-            }
-        }
-        onBackPressedDispatcher.addCallback(this, callback)
 
-        viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-            override fun onPageSelected(position: Int) {
-                callback.isEnabled = position != homeTabIndex
-            }
-        })
-    }
 }

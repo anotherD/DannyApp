@@ -56,6 +56,14 @@
             android:name=".ui.tournament.TournamentDetailActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".ui.tournament.SeasonCalendarActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.oom.OrderOfMeritActivity"
+            android:exported="false" />
+
     </application>
 
 </manifest>

@@ -1,5 +1,6 @@
 package com.danny.dannyapp.ui.career
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
@@ -8,14 +9,13 @@ import androidx.activity.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.viewpager2.widget.ViewPager2
 import com.danny.dannyapp.R
 import com.danny.dannyapp.ui.BaseActivity
+import com.danny.dannyapp.ui.oom.OrderOfMeritActivity
 import com.danny.dannyapp.ui.oom.OrderOfMeritViewModel
+import com.danny.dannyapp.ui.tournament.SeasonCalendarActivity
 import com.danny.dannyapp.ui.tournament.TournamentCalendarState
 import com.danny.dannyapp.ui.tournament.TournamentCalendarViewModel
-import com.google.android.material.tabs.TabLayout
-import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.launch
 
 class CareerDetailActivity : BaseActivity() {
@@ -24,8 +24,6 @@ class CareerDetailActivity : BaseActivity() {
     private val calendarViewModel: TournamentCalendarViewModel by viewModels()
     private val oomViewModel: OrderOfMeritViewModel by viewModels()
 
-    private lateinit var tabLayoutCareer: TabLayout
-    private lateinit var viewPagerCareer: ViewPager2
     private lateinit var layoutCareerSimulatingOverlay: View
     private lateinit var tvCareerSimulationProgress: TextView
 
@@ -37,6 +35,7 @@ class CareerDetailActivity : BaseActivity() {
         setContentView(R.layout.activity_career_detail)
 
         careerId = intent.getLongExtra(EXTRA_CAREER_ID, -1L)
+        careerName = intent.getStringExtra(EXTRA_CAREER_NAME) ?: ""
 
         setupToolbar(
             titleText = getString(R.string.loading),
@@ -44,22 +43,8 @@ class CareerDetailActivity : BaseActivity() {
             rootViewId = R.id.careerDetailMain,
         )
 
-        tabLayoutCareer = findViewById(R.id.tabLayoutCareer)
-        viewPagerCareer = findViewById(R.id.viewPagerCareer)
         layoutCareerSimulatingOverlay = findViewById(R.id.layoutCareerSimulatingOverlay)
         tvCareerSimulationProgress = findViewById(R.id.tvCareerSimulationProgress)
-
-        viewPagerCareer.adapter = CareerDetailPagerAdapter(this, careerId, careerName)
-
-        val titles = listOf(
-            getString(R.string.tab_overview),
-            getString(R.string.tab_calendar),
-            getString(R.string.tab_oom)
-        )
-
-        TabLayoutMediator(tabLayoutCareer, viewPagerCareer) { tab, position ->
-            tab.text = titles.getOrElse(position) { "" }
-        }.attach()
 
         val simulationBackPressedCallback = object : OnBackPressedCallback(false) {
             override fun handleOnBackPressed() {
@@ -68,7 +53,11 @@ class CareerDetailActivity : BaseActivity() {
         }
         onBackPressedDispatcher.addCallback(this, simulationBackPressedCallback)
 
-        setupViewPagerBackToHome(viewPagerCareer)
+        if (savedInstanceState == null) {
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.fragmentContainerCareerOverview, CareerOverviewFragment.newInstance(careerId, careerName))
+                .commit()
+        }
 
         careerViewModel.loadCareer(careerId)
         calendarViewModel.loadTournaments(careerId)
@@ -78,13 +67,21 @@ class CareerDetailActivity : BaseActivity() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
                     careerViewModel.openRankingEvent.collect { type ->
-                        oomViewModel.selectOomType(type)
-                        viewPagerCareer.setCurrentItem(2, true)
+                        val intent = Intent(this@CareerDetailActivity, OrderOfMeritActivity::class.java).apply {
+                            putExtra(OrderOfMeritActivity.EXTRA_CAREER_ID, careerId)
+                            putExtra(OrderOfMeritActivity.EXTRA_CAREER_NAME, careerName)
+                            putExtra(OrderOfMeritActivity.EXTRA_OOM_TYPE, type.name)
+                        }
+                        startActivity(intent)
                     }
                 }
                 launch {
                     careerViewModel.openCalendarEvent.collect {
-                        viewPagerCareer.setCurrentItem(1, true)
+                        val intent = Intent(this@CareerDetailActivity, SeasonCalendarActivity::class.java).apply {
+                            putExtra(SeasonCalendarActivity.EXTRA_CAREER_ID, careerId)
+                            putExtra(SeasonCalendarActivity.EXTRA_CAREER_NAME, careerName)
+                        }
+                        startActivity(intent)
                     }
                 }
                 launch {
@@ -133,5 +130,6 @@ class CareerDetailActivity : BaseActivity() {
 
     companion object {
         const val EXTRA_CAREER_ID = "extra_career_id"
+        const val EXTRA_CAREER_NAME = "extra_career_name"
     }
 }
