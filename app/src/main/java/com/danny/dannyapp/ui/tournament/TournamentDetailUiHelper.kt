@@ -174,11 +174,10 @@ object TournamentDetailUiHelper {
                 list.firstOrNull()?.match?.round == TournamentRound.QUAL_R1.name
             } ?: emptyList()
             val qualR1Matches = qualR1Models.map { it.match }
-            val r1MatchesPerBoard = if (boardCount > 0 && qualR1Matches.isNotEmpty()) {
-                qualR1Matches.size / boardCount
-            } else {
-                4
+            require(qualR1Matches.isNotEmpty() && boardCount > 0) {
+                "Qualifier R1 matches must not be empty and boardCount must be > 0"
             }
+            val r1MatchesPerBoard = qualR1Matches.size / boardCount
             val r2MatchesPerBoard = r1MatchesPerBoard / 2
             val r3MatchesPerBoard = r1MatchesPerBoard / 4
             val boardIdx = when (roundKey) {
@@ -210,11 +209,10 @@ object TournamentDetailUiHelper {
             list.firstOrNull()?.match?.round == TournamentRound.QUAL_R1.name
         } ?: emptyList()
         val qualR1Matches = qualR1Models.map { it.match }
-        val r1MatchesPerBoard = if (boardCount > 0 && qualR1Matches.isNotEmpty()) {
-            qualR1Matches.size / boardCount
-        } else {
-            4
+        require(qualR1Matches.isNotEmpty() && boardCount > 0) {
+            "Qualifier R1 matches must not be empty and boardCount must be > 0"
         }
+        val r1MatchesPerBoard = qualR1Matches.size / boardCount
         val r2MatchesPerBoard = r1MatchesPerBoard / 2
         val r3MatchesPerBoard = r1MatchesPerBoard / 4
 

@@ -50,7 +50,6 @@ data class QualifierFieldSplit(
     val nonPrequalifiedIds: List<Long>,
     val boardCount: Int,
     val boardSizePerBoard: Int,
-    val prelimPlayers: List<Long>,
     val byePlayers: List<Long>,
     val seedCount: Int
 ) {
@@ -123,22 +122,14 @@ class TournamentQualificationUseCase(
 
         val totalNonPrequalified = nonPrequalifiedIds.size
 
-        val minSlotsPerBoard = ceil(totalNonPrequalified.toDouble() / (2.0 * boardCount)).toInt().coerceAtLeast(8)
+        val minSlotsPerBoard = ceil(totalNonPrequalified.toDouble() / boardCount.toDouble()).toInt().coerceAtLeast(8)
         var boardSize = 8
         while (boardSize < minSlotsPerBoard) {
             boardSize *= 2
         }
         val totalR1Slots = boardSize * boardCount
 
-        val prelimPlayers = if (totalNonPrequalified > totalR1Slots) {
-            nonPrequalifiedIds.takeLast(2 * (totalNonPrequalified - totalR1Slots))
-        } else {
-            emptyList()
-        }
-
-        val byePlayers = if (totalNonPrequalified > totalR1Slots) {
-            nonPrequalifiedIds.take((2 * totalR1Slots - totalNonPrequalified).coerceAtLeast(0))
-        } else if (totalNonPrequalified < totalR1Slots) {
+        val byePlayers = if (totalNonPrequalified < totalR1Slots) {
             val padding = List(totalR1Slots - totalNonPrequalified) { PLACEHOLDER_OPEN_DRAW_ID }
             nonPrequalifiedIds + padding
         } else {
@@ -152,7 +143,6 @@ class TournamentQualificationUseCase(
             nonPrequalifiedIds = nonPrequalifiedIds,
             boardCount = boardCount,
             boardSizePerBoard = boardSize,
-            prelimPlayers = prelimPlayers,
             byePlayers = byePlayers,
             seedCount = seedCount
         )

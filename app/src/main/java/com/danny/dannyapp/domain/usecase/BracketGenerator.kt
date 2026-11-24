@@ -422,46 +422,20 @@ object BracketGenerator {
         val totalNonPrequalified = oomSortedIds.size
         if (totalNonPrequalified == 0) return emptyList()
 
-        val minSlotsPerBoard = ceil(totalNonPrequalified.toDouble() / (2.0 * boardCount)).toInt().coerceAtLeast(8)
+        val minSlotsPerBoard = ceil(totalNonPrequalified.toDouble() / boardCount.toDouble()).toInt().coerceAtLeast(8)
         var boardSize = 8
         while (boardSize < minSlotsPerBoard) {
             boardSize *= 2
         }
         val totalR1Slots = boardSize * boardCount
 
-        val prelimPlayers = if (totalNonPrequalified > totalR1Slots) {
-            oomSortedIds.takeLast(2 * (totalNonPrequalified - totalR1Slots))
-        } else {
-            emptyList()
-        }
-
-        val byePlayers = if (totalNonPrequalified > totalR1Slots) {
-            oomSortedIds.take((2 * totalR1Slots - totalNonPrequalified).coerceAtLeast(0))
-        } else if (totalNonPrequalified < totalR1Slots) {
+        val byePlayers = if (totalNonPrequalified < totalR1Slots) {
             val padding = List(totalR1Slots - totalNonPrequalified) { PLACEHOLDER_OPEN_DRAW_ID }
             oomSortedIds + padding
         } else {
             oomSortedIds
         }
 
-        val prelimMatches = mutableListOf<MatchPairing>()
-        val r1Pairings = if (prelimPlayers.isNotEmpty()) {
-            val prelimMatchCount = prelimPlayers.size / 2
-            for (matchIndex in 0 until prelimMatchCount) {
-                prelimMatches.add(
-                    MatchPairing(
-                        round = TournamentRound.QUAL_PRELIM,
-                        matchIndex = matchIndex,
-                        player1Id = prelimPlayers[matchIndex],
-                        player2Id = prelimPlayers[2 * prelimMatchCount - 1 - matchIndex]
-                    )
-                )
-            }
-            val prelimPlaceholders = (0 until prelimMatchCount).map { matchIndex -> -1000L - matchIndex }
-            buildQualifierRound1Pairings(boardCount, boardSize, byePlayers, prelimPlaceholders)
-        } else {
-            buildQualifierRound1Pairings(boardCount, boardSize, byePlayers, emptyList())
-        }
-        return prelimMatches + r1Pairings
+        return buildQualifierRound1Pairings(boardCount, boardSize, byePlayers, emptyList())
     }
 }

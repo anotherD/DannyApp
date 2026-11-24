@@ -14,22 +14,7 @@ import org.junit.Test
 class QualifierStrategyTest {
 
     private val testCreateQualifierMatches: (Long, QualifierFieldSplit) -> Pair<List<TournamentMatch>, List<TournamentMatch>> = { tId, s ->
-        val prelimMatches = if (s.prelimPlayers.isNotEmpty()) {
-            val prelimMatchCount = s.prelimPlayers.size / 2
-            (0 until prelimMatchCount).map { matchIndex ->
-                TournamentMatch(
-                    tournamentId = tId,
-                    round = TournamentRound.QUAL_PRELIM.name,
-                    matchIndex = matchIndex,
-                    player1Id = s.prelimPlayers[matchIndex],
-                    player2Id = s.prelimPlayers[2 * prelimMatchCount - 1 - matchIndex]
-                )
-            }
-        } else emptyList()
-        val prelimPlaceholders = if (s.prelimPlayers.isNotEmpty()) {
-            (0 until (s.prelimPlayers.size / 2)).map { matchIndex -> -1000L - matchIndex }
-        } else emptyList()
-        val r1Pairings = BracketGenerator.buildQualifierRound1Pairings(s.boardCount, s.boardSizePerBoard, s.byePlayers, prelimPlaceholders)
+        val r1Pairings = BracketGenerator.buildQualifierRound1Pairings(s.boardCount, s.boardSizePerBoard, s.byePlayers, emptyList())
         val r1Matches = r1Pairings.map { pairing ->
             TournamentMatch(
                 tournamentId = tId,
@@ -39,7 +24,7 @@ class QualifierStrategyTest {
                 player2Id = pairing.player2Id
             )
         }
-        Pair(prelimMatches, r1Matches)
+        Pair(emptyList(), r1Matches)
     }
 
     @Test
@@ -51,10 +36,9 @@ class QualifierStrategyTest {
             nonPrequalifiedIds = emptyList(),
             boardCount = 2,
             boardSizePerBoard = 8,
-            prelimPlayers = emptyList(),
             byePlayers = listOf(
-                100L, PLACEHOLDER_OPEN_DRAW_ID,
-                PLACEHOLDER_OPEN_DRAW_ID, 101L,
+                100L, PLACEHOLDER_OPEN_DRAW_ID, // Board 0 top, Board 1 top
+                PLACEHOLDER_OPEN_DRAW_ID, 101L, // Board 1 bottom, Board 0 bottom
                 102L, 103L,
                 104L, 105L,
                 106L, 107L,
@@ -73,42 +57,31 @@ class QualifierStrategyTest {
             createQualifierMatches = testCreateQualifierMatches
         )
 
-        // Verify Match 0 (R1, index 0)
+        // Verify Board 0 Match 0 (matchIndex = 0) - regular match
         val m0 = matches.first { it.round == TournamentRound.QUAL_R1.name && it.matchIndex == 0 }
-        assertTrue(m0.isCompleted)
-        assertEquals(100L, m0.winnerId)
-        assertEquals(0, m0.player1Score)
-        assertEquals(0, m0.player2Score)
+        assertTrue(!m0.isCompleted)
 
-        // Verify Match 1 (R1, index 1)
-        val m1 = matches.first { it.round == TournamentRound.QUAL_R1.name && it.matchIndex == 1 }
-        assertTrue(m1.isCompleted)
-        assertEquals(101L, m1.winnerId)
-        assertEquals(0, m1.player1Score)
-        assertEquals(0, m1.player2Score)
+        // Verify Board 1 Match 0 (matchIndex = 4) - has PLACEHOLDER_OPEN_DRAW_ID as player1Id
+        val b1m0 = matches.first { it.round == TournamentRound.QUAL_R1.name && it.matchIndex == 4 }
+        assertTrue(b1m0.isCompleted)
+        assertEquals(b1m0.player2Id, b1m0.winnerId)
 
-        // Verify Match 2 (R1, index 2) - should not be completed automatically
-        val m2 = matches.first { it.round == TournamentRound.QUAL_R1.name && it.matchIndex == 2 }
-        assertTrue(!m2.isCompleted)
-
-        // Verify R2 Match 0 (target for R1 index 0 and index 1)
-        val r2m0 = matches.first { it.round == TournamentRound.QUAL_R2.name && it.matchIndex == 0 }
-        assertEquals(100L, r2m0.player1Id)
-        assertEquals(101L, r2m0.player2Id)
+        // Verify Board 1 Match 3 (matchIndex = 7) - has PLACEHOLDER_OPEN_DRAW_ID as player2Id
+        val b1m3 = matches.first { it.round == TournamentRound.QUAL_R1.name && it.matchIndex == 7 }
+        assertTrue(b1m3.isCompleted)
+        assertEquals(b1m3.player1Id, b1m3.winnerId)
     }
 
     @Test
-    fun `buildInitialMatches creates correct match count and placeholders for odd prelim matches`() {
+    fun `buildInitialMatches creates correct R1 match count for qualifier field`() {
         val strategy = QualifierStrategy(TournamentEvent.QUALIFIER_GRAND_SLAM)
 
-        // 25 direct R1 players, 6 prelim players (3 prelim matches -> odd number)
         val split = QualifierFieldSplit(
             preQualifiedIds = emptyList(),
             nonPrequalifiedIds = emptyList(),
             boardCount = 4,
             boardSizePerBoard = 8,
-            prelimPlayers = listOf(1L, 2L, 3L, 4L, 5L, 6L),
-            byePlayers = (101L..125L).toList(),
+            byePlayers = (101L..132L).toList(),
             seedCount = 8
         )
 
@@ -120,15 +93,8 @@ class QualifierStrategyTest {
             createQualifierMatches = testCreateQualifierMatches
         )
 
-        val prelimMatches = matches.filter { it.round == TournamentRound.QUAL_PRELIM.name }
-        assertEquals(3, prelimMatches.size)
-
         val r1Matches = matches.filter { it.round == TournamentRound.QUAL_R1.name }
-        // totalR1Slots = 25 + 3 = 28 -> 14 R1 matches
-        assertEquals(14, r1Matches.size)
-
-        // Match 12 has player1 = 125L, player2 = PLACEHOLDER_PREVIOUS_WINNER_ID (or prelim placeholder depending on board placement)
-        // Let's check that all r1 matches are generated correctly.
+        assertEquals(16, r1Matches.size)
         assertTrue(r1Matches.isNotEmpty())
     }
 }

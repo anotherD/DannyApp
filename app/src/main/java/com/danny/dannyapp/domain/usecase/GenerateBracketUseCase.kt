@@ -105,46 +105,18 @@ class GenerateBracketUseCase(
         tournamentId: Long,
         split: QualifierFieldSplit
     ): Pair<List<TournamentMatch>, List<TournamentMatch>> {
-        val prelimMatches = mutableListOf<TournamentMatch>()
         val boardCount = split.boardCount
         val boardSizePerBoard = split.boardSizePerBoard
-        val r1Matches = if (split.prelimPlayers.isNotEmpty()) {
-            val prelimMatchCount = split.prelimPlayers.size / 2
-            val prelimPlayers = split.prelimPlayers
-            for (matchIndex in 0 until prelimMatchCount) {
-                prelimMatches.add(
-                    TournamentMatch(
-                        tournamentId = tournamentId,
-                        round = TournamentRound.QUAL_PRELIM.name,
-                        matchIndex = matchIndex,
-                        player1Id = prelimPlayers[matchIndex],
-                        player2Id = prelimPlayers[2 * prelimMatchCount - 1 - matchIndex]
-                    )
-                )
-            }
-            val prelimPlaceholders = (0 until prelimMatchCount).map { matchIndex -> -1000L - matchIndex }
-            val r1Pairings = BracketGenerator.buildQualifierRound1Pairings(boardCount, boardSizePerBoard, split.byePlayers, prelimPlaceholders)
-            r1Pairings.map { pairing ->
-                TournamentMatch(
-                    tournamentId = tournamentId,
-                    round = TournamentRound.QUAL_R1.name,
-                    matchIndex = pairing.matchIndex,
-                    player1Id = pairing.player1Id,
-                    player2Id = pairing.player2Id
-                )
-            }
-        } else {
-            val r1Pairings = BracketGenerator.buildQualifierRound1Pairings(boardCount, boardSizePerBoard, split.byePlayers, emptyList())
-            r1Pairings.map { pairing ->
-                TournamentMatch(
-                    tournamentId = tournamentId,
-                    round = TournamentRound.QUAL_R1.name,
-                    matchIndex = pairing.matchIndex,
-                    player1Id = pairing.player1Id,
-                    player2Id = pairing.player2Id
-                )
-            }
+        val r1Pairings = BracketGenerator.buildQualifierRound1Pairings(boardCount, boardSizePerBoard, split.byePlayers, emptyList())
+        val r1Matches = r1Pairings.map { pairing ->
+            TournamentMatch(
+                tournamentId = tournamentId,
+                round = TournamentRound.QUAL_R1.name,
+                matchIndex = pairing.matchIndex,
+                player1Id = pairing.player1Id,
+                player2Id = pairing.player2Id
+            )
         }
-        return Pair(prelimMatches, r1Matches)
+        return Pair(emptyList(), r1Matches)
     }
 }
