@@ -69,27 +69,11 @@ enum class TournamentEvent(val totalPrizeFund: Double) {
         )
 
     /**
-     * Liefert die Runden-Sequenz für Qualifier basierend auf der Anzahl der Erstrunden-Matches pro Board.
-     * - r1MatchesPerBoard <= 4: QUAL_PRELIM, QUAL_R1, QUAL_R2, QUAL_FINAL
-     * - r1MatchesPerBoard == 8: QUAL_PRELIM, QUAL_R1, QUAL_R2, QUAL_R3, QUAL_FINAL
-     * - r1MatchesPerBoard >= 16: QUAL_PRELIM, QUAL_R1, QUAL_R2, QUAL_R3, QUAL_FINAL (max. bis QUAL_R3 = 32er-Board)
+     * Liefert die Runden-Sequenz als Key-Liste (Strings) für Qualifier basierend auf der Anzahl der Erstrunden-Matches pro Board.
      */
-    fun getQualifierRoundSequence(r1MatchesPerBoard: Int): List<TournamentRound> {
-        return when {
-            r1MatchesPerBoard <= 4 -> listOf(
-                TournamentRound.QUAL_PRELIM,
-                TournamentRound.QUAL_R1,
-                TournamentRound.QUAL_R2,
-                TournamentRound.QUAL_FINAL
-            )
-            else -> listOf(
-                TournamentRound.QUAL_PRELIM,
-                TournamentRound.QUAL_R1,
-                TournamentRound.QUAL_R2,
-                TournamentRound.QUAL_R3,
-                TournamentRound.QUAL_FINAL
-            )
-        }
+    fun getQualifierRoundSequence(r1MatchesPerBoard: Int): List<String> {
+        val boardSizePerBoard = (r1MatchesPerBoard * 2).coerceAtLeast(2)
+        return TournamentRound.buildQualifierRoundSequenceKeys(boardSizePerBoard)
     }
 
     /**
@@ -163,6 +147,64 @@ enum class TournamentEvent(val totalPrizeFund: Double) {
             ?: error("Keine Match-Distanzen für Runde $round in Event $this gefunden")
         return presetMap[preset]
             ?: error("Keine Match-Distanz für Preset $preset in Runde $round in Event $this gefunden")
+    }
+
+    /**
+     * Liefert die Match-Distanz für ein Event anhand des Runden-Keys.
+     * Für Nicht-Qualifier wird an [getMatchDistance] delegiert.
+     * Für Qualifier werden Distanzen rückwärts ab [TournamentRound.QUAL_FINAL] vererbt.
+     */
+    fun getMatchDistanceByRoundKey(
+        roundKey: String,
+        preset: MatchDistancePreset = MatchDistancePreset.DEFAULT,
+        totalQualifierRounds: Int? = null
+    ): MatchDistance {
+        if (!isQualifier) {
+            val round = TournamentRound.valueOf(roundKey)
+            return getMatchDistance(round, preset)
+        }
+
+        val config = TournamentConfigLoader.safeConfig()
+            ?: error("TournamentConfigLoader wurde nicht initialisiert")
+        val eventConfig = config.events[this]
+            ?: error("Keine Event-Konfiguration für $this gefunden")
+
+        val allDefinedRounds = eventConfig.definedRounds
+        val definedList = allDefinedRounds
+            .filter { it != TournamentRound.QUAL_PRELIM }
+            .ifEmpty { allDefinedRounds }
+
+        if (roundKey == TournamentRound.QUAL_PRELIM.name) {
+            val roundToUse = if (TournamentRound.QUAL_PRELIM in allDefinedRounds) {
+                TournamentRound.QUAL_PRELIM
+            } else {
+                definedList.first()
+            }
+            val presetMap = eventConfig.distances[roundToUse]
+                ?: error("Keine Match-Distanzen für Runde $roundToUse in Event $this gefunden")
+            return presetMap[preset]
+                ?: error("Keine Match-Distanz für Preset $preset in Runde $roundToUse in Event $this gefunden")
+        }
+
+        val targetIndex: Int = if (roundKey == TournamentRound.QUAL_FINAL.name) {
+            definedList.lastIndex
+        } else {
+            val parsedRoundNumber = TournamentRound.parseQualifierRoundNumber(roundKey)
+                ?: error("Ungültiger Qualifier-Runden-Key '$roundKey' für Event $this")
+
+            if (totalQualifierRounds != null) {
+                val stepsFromFinal = totalQualifierRounds - parsedRoundNumber
+                (definedList.lastIndex - stepsFromFinal).coerceAtLeast(0)
+            } else {
+                (parsedRoundNumber - 1).coerceIn(0, definedList.lastIndex)
+            }
+        }
+
+        val targetRound = definedList[targetIndex]
+        val presetMap = eventConfig.distances[targetRound]
+            ?: error("Keine Match-Distanzen für Runde $targetRound in Event $this gefunden")
+        return presetMap[preset]
+            ?: error("Keine Match-Distanz für Preset $preset in Runde $targetRound in Event $this gefunden")
     }
 
     /**

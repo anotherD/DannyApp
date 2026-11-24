@@ -216,8 +216,39 @@ object TournamentConfigLoader {
     }
 
     private fun validateDistances(event: TournamentEvent, distances: Map<TournamentRound, Map<MatchDistancePreset, MatchDistance>>) {
-        val roundSequence = event.getRoundSequence()
-        for (round in roundSequence) {
+        val roundsToValidate: List<TournamentRound> = if (event.isQualifier) {
+            if (TournamentRound.QUAL_FINAL !in distances) {
+                throw IllegalStateException(
+                    "Qualifier-Event '$event' muss mindestens die Runde 'QUAL_FINAL' in distances definieren."
+                )
+            }
+            val invalidRounds = distances.keys.filterNot { TournamentRound.isQualifierRoundKey(it.name) }
+            if (invalidRounds.isNotEmpty()) {
+                throw IllegalStateException(
+                    "Ungültige Runden im distances-Block für Qualifier-Event '$event': " +
+                        invalidRounds.joinToString { it.name } + "."
+                )
+            }
+            val sortedDefinedRounds = TournamentRound.entries.filter { it in distances.keys }
+            if (sortedDefinedRounds.last() != TournamentRound.QUAL_FINAL) {
+                throw IllegalStateException(
+                    "QUAL_FINAL muss die letzte definierte Runde im Qualifier-Event '$event' sein."
+                )
+            }
+            sortedDefinedRounds
+        } else {
+            val roundSequence = event.getRoundSequence()
+            val unknownRounds = distances.keys - roundSequence.toSet()
+            if (unknownRounds.isNotEmpty()) {
+                throw IllegalStateException(
+                    "Unbekannte Runden im distances-Block für '$event': " +
+                        unknownRounds.joinToString { it.name } + "."
+                )
+            }
+            roundSequence
+        }
+
+        for (round in roundsToValidate) {
             val presetMap = distances[round]
                 ?: throw IllegalStateException(
                     "Distanzen für Runde '$round' im Turnier '$event' fehlen im distances-Block."
@@ -253,13 +284,6 @@ object TournamentConfigLoader {
                         unknownPresets.joinToString { it.name } + "."
                 )
             }
-        }
-        val unknownRounds = distances.keys - roundSequence.toSet()
-        if (unknownRounds.isNotEmpty()) {
-            throw IllegalStateException(
-                "Unbekannte Runden im distances-Block für '$event': " +
-                    unknownRounds.joinToString { it.name } + "."
-            )
         }
     }
 
@@ -455,7 +479,10 @@ object TournamentConfigLoader {
         val totalPrizeFund: Double,
         val prizes: Map<TournamentRound, Double>,
         val distances: Map<TournamentRound, Map<MatchDistancePreset, MatchDistance>>
-    )
+    ) {
+        val definedRounds: List<TournamentRound>
+            get() = TournamentRound.entries.filter { it in distances.keys }
+    }
 
     data class SeasonConfig(
         val seasonYear: Int,

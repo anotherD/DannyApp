@@ -26,8 +26,37 @@ enum class TournamentRound(@get:StringRes val displayNameResId: Int) {
     WINNER(R.string.round_winner);
 
     companion object {
+        const val QUALIFIER_ROUND_PREFIX = "QUAL_R"
+
         fun fromKey(roundKey: String): TournamentRound? {
             return entries.find { it.name == roundKey }
+        }
+
+        fun qualifierRoundKey(roundNumber: Int): String {
+            require(roundNumber >= 1) { "roundNumber muss >= 1 sein, war: $roundNumber" }
+            return "$QUALIFIER_ROUND_PREFIX$roundNumber"
+        }
+
+        fun parseQualifierRoundNumber(roundKey: String): Int? {
+            if (!roundKey.startsWith(QUALIFIER_ROUND_PREFIX)) return null
+            return roundKey.removePrefix(QUALIFIER_ROUND_PREFIX).toIntOrNull()?.takeIf { it >= 1 }
+        }
+
+        fun isQualifierRoundKey(roundKey: String): Boolean {
+            return roundKey == QUAL_FINAL.name || roundKey == QUAL_PRELIM.name || parseQualifierRoundNumber(roundKey) != null
+        }
+
+        fun buildQualifierRoundSequenceKeys(boardSizePerBoard: Int): List<String> {
+            require(boardSizePerBoard >= 2 && (boardSizePerBoard and (boardSizePerBoard - 1)) == 0) {
+                "boardSizePerBoard muss eine Zweierpotenz >= 2 sein, war: $boardSizePerBoard"
+            }
+            val roundCount = Integer.numberOfTrailingZeros(boardSizePerBoard)
+            val roundKeys = ArrayList<String>(roundCount)
+            for (roundIndex in 1 until roundCount) {
+                roundKeys.add(qualifierRoundKey(roundIndex))
+            }
+            roundKeys.add(QUAL_FINAL.name)
+            return roundKeys
         }
     }
 }

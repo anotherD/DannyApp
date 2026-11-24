@@ -369,7 +369,7 @@ class QualifierStrategy(
         tournamentMatches.addAll(prelimMatches)
         tournamentMatches.addAll(processedR1Matches)
         val r1MatchesPerBoard = if (split.boardCount > 0) r1Matches.size / split.boardCount else 4
-        val roundSequence = event.getQualifierRoundSequence(r1MatchesPerBoard)
+        val roundSequence = event.getQualifierRoundSequence(r1MatchesPerBoard).mapNotNull { TournamentRound.fromKey(it) }
         tournamentMatches.appendSubsequentKoRounds(tournamentId, event, TournamentRound.QUAL_R1, r1Matches.size, roundSequence)
 
         for (r1Match in processedR1Matches) {

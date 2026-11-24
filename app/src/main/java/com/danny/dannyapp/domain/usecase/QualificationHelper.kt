@@ -1,6 +1,7 @@
 package com.danny.dannyapp.domain.usecase
 
 import com.danny.dannyapp.data.db.TournamentMatch
+import com.danny.dannyapp.domain.config.TournamentConfigLoader
 import com.danny.dannyapp.domain.enums.TournamentEvent
 import com.danny.dannyapp.domain.enums.TournamentRound
 import com.danny.dannyapp.domain.model.OrderOfMeritEntry
@@ -10,6 +11,57 @@ import com.danny.dannyapp.domain.model.OrderOfMeritEntry
  * Ermittlung von vorqualifizierten Tour-Card-Inhabern und Runden-Sequenzen.
  */
 object QualificationHelper {
+
+    /**
+     * Ermittelt die Runden-Key-Sequenz (Strings) für ein gegebenes [TournamentEvent].
+     * Für Nicht-Qualifier wird an [getRoundSequence] delegiert und zu Namen gemappt.
+     * Für Qualifier werden bei leerer [allMatches]-Liste die in der JSON-Konfiguration definierte Runden-Keys
+     * (ohne ungenutztes QUAL_PRELIM) zurückgegeben, bei gefüllter [allMatches]-Liste die Runden-Keys direkt aus den Matches
+     * in chronologischer Reihenfolge (QUAL_R1, QUAL_R2, ..., QUAL_FINAL).
+     */
+    fun getRoundSequenceKeys(
+        event: TournamentEvent,
+        allMatches: List<TournamentMatch> = emptyList()
+    ): List<String> {
+        if (!event.isQualifier) {
+            return getRoundSequence(event, allMatches).map { it.name }
+        }
+
+        if (allMatches.isEmpty()) {
+            val config = TournamentConfigLoader.safeConfig()
+                ?: error("TournamentConfigLoader wurde nicht initialisiert")
+            val eventConfig = config.events[event]
+                ?: error("Keine Event-Konfiguration für $event gefunden")
+            val definedRounds = eventConfig.definedRounds
+                .filter { it != TournamentRound.QUAL_PRELIM }
+                .ifEmpty { eventConfig.definedRounds }
+            return definedRounds.map { it.name }
+        }
+
+        val presentRoundKeys = allMatches.map { it.round }.toSet()
+        val sortedKeys = mutableListOf<String>()
+
+        if (presentRoundKeys.contains(TournamentRound.QUAL_PRELIM.name)) {
+            sortedKeys.add(TournamentRound.QUAL_PRELIM.name)
+        }
+
+        val prelimRounds = presentRoundKeys
+            .mapNotNull { roundKey ->
+                TournamentRound.parseQualifierRoundNumber(roundKey)?.let { roundNumber ->
+                    roundNumber to roundKey
+                }
+            }
+            .sortedBy { it.first }
+            .map { it.second }
+
+        sortedKeys.addAll(prelimRounds)
+
+        if (presentRoundKeys.contains(TournamentRound.QUAL_FINAL.name)) {
+            sortedKeys.add(TournamentRound.QUAL_FINAL.name)
+        }
+
+        return sortedKeys
+    }
 
     /**
      * Determines the sequence of rounds for a given [TournamentEvent].
