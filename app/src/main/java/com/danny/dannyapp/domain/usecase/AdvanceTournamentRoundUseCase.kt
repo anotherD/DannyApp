@@ -304,13 +304,13 @@ class AdvanceTournamentRoundUseCase(
         }
 
         val updatedNextRoundMatches = existingNextRoundMatches.toMutableList()
-        for (match in currentRoundMatches) {
-            val winnerId = requireNotNull(match.winnerId) {
-                "Match ${match.id} (Runde ${match.round}, Index ${match.matchIndex}) hat keinen winnerId beim Rundenwechsel"
+        for ((id, _, round, matchIndex, _, _, _, _, winnerId1) in currentRoundMatches) {
+            val winnerId = requireNotNull(winnerId1) {
+                "Match $id (Runde $round, Index $matchIndex) hat keinen winnerId beim Rundenwechsel"
             }
-            val (targetIdx, isPlayer1Slot) = resolveNextRoundSlot(event, currentRound, match.matchIndex)
+            val (targetIdx, isPlayer1Slot) = resolveNextRoundSlot(event, currentRound, matchIndex)
             val nextMatch = requireNotNull(updatedNextRoundMatches.find { it.matchIndex == targetIdx }) {
-                "Ziel-Match mit Index $targetIdx in Folgerunde ${nextRoundEnum.name} für Match ${match.matchIndex} (${match.round}) nicht gefunden"
+                "Ziel-Match mit Index $targetIdx in Folgerunde ${nextRoundEnum.name} für Match $matchIndex ($round) nicht gefunden"
             }
             val updated = if (isPlayer1Slot) {
                 nextMatch.copy(player1Id = winnerId)
@@ -375,18 +375,20 @@ class AdvanceTournamentRoundUseCase(
             return@withContext
         }
 
-        if (event == TournamentEvent.GRAND_SLAM_OF_DARTS && match.round == TournamentRound.GROUP.name && match.matchIndex in 0..15) {
-            val groupIdx = match.matchIndex
-            val groupLetter = ('A' + groupIdx).toString()
-            val loserId = if (match.player1Id == winnerId) match.player2Id else match.player1Id
-            val groupMatches = allMatches.filter { it.round == TournamentRound.GROUP.name }
-            val day2Match = groupMatches.find { it.groupName == groupLetter && it.matchIndex == 16 + groupIdx }
-            val day3Match = groupMatches.find { it.groupName == groupLetter && it.matchIndex == 32 + groupIdx }
-            if (day2Match != null) {
-                tournamentRepository.updateMatch(day2Match.copy(player2Id = loserId))
-            }
-            if (day3Match != null) {
-                tournamentRepository.updateMatch(day3Match.copy(player2Id = winnerId))
+        if (event == TournamentEvent.GRAND_SLAM_OF_DARTS && match.round == TournamentRound.GROUP.name) {
+            if (match.matchIndex in 0..15) {
+                val groupIdx = match.matchIndex
+                val groupLetter = ('A' + groupIdx).toString()
+                val loserId = if (match.player1Id == winnerId) match.player2Id else match.player1Id
+                val groupMatches = allMatches.filter { it.round == TournamentRound.GROUP.name }
+                val day2Match = groupMatches.find { it.groupName == groupLetter && it.matchIndex == 16 + groupIdx }
+                val day3Match = groupMatches.find { it.groupName == groupLetter && it.matchIndex == 32 + groupIdx }
+                if (day2Match != null) {
+                    tournamentRepository.updateMatch(day2Match.copy(player2Id = loserId))
+                }
+                if (day3Match != null) {
+                    tournamentRepository.updateMatch(day3Match.copy(player2Id = winnerId))
+                }
             }
             return@withContext
         }
