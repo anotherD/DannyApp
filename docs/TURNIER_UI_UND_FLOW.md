@@ -8,10 +8,10 @@ Dieses Dokument beschreibt die Benutzeroberfläche und den Interaktions-Flow fü
 
 * **Top-Bar & Breadcrumbs:** Jede Unterseite zeigt als Titel den gewählten Bereich (z. B. `Saisonkalender`, `Turnieransicht`, `Ranglisten`) und als Subtitel den Pfad `Karrieren > <Karrierename> (Saison X)`.
 * **Karrieren-Kacheln & Übersicht:** Zeigen Karrierename, aktuelle Saison, Level, Profilname sowie Spielername inklusive Landesflagge. Über das Kontextmenü (Long-Press) lassen sich bestehende Karrieren umbenennen oder löschen.
-* **Tab-Navigation in der Karriere-Ansicht:**
-    1. **Übersicht:** Kompakte Karriere-Infos, Anzeige der eigenen Positionen und Preisgelder in allen 4 Ranglisten (`OOM`, `PT OOM`, `PC OOM`, `ET OOM`) sowie Direktzugriff auf das aktuelle oder nächste Turnier.
-    2. **Saisonkalender:** Chronologische Übersicht aller Turniere der aktiven Saison.
-    3. **Ranglisten:** Auswahl der 4 dynamischen Ranglisten (`OOM`, `PT OOM`, `PC OOM`, `ET OOM`).
+* **Eigenständige Seiten aus der Karriere-Ansicht (`CareerDetailActivity`):**
+    1. **Karriere-Übersicht (`CareerDetailActivity`):** Kompakte Karriere-Infos, klickbare Anzeige der eigenen Positionen und Preisgelder in allen 4 Ranglisten (`OOM`, `PT OOM`, `PC OOM`, `ET OOM`), Schnellzugriffs-Kacheln rechts daneben (oben: Saisonkalender, unten: Statistiken) sowie Direktzugriff auf das aktuelle oder nächste Turnier.
+    2. **Saisonkalender (`SeasonCalendarActivity`):** Chronologische Übersicht aller Turniere der aktiven Saison.
+    3. **Ranglisten (`OrderOfMeritActivity`):** Auswahl der 4 dynamischen Ranglisten (`OOM`, `PT OOM`, `PC OOM`, `ET OOM`) mit direkter Vorauswahl beim Klick aus der Karriere-Übersicht.
 
 ---
 
