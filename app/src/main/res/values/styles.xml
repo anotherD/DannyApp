@@ -58,6 +58,19 @@
 <!--        <item name="colorOnErrorContainer">@color/white</item>&ndash;&gt;-->
     </style>
 
+    <!-- Splash-Screen-Theme beim App-Start -->
+<!--    <style name="Theme.DannyApp.Splash" parent="Theme.SplashScreen">-->
+<!--        <item name="windowSplashScreenBackground">#121212</item>-->
+<!--        <item name="windowSplashScreenAnimatedIcon">@drawable/avd_splash_walkon</item>-->
+<!--        <item name="windowSplashScreenAnimationDuration">750</item>-->
+<!--        <item name="postSplashScreenTheme">@style/Theme.DannyApp</item>-->
+<!--    </style>-->
+    <style name="Theme.DannyApp.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">#121212</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_walkon_icon</item>
+        <item name="windowSplashScreenAnimationDuration">11750</item>
+        <item name="postSplashScreenTheme">@style/Theme.DannyApp</item>
+    </style>
     <!-- Eigener TextInputLayout-Stil für den Platzhalter (Hint) ohne das schwebende Label zu beeinflussen -->
     <style name="Widget.DannyApp.TextInputLayout.OutlinedBox" parent="Widget.Material3.TextInputLayout.OutlinedBox">
         <item name="android:textColorHint">@color/eingabe_hint</item>

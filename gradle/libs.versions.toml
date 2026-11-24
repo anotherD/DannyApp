@@ -1,5 +1,6 @@
 [versions]
 agp = "9.4.0"
+coreSplashscreen = "1.2.0"
 fragmentKtx = "1.9.1"
 kotlin = "2.0.21"
 coreKtx = "1.19.1"
@@ -16,6 +17,7 @@ orgJson = "20240303"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
 androidx-fragment-ktx = { module = "androidx.fragment:fragment-ktx", version.ref = "fragmentKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }

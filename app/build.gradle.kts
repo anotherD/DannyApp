@@ -47,6 +47,7 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.core.ktx)
     implementation(libs.material)
+    implementation(libs.androidx.core.splashscreen)
 
     // Room Database
     implementation(libs.androidx.room.runtime)
