@@ -99,6 +99,10 @@ object CareerDistanceInfoDialog {
         private val presets: List<MatchDistancePreset>
     ) : RecyclerView.Adapter<CareerDistancePresetPagerAdapter.PresetViewHolder>() {
 
+        private var sharedScrollY: Int = 0
+        private val activeScrollViews = mutableSetOf<ScrollView>()
+        private var isSyncingScroll = false
+
         private val categories = listOf(
             TournamentCategoryInfo(R.string.career_distance_category_world_masters, TournamentEvent.WORLD_MASTERS),
             TournamentCategoryInfo(R.string.career_distance_category_players_championship, TournamentEvent.PLAYERS_CHAMPIONSHIP),
@@ -121,11 +125,27 @@ object CareerDistanceInfoDialog {
                     ViewGroup.LayoutParams.MATCH_PARENT
                 )
                 isFillViewport = true
+                setOnScrollChangeListener { sourceView, _, scrollY, _, _ ->
+                    if (!isSyncingScroll) {
+                        sharedScrollY = scrollY
+                        isSyncingScroll = true
+                        try {
+                            activeScrollViews.forEach { otherView ->
+                                if (otherView !== sourceView) {
+                                    otherView.scrollTo(0, scrollY)
+                                }
+                            }
+                        } finally {
+                            isSyncingScroll = false
+                        }
+                    }
+                }
             }
             return PresetViewHolder(scrollView)
         }
 
         override fun onBindViewHolder(holder: PresetViewHolder, position: Int) {
+            activeScrollViews.add(holder.scrollView)
             val preset = presets[position]
             val density = context.resources.displayMetrics.density
             val contentLayout = LinearLayout(context).apply {
@@ -193,6 +213,20 @@ object CareerDistanceInfoDialog {
 
             holder.scrollView.removeAllViews()
             holder.scrollView.addView(contentLayout)
+
+            holder.scrollView.post {
+                isSyncingScroll = true
+                try {
+                    holder.scrollView.scrollTo(0, sharedScrollY)
+                } finally {
+                    isSyncingScroll = false
+                }
+            }
+        }
+
+        override fun onViewRecycled(holder: PresetViewHolder) {
+            super.onViewRecycled(holder)
+            activeScrollViews.remove(holder.scrollView)
         }
 
         override fun getItemCount(): Int = presets.size

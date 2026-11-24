@@ -673,8 +673,7 @@ class TournamentDetailActivity : BaseActivity() {
         val filtered = TournamentDetailUiHelper.filterMatchesForBoard(
             allRoundsMatches = allRoundsMatches,
             boardIndex = selectedBoardFilterIndex,
-            boardCount = boardCount,
-            qualificationUseCase = appContainer.tournamentQualificationUseCase
+            boardCount = boardCount
         )
         onFilterChanged(filtered)
     }

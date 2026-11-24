@@ -381,8 +381,6 @@ class TournamentDetailViewModel(
 
         val allPlayersMap = (preloadedPlayers ?: playerRepository.getAllPlayersList()).associateBy { it.id }
         val seededPlayerMap = getSeededPlayerMap(event, tournament.seasonId, tournament.id)
-        val qualifierBoardCount = TournamentDetailUiHelper.getQualifierBoardCountFromMatches(event, allMatches)
-        val qualR1Matches = allMatches.filter { it.round == TournamentRound.QUAL_R1.name }
 
         val matchUiModels = buildRoundMatchUiModels(
             matches = filteredMatches,
@@ -390,10 +388,7 @@ class TournamentDetailViewModel(
             event = event,
             careerWithProfile = careerWithProfile,
             allPlayersMap = allPlayersMap,
-            seededPlayerMap = seededPlayerMap,
-            qualR1Matches = qualR1Matches,
-            qualifierBoardCount = qualifierBoardCount,
-            sortPrelimByBoard = true
+            seededPlayerMap = seededPlayerMap
         )
 
         val isSelectedRoundPlayable = dbMatchesForRound.isNotEmpty() && dbMatchesForRound.any { !it.isCompleted }
@@ -407,9 +402,7 @@ class TournamentDetailViewModel(
             event = event,
             careerWithProfile = careerWithProfile,
             allPlayersMap = allPlayersMap,
-            seededPlayerMap = seededPlayerMap,
-            qualR1Matches = qualR1Matches,
-            qualifierBoardCount = qualifierBoardCount
+            seededPlayerMap = seededPlayerMap
         )
 
         val grandSlamGroupStandings = if (event == TournamentEvent.GRAND_SLAM_OF_DARTS) {
@@ -520,8 +513,6 @@ class TournamentDetailViewModel(
         } else null
 
         val seededPlayerMap = getSeededPlayerMap(event, tournament.seasonId, tournament.id)
-        val qualifierBoardCount = TournamentDetailUiHelper.getQualifierBoardCountFromMatches(event, allMatches)
-        val qualR1Matches = allMatches.filter { it.round == TournamentRound.QUAL_R1.name }
 
         val matchUiModels = buildRoundMatchUiModels(
             matches = filteredMatches,
@@ -529,10 +520,7 @@ class TournamentDetailViewModel(
             event = event,
             careerWithProfile = careerWithProfile,
             allPlayersMap = allPlayersMap,
-            seededPlayerMap = seededPlayerMap,
-            qualR1Matches = qualR1Matches,
-            qualifierBoardCount = qualifierBoardCount,
-            sortPrelimByBoard = true
+            seededPlayerMap = seededPlayerMap
         )
 
         val allRoundsMatches = buildAllRoundsMatches(
@@ -541,9 +529,7 @@ class TournamentDetailViewModel(
             event = event,
             careerWithProfile = careerWithProfile,
             allPlayersMap = allPlayersMap,
-            seededPlayerMap = seededPlayerMap,
-            qualR1Matches = qualR1Matches,
-            qualifierBoardCount = qualifierBoardCount
+            seededPlayerMap = seededPlayerMap
         )
 
         val grandSlamGroupStandings = if (event == TournamentEvent.GRAND_SLAM_OF_DARTS) {
@@ -673,7 +659,7 @@ class TournamentDetailViewModel(
     }
 
     /**
-     * Wandelt die Datenbank-Matches einer Runde in UI-Modelle um und ergänzt bei Vorrunden-Matches das Ziel-Board.
+     * Wandelt die Datenbank-Matches einer Runde in UI-Modelle um.
      */
     private fun buildRoundMatchUiModels(
         matches: List<TournamentMatch>,
@@ -681,12 +667,9 @@ class TournamentDetailViewModel(
         event: TournamentEvent,
         careerWithProfile: CareerWithProfile,
         allPlayersMap: Map<Long, Player>,
-        seededPlayerMap: Map<Long, Int>,
-        qualR1Matches: List<TournamentMatch>,
-        qualifierBoardCount: Int,
-        sortPrelimByBoard: Boolean
+        seededPlayerMap: Map<Long, Int>
     ): List<MatchUiModel> {
-        val rawModels = matches.map { match ->
+        return matches.map { match ->
             TournamentDetailMapper.createMatchUiModel(
                 context = getApplication(),
                 match = match,
@@ -696,22 +679,6 @@ class TournamentDetailViewModel(
                 event = event,
                 seededPlayerMap = seededPlayerMap
             )
-        }
-        if (roundKey != TournamentRound.QUAL_PRELIM.name) return rawModels
-
-        val withBoards = rawModels.map { model ->
-            val board = tournamentQualificationUseCase.resolvePrelimTargetBoard(
-                qualR1Matches = qualR1Matches,
-                prelimMatchIndex = model.match.matchIndex,
-                winnerId = model.match.winnerId,
-                boardCount = qualifierBoardCount
-            )
-            model.copy(targetBoard = board)
-        }
-        return if (sortPrelimByBoard) {
-            withBoards.sortedWith(compareBy<MatchUiModel> { it.targetBoard ?: 0 }.thenBy { it.match.matchIndex })
-        } else {
-            withBoards
         }
     }
 
@@ -724,9 +691,7 @@ class TournamentDetailViewModel(
         event: TournamentEvent,
         careerWithProfile: CareerWithProfile,
         allPlayersMap: Map<Long, Player>,
-        seededPlayerMap: Map<Long, Int>,
-        qualR1Matches: List<TournamentMatch>,
-        qualifierBoardCount: Int
+        seededPlayerMap: Map<Long, Int>
     ): List<List<MatchUiModel>> {
         return availableRounds.map { roundKey ->
             buildRoundMatchUiModels(
@@ -735,10 +700,7 @@ class TournamentDetailViewModel(
                 event = event,
                 careerWithProfile = careerWithProfile,
                 allPlayersMap = allPlayersMap,
-                seededPlayerMap = seededPlayerMap,
-                qualR1Matches = qualR1Matches,
-                qualifierBoardCount = qualifierBoardCount,
-                sortPrelimByBoard = false
+                seededPlayerMap = seededPlayerMap
             )
         }
     }

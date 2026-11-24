@@ -391,23 +391,6 @@ class AdvanceTournamentRoundUseCase(
             return@withContext
         }
 
-        if (currentRoundEnum == TournamentRound.QUAL_PRELIM) {
-            val r1Matches = allMatches.filter { it.round == TournamentRound.QUAL_R1.name }
-            val expectedPlaceholderId = -1000L - match.matchIndex
-
-            val targetMatch = requireNotNull(r1Matches.firstOrNull { it.player1Id == expectedPlaceholderId || it.player2Id == expectedPlaceholderId }) {
-                "QUAL_R1-Match mit Platzhalter-ID $expectedPlaceholderId für Vorrundensieger $winnerId (Prelim Match ${match.matchIndex}) nicht gefunden"
-            }
-
-            val updatedMatch = if (targetMatch.player1Id == expectedPlaceholderId) {
-                targetMatch.copy(player1Id = winnerId)
-            } else {
-                targetMatch.copy(player2Id = winnerId)
-            }
-            tournamentRepository.updateMatch(updatedMatch)
-            return@withContext
-        }
-
         if (currentRoundEnum == TournamentRound.F || currentRoundEnum == TournamentRound.QUAL_FINAL) {
             return@withContext
         }

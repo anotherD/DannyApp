@@ -23,7 +23,6 @@ import com.danny.dannyapp.domain.enums.TournamentRound
 import com.danny.dannyapp.domain.usecase.AdvanceTournamentRoundUseCase
 import com.danny.dannyapp.domain.usecase.EntrantGroupDomainData
 import com.danny.dannyapp.domain.usecase.EntrantGroupType
-import com.danny.dannyapp.domain.usecase.TournamentQualificationUseCase
 import com.danny.dannyapp.ui.UIHelper
 import com.danny.dannyapp.ui.enums.RoundStatus
 import com.danny.dannyapp.ui.model.EntrantGroupInfo
@@ -198,8 +197,7 @@ object TournamentDetailUiHelper {
     fun filterMatchesForBoard(
         allRoundsMatches: List<List<MatchUiModel>>,
         boardIndex: Int,
-        boardCount: Int,
-        qualificationUseCase: TournamentQualificationUseCase
+        boardCount: Int
     ): List<List<MatchUiModel>> {
         if (boardIndex !in 0 until boardCount) {
             return allRoundsMatches
@@ -220,17 +218,7 @@ object TournamentDetailUiHelper {
             if (roundMatches.isEmpty()) return@map emptyList()
             val roundKey = roundMatches.first().match.round
             when (roundKey) {
-                TournamentRound.QUAL_PRELIM.name -> {
-                    roundMatches.filter { matchModel ->
-                        val targetBoard = matchModel.targetBoard ?: qualificationUseCase.resolvePrelimTargetBoard(
-                            qualR1Matches = qualR1Matches,
-                            prelimMatchIndex = matchModel.match.matchIndex,
-                            winnerId = matchModel.match.winnerId,
-                            boardCount = boardCount
-                        )
-                        targetBoard == boardIndex
-                    }
-                }
+
                 TournamentRound.QUAL_R1.name -> {
                     val startIdx = r1MatchesPerBoard * boardIndex
                     val endIdx = startIdx + r1MatchesPerBoard - 1
@@ -350,14 +338,7 @@ object TournamentDetailUiHelper {
                     val idx = roundMatchesNext.indexOfFirst { it.player1.id == matchItem.winnerId || it.player2.id == matchItem.winnerId }
                     if (idx >= 0) return idx
                 }
-                if (matchItem != null) {
-                    val targetBoard = matchItem.targetBoard
-                    if (targetBoard != null) {
-                        val targetGlobalIndex = 4 * targetBoard + 3
-                        val idx = roundMatchesNext.indexOfFirst { it.match.matchIndex == targetGlobalIndex }
-                        if (idx >= 0) return idx
-                    }
-                }
+
                 if (sizeNext == 4) {
                     min(3, sizeNext - 1)
                 } else {
