@@ -179,8 +179,12 @@ class TournamentDetailActivity : BaseActivity() {
         if (::btnSimulateCpuMatches.isInitialized && viewModel.uiState.value is TournamentDetailState.Active) {
             val state = viewModel.uiState.value as TournamentDetailState.Active
             btnSimulateComplete.visibility = if (debugMode) View.VISIBLE else View.GONE
-            btnSimulateCpuMatches.visibility = if (debugMode && state.hasOpenCpuMatchesInActiveRound) View.VISIBLE else View.GONE
+            btnSimulateCpuMatches.visibility = if (!autoSimulateCpu && state.hasOpenCpuMatchesInActiveRound) View.VISIBLE else View.GONE
+            if (::btnAdvanceRound.isInitialized) {
+                btnAdvanceRound.visibility = if (!autoAdvanceRound && state.canAdvanceRound) View.VISIBLE else View.GONE
+            }
         }
+        viewModel.onSettingsResumed()
         if (::activeMatchesAdapter.isInitialized) activeMatchesAdapter.notifyItemRangeChanged(0, activeMatchesAdapter.itemCount)
         if (::reviewMatchesAdapter.isInitialized) reviewMatchesAdapter.notifyItemRangeChanged(0, reviewMatchesAdapter.itemCount)
         if (::bracketViewActive.isInitialized) bracketViewActive.refreshStyles()
@@ -401,8 +405,8 @@ class TournamentDetailActivity : BaseActivity() {
                 currentEvent = state.event
 
                 btnSimulateComplete.visibility = if (debugMode) View.VISIBLE else View.GONE
-                btnSimulateCpuMatches.visibility = if (debugMode && state.hasOpenCpuMatchesInActiveRound) View.VISIBLE else View.GONE
-                btnAdvanceRound.visibility = if (state.canAdvanceRound) View.VISIBLE else View.GONE
+                btnSimulateCpuMatches.visibility = if (!autoSimulateCpu && state.hasOpenCpuMatchesInActiveRound) View.VISIBLE else View.GONE
+                btnAdvanceRound.visibility = if (!autoAdvanceRound && state.canAdvanceRound) View.VISIBLE else View.GONE
                 btnAdvanceRound.isEnabled = state.canAdvanceRound
                 btnAdvanceRound.setText(if (state.isFinalRound) R.string.btn_finish_tournament else R.string.btn_advance_round)
 
