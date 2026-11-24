@@ -175,6 +175,7 @@
 
     <!-- Kalender & Ranglisten -->
     <string name="no_tournaments_available">Keine Turniere vorhanden.</string>
+    <string name="no_tournaments_matching_filter">Keine Turniere für die gewählten Filter vorhanden.</string>
     <string name="no_oom_data_available">Keine Ranglistendaten verfügbar.</string>
 
     <!-- Turnierbaum & Schwebe-Buttons -->
