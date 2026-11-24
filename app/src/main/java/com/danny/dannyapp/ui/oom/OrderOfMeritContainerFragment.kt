@@ -2,12 +2,15 @@ package com.danny.dannyapp.ui.oom
 
 import android.os.Bundle
 import android.view.View
+import android.widget.HorizontalScrollView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.viewpager2.adapter.FragmentStateAdapter
+import androidx.viewpager2.widget.ViewPager2
 import com.danny.dannyapp.R
 import com.danny.dannyapp.domain.enums.OrderOfMeritType
 import com.danny.dannyapp.ui.UIHelper
@@ -18,7 +21,11 @@ import kotlinx.coroutines.launch
 class OrderOfMeritContainerFragment : Fragment(R.layout.fragment_order_of_merit_container) {
 
     private lateinit var chipGroupOomTypes: ChipGroup
+    private lateinit var scrollOomChips: HorizontalScrollView
+    private lateinit var viewPagerOom: ViewPager2
     private lateinit var viewModel: OrderOfMeritViewModel
+
+    private var isInitialSelection = true
 
     private var cardStickyUserTop: MaterialCardView? = null
     private var shadowStickyTop: View? = null
@@ -37,6 +44,8 @@ class OrderOfMeritContainerFragment : Fragment(R.layout.fragment_order_of_merit_
 
         viewModel = ViewModelProvider(requireActivity())[OrderOfMeritViewModel::class.java]
         chipGroupOomTypes = view.findViewById(R.id.chipGroupOomTypes)
+        scrollOomChips = view.findViewById(R.id.scrollOomChips)
+        viewPagerOom = view.findViewById(R.id.viewPagerOom)
 
         cardStickyUserTop = view.findViewById(R.id.cardStickyUserTop)
         shadowStickyTop = view.findViewById(R.id.shadowStickyTop)
@@ -49,6 +58,25 @@ class OrderOfMeritContainerFragment : Fragment(R.layout.fragment_order_of_merit_
         tvStickyRankBottom = view.findViewById(R.id.tvStickyRankBottom)
         tvStickyPlayerNameBottom = view.findViewById(R.id.tvStickyPlayerNameBottom)
         tvStickyPrizeMoneyBottom = view.findViewById(R.id.tvStickyPrizeMoneyBottom)
+
+        viewPagerOom.adapter = object : FragmentStateAdapter(this) {
+            override fun getItemCount(): Int = OrderOfMeritType.entries.size
+
+            override fun createFragment(position: Int): Fragment {
+                val type = OrderOfMeritType.entries[position]
+                return OrderOfMeritFragment.newInstance(type)
+            }
+        }
+
+        viewPagerOom.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+                val type = OrderOfMeritType.entries[position]
+                if (viewModel.selectedOomType.value != type) {
+                    viewModel.selectOomType(type)
+                }
+            }
+        })
 
         chipGroupOomTypes.setOnCheckedStateChangeListener { _, checkedIds ->
             val checkedId = checkedIds.firstOrNull() ?: return@setOnCheckedStateChangeListener
@@ -76,7 +104,17 @@ class OrderOfMeritContainerFragment : Fragment(R.layout.fragment_order_of_merit_
                     if (chipGroupOomTypes.checkedChipId != chipId) {
                         chipGroupOomTypes.check(chipId)
                     }
-                    showOomFragment(type)
+                    val index = OrderOfMeritType.entries.indexOf(type)
+                    if (viewPagerOom.currentItem != index) {
+                        viewPagerOom.setCurrentItem(index, !isInitialSelection)
+                    }
+                    isInitialSelection = false
+
+                    val selectedChip = chipGroupOomTypes.findViewById<View>(chipId)
+                    selectedChip?.post {
+                        val scrollX = selectedChip.left - (scrollOomChips.width - selectedChip.width) / 2
+                        scrollOomChips.smoothScrollTo(scrollX.coerceAtLeast(0), 0)
+                    }
                 }
             }
         }
@@ -137,12 +175,6 @@ class OrderOfMeritContainerFragment : Fragment(R.layout.fragment_order_of_merit_
                 }
             }
         }
-    }
-
-    private fun showOomFragment(type: OrderOfMeritType) {
-        childFragmentManager.beginTransaction()
-            .replace(R.id.fragmentContainerOom, OrderOfMeritFragment.newInstance(type))
-            .commit()
     }
 
     companion object {

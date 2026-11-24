@@ -63,8 +63,8 @@
         </com.google.android.material.chip.ChipGroup>
     </HorizontalScrollView>
 
-    <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/fragmentContainerOom"
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewPagerOom"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"

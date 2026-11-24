@@ -55,7 +55,7 @@ class OrderOfMeritFragment : Fragment(R.layout.fragment_order_of_merit) {
     }
 
     fun updateStickyCard() {
-        if (!isResumed) return
+        if (!isResumed || viewModel.selectedOomType.value != oomType) return
         if (isAdded && ::rvOom.isInitialized) {
             val lm = rvOom.layoutManager as? LinearLayoutManager
             if (lm != null) {
@@ -126,8 +126,10 @@ class OrderOfMeritFragment : Fragment(R.layout.fragment_order_of_merit) {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.scrollToPositionEvent.collect { userIndex ->
-                    val lm = rvOom.layoutManager as? LinearLayoutManager
-                    lm?.scrollToPositionWithOffset(userIndex, rvOom.height / 2 - 100)
+                    if (viewModel.selectedOomType.value == oomType) {
+                        val lm = rvOom.layoutManager as? LinearLayoutManager
+                        lm?.scrollToPositionWithOffset(userIndex, rvOom.height / 2 - 100)
+                    }
                 }
             }
         }
