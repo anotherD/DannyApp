@@ -1,8 +1,10 @@
 package com.danny.dannyapp.ui.oom
 
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.View
 import android.widget.HorizontalScrollView
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
@@ -12,6 +14,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.danny.dannyapp.R
 import com.danny.dannyapp.domain.enums.OrderOfMeritType
+import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import kotlinx.coroutines.launch
 
@@ -31,6 +34,8 @@ class OrderOfMeritContainerFragment : Fragment(R.layout.fragment_order_of_merit_
         chipGroupOomTypes = view.findViewById(R.id.chipGroupOomTypes)
         scrollOomChips = view.findViewById(R.id.scrollOomChips)
         viewPagerOom = view.findViewById(R.id.viewPagerOom)
+
+        updateChipStyles(chipGroupOomTypes.checkedChipId)
 
         viewPagerOom.adapter = object : FragmentStateAdapter(this) {
             override fun getItemCount(): Int = OrderOfMeritType.entries.size
@@ -77,6 +82,7 @@ class OrderOfMeritContainerFragment : Fragment(R.layout.fragment_order_of_merit_
                     if (chipGroupOomTypes.checkedChipId != chipId) {
                         chipGroupOomTypes.check(chipId)
                     }
+                    updateChipStyles(chipId)
                     val index = OrderOfMeritType.entries.indexOf(type)
                     if (viewPagerOom.currentItem != index) {
                         viewPagerOom.setCurrentItem(index, !isInitialSelection)
@@ -89,6 +95,27 @@ class OrderOfMeritContainerFragment : Fragment(R.layout.fragment_order_of_merit_
                         scrollOomChips.smoothScrollTo(scrollX.coerceAtLeast(0), 0)
                     }
                 }
+            }
+        }
+    }
+
+    private fun updateChipStyles(selectedChipId: Int) {
+        val ctx = context ?: return
+        val density = ctx.resources.displayMetrics.density
+        val whiteColor = ContextCompat.getColor(ctx, R.color.white)
+        val darkBorderColor = ContextCompat.getColor(ctx, R.color.grau_rahmen_dunkel)
+        val mutedTextColor = ContextCompat.getColor(ctx, R.color.grau_text_gedaempft)
+
+        for (i in 0 until chipGroupOomTypes.childCount) {
+            val chip = chipGroupOomTypes.getChildAt(i) as? Chip ?: continue
+            if (chip.id == selectedChipId) {
+                chip.chipStrokeColor = ColorStateList.valueOf(whiteColor)
+                chip.chipStrokeWidth = 2 * density
+                chip.setTextColor(whiteColor)
+            } else {
+                chip.chipStrokeColor = ColorStateList.valueOf(darkBorderColor)
+                chip.chipStrokeWidth = 1 * density
+                chip.setTextColor(mutedTextColor)
             }
         }
     }

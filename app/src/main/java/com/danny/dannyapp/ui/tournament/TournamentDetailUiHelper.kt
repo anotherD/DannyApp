@@ -403,8 +403,10 @@ object TournamentDetailUiHelper {
                 if (isChecked) {
                     chipStrokeColor = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.white))
                     chipStrokeWidth = 2 * context.resources.displayMetrics.density
+                    setTextColor(ContextCompat.getColor(context, R.color.white))
                 } else {
-                    chipStrokeWidth = 0f
+                    chipStrokeColor = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.grau_rahmen_dunkel))
+                    chipStrokeWidth = 1 * context.resources.displayMetrics.density
                 }
 
                 setOnClickListener {

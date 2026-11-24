@@ -331,9 +331,10 @@ class TournamentBracketView @JvmOverloads constructor(
             gravity = Gravity.CENTER
             maxLines = 1
             ellipsize = TextUtils.TruncateAt.END
-            val pxPaddingH = (12 * density).toInt()
-            val pxPaddingV = (4 * density).toInt()
+            val pxPaddingH = (14 * density).toInt()
+            val pxPaddingV = (6 * density).toInt()
             setPadding(pxPaddingH, pxPaddingV, pxPaddingH, pxPaddingV)
+            minWidth = (72 * density).toInt()
 
             setOnClickListener {
                 selectRound(roundIndex)
@@ -351,19 +352,20 @@ class TournamentBracketView @JvmOverloads constructor(
             RoundStatus.ACTIVE -> R.color.status_active
             RoundStatus.PENDING -> R.color.anthrazit_container_niedrig
         }
-        val textRes = when (status) {
-            RoundStatus.ACTIVE -> R.color.white
+        val textRes = when {
+            isSelected -> R.color.white
+            status == RoundStatus.ACTIVE -> R.color.white
             else -> R.color.grau_text_gedaempft
         }
 
         val bgDrawable = GradientDrawable().apply {
             shape = GradientDrawable.RECTANGLE
-            cornerRadius = 14f * density
+            cornerRadius = 8f * density
             setColor(ContextCompat.getColor(context, bgRes))
             if (isSelected) {
                 setStroke((2f * density).toInt(), ContextCompat.getColor(context, R.color.white))
             } else {
-                setStroke(0, 0)
+                setStroke((1f * density).toInt(), ContextCompat.getColor(context, R.color.grau_rahmen_dunkel))
             }
         }
         textView.background = bgDrawable

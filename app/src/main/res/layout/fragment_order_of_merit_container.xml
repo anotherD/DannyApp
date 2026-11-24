@@ -34,6 +34,7 @@
                 android:layout_height="wrap_content"
                 android:checked="true"
                 app:checkedIconVisible="false"
+                app:chipBackgroundColor="@color/anthrazit_container_niedrig"
                 android:text="@string/oom_tab_oom" />
 
             <com.google.android.material.chip.Chip
@@ -42,6 +43,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:checkedIconVisible="false"
+                app:chipBackgroundColor="@color/anthrazit_container_niedrig"
                 android:text="@string/oom_tab_pt" />
 
             <com.google.android.material.chip.Chip
@@ -50,6 +52,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:checkedIconVisible="false"
+                app:chipBackgroundColor="@color/anthrazit_container_niedrig"
                 android:text="@string/oom_tab_pc" />
 
             <com.google.android.material.chip.Chip
@@ -58,6 +61,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:checkedIconVisible="false"
+                app:chipBackgroundColor="@color/anthrazit_container_niedrig"
                 android:text="@string/oom_tab_et" />
 
         </com.google.android.material.chip.ChipGroup>
