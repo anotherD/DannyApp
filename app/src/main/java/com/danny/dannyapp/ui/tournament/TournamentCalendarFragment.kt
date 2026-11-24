@@ -117,8 +117,7 @@ class TournamentCalendarFragment : Fragment(R.layout.fragment_tournament_calenda
         val showPc = chipFilterPc.isChecked
 
         val filteredList = allTournaments.filter { model ->
-            val event = runCatching { TournamentEvent.valueOf(model.tournament.type) }.getOrNull()
-                ?: return@filter false
+            val event = TournamentEvent.valueOf(model.tournament.type)
             val isMajorCategory = event.isMajor || (event.isQualifier && event != TournamentEvent.QUALIFIER_ET)
             val isEtCategory = event == TournamentEvent.EUROPEAN_TOUR || event == TournamentEvent.QUALIFIER_ET
             val isPcCategory = event == TournamentEvent.PLAYERS_CHAMPIONSHIP
