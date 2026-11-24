@@ -73,7 +73,7 @@ class OrderOfMeritFragment : Fragment(R.layout.fragment_order_of_merit) {
         })
 
         rvOom.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
-            updateStickyCard()
+            rvOom.post { updateStickyCard() }
         }
 
         observeData()
@@ -124,8 +124,8 @@ class OrderOfMeritFragment : Fragment(R.layout.fragment_order_of_merit) {
                     layoutManager.scrollToPositionWithOffset(userIndex, rvOom.height / 2 - 100)
                 }
 
-                cardStickyUserBottom.visibility = View.GONE
-                shadowStickyBottom.visibility = View.GONE
+                cardStickyUserBottom.visibility = View.INVISIBLE
+                shadowStickyBottom.visibility = View.INVISIBLE
             }
             userIndex > lastVisible -> {
                 val rankText = getString(R.string.rank_format, userEntry.rank)
@@ -141,8 +141,8 @@ class OrderOfMeritFragment : Fragment(R.layout.fragment_order_of_merit) {
                     layoutManager.scrollToPositionWithOffset(userIndex, rvOom.height / 2 - 100)
                 }
 
-                cardStickyUserTop.visibility = View.GONE
-                shadowStickyTop.visibility = View.GONE
+                cardStickyUserTop.visibility = View.INVISIBLE
+                shadowStickyTop.visibility = View.INVISIBLE
             }
             else -> {
                 hideAllStickyViews()
@@ -151,10 +151,10 @@ class OrderOfMeritFragment : Fragment(R.layout.fragment_order_of_merit) {
     }
 
     private fun hideAllStickyViews() {
-        cardStickyUserTop.visibility = View.GONE
-        shadowStickyTop.visibility = View.GONE
-        cardStickyUserBottom.visibility = View.GONE
-        shadowStickyBottom.visibility = View.GONE
+        cardStickyUserTop.visibility = View.INVISIBLE
+        shadowStickyTop.visibility = View.INVISIBLE
+        cardStickyUserBottom.visibility = View.INVISIBLE
+        shadowStickyBottom.visibility = View.INVISIBLE
     }
 
     private fun observeData() {
