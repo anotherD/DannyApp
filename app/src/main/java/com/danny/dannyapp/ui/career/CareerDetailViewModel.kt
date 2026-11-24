@@ -33,8 +33,15 @@ class CareerDetailViewModel(
     private val _openRankingEvent = MutableSharedFlow<OrderOfMeritType>(extraBufferCapacity = 1)
     val openRankingEvent: SharedFlow<OrderOfMeritType> = _openRankingEvent.asSharedFlow()
 
+    private val _openCalendarEvent = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    val openCalendarEvent: SharedFlow<Unit> = _openCalendarEvent.asSharedFlow()
+
     fun requestOpenRanking(type: OrderOfMeritType) {
         _openRankingEvent.tryEmit(type)
+    }
+
+    fun requestOpenCalendar() {
+        _openCalendarEvent.tryEmit(Unit)
     }
 
     init {

@@ -83,6 +83,11 @@ class CareerDetailActivity : BaseActivity() {
                     }
                 }
                 launch {
+                    careerViewModel.openCalendarEvent.collect {
+                        viewPagerCareer.setCurrentItem(1, true)
+                    }
+                }
+                launch {
                     careerViewModel.careerState.collect { state ->
                         when (state) {
                             is CareerDetailState.Success -> {

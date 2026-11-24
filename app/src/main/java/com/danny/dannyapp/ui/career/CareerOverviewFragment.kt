@@ -23,6 +23,7 @@ import com.danny.dannyapp.ui.tournament.TournamentCalendarState
 import com.danny.dannyapp.ui.tournament.TournamentCalendarViewModel
 import com.danny.dannyapp.ui.tournament.TournamentDetailActivity
 import com.danny.dannyapp.ui.tournament.TournamentUiHelper
+import com.google.android.material.card.MaterialCardView
 import kotlinx.coroutines.launch
 
 class CareerOverviewFragment : Fragment(R.layout.fragment_career_overview) {
@@ -44,6 +45,7 @@ class CareerOverviewFragment : Fragment(R.layout.fragment_career_overview) {
     private lateinit var layoutOverviewRankEt: LinearLayout
     private lateinit var containerActiveTournament: FrameLayout
     private lateinit var tvNoActiveTournament: TextView
+    private lateinit var cardShortcutCalendar: MaterialCardView
 
     private var careerId: Long = -1L
     private var careerName: String = ""
@@ -73,11 +75,13 @@ class CareerOverviewFragment : Fragment(R.layout.fragment_career_overview) {
         layoutOverviewRankEt = view.findViewById(R.id.layoutOverviewRankEt)
         containerActiveTournament = view.findViewById(R.id.containerActiveTournament)
         tvNoActiveTournament = view.findViewById(R.id.tvNoActiveTournament)
+        cardShortcutCalendar = view.findViewById(R.id.cardShortcutCalendar)
 
         layoutOverviewRankOom.setOnClickListener { careerViewModel.requestOpenRanking(OrderOfMeritType.OOM) }
         layoutOverviewRankPt.setOnClickListener { careerViewModel.requestOpenRanking(OrderOfMeritType.PT_OOM) }
         layoutOverviewRankPc.setOnClickListener { careerViewModel.requestOpenRanking(OrderOfMeritType.PC_OOM) }
         layoutOverviewRankEt.setOnClickListener { careerViewModel.requestOpenRanking(OrderOfMeritType.ET_OOM) }
+        cardShortcutCalendar.setOnClickListener { careerViewModel.requestOpenCalendar() }
 
         observeData()
     }

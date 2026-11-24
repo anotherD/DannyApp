@@ -299,4 +299,6 @@
     <string name="career_distance_category_world_masters">World Masters</string>
     <string name="career_distance_category_grand_slam">Grand Slam of Darts</string>
     <string name="career_distance_category_world_championship">World Championship</string>
+    <string name="cd_open_season_calendar">Saisonkalender öffnen</string>
+    <string name="cd_open_statistics">Statistiken öffnen</string>
 </resources>
