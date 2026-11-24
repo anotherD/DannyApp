@@ -192,16 +192,13 @@ Für Qualifikationswege ohne Länderbindung, die über Geschlecht, Alter oder Q-
 * **Teilnehmer & Qualifikation:**
   * Alle Tour-Card-Inhaber der aktuellen Saison (`tour_cards`), die nicht bereits über die Vorqualifikationslisten des jeweiligen Hauptturniers (z. B. Top 16 OOM + Top 16 PT OOM bei ET; Top 40 OOM + Top 40 PT OOM bei WM) qualifiziert sind.
 * **Setzliste & Auslosung:**
-  * **Dynamische Board-Größe (8er-, 16er- oder 32er-Boards):** Die Startplätze pro Board in `QUAL_R1` (`boardSizePerBoard`) passen sich automatisch als kleinste Zweierpotenz (`8`, `16`, `32`) an die Teilnehmerzahl `N` und die Board-Anzahl `K` an (`totalR1Slots = boardSizePerBoard * K`), sodass maximal eine Vorrunde (`QUAL_PRELIM`) benötigt wird und alle Top `2 * K` Seeds ein Freilos in `QUAL_PRELIM` erhalten.
+  * **Dynamische Board-Größe (8er-, 16er- oder 32er-Boards):** `boardSizePerBoard` ist die kleinste Zweierpotenz `>= ceil(N / K)` (`8`, `16`, `32`), sodass alle `N` Teilnehmer direkt in `QUAL_R1` starten und überzählige Plätze (`boardSizePerBoard * K - N`) als Freilose (`Byes`) gleichmäßig auf alle `K` Boards verteilt werden.
   * **Offizielle Board-Setzliste:** Die Top `2 * K` teilnehmenden Tour-Card-Inhaber (gemäß PDC Order of Merit) sind als Seeds `(1)` bis `(2 * K)` über die `K` Boards verteilt (Board `b`: Seed `b + 1` im ersten Match und Seed `2 * K - b` im letzten Erstrunden-Match des Boards), sodass kein Seed in `QUAL_R1` auf einen anderen Seed trifft und die beiden Top-Seeds eines Boards erst im `QUAL_FINAL` aufeinandertreffen können.
-  * **Vorrunde & Freilose (Byes):** Ist die Teilnehmerzahl `N > totalR1Slots`:
-    * Die obersten `2 * totalR1Slots - N` gesetzten Spieler (inkl. `Seed 1..2*K`) erhalten ein Freilos in `QUAL_PRELIM` und stehen auf festen Board-Positionen in `QUAL_R1`.
-    * Nur die untersten `2 * (N - totalR1Slots)` Spieler spielen in `QUAL_PRELIM` um die restlichen freien Plätze der `K` Boards.
-  * **Freie Auslosung der restlichen Board-Slots:** Alle nicht zu den Top `2 * K` Seeds gehörenden Freilos-Spieler (`byePlayers.drop(2 * K)`) sowie die Plätze für die Vorrundensieger (`prelimWinners`) werden frei zugelost (`.shuffled()`) und auf die `K * (boardSizePerBoard - 2)` freien Erstrunden-Plätze der `K` Boards verteilt.
+  * **Freie Auslosung der restlichen Board-Slots:** Alle nicht zu den Top `2 * K` Seeds gehörenden Spieler sowie Freilose (`Byes`) werden frei zugelost (`.shuffled()`) und auf die freien Erstrunden-Plätze der `K` Boards verteilt.
 * **Turnierverlauf & Paarungslogik:**
-  * Hauptrunden pro Board (je nach dynamischer Board-Größe):
-    * **8er-Board (`boardSizePerBoard = 8`, z. B. `QUALIFIER_ET` / `QUALIFIER_GRAND_SLAM`):** `QUAL_PRELIM` (falls `N > 8 * K`) → `QUAL_R1` → `QUAL_R2` → `QUAL_FINAL`.
-    * **16er-Board (`boardSizePerBoard = 16`, z. B. `QUALIFIER_WM` mit 48 Spielern auf 2 Boards):** `QUAL_PRELIM` (falls `N > 16 * K`) → `QUAL_R1` → `QUAL_R2` → `QUAL_R3` → `QUAL_FINAL`.
+  * Hauptrunden pro Board (je nach dynamischer Board-Größe, ohne Vorrunde):
+    * **8er-Board (`boardSizePerBoard = 8`, z. B. `QUALIFIER_ET` / `QUALIFIER_GRAND_SLAM`):** `QUAL_R1` → `QUAL_R2` → `QUAL_FINAL`.
+    * **16er-Board (`boardSizePerBoard = 16`, z. B. `QUALIFIER_WM`):** `QUAL_R1` → `QUAL_R2` → `QUAL_R3` → `QUAL_FINAL`.
   * Ab `QUAL_R1` läuft jedes Board als fester K.o.-Baum ohne erneutes Mischen.
 * **Vorab-Einfrieren des Hauptfelds:** Unmittelbar beim Start eines Qualifiers (`PreQualifyMainTournamentUseCase`) werden alle vorqualifizierten Teilnehmer des zugehörigen Hauptturniers (inkl. gesetzter Tour-Card-Inhaber, regionaler/internationaler Nicht-Tourcard-Qualifier sowie beim Grand Slam der Major- und ET-/PC-Saisonsieger) zum aktuellen Stand ermittelt und in `tournament_participants` des Hauptturniers eingefroren. Zwischen Qualifier und Hauptturnier stattfindende Events können dieses Teilnehmerfeld nicht mehr verschieben; beim Start des Hauptturniers werden nur noch die Sieger des zugehörigen Qualifiers ergänzt.
 * **Preisgeld & Ranglisten-Ausnahmen (Gesamt: £0):**
