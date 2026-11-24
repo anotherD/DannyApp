@@ -446,7 +446,7 @@ class TournamentBracketView @JvmOverloads constructor(
         return if (currentViewCount < nextViewCount) {
             true
         } else if (currentViewCount == nextViewCount) {
-            getTargetMatchIndex(roundIndex, 0) >= 0
+            (0 until currentViewCount).any { getTargetMatchIndex(roundIndex, it) >= 0 }
         } else {
             false
         }
@@ -472,7 +472,10 @@ class TournamentBracketView @JvmOverloads constructor(
         // ── Spezialregel 1: Verankerte Runde → immer auf Höhe des Ziel-Matches in der Folgerunde ──
         if (isAnchoredToNextRound(roundIndex)) {
             val targetMatchIndex = getTargetMatchIndex(roundIndex, matchIndex)
-            return computeIntegerFocusY(roundIndex + 1, targetMatchIndex, focusInt)
+            if (targetMatchIndex >= 0) {
+                return computeIntegerFocusY(roundIndex + 1, targetMatchIndex, focusInt)
+            }
+            return paddingTopPx + matchIndex * baseSlotHeight + tileHeight / 2f
         }
 
         if (roundIndex == focusInt) {

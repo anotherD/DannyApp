@@ -319,11 +319,6 @@ object TournamentDetailUiHelper {
         return when {
             sizeCurr == sizeNext * 2 -> matchIndex / 2
             sizeCurr == sizeNext -> {
-                val roundKey = matchItem?.match?.round ?: roundMatchesR.firstOrNull()?.match?.round
-                val isOpenDrawRound = roundKey == TournamentRound.R1_160.name ||
-                    roundKey == TournamentRound.R2_128.name ||
-                    roundKey == TournamentRound.R3_96.name
-
                 if (isOpenDrawRound) {
                     val winnerId = matchItem?.winnerId
                     if (winnerId != null && (winnerId > 0L || winnerId == USER_ID)) {
