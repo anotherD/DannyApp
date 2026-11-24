@@ -14,11 +14,11 @@ class SettingsManager(context: Context) {
         set(value) { prefs.edit { putBoolean(KEY_DEBUG_MODE, value) } }
 
     var autoSimulateCpu: Boolean
-        get() = prefs.getBoolean(KEY_AUTO_SIMULATE_CPU, true)
+        get() = prefs.getBoolean(KEY_AUTO_SIMULATE_CPU, false)
         set(value) { prefs.edit { putBoolean(KEY_AUTO_SIMULATE_CPU, value) } }
 
     var autoAdvanceRound: Boolean
-        get() = prefs.getBoolean(KEY_AUTO_ADVANCE_ROUND, true)
+        get() = prefs.getBoolean(KEY_AUTO_ADVANCE_ROUND, false)
         set(value) { prefs.edit { putBoolean(KEY_AUTO_ADVANCE_ROUND, value) } }
 
     var isBracketViewEnabled: Boolean
