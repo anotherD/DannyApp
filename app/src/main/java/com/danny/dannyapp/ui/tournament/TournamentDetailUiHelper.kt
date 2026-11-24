@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
 import com.danny.dannyapp.data.db.TournamentMatch
+import com.danny.dannyapp.data.db.USER_ID
 import com.danny.dannyapp.domain.enums.TournamentEvent
 import com.danny.dannyapp.domain.enums.TournamentRound
 import com.danny.dannyapp.domain.usecase.AdvanceTournamentRoundUseCase
@@ -306,21 +307,47 @@ object TournamentDetailUiHelper {
         val sizeNext = roundMatchesNext.size
         val matchItem = roundMatchesR.getOrNull(matchIndex)
 
+        val roundKey = matchItem?.match?.round ?: roundMatchesR.firstOrNull()?.match?.round
+        val isOpenDrawRound = roundKey == TournamentRound.R1_160.name ||
+            roundKey == TournamentRound.R2_128.name ||
+            roundKey == TournamentRound.R3_96.name
+
+        if (isOpenDrawRound && roundMatchesNext.isEmpty()) {
+            return -1
+        }
+
         return when {
             sizeCurr == sizeNext * 2 -> matchIndex / 2
             sizeCurr == sizeNext -> {
-                if (matchItem?.isCompleted == true && (matchItem.winnerId ?: 0L) > 0L) {
-                    val idx = roundMatchesNext.indexOfFirst { it.player1.id == matchItem.winnerId || it.player2.id == matchItem.winnerId }
-                    if (idx >= 0) {
-                        return idx
+                val roundKey = matchItem?.match?.round ?: roundMatchesR.firstOrNull()?.match?.round
+                val isOpenDrawRound = roundKey == TournamentRound.R1_160.name ||
+                    roundKey == TournamentRound.R2_128.name ||
+                    roundKey == TournamentRound.R3_96.name
+
+                if (isOpenDrawRound) {
+                    val winnerId = matchItem?.winnerId
+                    if (winnerId != null && (winnerId > 0L || winnerId == USER_ID)) {
+                        val idx = roundMatchesNext.indexOfFirst {
+                            it.player1.id == winnerId || it.player2.id == winnerId ||
+                                it.match.player1Id == winnerId || it.match.player2Id == winnerId
+                        }
+                        if (idx >= 0) return idx
                     }
-                }
-                val isL48Round = matchItem?.match?.round == TournamentRound.L48.name || roundMatchesR.firstOrNull()?.match?.round == TournamentRound.L48.name
-                if (isL48Round) {
-                    val targetIdx = AdvanceTournamentRoundUseCase.resolveNextRoundSlot(TournamentEvent.EUROPEAN_TOUR, TournamentRound.L48, matchIndex).first
-                    if (targetIdx >= 0) targetIdx else matchIndex
+                    -1
                 } else {
-                    matchIndex
+                    if (matchItem?.isCompleted == true && (matchItem.winnerId ?: 0L) > 0L) {
+                        val idx = roundMatchesNext.indexOfFirst { it.player1.id == matchItem.winnerId || it.player2.id == matchItem.winnerId }
+                        if (idx >= 0) {
+                            return idx
+                        }
+                    }
+                    val isL48Round = matchItem?.match?.round == TournamentRound.L48.name || roundMatchesR.firstOrNull()?.match?.round == TournamentRound.L48.name
+                    if (isL48Round) {
+                        val targetIdx = AdvanceTournamentRoundUseCase.resolveNextRoundSlot(TournamentEvent.EUROPEAN_TOUR, TournamentRound.L48, matchIndex).first
+                        if (targetIdx >= 0) targetIdx else matchIndex
+                    } else {
+                        matchIndex
+                    }
                 }
             }
             sizeCurr < sizeNext -> {

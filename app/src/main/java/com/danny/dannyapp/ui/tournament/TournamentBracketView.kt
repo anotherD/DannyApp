@@ -427,28 +427,41 @@ class TournamentBracketView @JvmOverloads constructor(
     }
 
     /**
-     * Prüft, ob Runde [roundIndex] eine 1:1-Vorrunden-Beziehung zur Folgerunde [roundIndex]+1 hat.
-     * Kriterium: Die Anzahl der gerenderten Kacheln in der aktuellen Runde ist kleiner oder gleich
-     * der Anzahl in der Folgerunde (z. B. QUAL_PRELIM → QUAL_R1, European Tour L48 → L32).
-     * Offene Auslosungsrunden (R1_160, R2_128, R3_96) gelten nie als 1:1-Vorrunde.
+     * Prüft, ob Runde [roundIndex] vertikal an die Folgerunde [roundIndex]+1 verankert werden soll.
+     * Kriterium: [roundIndex] ist nicht die letzte Runde, die Folgerunde ist keine Open-Draw-Info-Karte
+     * (`roundsMatches[roundIndex + 1].isNotEmpty()`), und die aktuelle Runde hat entweder weniger Kacheln
+     * als die Folgerunde (`sizeCurr < sizeNext`, z. B. QUAL_PRELIM) oder die gleiche Kachelanzahl
+     * (`sizeCurr == sizeNext`, z. B. L48 -> L32 oder bereits ausgeloste R1_160 -> R2_128 -> R3_96 -> L64)
+     * mit gültigem Ziel-Match (`getTargetMatchIndex(roundIndex, 0) >= 0`).
      */
-    private fun isOnceToOnePrelimRound(roundIndex: Int): Boolean {
-        val currentRoundKey = roundsMatches.getOrNull(roundIndex)?.firstOrNull()?.match?.round
-        if (currentRoundKey != null && currentRoundKey in OPEN_DRAW_ROUND_KEYS) return false
+    private fun isAnchoredToNextRound(roundIndex: Int): Boolean {
+        if (roundIndex >= roundsMatches.lastIndex) return false
+        val nextRoundMatches = roundsMatches.getOrNull(roundIndex + 1) ?: return false
+        if (nextRoundMatches.isEmpty()) return false
 
         val currentViewCount = matchViews.getOrNull(roundIndex)?.size ?: 0
         val nextViewCount = matchViews.getOrNull(roundIndex + 1)?.size ?: 0
-        return nextViewCount > 0 && currentViewCount <= nextViewCount
+        if (nextViewCount == 0) return false
+
+        return if (currentViewCount < nextViewCount) {
+            true
+        } else if (currentViewCount == nextViewCount) {
+            getTargetMatchIndex(roundIndex, 0) >= 0
+        } else {
+            false
+        }
     }
 
     /**
      * Berechnet die vertikale Mitte (Y-Koordinate) einer Match-Kachel in Runde [roundIndex],
      * Index [matchIndex], wenn der Fokus auf ganzzahligem Rundenindex [focusInt] liegt.
      *
-     * - **Spezialregel 1 (1:1-Vorrunde):** Vorrunden-Kacheln werden immer exakt auf Höhe ihres
-     *   Ziel-Matches in der Folgerunde positioniert – unabhängig von [focusInt].
-     * - **Spezialregel 2 (Anker-Runde):** Die erste echte Runde nach einer 1:1-Vorrunde wird
-     *   auf ihrem regulären Basis-Raster verankert, damit Kacheln nicht springen.
+     * - **Spezialregel 1 (Verankerte Vorrunde/1:1-Runde):** Jede Runde mit [isAnchoredToNextRound]
+     *   liegt immer exakt auf der Y-Position ihres Ziel-Matches in der Folgerunde – unabhängig
+     *   von [focusInt].
+     * - **Spezialregel 2 (Anker-Runde):** Die erste echte Runde nach einer 1:1-Kette (z. B. L64
+     *   beim UK Open oder L32 bei der European Tour) bleibt stabil auf ihrem regulären Basis-Raster
+     *   verankert.
      */
     private fun computeIntegerFocusY(roundIndex: Int, matchIndex: Int, focusInt: Int): Float {
         val tileHeight = 68f * density
@@ -456,8 +469,8 @@ class TournamentBracketView @JvmOverloads constructor(
         val headerHeight = 40f * density
         val paddingTopPx = paddingTop.toFloat() + headerHeight + 8f * density
 
-        // ── Spezialregel 1: 1:1-Vorrunde → immer auf Höhe des Ziel-Matches in der Folgerunde ──
-        if (roundIndex < roundsMatches.lastIndex && isOnceToOnePrelimRound(roundIndex)) {
+        // ── Spezialregel 1: Verankerte Runde → immer auf Höhe des Ziel-Matches in der Folgerunde ──
+        if (isAnchoredToNextRound(roundIndex)) {
             val targetMatchIndex = getTargetMatchIndex(roundIndex, matchIndex)
             return computeIntegerFocusY(roundIndex + 1, targetMatchIndex, focusInt)
         }
@@ -470,9 +483,9 @@ class TournamentBracketView @JvmOverloads constructor(
             val prevViewCount = matchViews.getOrNull(roundIndex - 1)?.size ?: 0
             val currentViewCount = matchViews.getOrNull(roundIndex)?.size ?: 0
 
-            // ── Spezialregel 2: Erste echte Runde nach einer 1:1-Vorrunde → fester Raster-Anker ──
-            val prevRoundWasPrelim = roundIndex > 0 && isOnceToOnePrelimRound(roundIndex - 1)
-            if (prevRoundWasPrelim || prevViewCount < currentViewCount) {
+            // ── Spezialregel 2: Erste echte Runde nach einer verankerten Kette → fester Raster-Anker ──
+            val prevRoundWasAnchored = roundIndex > 0 && isAnchoredToNextRound(roundIndex - 1)
+            if (prevRoundWasAnchored || prevViewCount < currentViewCount) {
                 return paddingTopPx + matchIndex * baseSlotHeight + tileHeight / 2f
             }
 
@@ -500,9 +513,6 @@ class TournamentBracketView @JvmOverloads constructor(
                 val spreadFactor = 0.5f.pow(distanceToFocus + 1)
                 val verticalOffset = if (matchIndex % 2 == 0) -spreadFactor * baseSlotHeight else spreadFactor * baseSlotHeight
                 parentY + verticalOffset
-            } else if (nextViewCount == currentViewCount) {
-                val targetMatchIndex = getTargetMatchIndex(roundIndex, matchIndex)
-                computeIntegerFocusY(roundIndex + 1, targetMatchIndex, focusInt)
             } else {
                 val targetMatchIndex = getTargetMatchIndex(roundIndex, matchIndex)
                 computeIntegerFocusY(roundIndex + 1, targetMatchIndex, focusInt)
@@ -665,12 +675,9 @@ class TournamentBracketView @JvmOverloads constructor(
             for (roundIdx in 0 until numRounds - 1) {
                 val roundMatchesR = roundsMatches.getOrNull(roundIdx) ?: continue
                 val roundMatchesNext = roundsMatches.getOrNull(roundIdx + 1) ?: continue
+                if (roundMatchesNext.isEmpty()) continue
 
                 val currentRoundKey = roundMatchesR.firstOrNull()?.match?.round
-
-                // Keine Verbindungslinien nach offenen Auslosungsrunden (UK/Euro Open),
-                // da Sieger dort per Losverfahren neu zugeordnet werden.
-                if (currentRoundKey != null && currentRoundKey in OPEN_DRAW_ROUND_KEYS) continue
 
                 val viewsCurr = matchViews.getOrNull(roundIdx) ?: continue
                 val viewsNext = matchViews.getOrNull(roundIdx + 1) ?: continue
@@ -932,13 +939,5 @@ class TournamentBracketView @JvmOverloads constructor(
     private fun recycleVelocityTracker() {
         velocityTracker?.recycle()
         velocityTracker = null
-    }
-
-    companion object {
-        private val OPEN_DRAW_ROUND_KEYS = setOf(
-            TournamentRound.R1_160.name,
-            TournamentRound.R2_128.name,
-            TournamentRound.R3_96.name
-        )
     }
 }
