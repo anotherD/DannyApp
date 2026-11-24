@@ -122,8 +122,8 @@ class TournamentQualificationUseCase(
 
         val totalNonPrequalified = nonPrequalifiedIds.size
 
-        val minSlotsPerBoard = ceil(totalNonPrequalified.toDouble() / boardCount.toDouble()).toInt().coerceAtLeast(8)
-        var boardSize = 8
+        val minSlotsPerBoard = ceil(totalNonPrequalified.toDouble() / boardCount.toDouble()).toInt().coerceAtLeast(2)
+        var boardSize = 2
         while (boardSize < minSlotsPerBoard) {
             boardSize *= 2
         }

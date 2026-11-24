@@ -17,7 +17,7 @@ class QualifierStrategyTest {
         val r1Matches = r1Pairings.map { pairing ->
             TournamentMatch(
                 tournamentId = tId,
-                round = TournamentRound.QUAL_R1.name,
+                round = pairing.round.name,
                 matchIndex = pairing.matchIndex,
                 player1Id = pairing.player1Id,
                 player2Id = pairing.player2Id

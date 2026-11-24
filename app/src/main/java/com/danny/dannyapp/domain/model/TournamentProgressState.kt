@@ -27,5 +27,7 @@ data class TournamentProgressState(
     val roundPhases: Map<TournamentRound, TournamentRoundPhase>,
     val canAdvanceRound: Boolean,
     val isFinalRound: Boolean,
-    val hasOpenCpuMatchesInActiveRound: Boolean
+    val hasOpenCpuMatchesInActiveRound: Boolean,
+    val activeRoundKey: String? = activeRound?.name,
+    val roundPhaseKeys: Map<String, TournamentRoundPhase> = roundPhases.mapKeys { it.key.name }
 )

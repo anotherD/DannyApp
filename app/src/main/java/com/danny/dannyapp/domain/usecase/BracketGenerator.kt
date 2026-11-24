@@ -362,7 +362,7 @@ object BracketGenerator {
      * und stellt sicher, dass niemals zwei Freilose gegeneinander gepaart werden.
      *
      * @param boardCount Anzahl der Boards (K)
-     * @param boardSizePerBoard Anzahl Startplätze pro Board in QUAL_R1 (8, 16 oder 32)
+     * @param boardSizePerBoard Anzahl Startplätze pro Board in QUAL_R1 (2, 4, 8, 16 oder 32)
      * @param rankedPlayerIds Qualifizierte Tour-Card-Spieler sortiert nach OOM (ohne Placeholder-Padding)
      */
     fun buildQualifierRound1Pairings(
@@ -371,26 +371,48 @@ object BracketGenerator {
         rankedPlayerIds: List<Long>
     ): List<MatchPairing> {
         require(boardCount > 0)
-        require(boardSizePerBoard >= 8 && (boardSizePerBoard and (boardSizePerBoard - 1)) == 0)
+        require(boardSizePerBoard >= 2 && (boardSizePerBoard and (boardSizePerBoard - 1)) == 0)
         val totalR1Slots = boardCount * boardSizePerBoard
         val totalByes = totalR1Slots - rankedPlayerIds.size
-        require(totalByes in 0 until (totalR1Slots / 2))
-        require(rankedPlayerIds.size >= 2 * boardCount)
+        require(totalByes in 0..totalR1Slots / 2)
+        require(rankedPlayerIds.size >= boardCount)
 
-        val r1MatchesPerBoard = boardSizePerBoard / 2
         val baseByesPerBoard = totalByes / boardCount
         val extraByeCount = totalByes % boardCount
-        val unseededPool = rankedPlayerIds.drop(2 * boardCount).shuffled().toMutableList()
 
         val pairings = mutableListOf<MatchPairing>()
+
+        if (boardSizePerBoard == 2) {
+            val unseededPool = rankedPlayerIds.drop(boardCount).shuffled().toMutableList()
+            for (boardIndex in 0 until boardCount) {
+                val extraBye = if (boardIndex < extraByeCount) 1 else 0
+                val byesOnBoard = baseByesPerBoard + extraBye
+                val player1Id = rankedPlayerIds[boardIndex]
+                val player2Id = if (byesOnBoard >= 1) PLACEHOLDER_OPEN_DRAW_ID else unseededPool.removeAt(0)
+                pairings.add(
+                    MatchPairing(
+                        round = TournamentRound.QUAL_FINAL,
+                        matchIndex = boardIndex,
+                        player1Id = player1Id,
+                        player2Id = player2Id
+                    )
+                )
+            }
+            return pairings
+        }
+
+        val r1MatchesPerBoard = boardSizePerBoard / 2
+        val topSeedCount = (2 * boardCount).coerceAtMost(rankedPlayerIds.size)
+        val unseededPool = rankedPlayerIds.drop(topSeedCount).shuffled().toMutableList()
 
         for (boardIndex in 0 until boardCount) {
             val extraBye = if (boardIndex < extraByeCount) 1 else 0
             val byesOnBoard = baseByesPerBoard + extraBye
             val seedTop = rankedPlayerIds[boardIndex]
-            val seedBottom = rankedPlayerIds[2 * boardCount - 1 - boardIndex]
+            val hasSeedBottom = (2 * boardCount - 1 - boardIndex < rankedPlayerIds.size)
+            val seedBottom = if (hasSeedBottom) rankedPlayerIds[2 * boardCount - 1 - boardIndex] else null
 
-            val unseededCountForBoard = boardSizePerBoard - 2 - byesOnBoard
+            val unseededCountForBoard = boardSizePerBoard - (if (hasSeedBottom) 2 else 1) - byesOnBoard
             val boardUnseeded = mutableListOf<Long>()
             repeat(unseededCountForBoard) {
                 boardUnseeded.add(unseededPool.removeAt(0))
@@ -447,12 +469,14 @@ object BracketGenerator {
             } else {
                 boardUnseeded.removeAt(0)
             }
+            val matchLastPlayer2Id = seedBottom ?: boardUnseeded.removeAt(0)
+
             pairings.add(
                 MatchPairing(
                     round = TournamentRound.QUAL_R1,
                     matchIndex = boardBaseMatchIndex + (r1MatchesPerBoard - 1),
                     player1Id = matchLastPlayer1Id,
-                    player2Id = seedBottom
+                    player2Id = matchLastPlayer2Id
                 )
             )
         }
@@ -461,7 +485,7 @@ object BracketGenerator {
     }
 
     /**
-     * Erzeugt die Initial-Match-Paarungen für Qualifier-Turniere mit dynamischer Board-Größe (8, 16, 32).
+     * Erzeugt die Initial-Match-Paarungen für Qualifier-Turniere mit dynamischer Board-Größe (2, 4, 8, 16, 32).
      */
     fun generateQualifierInitialMatches(
         event: TournamentEvent,
@@ -479,8 +503,8 @@ object BracketGenerator {
         val totalNonPrequalified = oomSortedIds.size
         if (totalNonPrequalified == 0) return emptyList()
 
-        val minSlotsPerBoard = ceil(totalNonPrequalified.toDouble() / boardCount.toDouble()).toInt().coerceAtLeast(8)
-        var boardSize = 8
+        val minSlotsPerBoard = ceil(totalNonPrequalified.toDouble() / boardCount.toDouble()).toInt().coerceAtLeast(2)
+        var boardSize = 2
         while (boardSize < minSlotsPerBoard) {
             boardSize *= 2
         }

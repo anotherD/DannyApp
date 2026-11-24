@@ -51,22 +51,22 @@ object TournamentRuleStrategyRegistry {
 internal fun MutableList<TournamentMatch>.appendSubsequentKoRounds(
     tournamentId: Long,
     event: TournamentEvent,
-    startRound: TournamentRound,
+    startRoundKey: String,
     startMatchCount: Int,
-    customRoundSequence: List<TournamentRound>? = null
+    customRoundKeySequence: List<String>? = null
 ) {
-    val roundSequence = customRoundSequence ?: event.getRoundSequence()
-    val startIndex = roundSequence.indexOf(startRound)
+    val roundSequence = customRoundKeySequence ?: event.getRoundSequence().map { it.name }
+    val startIndex = roundSequence.indexOf(startRoundKey)
     if (startIndex == -1) return
     var currentCount = startMatchCount
     for (roundIdx in startIndex + 1 until roundSequence.size) {
-        val roundEnum = roundSequence[roundIdx]
+        val roundKey = roundSequence[roundIdx]
         currentCount /= 2
         for (matchIndex in 0 until currentCount) {
             add(
                 TournamentMatch(
                     tournamentId = tournamentId,
-                    round = roundEnum.name,
+                    round = roundKey,
                     matchIndex = matchIndex,
                     player1Id = PLACEHOLDER_PREVIOUS_WINNER_ID,
                     player2Id = PLACEHOLDER_PREVIOUS_WINNER_ID
@@ -74,6 +74,22 @@ internal fun MutableList<TournamentMatch>.appendSubsequentKoRounds(
             )
         }
     }
+}
+
+internal fun MutableList<TournamentMatch>.appendSubsequentKoRounds(
+    tournamentId: Long,
+    event: TournamentEvent,
+    startRound: TournamentRound,
+    startMatchCount: Int,
+    customRoundSequence: List<TournamentRound>? = null
+) {
+    appendSubsequentKoRounds(
+        tournamentId = tournamentId,
+        event = event,
+        startRoundKey = startRound.name,
+        startMatchCount = startMatchCount,
+        customRoundKeySequence = customRoundSequence?.map { it.name }
+    )
 }
 
 /**
@@ -368,24 +384,36 @@ class QualifierStrategy(
         val tournamentMatches = mutableListOf<TournamentMatch>()
         tournamentMatches.addAll(prelimMatches)
         tournamentMatches.addAll(processedR1Matches)
-        val r1MatchesPerBoard = if (split.boardCount > 0) r1Matches.size / split.boardCount else 4
-        val roundSequence = event.getQualifierRoundSequence(r1MatchesPerBoard).mapNotNull { TournamentRound.fromKey(it) }
-        tournamentMatches.appendSubsequentKoRounds(tournamentId, event, TournamentRound.QUAL_R1, r1Matches.size, roundSequence)
 
-        for (r1Match in processedR1Matches) {
-            if (r1Match.isCompleted && r1Match.winnerId != null) {
-                val targetMatchIndex = r1Match.matchIndex / 2
-                val r2MatchIndexInList = tournamentMatches.indexOfFirst {
-                    it.round == TournamentRound.QUAL_R2.name && it.matchIndex == targetMatchIndex
-                }
-                if (r2MatchIndexInList != -1) {
-                    val r2Match = tournamentMatches[r2MatchIndexInList]
-                    val updatedR2Match = if (r1Match.matchIndex % 2 == 0) {
-                        r2Match.copy(player1Id = r1Match.winnerId)
-                    } else {
-                        r2Match.copy(player2Id = r1Match.winnerId)
+        val r1MatchesPerBoard = if (split.boardCount > 0) r1Matches.size / split.boardCount else 1
+        val roundKeySequence = event.getQualifierRoundSequence(r1MatchesPerBoard)
+        val startRoundKey = r1Matches.firstOrNull()?.round ?: TournamentRound.QUAL_R1.name
+
+        tournamentMatches.appendSubsequentKoRounds(
+            tournamentId = tournamentId,
+            event = event,
+            startRoundKey = startRoundKey,
+            startMatchCount = r1Matches.size,
+            customRoundKeySequence = roundKeySequence
+        )
+
+        val nextRoundKey = roundKeySequence.getOrNull(1)
+        if (nextRoundKey != null) {
+            for (r1Match in processedR1Matches) {
+                if (r1Match.isCompleted && r1Match.winnerId != null) {
+                    val targetMatchIndex = r1Match.matchIndex / 2
+                    val nextMatchIndexInList = tournamentMatches.indexOfFirst {
+                        it.round == nextRoundKey && it.matchIndex == targetMatchIndex
                     }
-                    tournamentMatches[r2MatchIndexInList] = updatedR2Match
+                    if (nextMatchIndexInList != -1) {
+                        val nextMatch = tournamentMatches[nextMatchIndexInList]
+                        val updatedNextMatch = if (r1Match.matchIndex % 2 == 0) {
+                            nextMatch.copy(player1Id = r1Match.winnerId)
+                        } else {
+                            nextMatch.copy(player2Id = r1Match.winnerId)
+                        }
+                        tournamentMatches[nextMatchIndexInList] = updatedNextMatch
+                    }
                 }
             }
         }

@@ -10,7 +10,6 @@ import com.danny.dannyapp.domain.enums.MatchDistancePreset
 import com.danny.dannyapp.domain.enums.MatchFormatType
 import com.danny.dannyapp.domain.enums.SkillLevel
 import com.danny.dannyapp.domain.enums.TournamentEvent
-import com.danny.dannyapp.domain.enums.TournamentRound
 import com.danny.dannyapp.domain.model.MatchDistance
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -57,9 +56,10 @@ class CompleteMatchUseCase(
             val preset = getCareerMatchDistancePreset(tournament.seasonId)
 
             val event = TournamentEvent.valueOf(tournament.type)
-            val round = TournamentRound.valueOf(match.round)
+            val allMatches = tournamentRepository.getMatchesListForTournament(match.tournamentId)
+            val totalQualifierRounds = if (event.isQualifier) QualificationHelper.getRoundSequenceKeys(event, allMatches).size else null
+            val matchDistance = event.getMatchDistanceByRoundKey(match.round, preset, totalQualifierRounds)
 
-            val matchDistance = event.getMatchDistance(round, preset)
             val validationError = MatchScoreValidator.validateMatchScore(
                 player1Score = player1Score,
                 player2Score = player2Score,
@@ -99,9 +99,10 @@ class CompleteMatchUseCase(
             val tournament = tournamentRepository.getTournamentById(match.tournamentId)
             val preset = getCareerMatchDistancePreset(tournament.seasonId)
             val event = TournamentEvent.valueOf(tournament.type)
-            val round = TournamentRound.valueOf(match.round)
+            val allMatches = tournamentRepository.getMatchesListForTournament(match.tournamentId)
+            val totalQualifierRounds = if (event.isQualifier) QualificationHelper.getRoundSequenceKeys(event, allMatches).size else null
+            val matchDistance = event.getMatchDistanceByRoundKey(match.round, preset, totalQualifierRounds)
 
-            val matchDistance = event.getMatchDistance(round, preset)
             val isPlayer1User = (match.player1Id == USER_ID)
             val isPlayer1Winner = if (isPlayer1User) userWins else !userWins
 
@@ -147,8 +148,9 @@ class CompleteMatchUseCase(
             val tournament = tournamentRepository.getTournamentById(match.tournamentId)
             val preset = getCareerMatchDistancePreset(tournament.seasonId)
             val event = TournamentEvent.valueOf(tournament.type)
-            val round = TournamentRound.valueOf(match.round)
-            val matchDistance = event.getMatchDistance(round, preset)
+            val allMatches = tournamentRepository.getMatchesListForTournament(match.tournamentId)
+            val totalQualifierRounds = if (event.isQualifier) QualificationHelper.getRoundSequenceKeys(event, allMatches).size else null
+            val matchDistance = event.getMatchDistanceByRoundKey(match.round, preset, totalQualifierRounds)
 
             val skill1 = getPlayerSkill(match.player1Id)
             val skill2 = getPlayerSkill(match.player2Id)
@@ -194,13 +196,13 @@ class CompleteMatchUseCase(
     suspend fun simulateAllOpenCpuMatches(tournamentId: Long): List<TournamentMatch> = withContext(Dispatchers.IO) {
         tournamentRepository.runInTransaction {
             val matches = tournamentRepository.getMatchesListForTournament(tournamentId)
-            val activeRoundName = advanceTournamentRoundUseCase.evaluateTournamentState(tournamentId)?.activeRound?.name
+            val activeRoundKey = advanceTournamentRoundUseCase.evaluateTournamentState(tournamentId)?.activeRoundKey
                 ?: return@runInTransaction matches
 
             val updatedList = mutableListOf<TournamentMatch>()
 
             for (match in matches) {
-                if (match.round == activeRoundName &&
+                if (match.round == activeRoundKey &&
                     !match.isCompleted &&
                     match.player1Id != USER_ID &&
                     match.player2Id != USER_ID &&
