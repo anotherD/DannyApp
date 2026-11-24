@@ -47,6 +47,8 @@ class CareerOverviewFragment : Fragment(R.layout.fragment_career_overview) {
 
     private var careerId: Long = -1L
     private var careerName: String = ""
+    private var boundTournamentModel: TournamentUiModel? = null
+    private var boundSimulatingTournamentId: Long? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -80,6 +82,16 @@ class CareerOverviewFragment : Fragment(R.layout.fragment_career_overview) {
         observeData()
     }
 
+    override fun onResume() {
+        super.onResume()
+        val model = boundTournamentModel
+        if (model != null) {
+            containerActiveTournament.visibility = View.VISIBLE
+            tvNoActiveTournament.visibility = View.GONE
+            bindActiveTournament(containerActiveTournament, model, boundSimulatingTournamentId)
+        }
+    }
+
     private fun observeData() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -109,8 +121,12 @@ class CareerOverviewFragment : Fragment(R.layout.fragment_career_overview) {
                                 tvNoActiveTournament.visibility = View.GONE
                                 containerActiveTournament.visibility = View.VISIBLE
                                 val isSimulating = state.simulationProgress != null
-                                bindActiveTournament(containerActiveTournament, targetModel, if (isSimulating) targetModel.tournament.id else null)
+                                boundTournamentModel = targetModel
+                                boundSimulatingTournamentId = if (isSimulating) targetModel.tournament.id else null
+                                bindActiveTournament(containerActiveTournament, targetModel, boundSimulatingTournamentId)
                             } else {
+                                boundTournamentModel = null
+                                boundSimulatingTournamentId = null
                                 containerActiveTournament.removeAllViews()
                                 containerActiveTournament.visibility = View.GONE
                                 tvNoActiveTournament.visibility = View.VISIBLE

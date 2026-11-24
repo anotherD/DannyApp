@@ -124,6 +124,13 @@ class TournamentCalendarFragment : Fragment(R.layout.fragment_tournament_calenda
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        if (::adapter.isInitialized && adapter.itemCount > 0) {
+            adapter.notifyItemRangeChanged(0, adapter.itemCount)
+        }
+    }
+
     companion object {
         private const val ARG_CAREER_ID = "arg_career_id"
         private const val ARG_CAREER_NAME = "arg_career_name"

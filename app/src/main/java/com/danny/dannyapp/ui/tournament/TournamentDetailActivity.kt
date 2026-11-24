@@ -176,15 +176,8 @@ class TournamentDetailActivity : BaseActivity() {
 
     override fun onResume() {
         super.onResume()
-        if (::btnSimulateCpuMatches.isInitialized && viewModel.uiState.value is TournamentDetailState.Active) {
-            val state = viewModel.uiState.value as TournamentDetailState.Active
-            btnSimulateComplete.visibility = if (debugMode) View.VISIBLE else View.GONE
-            btnSimulateCpuMatches.visibility = if (!autoSimulateCpu && state.hasOpenCpuMatchesInActiveRound) View.VISIBLE else View.GONE
-            if (::btnAdvanceRound.isInitialized) {
-                btnAdvanceRound.visibility = if (!autoAdvanceRound && state.canAdvanceRound) View.VISIBLE else View.GONE
-            }
-        }
         viewModel.onSettingsResumed()
+        renderState(viewModel.uiState.value)
         if (::activeMatchesAdapter.isInitialized) activeMatchesAdapter.notifyItemRangeChanged(0, activeMatchesAdapter.itemCount)
         if (::reviewMatchesAdapter.isInitialized) reviewMatchesAdapter.notifyItemRangeChanged(0, reviewMatchesAdapter.itemCount)
         if (::bracketViewActive.isInitialized) bracketViewActive.refreshStyles()

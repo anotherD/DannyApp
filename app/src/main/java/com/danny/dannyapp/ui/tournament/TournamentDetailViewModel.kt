@@ -67,8 +67,6 @@ sealed interface TournamentDetailState {
         val matches: List<MatchUiModel>,
         val allRoundsMatches: List<List<MatchUiModel>>,
         val prizeMoneyItems: List<PrizeMoneyItem>,
-        val autoSimulateCpu: Boolean,
-        val autoAdvanceRound: Boolean,
         val isCurrentRoundCompleted: Boolean,
         val isSelectedRoundPlayable: Boolean,
         val canAdvanceRound: Boolean,
@@ -435,8 +433,6 @@ class TournamentDetailViewModel(
             matches = matchUiModels,
             allRoundsMatches = allRoundsMatches,
             prizeMoneyItems = getPrizeMoneyItems(event, preset),
-            autoSimulateCpu = autoSimulateCpu,
-            autoAdvanceRound = autoAdvanceRound,
             isCurrentRoundCompleted = isCurrentRoundCompleted,
             isSelectedRoundPlayable = isSelectedRoundPlayable,
             canAdvanceRound = canAdvanceRound,
@@ -888,6 +884,7 @@ class TournamentDetailViewModel(
         if (currentTournamentId > 0L && !_isSimulatingBatch.value) {
             viewModelScope.launch {
                 try {
+                    hasUserSelectedRound = false
                     tournamentProgressionUseCase.applyAutoProgress(currentTournamentId)
                 } catch (e: Exception) {
                     getApplication<Application>().appContainer.reportError("Auto-Fortschritt nach Einstellungen", e)

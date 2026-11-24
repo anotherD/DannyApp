@@ -15,6 +15,7 @@
 - **Transaktionspflicht bei mehrstufigen DB-Änderungen:** Jede Operation, die mehr als eine Tabelle oder mehrere abhängige Datensätze schreibt (z. B. Match-Ergebnis + Folgerunde + Preisgeld), muss zwingend in einer atomaren Room-`withTransaction`-Einheit ausgeführt werden.
 - **Kein Cross-Fragment-View-Lookup & State-Persistenz:** Fragments greifen niemals über `activity?.findViewById` oder `rootView` auf Views fremder Hierarchien zu, sondern kommunizieren ausschließlich über gemeinsame ViewModel-States (`StateFlow`); flüchtige Auswahlzustände im ViewModel werden über `SavedStateHandle` abgesichert.
 - **Zentrale Fehlerbehandlung (`AppContainer.reportError`):** Unerwartete Exceptions in ViewModels oder Coroutines dürfen niemals still verschluckt werden (`catch (_: Exception) {}`), sondern werden zentral über `appContainer.reportError(actionLabel, e)` gemeldet (die Toast-Anzeige übernimmt `BaseActivity` automatisch).
+- **Live-Aktualisierung bei Settings-Änderungen (`onResume`):** Jede Activity und jedes Fragment, das von `SettingsManager`-Flags (z. B. `debugMode`, `autoSimulateCpu`, `autoAdvanceRound`, `useModernMatchCardStyle`) abhängige UI-Elemente oder Abläufe steuert, muss diese in `onResume()` aktualisieren bzw. neu auswerten.
 
 ---
 
