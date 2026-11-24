@@ -358,48 +358,105 @@ object BracketGenerator {
 
     /**
      * Erzeugt die Erstrunden-Paarungen für Qualifier-Turniere über die Board-Setzliste.
-     * Freilose (byePlayers) und Vorrundensieger (prelimWinners) werden getrennt übergeben.
-     * Die Top 2 · K Seeds behalten ihre festen Positionen; alle übrigen Freilos-Spieler und
-     * Vorrundensieger werden frei gemischt auf die freien Slots jedes Boards verteilt.
+     * Verteilt Freilose gleichmäßig auf alle Boards, priorisiert gesetzte Spieler (Seed Top/Bottom)
+     * und stellt sicher, dass niemals zwei Freilose gegeneinander gepaart werden.
      *
      * @param boardCount Anzahl der Boards (K)
      * @param boardSizePerBoard Anzahl Startplätze pro Board in QUAL_R1 (8, 16 oder 32)
-     * @param byePlayers Gesetzte Freilos-Spieler, sortiert
-     * @param prelimWinners Sieger der Vorrunde
+     * @param rankedPlayerIds Qualifizierte Tour-Card-Spieler sortiert nach OOM (ohne Placeholder-Padding)
      */
     fun buildQualifierRound1Pairings(
         boardCount: Int,
         boardSizePerBoard: Int,
-        byePlayers: List<Long>,
-        prelimWinners: List<Long>
+        rankedPlayerIds: List<Long>
     ): List<MatchPairing> {
-        require(byePlayers.size >= 2 * boardCount) {
-            "Qualifier R1 erfordert mindestens ${2 * boardCount} gesetzte Freilos-Spieler"
-        }
+        require(boardCount > 0)
+        require(boardSizePerBoard >= 8 && (boardSizePerBoard and (boardSizePerBoard - 1)) == 0)
+        val totalR1Slots = boardCount * boardSizePerBoard
+        val totalByes = totalR1Slots - rankedPlayerIds.size
+        require(totalByes in 0 until (totalR1Slots / 2))
+        require(rankedPlayerIds.size >= 2 * boardCount)
+
         val r1MatchesPerBoard = boardSizePerBoard / 2
-        val expectedFreeSlots = boardCount * (boardSizePerBoard - 2)
-        val unseededByes = byePlayers.drop(2 * boardCount)
-        val freePool = (unseededByes + prelimWinners).shuffled()
-        require(freePool.size == expectedFreeSlots) {
-            "Qualifier R1 erfordert genau $expectedFreeSlots freie Spieler, erhalten: ${freePool.size}"
-        }
+        val baseByesPerBoard = totalByes / boardCount
+        val extraByeCount = totalByes % boardCount
+        val unseededPool = rankedPlayerIds.drop(2 * boardCount).shuffled().toMutableList()
 
         val pairings = mutableListOf<MatchPairing>()
+
         for (boardIndex in 0 until boardCount) {
-            val seedTop = byePlayers[boardIndex]
-            val seedBottom = byePlayers[2 * boardCount - 1 - boardIndex]
-            val slots = LongArray(boardSizePerBoard - 2) { slotIndex -> freePool[boardIndex * (boardSizePerBoard - 2) + slotIndex] }
+            val extraBye = if (boardIndex < extraByeCount) 1 else 0
+            val byesOnBoard = baseByesPerBoard + extraBye
+            val seedTop = rankedPlayerIds[boardIndex]
+            val seedBottom = rankedPlayerIds[2 * boardCount - 1 - boardIndex]
 
-            val boardBaseMatchIndex = r1MatchesPerBoard * boardIndex
-            pairings.add(MatchPairing(round = TournamentRound.QUAL_R1, matchIndex = boardBaseMatchIndex + 0, player1Id = seedTop, player2Id = slots[0]))
-
-            var slotIdx = 1
-            for (mInBoard in 1 until r1MatchesPerBoard - 1) {
-                pairings.add(MatchPairing(round = TournamentRound.QUAL_R1, matchIndex = boardBaseMatchIndex + mInBoard, player1Id = slots[slotIdx++], player2Id = slots[slotIdx++]))
+            val unseededCountForBoard = boardSizePerBoard - 2 - byesOnBoard
+            val boardUnseeded = mutableListOf<Long>()
+            repeat(unseededCountForBoard) {
+                boardUnseeded.add(unseededPool.removeAt(0))
             }
 
-            pairings.add(MatchPairing(round = TournamentRound.QUAL_R1, matchIndex = boardBaseMatchIndex + (r1MatchesPerBoard - 1), player1Id = slots[slotIdx], player2Id = seedBottom))
+            val boardBaseMatchIndex = r1MatchesPerBoard * boardIndex
+
+            val matchZeroPlayer2Id = if (byesOnBoard >= 1) {
+                PLACEHOLDER_OPEN_DRAW_ID
+            } else {
+                boardUnseeded.removeAt(0)
+            }
+            pairings.add(
+                MatchPairing(
+                    round = TournamentRound.QUAL_R1,
+                    matchIndex = boardBaseMatchIndex,
+                    player1Id = seedTop,
+                    player2Id = matchZeroPlayer2Id
+                )
+            )
+
+            val remainingByes = (byesOnBoard - 2).coerceAtLeast(0)
+            val middleMatches = (1 until (r1MatchesPerBoard - 1)).toList()
+            val byeMiddleMatches = middleMatches.shuffled().take(remainingByes).toSet()
+
+            for (matchIndexInBoard in 1 until (r1MatchesPerBoard - 1)) {
+                val currentMatchIndex = boardBaseMatchIndex + matchIndexInBoard
+                if (matchIndexInBoard in byeMiddleMatches) {
+                    val middlePlayer1Id = boardUnseeded.removeAt(0)
+                    pairings.add(
+                        MatchPairing(
+                            round = TournamentRound.QUAL_R1,
+                            matchIndex = currentMatchIndex,
+                            player1Id = middlePlayer1Id,
+                            player2Id = PLACEHOLDER_OPEN_DRAW_ID
+                        )
+                    )
+                } else {
+                    val middlePlayer1Id = boardUnseeded.removeAt(0)
+                    val middlePlayer2Id = boardUnseeded.removeAt(0)
+                    pairings.add(
+                        MatchPairing(
+                            round = TournamentRound.QUAL_R1,
+                            matchIndex = currentMatchIndex,
+                            player1Id = middlePlayer1Id,
+                            player2Id = middlePlayer2Id
+                        )
+                    )
+                }
+            }
+
+            val matchLastPlayer1Id = if (byesOnBoard >= 2) {
+                PLACEHOLDER_OPEN_DRAW_ID
+            } else {
+                boardUnseeded.removeAt(0)
+            }
+            pairings.add(
+                MatchPairing(
+                    round = TournamentRound.QUAL_R1,
+                    matchIndex = boardBaseMatchIndex + (r1MatchesPerBoard - 1),
+                    player1Id = matchLastPlayer1Id,
+                    player2Id = seedBottom
+                )
+            )
         }
+
         return pairings
     }
 
@@ -427,15 +484,7 @@ object BracketGenerator {
         while (boardSize < minSlotsPerBoard) {
             boardSize *= 2
         }
-        val totalR1Slots = boardSize * boardCount
 
-        val byePlayers = if (totalNonPrequalified < totalR1Slots) {
-            val padding = List(totalR1Slots - totalNonPrequalified) { PLACEHOLDER_OPEN_DRAW_ID }
-            oomSortedIds + padding
-        } else {
-            oomSortedIds
-        }
-
-        return buildQualifierRound1Pairings(boardCount, boardSize, byePlayers, emptyList())
+        return buildQualifierRound1Pairings(boardCount, boardSize, oomSortedIds)
     }
 }

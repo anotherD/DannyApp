@@ -115,6 +115,7 @@
     <string name="btn_finish_tournament">Turnier abschließen</string>
     <string name="dialog_close">Schließen</string>
     <string name="match_tbd_open_draw">Freie Auslosung</string>
+    <string name="match_bye">Bye</string>
     <string name="player_with_seed">(%1$d) %2$s</string>
     <string name="player_with_seed_right">%1$s (%2$d)</string>
     <string name="qualifier_winners_header">Qualifier-Gewinner:</string>

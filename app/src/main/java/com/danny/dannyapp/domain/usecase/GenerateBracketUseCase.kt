@@ -107,7 +107,7 @@ class GenerateBracketUseCase(
     ): Pair<List<TournamentMatch>, List<TournamentMatch>> {
         val boardCount = split.boardCount
         val boardSizePerBoard = split.boardSizePerBoard
-        val r1Pairings = BracketGenerator.buildQualifierRound1Pairings(boardCount, boardSizePerBoard, split.byePlayers, emptyList())
+        val r1Pairings = BracketGenerator.buildQualifierRound1Pairings(boardCount, boardSizePerBoard, split.nonPrequalifiedIds)
         val r1Matches = r1Pairings.map { pairing ->
             TournamentMatch(
                 tournamentId = tournamentId,

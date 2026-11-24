@@ -343,6 +343,9 @@ class QualifierStrategy(
         val (prelimMatches, r1Matches) = createQualifierMatches(tournamentId, split)
 
         val processedR1Matches = r1Matches.map { match ->
+            check(!(match.player1Id == PLACEHOLDER_OPEN_DRAW_ID && match.player2Id == PLACEHOLDER_OPEN_DRAW_ID)) {
+                "Ungültiges Qualifier-Match ${match.matchIndex} in Runde ${match.round}: Freilos gegen Freilos ist nicht zulässig"
+            }
             if (match.player2Id == PLACEHOLDER_OPEN_DRAW_ID && match.player1Id != PLACEHOLDER_OPEN_DRAW_ID && match.player1Id != PLACEHOLDER_PREVIOUS_WINNER_ID) {
                 match.copy(
                     isCompleted = true,

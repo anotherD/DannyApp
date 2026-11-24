@@ -41,7 +41,13 @@ object TournamentDetailMapper {
         roundKey: String
     ): String? {
         return when {
-            playerId == PLACEHOLDER_OPEN_DRAW_ID -> context.getString(R.string.match_tbd_open_draw)
+            playerId == PLACEHOLDER_OPEN_DRAW_ID -> {
+                if (event.isQualifier) {
+                    context.getString(R.string.match_bye)
+                } else {
+                    context.getString(R.string.match_tbd_open_draw)
+                }
+            }
             playerId == PLACEHOLDER_PREVIOUS_WINNER_ID -> {
                 if (event == TournamentEvent.GRAND_SLAM_OF_DARTS && roundKey == TournamentRound.GROUP.name) {
                     context.getString(R.string.match_tbd_open_draw)
