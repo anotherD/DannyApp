@@ -98,13 +98,13 @@ class TournamentProgressionUseCase(
             val state = checkNotNull(advanceTournamentRoundUseCase.evaluateTournamentState(tournamentId)) {
                 "Turnier-Status konnte für ID $tournamentId nicht ermittelt werden"
             }
-            val activeRound = checkNotNull(state.activeRound) { "Aktive Runde fehlt für laufendes Turnier $tournamentId" }
+            val activeRoundKey = checkNotNull(state.activeRoundKey) { "Aktive Runde fehlt für laufendes Turnier $tournamentId" }
 
             completeMatchUseCase.simulateAllOpenCpuMatches(tournamentId)
 
             val currentMatches = tournamentRepository.getMatchesListForTournament(tournamentId)
             val openUserMatches = currentMatches.filter {
-                it.round == activeRound.name && !it.isCompleted && (it.player1Id == USER_ID || it.player2Id == USER_ID)
+                it.round == activeRoundKey && !it.isCompleted && (it.player1Id == USER_ID || it.player2Id == USER_ID)
             }
 
             for (match in openUserMatches) {
@@ -119,7 +119,7 @@ class TournamentProgressionUseCase(
 
             val updatedState = advanceTournamentRoundUseCase.evaluateTournamentState(tournamentId)
             val hasNewPlayableMatchesInRound = tournamentRepository.getMatchesListForTournament(tournamentId).any {
-                it.round == activeRound.name && !it.isCompleted && (it.player1Id > 0L || it.player1Id == USER_ID) && (it.player2Id > 0L || it.player2Id == USER_ID)
+                it.round == activeRoundKey && !it.isCompleted && (it.player1Id > 0L || it.player1Id == USER_ID) && (it.player2Id > 0L || it.player2Id == USER_ID)
             }
 
             if (updatedState != null && updatedState.canAdvanceRound) {
@@ -129,8 +129,8 @@ class TournamentProgressionUseCase(
                 continue
             } else {
                 val openMatches = tournamentRepository.getMatchesListForTournament(tournamentId)
-                    .count { it.round == activeRound.name && !it.isCompleted }
-                error("Turnier $tournamentId steckt in Runde '${activeRound.name}' fest: $openMatches offene Matches verbleiben")
+                    .count { it.round == activeRoundKey && !it.isCompleted }
+                error("Turnier $tournamentId steckt in Runde '$activeRoundKey' fest: $openMatches offene Matches verbleiben")
             }
         }
 

@@ -177,14 +177,14 @@ object TournamentDetailUiHelper {
                 "Qualifier R1 matches must not be empty and boardCount must be > 0"
             }
             val r1MatchesPerBoard = qualR1Matches.size / boardCount
-            val r2MatchesPerBoard = r1MatchesPerBoard / 2
-            val r3MatchesPerBoard = r1MatchesPerBoard / 4
-            val boardIdx = when (roundKey) {
-                TournamentRound.QUAL_R1.name -> mIdx / r1MatchesPerBoard
-                TournamentRound.QUAL_R2.name -> mIdx / r2MatchesPerBoard
-                TournamentRound.QUAL_R3.name -> mIdx / r3MatchesPerBoard
-                TournamentRound.QUAL_FINAL.name -> mIdx
-                else -> -1
+            val boardIdx = when {
+                roundKey == TournamentRound.QUAL_FINAL.name -> mIdx
+                else -> {
+                    val roundNumber = TournamentRound.parseQualifierRoundNumber(roundKey) ?: return -1
+                    val divisor = 1 shl (roundNumber - 1)
+                    val matchesPerBoard = (r1MatchesPerBoard / divisor).coerceAtLeast(1)
+                    mIdx / matchesPerBoard
+                }
             }
             return if (boardIdx in 0 until boardCount) boardIdx else -1
         }
@@ -211,31 +211,21 @@ object TournamentDetailUiHelper {
             "Qualifier R1 matches must not be empty and boardCount must be > 0"
         }
         val r1MatchesPerBoard = qualR1Matches.size / boardCount
-        val r2MatchesPerBoard = r1MatchesPerBoard / 2
-        val r3MatchesPerBoard = r1MatchesPerBoard / 4
 
         return allRoundsMatches.map { roundMatches ->
             if (roundMatches.isEmpty()) return@map emptyList()
             val roundKey = roundMatches.first().match.round
-            when (roundKey) {
-
-                TournamentRound.QUAL_R1.name -> {
-                    val startIdx = r1MatchesPerBoard * boardIndex
-                    val endIdx = startIdx + r1MatchesPerBoard - 1
-                    roundMatches.filter { it.match.matchIndex in startIdx..endIdx }
-                }
-                TournamentRound.QUAL_R2.name -> {
-                    val startIdx = r2MatchesPerBoard * boardIndex
-                    val endIdx = startIdx + r2MatchesPerBoard - 1
-                    roundMatches.filter { it.match.matchIndex in startIdx..endIdx }
-                }
-                TournamentRound.QUAL_R3.name -> {
-                    val startIdx = r3MatchesPerBoard * boardIndex
-                    val endIdx = startIdx + r3MatchesPerBoard - 1
-                    roundMatches.filter { it.match.matchIndex in startIdx..endIdx }
-                }
-                TournamentRound.QUAL_FINAL.name -> {
+            when {
+                roundKey == TournamentRound.QUAL_FINAL.name -> {
                     roundMatches.filter { it.match.matchIndex == boardIndex }
+                }
+                TournamentRound.parseQualifierRoundNumber(roundKey) != null -> {
+                    val roundNumber = TournamentRound.parseQualifierRoundNumber(roundKey)!!
+                    val divisor = 1 shl (roundNumber - 1)
+                    val matchesPerBoard = (r1MatchesPerBoard / divisor).coerceAtLeast(1)
+                    val startIdx = matchesPerBoard * boardIndex
+                    val endIdx = startIdx + matchesPerBoard - 1
+                    roundMatches.filter { it.match.matchIndex in startIdx..endIdx }
                 }
                 else -> roundMatches
             }

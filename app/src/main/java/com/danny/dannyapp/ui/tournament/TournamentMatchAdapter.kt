@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
+import com.danny.dannyapp.domain.enums.TournamentRound
 import com.danny.dannyapp.ui.UIHelper
 import com.danny.dannyapp.ui.model.MatchUiModel
 import com.google.android.material.card.MaterialCardView
@@ -41,12 +42,7 @@ class TournamentMatchAdapter(
         val context = holder.itemView.context
 
         val roundKey = match.round
-        val isQualifierRound = roundKey in listOf(
-            com.danny.dannyapp.domain.enums.TournamentRound.QUAL_R1.name,
-            com.danny.dannyapp.domain.enums.TournamentRound.QUAL_R2.name,
-            com.danny.dannyapp.domain.enums.TournamentRound.QUAL_R3.name,
-            com.danny.dannyapp.domain.enums.TournamentRound.QUAL_FINAL.name
-        )
+        val isQualifierRound = TournamentRound.isQualifierRoundKey(roundKey)
 
         if (isQualifierRound) {
             val boardCount = qualifierBoardCount.coerceAtLeast(1)

@@ -19,6 +19,7 @@ import com.danny.dannyapp.domain.enums.TournamentRound
 import com.danny.dannyapp.domain.model.Country
 import com.danny.dannyapp.domain.model.TournamentRoundPhase
 import com.danny.dannyapp.domain.usecase.ManualScoreResult
+import com.danny.dannyapp.domain.usecase.QualificationHelper
 import com.danny.dannyapp.ui.UIHelper
 import com.danny.dannyapp.ui.enums.RoundStatus
 import com.danny.dannyapp.ui.model.EntrantGroupInfo
@@ -295,14 +296,13 @@ class TournamentDetailViewModel(
         seasonNumber: Int,
         careerWithProfile: CareerWithProfile
     ) {
-        val sequence = getRoundSequence(event, allMatches)
-        val availableRounds = sequence.map { it.name }
+        val availableRounds = QualificationHelper.getRoundSequenceKeys(event, allMatches)
         val availableRoundDisplayNames = availableRounds.map { TournamentUiHelper.getDisplayRoundName(it, getApplication()) }
 
         val progressState = advanceTournamentRoundUseCase.evaluateTournamentState(currentTournamentId)
 
-        if (!hasUserSelectedRound && progressState?.activeRound != null) {
-            val activeIndex = sequence.indexOf(progressState.activeRound)
+        if (!hasUserSelectedRound && progressState?.activeRoundKey != null) {
+            val activeIndex = availableRounds.indexOf(progressState.activeRoundKey)
             if (activeIndex != -1) savedStateHandle[KEY_SELECTED_ROUND_INDEX] = activeIndex
         }
 
@@ -314,16 +314,16 @@ class TournamentDetailViewModel(
         val dbMatchesForRound = allMatches.filter { it.round == currentRoundKey }
         val isCurrentRoundCompleted = dbMatchesForRound.isNotEmpty() && dbMatchesForRound.all { it.isCompleted }
 
-        val activeRoundDisplayName = progressState?.activeRound?.let {
-            TournamentUiHelper.getDisplayRoundName(it.name, getApplication())
+        val activeRoundDisplayName = progressState?.activeRoundKey?.let {
+            TournamentUiHelper.getDisplayRoundName(it, getApplication())
         } ?: availableRoundDisplayNames.firstOrNull() ?: ""
 
         val canAdvanceRound = progressState?.canAdvanceRound ?: false
         val isFinalRound = progressState?.isFinalRound ?: false
         val hasOpenCpuMatchesInActiveRound = progressState?.hasOpenCpuMatchesInActiveRound ?: false
 
-        val roundStatuses = sequence.map { round ->
-            when (progressState?.roundPhases?.get(round)) {
+        val roundStatuses = availableRounds.map { roundKey ->
+            when (progressState?.roundPhaseKeys?.get(roundKey)) {
                 TournamentRoundPhase.COMPLETED -> RoundStatus.COMPLETED
                 TournamentRoundPhase.ACTIVE -> RoundStatus.ACTIVE
                 TournamentRoundPhase.PENDING, null -> RoundStatus.PENDING
@@ -478,8 +478,7 @@ class TournamentDetailViewModel(
             getApplication<Application>().getString(R.string.prize_money_format, userPlacement.prizeMoney)
         } else "£0"
 
-        val sequence = getRoundSequence(event, allMatches)
-        val availableRounds = sequence.map { it.name }
+        val availableRounds = QualificationHelper.getRoundSequenceKeys(event, allMatches)
 
         if (!hasUserSelectedRound || selectedRoundIndexFlow.value !in availableRounds.indices) {
             savedStateHandle[KEY_SELECTED_ROUND_INDEX] = availableRounds.lastIndex.coerceAtLeast(0)
@@ -728,7 +727,8 @@ class TournamentDetailViewModel(
         event: TournamentEvent,
         preset: MatchDistancePreset = MatchDistancePreset.DEFAULT
     ): List<PrizeMoneyItem> {
-        return TournamentDetailMapper.buildPrizeMoneyItems(getApplication(), event, getRoundSequence(event), preset)
+        val rounds = QualificationHelper.getRoundSequenceKeys(event).mapNotNull { TournamentRound.fromKey(it) }
+        return TournamentDetailMapper.buildPrizeMoneyItems(getApplication(), event, rounds, preset)
     }
 
     /**
@@ -870,7 +870,7 @@ class TournamentDetailViewModel(
      * Ermittelt die Rundenabfolge für das angemeldete Event.
      */
     private fun getRoundSequence(event: TournamentEvent, allMatches: List<TournamentMatch> = emptyList()): List<TournamentRound> {
-        return com.danny.dannyapp.domain.usecase.QualificationHelper.getRoundSequence(event, allMatches)
+        return QualificationHelper.getRoundSequence(event, allMatches)
     }
 
     /**

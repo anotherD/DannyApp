@@ -33,6 +33,7 @@
     <string name="round_qual_r1">Runde 1</string>
     <string name="round_qual_r2">Runde 2</string>
     <string name="round_qual_r3">Runde 3</string>
+    <string name="round_qualifier_numbered">Runde %d</string>
     <string name="round_qual_final">Finalrunde</string>
     <string name="round_f">Finale</string>
     <string name="round_sf">Halbfinale</string>

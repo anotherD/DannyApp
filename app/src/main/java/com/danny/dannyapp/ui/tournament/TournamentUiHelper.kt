@@ -27,6 +27,8 @@ object TournamentUiHelper {
      * @return Das entsprechende Runden-Präfix.
      */
     fun getRoundPrefix(roundKey: String): String {
+        val qualNumber = TournamentRound.parseQualifierRoundNumber(roundKey)
+        if (qualNumber != null) return "R$qualNumber"
         return when (roundKey) {
             TournamentRound.QUAL_PRELIM.name -> "PRE"
             TournamentRound.QUAL_R1.name, TournamentRound.R1_160.name -> "R1"
@@ -64,7 +66,9 @@ object TournamentUiHelper {
     }
 
     fun getDisplayRoundName(roundKey: String, context: Context): String {
-        return TournamentRound.fromKey(roundKey)?.displayNameResId?.let { context.getString(it) } ?: roundKey
+        return TournamentRound.fromKey(roundKey)?.displayNameResId?.let { context.getString(it) }
+            ?: TournamentRound.parseQualifierRoundNumber(roundKey)?.let { context.getString(R.string.round_qualifier_numbered, it) }
+            ?: roundKey
     }
 
     fun getTournamentCity(hostCity: String): String {
