@@ -13,6 +13,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
 import com.danny.dannyapp.ui.enums.TournamentStatus
+import com.danny.dannyapp.ui.model.TournamentUiModel
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.launch
 
 class TournamentCalendarFragment : Fragment(R.layout.fragment_tournament_calendar) {
@@ -21,6 +23,7 @@ class TournamentCalendarFragment : Fragment(R.layout.fragment_tournament_calenda
     private lateinit var adapter: TournamentCalendarAdapter
     private lateinit var rvTournaments: RecyclerView
     private lateinit var tvEmptyTournaments: TextView
+    private lateinit var fabFocusCurrentTournament: FloatingActionButton
 
     private var careerId: Long = -1L
     private var careerName: String = ""
@@ -36,6 +39,14 @@ class TournamentCalendarFragment : Fragment(R.layout.fragment_tournament_calenda
 
         rvTournaments = view.findViewById(R.id.rvTournaments)
         tvEmptyTournaments = view.findViewById(R.id.tvEmptyTournaments)
+        fabFocusCurrentTournament = view.findViewById(R.id.fabFocusCurrentTournament)
+
+        fabFocusCurrentTournament.setOnClickListener {
+            val targetIndex = findTargetTournamentIndex(adapter.currentList)
+            if (targetIndex != -1) {
+                TournamentDetailUiHelper.scrollToMatchCentered(rvTournaments, targetIndex)
+            }
+        }
 
         val layoutManager = LinearLayoutManager(requireContext())
         rvTournaments.layoutManager = layoutManager
@@ -77,6 +88,10 @@ class TournamentCalendarFragment : Fragment(R.layout.fragment_tournament_calenda
         }
     }
 
+    private fun findTargetTournamentIndex(tournaments: List<TournamentUiModel>): Int {
+        return tournaments.indexOfFirst { it.status == TournamentStatus.ACTIVE || it.isNextPlanned }
+    }
+
     private fun observeState() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -86,12 +101,13 @@ class TournamentCalendarFragment : Fragment(R.layout.fragment_tournament_calenda
                             tvEmptyTournaments.text = getString(R.string.loading)
                             tvEmptyTournaments.visibility = TextView.VISIBLE
                             rvTournaments.visibility = RecyclerView.GONE
+                            fabFocusCurrentTournament.visibility = View.GONE
                         }
                         is TournamentCalendarState.Success -> {
                             adapter.simulatingTournamentId = if (state.simulationProgress != null) -1L else null
                             adapter.submitList(state.tournaments) {
                                 if (!hasScrolledToActive && state.tournaments.isNotEmpty()) {
-                                    val targetIndex = state.tournaments.indexOfFirst { it.status == TournamentStatus.ACTIVE || it.isNextPlanned }
+                                    val targetIndex = findTargetTournamentIndex(state.tournaments)
                                     if (targetIndex != -1) {
                                         rvTournaments.post {
                                             if (rvTournaments.height > 0) {
@@ -104,19 +120,23 @@ class TournamentCalendarFragment : Fragment(R.layout.fragment_tournament_calenda
                                     }
                                 }
                             }
+                            val targetIndex = findTargetTournamentIndex(state.tournaments)
                             if (state.tournaments.isEmpty()) {
                                 tvEmptyTournaments.text = getString(R.string.no_tournaments_available)
                                 tvEmptyTournaments.visibility = TextView.VISIBLE
                                 rvTournaments.visibility = RecyclerView.GONE
+                                fabFocusCurrentTournament.visibility = View.GONE
                             } else {
                                 tvEmptyTournaments.visibility = TextView.GONE
                                 rvTournaments.visibility = RecyclerView.VISIBLE
+                                fabFocusCurrentTournament.visibility = if (targetIndex != -1) View.VISIBLE else View.GONE
                             }
                         }
                         is TournamentCalendarState.Error -> {
                             tvEmptyTournaments.text = state.message
                             tvEmptyTournaments.visibility = TextView.VISIBLE
                             rvTournaments.visibility = RecyclerView.GONE
+                            fabFocusCurrentTournament.visibility = View.GONE
                         }
                     }
                 }
