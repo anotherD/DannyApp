@@ -21,10 +21,10 @@ Dieses Dokument beschreibt die Benutzeroberfläche und den Interaktions-Flow fü
 * **Fokus & Hervorhebung:** Das aktive oder nächste geplante Turnier ist optisch hervorgehoben. Beim Öffnen scrollt die Liste automatisch zu diesem Turnier.
 * **Strikte Turnier-Sperre (Sequenzieller Ablauf):** Es darf immer nur ein Turnier gleichzeitig aktiv sein. Ein neues Turnier kann erst gestartet werden, wenn das vorherige abgeschlossen ist.
 * **Status-Zustände:**
-    * **Abgeschlossen:** Zeigt bei Einzelsieger-Turnieren den Turniersieger an. Bei Multi-Sieger-Qualifiern (`QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIFIER_WM`) steht im Kalender nur *„Abgeschlossen“* ohne Einzel-Pokal und ohne Gewinnerliste (diese wird erst im Turnier-Rückblick gezeigt).
+    * **Abgeschlossen:** Zeigt bei Einzelsieger-Turnieren den Turniersieger an. Bei Multi-Sieger-Qualifiern (`QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIFIER_WM`, `QUALIFIER_WORLD_MASTERS`)) steht im Kalender nur *„Abgeschlossen“* ohne Einzel-Pokal und ohne Gewinnerliste (diese wird erst im Turnier-Rückblick gezeigt).
     * **Aktiv:** Zeigt die aktuell laufende Turnierrunde an.
     * **Geplant:** Das nächste anstehende Turnier bietet den Button **„Turnier starten“**.
-* **Debug-Funktion:** Bei aktiviertem Debug-Modus steht an jedem nicht abgeschlossenen Turnier ein kompakter Fast-Forward-Button (`⏩`) zur Verfügung, der alle offenen Turniere der Saison chronologisch bis einschließlich zum gewählten Turnier mit Fortschritts-Overlay durchsimuliert.
+* **Debug-Funktion:** Bei aktiviertem Debug-Modus (`debugMode == true`) steht an jedem nicht abgeschlossenen Turnier ein kompakter Fast-Forward-Button (`⏩`) zur Verfügung, der alle offenen Turniere der Saison chronologisch bis einschließlich zum gewählten Turnier mit Fortschritts-Overlay durchsimuliert.
 
 ---
 
@@ -34,7 +34,7 @@ Dieses Dokument beschreibt die Benutzeroberfläche und den Interaktions-Flow fü
 
 1. **Vorschau-Modus (Geplantes Turnier):**
     * Zeigt Turnierkopfzeile, Gesamtpreisgeld sowie ein Info-Icon für den Turnier-Info-Dialog.
-    * Ist es das nächste anstehende Turnier im Kalender, kann es über **„Turnier jetzt starten & auslosen“** gestartet werden.
+    * Ist es das nächste anstehende Turnier im Kalender, kann es über **„Turnier starten“** gestartet werden.
 2. **Aktiver Turnier-Modus (Laufendes Turnier):**
     * **Farbliche Akzentuierung:** Die obere Steuerungskarte ist je nach Turniertyp (Major, Major-Qualifier, European Tour, ET-Qualifier, Players Championship) farblich abgesetzt.
     * **Runden-Navigation:** Horizontale Runden-Chips (farblich kodiert nach *Abgeschlossen*, *Aktiv* und *Ausstehend*) sowie horizontale Wischgesten (Swipe links/rechts) zum Wechseln zwischen den Runden. Beim Grand Slam of Darts gibt es zusätzlich eine Gruppen-Auswahl (`A–P`).
@@ -46,16 +46,26 @@ Dieses Dokument beschreibt die Benutzeroberfläche und den Interaktions-Flow fü
         * **Tab 1 – Preisgelder & Distanzen:** Zeigt Gesamtpreisgeld, Runden-Preisgelder, Match-Distanzen sowie turnierspezifische Ranglisten-Ausnahmen (z. B. £0 bei Auftaktniederlage gesetzter Spieler auf der European Tour bzw. £0 in Runde 1 bei PC/UK Open/European Open).
         * **Tab 2 – Teilnehmer:** Zeigt Qualifikationsregeln, alle qualifizierten Teilnehmer gruppiert nach Qualifikationsweg samt Setzposition sowie einen Hinweis, ob das Teilnehmerfeld noch vorläufig oder bereits eingefroren ist (inkl. offener Qualifier-Plätze).
     * **Simulations-Sperre:** Während einer Batch-Simulation blockiert ein Lade-Overlay die Eingabe und die Zurück-Navigation.
-    * **Steuerung:** Die Optionen *„Automatische Simulation“* und *„Automatisch zur nächsten Runde“* werden zentral in den Einstellungen verwaltet. Manuelle Simulations-Buttons sind nur im Debug-Modus sichtbar.
-3. **Rückblick-Modus (Abgeschlossenes Turnier):**
-    * Read-only-Ansicht aller Runden.
-    * Zeigt oben den Turniersieger (bzw. bei Multi-Sieger-Qualifiern die zweispaltige Liste aller Qualifikanten), die vom User erreichte Runde sowie das gewonnene Preisgeld.
 
-### 3.2 Optionen für User-Matches
-Beim Klick auf ein eigenes offenes Match stehen folgende Optionen bereit:
-1. **Sieger festlegen (Sieg/Niederlage)** *(nur im Debug-Modus)*: Setzt direkt ein gültiges Ergebnis passend zur Match-Distanz.
-2. **Ergebnis manuell eingeben:** Dialog zur Eingabe von Legs/Sets mit Validierung gegen die Turnierregeln (inkl. *Two-Clear-Legs Rule* und *Double-In / Double-Out*).
-3. **Live spielen (GameEngine):** Startet das Match in der Live-/Scolia-Engine.
+### 3.2 Simulations-Steuerung, Settings & Button-Matrix (Single Source of Truth)
+
+Jeder Simulations-Button hängt an genau einer Einstellung in `SettingsManager`:
+
+| Button / Aktion | Ort | Abhängiges Setting | Sichtbarkeits- & Aktivierungsbedingung |
+| :--- | :--- | :--- | :--- |
+| **`CPU simulieren`** | Turnieransicht (Aktiv) | `autoSimulateCpu` | Sichtbar, wenn `autoSimulateCpu == false` und offene CPU-Matches in der aktiven Runde existieren (unabhängig von `debugMode`). |
+| **`Nächste Runde` / `Turnier abschließen`** | Turnieransicht (Aktiv) | `autoAdvanceRound` | Sichtbar, wenn `autoAdvanceRound == false` und alle Matches der aktiven Runde beendet sind (unabhängig von `debugMode`). |
+| **`Turnier simulieren`** | Turnieransicht (Aktiv) | `debugMode` | Sichtbar nur im Debug-Modus (`debugMode == true`). Simuliert das komplette Turnier inkl. User-Matches bis zum Ende. |
+| **`⏩` (Bis hier simulieren)** | Saisonkalender & Übersicht | `debugMode` | Sichtbar nur im Debug-Modus (`debugMode == true`) bei noch nicht abgeschlossenen Turnieren (`status != COMPLETED`). |
+| **`Sieger festlegen (Sieg/Niederlage)`** | User-Match-Dialog | `debugMode` | Sichtbar nur im Debug-Modus (`debugMode == true`). |
+| **`Turnier starten`** | Saisonkalender, Übersicht & Vorschau | — | Sichtbar beim nächsten geplanten Turnier (`isNextPlanned == true`). |
+
+**Trigger-Zeitpunkte für automatische Abläufe (Domain-Layer `TournamentProgressionUseCase`):**
+* **`autoSimulateCpu == true`:** Löst die Simulation aller offenen CPU-Matches der aktuellen Runde automatisch aus:
+  1. Unmittelbar nach dem **Start eines Turniers** (egal ob aus Kalender, Übersicht oder Vorschau gestartet).
+  2. Unmittelbar nach jedem **Rundenwechsel** (egal ob manuell per Button oder über `autoAdvanceRound`).
+  3. Unmittelbar beim **Zurückkehren aus den Einstellungen** (`onResume`), falls `autoSimulateCpu` nachträglich eingeschaltet wurde.
+* **`autoAdvanceRound == true`:** Schaltet automatisch in die nächste Runde weiter (bzw. schließt das Turnier nach dem Finale ab), sobald alle Matches einer Runde abgeschlossen sind – ebenfalls auch beim Zurückkehren aus den Einstellungen (`onResume`), falls das Setting nachträglich aktiviert wurde.
 
 ### 3.3 Turnierbaum-Ansicht (Bracket View) & Schwebe-Buttons
 * **Schwebe-Buttons unten:** Im aktiven Modus und im Rückblick ermöglichen zwei runde Buttons das Zentrieren auf das eigene Match in der aktuellen Runde (deaktiviert/ausgegraut, falls der User in dieser Runde nicht spielt) sowie das Umschalten zwischen **Rundenliste** und **Turnierbaum**.

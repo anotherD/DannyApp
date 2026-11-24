@@ -196,11 +196,43 @@ class FullSeasonSimulationTest {
             careerRepository = careerRepository
         )
 
+        val dummyContext = object : android.content.ContextWrapper(null) {
+            override fun getApplicationContext(): android.content.Context = this
+            override fun getSharedPreferences(name: String?, mode: Int): android.content.SharedPreferences {
+                return object : android.content.SharedPreferences {
+                    override fun getAll(): MutableMap<String, *> = mutableMapOf<String, Any>()
+                    override fun getString(key: String?, defValue: String?): String? = defValue
+                    override fun getStringSet(key: String?, defValues: MutableSet<String>?): MutableSet<String>? = defValues
+                    override fun getInt(key: String?, defValue: Int): Int = defValue
+                    override fun getLong(key: String?, defValue: Long): Long = defValue
+                    override fun getFloat(key: String?, defValue: Float): Float = defValue
+                    override fun getBoolean(key: String?, defValue: Boolean): Boolean = true
+                    override fun contains(key: String?): Boolean = false
+                    override fun edit(): android.content.SharedPreferences.Editor = object : android.content.SharedPreferences.Editor {
+                        override fun putString(key: String?, value: String?): android.content.SharedPreferences.Editor = this
+                        override fun putStringSet(key: String?, values: MutableSet<String>?): android.content.SharedPreferences.Editor = this
+                        override fun putInt(key: String?, value: Int): android.content.SharedPreferences.Editor = this
+                        override fun putLong(key: String?, value: Long): android.content.SharedPreferences.Editor = this
+                        override fun putFloat(key: String?, value: Float): android.content.SharedPreferences.Editor = this
+                        override fun putBoolean(key: String?, value: Boolean): android.content.SharedPreferences.Editor = this
+                        override fun remove(key: String?): android.content.SharedPreferences.Editor = this
+                        override fun clear(): android.content.SharedPreferences.Editor = this
+                        override fun commit(): Boolean = true
+                        override fun apply() {}
+                    }
+                    override fun registerOnSharedPreferenceChangeListener(listener: android.content.SharedPreferences.OnSharedPreferenceChangeListener?) {}
+                    override fun unregisterOnSharedPreferenceChangeListener(listener: android.content.SharedPreferences.OnSharedPreferenceChangeListener?) {}
+                }
+            }
+        }
+        val settingsManager = com.danny.dannyapp.data.SettingsManager(dummyContext)
+
         tournamentProgressionUseCase = TournamentProgressionUseCase(
             completeMatchUseCase = completeMatchUseCase,
             advanceTournamentRoundUseCase = advanceTournamentRoundUseCase,
             tournamentRepository = tournamentRepository,
-            generateBracketUseCase = generateBracketUseCase
+            generateBracketUseCase = generateBracketUseCase,
+            settingsManager = settingsManager
         )
     }
 

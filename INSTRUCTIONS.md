@@ -22,7 +22,7 @@
 - TODO: [VOR RELEASE / DB-FREEZE] Wir befinden uns in der Entwicklungsphase der App. Bei jedem Test lösche ich alle Karrieren und lege neue an. Wir brauchen also keine Rücksicht auf alte Datenbankeinträge aus Vorversionen und dafür auch keine Fallbacks bauen oder im code belassen. Noch kann ich die DB auch einfach löschen.
 - Erstelle Unit-Tests nur, wenn explizit danach gefragt wird.
 - **Top-Bar Breadcrumb-Standard:** Jede Unterseite zeigt als `titleText` exakt den Namen des aufrufenden Buttons/Bereichs (z. B. `Saisonkalender`, `Ranglisten`, `Turnieransicht`) und als `subtitleText` den vollständigen Breadcrumb-Pfad (z. B. `Karrieren > <Karrierename>`).
-- **Debug-Modus:** Alle Schnell-Simulations-Buttons (`Komplettes Turnier simulieren`, `CPU simulieren`, `Match simulieren`) dürfen nur sichtbar sein, wenn in den Einstellungen (`SettingsManager`) `debugMode == true` ist (Default: `true`).
+- **Simulations-Buttons & Settings:** Alle Debug-Schnellsimulationen (`Turnier simulieren`, `⏩ Bis hier simulieren`, `User-Match: Sieger festlegen`) sind nur sichtbar, wenn `debugMode == true` ist. `CPU simulieren` hängt ausschließlich an `!autoSimulateCpu`, `Nächste Runde` / `Turnier abschließen` ausschließlich an `!autoAdvanceRound` (verbindliche Matrix und Trigger-Regeln siehe `docs/TURNIER_UI_UND_FLOW.md`, Abschnitt 3.2).
 - **Farbkodierung der Turniertyp-Badges (über `colors.xml`):**
   - `MAJOR`: Gold-Ton
   - `QUALIFIER_GRAND_SLAM`, `QUALIFIER_WM` (Major-Qualifier): Dunkelgold

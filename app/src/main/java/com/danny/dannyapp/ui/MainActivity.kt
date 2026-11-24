@@ -27,88 +27,6 @@ class MainActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
-//        splashScreen.setOnExitAnimationListener { splashScreenView ->
-//            val iconView = splashScreenView.iconView
-//            iconView.animate()
-//                ?.scaleX(0.0f)
-//                ?.scaleY(0.0f)
-//                ?.alpha(0f)
-//                ?.setDuration(1450L)
-//                ?.withEndAction { splashScreenView.remove() }
-//                ?.start() ?: splashScreenView.remove()
-//        }
-
-
-//        splashScreen.setOnExitAnimationListener { splashScreenView ->
-//            val iconView = splashScreenView.iconView
-//
-//            iconView.animate()
-//                .scaleX(0.85f)
-//                .scaleY(0.85f)
-//                .rotation(-8f)
-//                .setDuration(1800L)
-//                .withEndAction {
-//                    // 2. Dann kraftvoll nach vorne auf den Betrachter zufliegen (Wurf)
-//                    iconView.animate()
-//                        .scaleX(1.35f)
-//                        .scaleY(1.35f)
-//                        .rotation(0f)
-//                        .alpha(0f)
-//                        .setDuration(3500L)
-//                        .withEndAction {
-//                            splashScreenView.remove()
-//                        }
-//                        .start()
-//                }
-//                .start()
-//        }
-
-//        splashScreen.setOnExitAnimationListener { splashScreenView ->
-//            val rootView = splashScreenView.view
-//            val centerX = rootView.width / 2
-//            val centerY = rootView.height / 2
-//            val maxRadius = kotlin.math.hypot(centerX.toDouble(), centerY.toDouble()).toFloat()
-//
-//            // Kreis zieht sich von außen nach innen auf das Icon zusammen (oder umgekehrt)
-//            val reveal = android.view.ViewAnimationUtils.createCircularReveal(
-//                rootView,
-//                centerX,
-//                centerY,
-//                maxRadius,
-//                0f
-//            ).apply {
-//                duration = 5000L
-//                interpolator = android.view.animation.AccelerateInterpolator()
-//                addListener(object : android.animation.AnimatorListenerAdapter() {
-//                    override fun onAnimationEnd(animation: android.animation.Animator) {
-//                        splashScreenView.remove()
-//                    }
-//                })
-//            }
-//            reveal.start()
-//        }
-
-//        splashScreen.setOnExitAnimationListener { splashScreenView ->
-//            val rootView = splashScreenView.view
-//            val iconView = splashScreenView.iconView
-//
-//            iconView.animate()
-//                ?.translationY(-180f)
-//                ?.scaleX(0.9f)
-//                ?.scaleY(0.9f)
-//                ?.alpha(0f)
-//                ?.setDuration(420L)
-//                ?.start()
-//
-//            rootView.animate()
-//                .alpha(0f)
-//                .setDuration(450L)
-//                .withEndAction { splashScreenView.remove() }
-//                .start()
-//        }
-
-
-
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
@@ -280,23 +198,23 @@ class MainActivity : BaseActivity() {
         }
 
         // Sicherheits-Fallback (falls Android Studio den System-Splash beim Warmstart überspringt)
-//        window.decorView.postDelayed({
-//            if (!animationStarted) {
-//                tvAppTitle.animate().alpha(1f).scaleX(1f).scaleY(1f).setDuration(300L).start()
-//                ivCardImage.animate()
-//                    .alpha(1f).scaleX(1f).scaleY(1f)
-//                    .setStartDelay(2200L).setDuration(3400L)
-//                    .setInterpolator(OvershootInterpolator(1.6f)).start()
-//                layoutSubtitle.animate()
-//                    .alpha(1f).translationY(0f)
-//                    .setStartDelay(4800L).setDuration(2800L).start()
-//                buttons.forEachIndexed { index, btn ->
-//                    btn.animate()
-//                        .alpha(1f).translationY(0f)
-//                        .setStartDelay(5600L + index * 700L).setDuration(2600L).start()
-//                }
-//            }K
-//        }, 2500L)
+        window.decorView.postDelayed({
+            if (!animationStarted) {
+                tvAppTitle.animate().alpha(1f).scaleX(1f).scaleY(1f).setDuration(300L).start()
+                ivCardImage.animate()
+                    .alpha(1f).scaleX(1f).scaleY(1f)
+                    .setStartDelay(2200L).setDuration(3400L)
+                    .setInterpolator(OvershootInterpolator(1.6f)).start()
+                layoutSubtitle.animate()
+                    .alpha(1f).translationY(0f)
+                    .setStartDelay(4800L).setDuration(2800L).start()
+                buttons.forEachIndexed { index, btn ->
+                    btn.animate()
+                        .alpha(1f).translationY(0f)
+                        .setStartDelay(5600L + index * 700L).setDuration(2600L).start()
+                }
+            }
+        }, 2500L)
     }
 
     /**

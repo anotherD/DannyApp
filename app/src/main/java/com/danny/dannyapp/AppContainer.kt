@@ -206,7 +206,8 @@ class AppContainer(context: Context) {
             completeMatchUseCase,
             advanceTournamentRoundUseCase,
             tournamentRepository,
-            generateBracketUseCase
+            generateBracketUseCase,
+            settingsManager
         )
     }
 }

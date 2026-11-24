@@ -41,7 +41,6 @@ class TournamentCalendarViewModel(application: Application) : AndroidViewModel(a
     private val playerRepository = application.appContainer.playerRepository
 
     private val generateSeasonCalendarUseCase = application.appContainer.generateSeasonCalendarUseCase
-    private val generateBracketUseCase = application.appContainer.generateBracketUseCase
     private val advanceTournamentRoundUseCase = application.appContainer.advanceTournamentRoundUseCase
     private val tournamentProgressionUseCase = application.appContainer.tournamentProgressionUseCase
     private val getTournamentSummaryUseCase = application.appContainer.getTournamentSummaryUseCase
@@ -156,14 +155,11 @@ class TournamentCalendarViewModel(application: Application) : AndroidViewModel(a
     }
 
     /**
-     * Startet ein Turnier und generiert bei Bedarf den Turnierbaum.
+     * Startet ein Turnier und wendet automatischen Fortschritt an.
      */
     suspend fun startTournament(tournamentId: Long): Boolean = withContext(Dispatchers.IO) {
         try {
-            val matches = tournamentRepository.getMatchesListForTournament(tournamentId)
-            if (matches.isEmpty()) {
-                generateBracketUseCase(tournamentId)
-            }
+            tournamentProgressionUseCase.startTournament(tournamentId)
             true
         } catch (e: Exception) {
             getApplication<Application>().appContainer.reportError("Turnier starten", e)

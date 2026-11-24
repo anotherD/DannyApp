@@ -1,5 +1,6 @@
 package com.danny.dannyapp.domain.usecase
 
+import com.danny.dannyapp.data.SettingsManager
 import com.danny.dannyapp.data.db.TournamentRepository
 import com.danny.dannyapp.data.db.USER_ID
 import kotlinx.coroutines.Dispatchers
@@ -13,8 +14,56 @@ class TournamentProgressionUseCase(
     private val completeMatchUseCase: CompleteMatchUseCase,
     private val advanceTournamentRoundUseCase: AdvanceTournamentRoundUseCase,
     private val tournamentRepository: TournamentRepository,
-    private val generateBracketUseCase: GenerateBracketUseCase? = null
+    private val generateBracketUseCase: GenerateBracketUseCase? = null,
+    private val settingsManager: SettingsManager
 ) {
+
+    /**
+     * Startet ein Turnier: Generiert den Turnierbaum, falls noch keine Matches existieren,
+     * und wendet anschließend den automatischen Fortschritt an.
+     *
+     * @param tournamentId Die ID des zu startenden Turniers.
+     */
+    suspend fun startTournament(tournamentId: Long) = withContext(Dispatchers.IO) {
+        val existingMatches = tournamentRepository.getMatchesListForTournament(tournamentId)
+        if (existingMatches.isEmpty()) {
+            requireNotNull(generateBracketUseCase) { "GenerateBracketUseCase fehlt" }.invoke(tournamentId)
+        }
+        applyAutoProgress(tournamentId)
+    }
+
+    /**
+     * Führt automatischen Rundenfortschritt und CPU-Simulationen aus,
+     * basierend auf den Einstellungen in SettingsManager.
+     *
+     * @param tournamentId Die ID des Turniers.
+     */
+    suspend fun applyAutoProgress(tournamentId: Long) = withContext(Dispatchers.IO) {
+        var loopCount = 0
+        val maxLoopCount = 200
+
+        while (loopCount < maxLoopCount) {
+            loopCount++
+            val tournament = tournamentRepository.getTournamentById(tournamentId)
+            if (tournament.isCompleted) break
+
+            val state = advanceTournamentRoundUseCase.evaluateTournamentState(tournamentId) ?: break
+
+            if (settingsManager.autoSimulateCpu && state.hasOpenCpuMatchesInActiveRound) {
+                completeMatchUseCase.simulateAllOpenCpuMatches(tournamentId)
+                continue
+            }
+
+            val updatedState = advanceTournamentRoundUseCase.evaluateTournamentState(tournamentId) ?: break
+
+            if (settingsManager.autoAdvanceRound && updatedState.canAdvanceRound) {
+                advanceTournamentRoundUseCase(tournamentId)
+                continue
+            }
+
+            break
+        }
+    }
 
     /**
      * Simulates an entire tournament from start to finish.

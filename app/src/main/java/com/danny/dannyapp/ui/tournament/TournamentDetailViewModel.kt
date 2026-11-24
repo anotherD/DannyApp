@@ -33,7 +33,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
 
 sealed interface TournamentDetailState {
     object Loading : TournamentDetailState
@@ -134,7 +133,6 @@ class TournamentDetailViewModel(
     private val getOrderOfMeritUseCase = application.appContainer.getOrderOfMeritUseCase
     private val careerRepository = application.appContainer.careerRepository
 
-    private val generateBracketUseCase = application.appContainer.generateBracketUseCase
     private val completeMatchUseCase = application.appContainer.completeMatchUseCase
     private val advanceTournamentRoundUseCase = application.appContainer.advanceTournamentRoundUseCase
     private val tournamentProgressionUseCase = application.appContainer.tournamentProgressionUseCase
@@ -168,7 +166,6 @@ class TournamentDetailViewModel(
     private val selectedRoundIndexFlow = savedStateHandle.getStateFlow(KEY_SELECTED_ROUND_INDEX, 0)
     private val selectedGroupIndexFlow = savedStateHandle.getStateFlow(KEY_SELECTED_GROUP_INDEX, 0)
     private var loadJob: Job? = null
-    private val autoStepMutex = Mutex()
 
     init {
         if (currentTournamentId > 0L) {
@@ -335,25 +332,7 @@ class TournamentDetailViewModel(
             }
         }
 
-        if ((autoSimulateCpu && hasOpenCpuMatchesInActiveRound) || (autoAdvanceRound && canAdvanceRound)) {
-            if (autoStepMutex.tryLock()) {
-                viewModelScope.launch {
-                    try {
-                        if (autoSimulateCpu && hasOpenCpuMatchesInActiveRound) {
-                            completeMatchUseCase.simulateAllOpenCpuMatches(currentTournamentId)
-                        } else if (autoAdvanceRound && canAdvanceRound) {
-                            hasUserSelectedRound = false
-                            advanceTournamentRoundUseCase(currentTournamentId)
-                        }
-                    } catch (e: Exception) {
-                        getApplication<Application>().appContainer.reportError("Automatische Simulation", e)
-                    } finally {
-                        autoStepMutex.unlock()
-                    }
-                }
-            }
-            return
-        }
+
 
         val isUkOpenUngenerated = isOpenDrawRoundPending(event, currentRoundKey, dbMatchesForRound)
         val season = seasonRepository.getSeasonById(tournament.seasonId)
@@ -795,13 +774,13 @@ class TournamentDetailViewModel(
     }
 
     /**
-     * Startet das aktuelle Turnier und generiert den Turnierbaum.
+     * Startet das aktuelle Turnier und wendet automatischen Fortschritt an.
      */
     fun startTournament() {
         viewModelScope.launch {
             _uiState.value = TournamentDetailState.Loading
             try {
-                generateBracketUseCase(currentTournamentId)
+                tournamentProgressionUseCase.startTournament(currentTournamentId)
             } catch (e: Exception) {
                 getApplication<Application>().appContainer.reportError("Turnier starten", e)
             }
@@ -864,6 +843,7 @@ class TournamentDetailViewModel(
             try {
                 hasUserSelectedRound = false
                 advanceTournamentRoundUseCase(currentTournamentId)
+                tournamentProgressionUseCase.applyAutoProgress(currentTournamentId)
             } catch (e: Exception) {
                 getApplication<Application>().appContainer.reportError("Rundenwechsel", e)
             }
@@ -877,6 +857,7 @@ class TournamentDetailViewModel(
         viewModelScope.launch {
             try {
                 completeMatchUseCase.completeWithPresetWinner(matchId, userWins)
+                tournamentProgressionUseCase.applyAutoProgress(currentTournamentId)
             } catch (e: Exception) {
                 getApplication<Application>().appContainer.reportError("Match speichern", e)
             }
@@ -888,10 +869,30 @@ class TournamentDetailViewModel(
      */
     suspend fun setManualUserMatchScore(matchId: Long, p1Score: Int, p2Score: Int): ManualScoreResult {
         return try {
-            completeMatchUseCase.completeManualMatch(matchId, p1Score, p2Score)
+            val result = completeMatchUseCase.completeManualMatch(matchId, p1Score, p2Score)
+            if (result is ManualScoreResult.Success) {
+                tournamentProgressionUseCase.applyAutoProgress(currentTournamentId)
+            }
+            result
         } catch (e: Exception) {
             getApplication<Application>().appContainer.reportError("Match speichern", e)
             throw e
+        }
+    }
+
+    /**
+     * Wird aufgerufen, wenn der Benutzer aus den Einstellungen zurückkehrt,
+     * um eventuell geänderte Auto-Simulation/Auto-Fortschritt-Einstellungen anzuwenden.
+     */
+    fun onSettingsResumed() {
+        if (currentTournamentId > 0L && !_isSimulatingBatch.value) {
+            viewModelScope.launch {
+                try {
+                    tournamentProgressionUseCase.applyAutoProgress(currentTournamentId)
+                } catch (e: Exception) {
+                    getApplication<Application>().appContainer.reportError("Auto-Fortschritt nach Einstellungen", e)
+                }
+            }
         }
     }
 
