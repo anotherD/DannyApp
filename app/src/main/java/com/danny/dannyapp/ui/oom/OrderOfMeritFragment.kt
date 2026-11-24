@@ -109,15 +109,28 @@ class OrderOfMeritFragment : Fragment(R.layout.fragment_order_of_merit) {
                     OrderOfMeritType.ET_OOM -> viewModel.etOomEntries
                 }
 
-                flow.collect { entries ->
-                    adapter.submitList(entries)
-                    if (entries.isEmpty()) {
-                        tvEmptyOom.visibility = TextView.VISIBLE
-                        rvOom.visibility = RecyclerView.GONE
-                    } else {
-                        tvEmptyOom.visibility = TextView.GONE
-                        rvOom.visibility = RecyclerView.VISIBLE
-                        updateStickyCard()
+                launch {
+                    flow.collect { entries ->
+                        if (entries.isEmpty()) {
+                            tvEmptyOom.visibility = TextView.VISIBLE
+                            rvOom.visibility = RecyclerView.GONE
+                        } else {
+                            tvEmptyOom.visibility = TextView.GONE
+                            rvOom.visibility = RecyclerView.VISIBLE
+                        }
+                        adapter.submitList(entries) {
+                            if (isAdded) {
+                                rvOom.post { updateStickyCard() }
+                            }
+                        }
+                    }
+                }
+
+                launch {
+                    viewModel.selectedOomType.collect { selectedType ->
+                        if (selectedType == oomType && isAdded) {
+                            rvOom.post { updateStickyCard() }
+                        }
                     }
                 }
             }
@@ -137,7 +150,9 @@ class OrderOfMeritFragment : Fragment(R.layout.fragment_order_of_merit) {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        viewModel.updateStickyUserState(StickyUserState.Hidden)
+        if (viewModel.selectedOomType.value == oomType) {
+            viewModel.updateStickyUserState(StickyUserState.Hidden)
+        }
     }
 
     companion object {
