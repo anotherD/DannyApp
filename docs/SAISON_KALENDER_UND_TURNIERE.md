@@ -192,9 +192,10 @@ Für Qualifikationswege ohne Länderbindung, die über Geschlecht, Alter oder Q-
 * **Teilnehmer & Qualifikation:**
   * Alle Tour-Card-Inhaber der aktuellen Saison (`tour_cards`), die nicht bereits über die Vorqualifikationslisten des jeweiligen Hauptturniers (z. B. Top 16 OOM + Top 16 PT OOM bei ET; Top 40 OOM + Top 40 PT OOM bei WM) qualifiziert sind.
 * **Setzliste & Auslosung:**
-  * **Dynamische Board-Größe (8er-, 16er- oder 32er-Boards):** `boardSizePerBoard` ist die kleinste Zweierpotenz `>= ceil(N / K)` (`8`, `16`, `32`), sodass alle `N` Teilnehmer direkt in `QUAL_R1` starten und überzählige Plätze (`boardSizePerBoard * K - N`) als Freilose (`Byes`) gleichmäßig auf alle `K` Boards verteilt werden.
-  * **Offizielle Board-Setzliste:** Die Top `2 * K` teilnehmenden Tour-Card-Inhaber (gemäß PDC Order of Merit) sind als Seeds `(1)` bis `(2 * K)` über die `K` Boards verteilt (Board `b`: Seed `b + 1` im ersten Match und Seed `2 * K - b` im letzten Erstrunden-Match des Boards), sodass kein Seed in `QUAL_R1` auf einen anderen Seed trifft und die beiden Top-Seeds eines Boards erst im `QUAL_FINAL` aufeinandertreffen können.
-  * **Freie Auslosung der restlichen Board-Slots:** Alle nicht zu den Top `2 * K` Seeds gehörenden Spieler sowie Freilose (`Byes`) werden frei zugelost (`.shuffled()`) und auf die freien Erstrunden-Plätze der `K` Boards verteilt.
+  * **Dynamische Board-Größe (8er-, 16er- oder 32er-Boards):** `boardSizePerBoard` ist die kleinste Zweierpotenz `>= ceil(N / K)` (`8`, `16`, `32`), sodass alle `N` Teilnehmer direkt in `QUAL_R1` starten.
+  * **Gleichmäßige Freilos-Verteilung (`Byes`):** Die überzähligen Plätze (`totalByes = boardSizePerBoard * K - N`) werden gleichmäßig auf alle `K` Boards aufgeteilt (`baseByes = totalByes / K` pro Board, plus `1` zusätzliches Freilos für die ersten `totalByes % K` Boards). Da `boardSizePerBoard < 2 * ceil(N / K)`, hat jedes Board maximal `boardSizePerBoard / 2` Freilose – ein Freilos trifft daher **niemals** auf ein anderes Freilos.
+  * **Offizielle Board-Setzliste & Priorität der Freilose:** Die Top `2 * K` teilnehmenden Tour-Card-Inhaber (gemäß PDC Order of Merit) sind als Seeds `(1)` bis `(2 * K)` über die `K` Boards verteilt (Board `b`: Seed `b + 1` oben im ersten Match und Seed `2 * K - b` unten im letzten Erstrunden-Match des Boards), sodass kein Seed in `QUAL_R1` auf einen anderen Seed trifft und die beiden Top-Seeds eines Boards erst im `QUAL_FINAL` aufeinandertreffen können. Innerhalb jedes Boards erhalten die gesetzten Spieler **zuerst** die Freilose des Boards (1. Freilos für Seed `b + 1`, 2. Freilos für Seed `2 * K - b`); weitere Freilose des Boards werden auf zufällig geloste ungesetzte Spieler dieses Boards verteilt (maximal 1 Freilos pro Erstrunden-Match).
+  * **Freie Auslosung der restlichen Board-Slots:** Alle nicht zu den Top `2 * K` Seeds gehörenden echten Spieler werden frei gemischt (`.shuffled()`) und auf die verbleibenden freien Plätze der `K` Boards verteilt.
 * **Turnierverlauf & Paarungslogik:**
   * Hauptrunden pro Board (je nach dynamischer Board-Größe, ohne Vorrunde):
     * **8er-Board (`boardSizePerBoard = 8`, z. B. `QUALIFIER_ET` / `QUALIFIER_GRAND_SLAM`):** `QUAL_R1` → `QUAL_R2` → `QUAL_FINAL`.
@@ -209,6 +210,7 @@ Für Qualifikationswege ohne Länderbindung, die über Geschlecht, Alter oder Q-
   * [PDC News – 2026 ET3-4 Seeds & Tour Card Holder qualifier entries confirmed](https://www.pdc.tv/news/2026/february/12/2026-et3-4-seeds---tour-card-holder-qualifier-entries-confirmed/)
   * [PDC News – Grand Slam of Darts Tour Card Holder Qualifier entries confirmed](https://www.pdc.tv/news/2026/november/05/grand-slam-of-darts-tour-card-holder-qualifier-entries-confirmed/)
   * [PDC News – 2026/27 Paddy Power World Championship International Qualifying structure confirmed](https://www.pdc.tv/news/2026/february/24/2026-27-paddy-power-world-championship-international-qualifying-structure-confirmed/)
+  * [PDC DartConnect Brackets – Tour Card Holder Qualifier Seeding & Byes](https://tv.dartconnect.com/event/pdceutcq26et12/brackets/206005)
   * [Qualifikationsturniere für die European Darts Tour 2027 (Wikipedia)](https://de.wikipedia.org/wiki/Qualifikationsturniere_f%C3%BCr_die_European_Darts_Tour_2027)
 
 ---
