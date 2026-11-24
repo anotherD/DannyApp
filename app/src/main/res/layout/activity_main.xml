@@ -160,15 +160,6 @@
                     android:text="@string/careers"
                     android:textSize="16sp" />
 
-                <!-- Button 4: Design & Farben Showcase -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnOpenDesignShowcase"
-                    style="Widget.Material3.Button.OutlinedButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/design_showcase"
-                    android:textSize="16sp" />
-
             </LinearLayout>
         </ScrollView>
 

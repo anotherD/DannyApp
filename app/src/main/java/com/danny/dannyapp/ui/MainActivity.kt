@@ -35,13 +35,12 @@ class MainActivity : BaseActivity() {
         val btnOpenScolia: Button = findViewById(R.id.btnOpenScolia)
         val btnProfiles: Button = findViewById(R.id.btnProfiles)
         val btnCareers: Button = findViewById(R.id.btnCareers)
-        val btnOpenDesignShowcase: Button = findViewById(R.id.btnOpenDesignShowcase)
 
         // Start-Choreografie nur beim ersten Öffnen (nicht nach Bildschirm-Drehung) abspielen
         if (savedInstanceState == null) {
             setupWalkOnEntranceAnimation(
                 splashScreen = splashScreen,
-                buttons = listOf(btnOpenScolia, btnProfiles, btnCareers, btnOpenDesignShowcase)
+                buttons = listOf(btnOpenScolia, btnProfiles, btnCareers)
             )
         }
 
@@ -55,10 +54,6 @@ class MainActivity : BaseActivity() {
         }
         btnCareers.setOnClickListener {
             val intent = android.content.Intent(this, CareersActivity::class.java)
-            startActivity(intent)
-        }
-        btnOpenDesignShowcase.setOnClickListener {
-            val intent = android.content.Intent(this, DesignShowcaseActivity::class.java)
             startActivity(intent)
         }
 
