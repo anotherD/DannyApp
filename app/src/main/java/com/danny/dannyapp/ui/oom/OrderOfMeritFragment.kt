@@ -12,6 +12,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
 import com.danny.dannyapp.domain.enums.OrderOfMeritType
+import com.danny.dannyapp.ui.UIHelper
+import com.google.android.material.card.MaterialCardView
 import kotlinx.coroutines.launch
 
 class OrderOfMeritFragment : Fragment(R.layout.fragment_order_of_merit) {
@@ -20,6 +22,18 @@ class OrderOfMeritFragment : Fragment(R.layout.fragment_order_of_merit) {
     private lateinit var adapter: OrderOfMeritAdapter
     private lateinit var rvOom: RecyclerView
     private lateinit var tvEmptyOom: TextView
+
+    private lateinit var cardStickyUserTop: MaterialCardView
+    private lateinit var shadowStickyTop: View
+    private lateinit var tvStickyRankTop: TextView
+    private lateinit var tvStickyPlayerNameTop: TextView
+    private lateinit var tvStickyPrizeMoneyTop: TextView
+
+    private lateinit var cardStickyUserBottom: MaterialCardView
+    private lateinit var shadowStickyBottom: View
+    private lateinit var tvStickyRankBottom: TextView
+    private lateinit var tvStickyPlayerNameBottom: TextView
+    private lateinit var tvStickyPrizeMoneyBottom: TextView
 
     private var oomType: OrderOfMeritType = OrderOfMeritType.OOM
 
@@ -34,6 +48,18 @@ class OrderOfMeritFragment : Fragment(R.layout.fragment_order_of_merit) {
         rvOom = view.findViewById(R.id.rvOrderOfMerit)
         tvEmptyOom = view.findViewById(R.id.tvEmptyOom)
 
+        cardStickyUserTop = view.findViewById(R.id.cardStickyUserTop)
+        shadowStickyTop = view.findViewById(R.id.shadowStickyTop)
+        tvStickyRankTop = view.findViewById(R.id.tvStickyRankTop)
+        tvStickyPlayerNameTop = view.findViewById(R.id.tvStickyPlayerNameTop)
+        tvStickyPrizeMoneyTop = view.findViewById(R.id.tvStickyPrizeMoneyTop)
+
+        cardStickyUserBottom = view.findViewById(R.id.cardStickyUserBottom)
+        shadowStickyBottom = view.findViewById(R.id.shadowStickyBottom)
+        tvStickyRankBottom = view.findViewById(R.id.tvStickyRankBottom)
+        tvStickyPlayerNameBottom = view.findViewById(R.id.tvStickyPlayerNameBottom)
+        tvStickyPrizeMoneyBottom = view.findViewById(R.id.tvStickyPrizeMoneyBottom)
+
         val layoutManager = LinearLayoutManager(requireContext())
         rvOom.layoutManager = layoutManager
         adapter = OrderOfMeritAdapter()
@@ -46,6 +72,10 @@ class OrderOfMeritFragment : Fragment(R.layout.fragment_order_of_merit) {
             }
         })
 
+        rvOom.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
+            updateStickyCard()
+        }
+
         observeData()
     }
 
@@ -55,26 +85,19 @@ class OrderOfMeritFragment : Fragment(R.layout.fragment_order_of_merit) {
     }
 
     fun updateStickyCard() {
-        if (!isResumed || viewModel.selectedOomType.value != oomType) return
-        if (isAdded && ::rvOom.isInitialized) {
-            val lm = rvOom.layoutManager as? LinearLayoutManager
-            if (lm != null) {
-                updateStickyUserVisibility(lm)
-            }
-        }
-    }
+        if (!isAdded || !::rvOom.isInitialized) return
+        val layoutManager = rvOom.layoutManager as? LinearLayoutManager ?: return
 
-    private fun updateStickyUserVisibility(layoutManager: LinearLayoutManager) {
         val entries = adapter.currentList
         val userEntry = entries.find { it.isUser }
         if (userEntry == null || entries.isEmpty()) {
-            viewModel.updateStickyUserState(StickyUserState.Hidden)
+            hideAllStickyViews()
             return
         }
 
         val userIndex = entries.indexOf(userEntry)
         if (userIndex == -1) {
-            viewModel.updateStickyUserState(StickyUserState.Hidden)
+            hideAllStickyViews()
             return
         }
 
@@ -82,21 +105,56 @@ class OrderOfMeritFragment : Fragment(R.layout.fragment_order_of_merit) {
         val lastVisible = layoutManager.findLastVisibleItemPosition()
 
         if (firstVisible == RecyclerView.NO_POSITION || lastVisible == RecyclerView.NO_POSITION) {
-            viewModel.updateStickyUserState(StickyUserState.Hidden)
+            hideAllStickyViews()
             return
         }
 
         when {
             userIndex < firstVisible -> {
-                viewModel.updateStickyUserState(StickyUserState.VisibleTop(userEntry, userIndex))
+                val rankText = getString(R.string.rank_format, userEntry.rank)
+                val moneyText = getString(R.string.prize_money_format, userEntry.prizeMoney)
+
+                tvStickyRankTop.text = rankText
+                UIHelper.formatFlagAndText(tvStickyPlayerNameTop, userEntry.countryCode, userEntry.name)
+                tvStickyPrizeMoneyTop.text = moneyText
+
+                cardStickyUserTop.visibility = View.VISIBLE
+                shadowStickyTop.visibility = View.VISIBLE
+                cardStickyUserTop.setOnClickListener {
+                    layoutManager.scrollToPositionWithOffset(userIndex, rvOom.height / 2 - 100)
+                }
+
+                cardStickyUserBottom.visibility = View.GONE
+                shadowStickyBottom.visibility = View.GONE
             }
             userIndex > lastVisible -> {
-                viewModel.updateStickyUserState(StickyUserState.VisibleBottom(userEntry, userIndex))
+                val rankText = getString(R.string.rank_format, userEntry.rank)
+                val moneyText = getString(R.string.prize_money_format, userEntry.prizeMoney)
+
+                tvStickyRankBottom.text = rankText
+                UIHelper.formatFlagAndText(tvStickyPlayerNameBottom, userEntry.countryCode, userEntry.name)
+                tvStickyPrizeMoneyBottom.text = moneyText
+
+                cardStickyUserBottom.visibility = View.VISIBLE
+                shadowStickyBottom.visibility = View.VISIBLE
+                cardStickyUserBottom.setOnClickListener {
+                    layoutManager.scrollToPositionWithOffset(userIndex, rvOom.height / 2 - 100)
+                }
+
+                cardStickyUserTop.visibility = View.GONE
+                shadowStickyTop.visibility = View.GONE
             }
             else -> {
-                viewModel.updateStickyUserState(StickyUserState.Hidden)
+                hideAllStickyViews()
             }
         }
+    }
+
+    private fun hideAllStickyViews() {
+        cardStickyUserTop.visibility = View.GONE
+        shadowStickyTop.visibility = View.GONE
+        cardStickyUserBottom.visibility = View.GONE
+        shadowStickyBottom.visibility = View.GONE
     }
 
     private fun observeData() {
@@ -109,49 +167,22 @@ class OrderOfMeritFragment : Fragment(R.layout.fragment_order_of_merit) {
                     OrderOfMeritType.ET_OOM -> viewModel.etOomEntries
                 }
 
-                launch {
-                    flow.collect { entries ->
-                        if (entries.isEmpty()) {
-                            tvEmptyOom.visibility = TextView.VISIBLE
-                            rvOom.visibility = RecyclerView.GONE
-                        } else {
-                            tvEmptyOom.visibility = TextView.GONE
-                            rvOom.visibility = RecyclerView.VISIBLE
-                        }
-                        adapter.submitList(entries) {
-                            if (isAdded) {
-                                rvOom.post { updateStickyCard() }
-                            }
-                        }
+                flow.collect { entries ->
+                    if (entries.isEmpty()) {
+                        tvEmptyOom.visibility = TextView.VISIBLE
+                        rvOom.visibility = RecyclerView.GONE
+                        hideAllStickyViews()
+                    } else {
+                        tvEmptyOom.visibility = TextView.GONE
+                        rvOom.visibility = RecyclerView.VISIBLE
                     }
-                }
-
-                launch {
-                    viewModel.selectedOomType.collect { selectedType ->
-                        if (selectedType == oomType && isAdded) {
+                    adapter.submitList(entries) {
+                        if (isAdded) {
                             rvOom.post { updateStickyCard() }
                         }
                     }
                 }
             }
-        }
-
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.scrollToPositionEvent.collect { userIndex ->
-                    if (viewModel.selectedOomType.value == oomType) {
-                        val lm = rvOom.layoutManager as? LinearLayoutManager
-                        lm?.scrollToPositionWithOffset(userIndex, rvOom.height / 2 - 100)
-                    }
-                }
-            }
-        }
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        if (viewModel.selectedOomType.value == oomType) {
-            viewModel.updateStickyUserState(StickyUserState.Hidden)
         }
     }
 
