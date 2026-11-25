@@ -135,7 +135,7 @@ abstract class BaseActivity : AppCompatActivity() {
 
     protected fun setupToolbar(
         titleText: String,
-        subtitleText: String? = null,
+        subtitleText: CharSequence? = null,
         showBack: Boolean = true,
         rootViewId: Int = android.R.id.content,
         menuResId: Int = R.menu.menu_main,

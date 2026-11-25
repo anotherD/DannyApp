@@ -76,4 +76,9 @@
     <style name="Widget.DannyApp.TextInputLayout.OutlinedBox" parent="Widget.Material3.TextInputLayout.OutlinedBox">
         <item name="android:textColorHint">@color/eingabe_hint</item>
     </style>
+
+    <style name="TextAppearance.DannyApp.ToolbarSubtitle" parent="TextAppearance.Material3.BodySmall">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/grau_text_gedaempft</item>
+    </style>
 </resources>
