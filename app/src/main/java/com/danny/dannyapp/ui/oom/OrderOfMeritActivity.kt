@@ -1,5 +1,6 @@
 package com.danny.dannyapp.ui.oom
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.lifecycle.Lifecycle
@@ -8,8 +9,10 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.danny.dannyapp.R
 import com.danny.dannyapp.domain.enums.OrderOfMeritType
 import com.danny.dannyapp.ui.BaseActivity
+import com.danny.dannyapp.ui.career.CareerDetailActivity
 import com.danny.dannyapp.ui.career.CareerDetailState
 import com.danny.dannyapp.ui.career.CareerDetailViewModel
+import com.danny.dannyapp.ui.navigation.AppScreen
 import kotlinx.coroutines.launch
 
 class OrderOfMeritActivity : BaseActivity() {
@@ -20,6 +23,13 @@ class OrderOfMeritActivity : BaseActivity() {
     private var careerId: Long = -1L
     private var careerName: String = ""
 
+    override fun buildUpNavigationExtras(parentScreen: AppScreen, intent: Intent) {
+        if (parentScreen == AppScreen.CAREER_OVERVIEW) {
+            intent.putExtra(CareerDetailActivity.EXTRA_CAREER_ID, careerId)
+            intent.putExtra(CareerDetailActivity.EXTRA_CAREER_NAME, careerName)
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_order_of_merit)
@@ -28,9 +38,9 @@ class OrderOfMeritActivity : BaseActivity() {
         careerName = intent.getStringExtra(EXTRA_CAREER_NAME) ?: ""
         val oomTypeName = intent.getStringExtra(EXTRA_OOM_TYPE)
 
-        setupToolbar(
-            titleText = getString(R.string.tab_oom),
-            subtitleText = getString(R.string.breadcrumb_format, careerName.ifBlank { getString(R.string.career) }),
+        setupNavigationToolbar(
+            screen = AppScreen.ORDER_OF_MERIT,
+            dynamicBreadcrumbLabels = mapOf(AppScreen.CAREER_OVERVIEW to careerName.ifBlank { getString(R.string.career) }),
             rootViewId = R.id.orderOfMeritMain
         )
 
@@ -56,9 +66,9 @@ class OrderOfMeritActivity : BaseActivity() {
                             is CareerDetailState.Success -> {
                                 val career = state.careerWithProfile.career
                                 careerName = career.name
-                                setupToolbar(
-                                    titleText = getString(R.string.tab_oom),
-                                    subtitleText = getString(R.string.breadcrumb_career_season_format, careerName, career.season),
+                                setupNavigationToolbar(
+                                    screen = AppScreen.ORDER_OF_MERIT,
+                                    dynamicBreadcrumbLabels = mapOf(AppScreen.CAREER_OVERVIEW to getString(R.string.career_season_label_format, careerName, career.season)),
                                     rootViewId = R.id.orderOfMeritMain
                                 )
                             }

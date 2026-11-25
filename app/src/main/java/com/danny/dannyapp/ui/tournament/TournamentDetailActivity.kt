@@ -1,5 +1,6 @@
 package com.danny.dannyapp.ui.tournament
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
@@ -27,6 +28,7 @@ import com.danny.dannyapp.ui.model.EntrantGroupInfo
 import com.danny.dannyapp.ui.model.GrandSlamGroupItem
 import com.danny.dannyapp.ui.model.MatchUiModel
 import com.danny.dannyapp.ui.model.PrizeMoneyItem
+import com.danny.dannyapp.ui.navigation.AppScreen
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
@@ -138,17 +140,30 @@ class TournamentDetailActivity : BaseActivity() {
         }
     }
 
+    override fun buildUpNavigationExtras(parentScreen: AppScreen, intent: Intent) {
+        if (parentScreen == AppScreen.SEASON_CALENDAR) {
+            intent.putExtra(SeasonCalendarActivity.EXTRA_CAREER_ID, careerId)
+            intent.putExtra(SeasonCalendarActivity.EXTRA_CAREER_NAME, careerName)
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_tournament_detail)
 
         tournamentId = intent.getLongExtra(EXTRA_TOURNAMENT_ID, -1L)
-        careerId = intent.getLongExtra(EXTRA_CAREER_ID, -1L)
-        careerName = intent.getStringExtra(EXTRA_CAREER_NAME) ?: ""
+        val intentCareerId = intent.getLongExtra(EXTRA_CAREER_ID, -1L)
+        if (intentCareerId > 0L) {
+            careerId = intentCareerId
+        }
+        val intentCareerName = intent.getStringExtra(EXTRA_CAREER_NAME)
+        if (!intentCareerName.isNullOrBlank()) {
+            careerName = intentCareerName
+        }
 
-        setupToolbar(
-            titleText = getString(R.string.tournament_detail),
-            subtitleText = getString(R.string.breadcrumb_format, careerName.ifBlank { getString(R.string.career) }),
+        setupNavigationToolbar(
+            screen = AppScreen.TOURNAMENT_DETAIL,
+            dynamicBreadcrumbLabels = mapOf(AppScreen.CAREER_OVERVIEW to careerName.ifBlank { getString(R.string.career) }),
             rootViewId = R.id.tournamentDetailMain
         )
 
@@ -342,9 +357,10 @@ class TournamentDetailActivity : BaseActivity() {
                 layoutTournamentContent.visibility = View.GONE
 
                 val activeCareerName = state.careerName.ifBlank { careerName }
-                setupToolbar(
-                    titleText = state.tournament.name,
-                    subtitleText = getString(R.string.breadcrumb_career_season_format, activeCareerName, state.seasonNumber),
+                setupNavigationToolbar(
+                    screen = AppScreen.TOURNAMENT_DETAIL,
+                    titleOverride = state.tournament.name,
+                    dynamicBreadcrumbLabels = mapOf(AppScreen.CAREER_OVERVIEW to getString(R.string.career_season_label_format, activeCareerName, state.seasonNumber)),
                     rootViewId = R.id.tournamentDetailMain
                 )
 
@@ -371,9 +387,10 @@ class TournamentDetailActivity : BaseActivity() {
                 cardReviewSummary.visibility = View.GONE
 
                 val activeCareerName = state.careerName.ifBlank { careerName }
-                setupToolbar(
-                    titleText = state.tournament.name,
-                    subtitleText = getString(R.string.breadcrumb_career_season_format, activeCareerName, state.seasonNumber),
+                setupNavigationToolbar(
+                    screen = AppScreen.TOURNAMENT_DETAIL,
+                    titleOverride = state.tournament.name,
+                    dynamicBreadcrumbLabels = mapOf(AppScreen.CAREER_OVERVIEW to getString(R.string.career_season_label_format, activeCareerName, state.seasonNumber)),
                     rootViewId = R.id.tournamentDetailMain
                 )
 
@@ -416,9 +433,10 @@ class TournamentDetailActivity : BaseActivity() {
                 cardReviewSummary.visibility = View.VISIBLE
 
                 val activeCareerName = state.careerName.ifBlank { careerName }
-                setupToolbar(
-                    titleText = state.tournament.name,
-                    subtitleText = getString(R.string.breadcrumb_career_season_format, activeCareerName, state.seasonNumber),
+                setupNavigationToolbar(
+                    screen = AppScreen.TOURNAMENT_DETAIL,
+                    titleOverride = state.tournament.name,
+                    dynamicBreadcrumbLabels = mapOf(AppScreen.CAREER_OVERVIEW to getString(R.string.career_season_label_format, activeCareerName, state.seasonNumber)),
                     rootViewId = R.id.tournamentDetailMain
                 )
 

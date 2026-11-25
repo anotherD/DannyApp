@@ -1,5 +1,6 @@
 package com.danny.dannyapp.ui.tournament
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
@@ -10,8 +11,10 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.danny.dannyapp.R
 import com.danny.dannyapp.ui.BaseActivity
+import com.danny.dannyapp.ui.career.CareerDetailActivity
 import com.danny.dannyapp.ui.career.CareerDetailState
 import com.danny.dannyapp.ui.career.CareerDetailViewModel
+import com.danny.dannyapp.ui.navigation.AppScreen
 import kotlinx.coroutines.launch
 
 class SeasonCalendarActivity : BaseActivity() {
@@ -25,6 +28,13 @@ class SeasonCalendarActivity : BaseActivity() {
     private var careerId: Long = -1L
     private var careerName: String = ""
 
+    override fun buildUpNavigationExtras(parentScreen: AppScreen, intent: Intent) {
+        if (parentScreen == AppScreen.CAREER_OVERVIEW) {
+            intent.putExtra(CareerDetailActivity.EXTRA_CAREER_ID, careerId)
+            intent.putExtra(CareerDetailActivity.EXTRA_CAREER_NAME, careerName)
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_season_calendar)
@@ -32,9 +42,9 @@ class SeasonCalendarActivity : BaseActivity() {
         careerId = intent.getLongExtra(EXTRA_CAREER_ID, -1L)
         careerName = intent.getStringExtra(EXTRA_CAREER_NAME) ?: ""
 
-        setupToolbar(
-            titleText = getString(R.string.tab_calendar),
-            subtitleText = getString(R.string.breadcrumb_format, careerName.ifBlank { getString(R.string.career) }),
+        setupNavigationToolbar(
+            screen = AppScreen.SEASON_CALENDAR,
+            dynamicBreadcrumbLabels = mapOf(AppScreen.CAREER_OVERVIEW to careerName.ifBlank { getString(R.string.career) }),
             rootViewId = R.id.seasonCalendarMain
         )
 
@@ -65,9 +75,9 @@ class SeasonCalendarActivity : BaseActivity() {
                             is CareerDetailState.Success -> {
                                 val career = state.careerWithProfile.career
                                 careerName = career.name
-                                setupToolbar(
-                                    titleText = getString(R.string.tab_calendar),
-                                    subtitleText = getString(R.string.breadcrumb_career_season_format, careerName, career.season),
+                                setupNavigationToolbar(
+                                    screen = AppScreen.SEASON_CALENDAR,
+                                    dynamicBreadcrumbLabels = mapOf(AppScreen.CAREER_OVERVIEW to getString(R.string.career_season_label_format, careerName, career.season)),
                                     rootViewId = R.id.seasonCalendarMain
                                 )
                             }

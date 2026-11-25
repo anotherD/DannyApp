@@ -127,6 +127,7 @@
     <string name="draw_after_round_info">Auslosung nach Abschluss von %1$s</string>
     <string name="season_format">Saison %d</string>
     <string name="breadcrumb_career_season_format">Karrieren > %1$s (Saison %2$d)</string>
+    <string name="career_season_label_format">%1$s (Saison %2$d)</string>
     <string name="entrant_reason_oom_65_96">Order of Merit (Plätze 65–96)</string>
     <string name="entrant_reason_oom_33_64">Order of Merit (Plätze 33–64)</string>
     <string name="entrant_reason_oom_top_32">Top 32 Order of Merit</string>

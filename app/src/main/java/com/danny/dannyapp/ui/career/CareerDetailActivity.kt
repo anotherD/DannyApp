@@ -16,6 +16,7 @@ import com.danny.dannyapp.ui.oom.OrderOfMeritViewModel
 import com.danny.dannyapp.ui.tournament.SeasonCalendarActivity
 import com.danny.dannyapp.ui.tournament.TournamentCalendarState
 import com.danny.dannyapp.ui.tournament.TournamentCalendarViewModel
+import com.danny.dannyapp.ui.navigation.AppScreen
 import kotlinx.coroutines.launch
 
 class CareerDetailActivity : BaseActivity() {
@@ -37,10 +38,10 @@ class CareerDetailActivity : BaseActivity() {
         careerId = intent.getLongExtra(EXTRA_CAREER_ID, -1L)
         careerName = intent.getStringExtra(EXTRA_CAREER_NAME) ?: ""
 
-        setupToolbar(
-            titleText = getString(R.string.loading),
-            subtitleText = getString(R.string.career),
-            rootViewId = R.id.careerDetailMain,
+        setupNavigationToolbar(
+            screen = AppScreen.CAREER_OVERVIEW,
+            titleOverride = getString(R.string.loading),
+            rootViewId = R.id.careerDetailMain
         )
 
         layoutCareerSimulatingOverlay = findViewById(R.id.layoutCareerSimulatingOverlay)
@@ -89,13 +90,11 @@ class CareerDetailActivity : BaseActivity() {
                         when (state) {
                             is CareerDetailState.Success -> {
                                 val career = state.careerWithProfile.career
-                                val newName = career.name
-                                val seasonNumber = career.season
-                                careerName = newName
-                                setupToolbar(
-                                    titleText = career.name,
-                                    subtitleText = getString(R.string.breadcrumb_career_season_format, careerName, seasonNumber),
-                                    rootViewId = R.id.careerDetailMain,
+                                careerName = career.name
+                                setupNavigationToolbar(
+                                    screen = AppScreen.CAREER_OVERVIEW,
+                                    titleOverride = career.name,
+                                    rootViewId = R.id.careerDetailMain
                                 )
                             }
                             else -> {}
