@@ -69,7 +69,7 @@ abstract class BaseActivity : AppCompatActivity() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 appContainer.errorEvents.collect { message ->
-                    showMessage(message, isError = true, duration = Snackbar.LENGTH_LONG)
+                    showMessage(message, isError = true, duration = Snackbar.LENGTH_INDEFINITE)
                     appContainer.consumeErrorEvent()
                 }
             }
@@ -95,7 +95,7 @@ abstract class BaseActivity : AppCompatActivity() {
     protected fun showMessage(
         message: String,
         isError: Boolean = false,
-        duration: Int = Snackbar.LENGTH_SHORT
+        duration: Int = Snackbar.LENGTH_SHORT,
     ) {
         UIHelper.showSnackbar(findViewById(android.R.id.content), message, isError, duration)
     }
@@ -103,7 +103,7 @@ abstract class BaseActivity : AppCompatActivity() {
     protected fun showMessage(
         @StringRes messageResId: Int,
         isError: Boolean = false,
-        duration: Int = Snackbar.LENGTH_SHORT
+        duration: Int = Snackbar.LENGTH_SHORT,
     ) {
         showMessage(getString(messageResId), isError, duration)
     }

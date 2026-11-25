@@ -64,15 +64,23 @@ object UIHelper {
         anchorView: View,
         message: String,
         isError: Boolean = false,
-        duration: Int = Snackbar.LENGTH_SHORT
+        duration: Int = Snackbar.LENGTH_SHORT,
     ) {
-        val snackbar = Snackbar.make(anchorView, message, duration)
+        val actualDuration = if ((isError || duration == Snackbar.LENGTH_INDEFINITE)) Snackbar.LENGTH_INDEFINITE else duration
+        val snackbar = Snackbar.make(anchorView, message, actualDuration)
         val context = anchorView.context
         val bgColorRes = if (isError) R.color.rot_container_dunkel else R.color.anthrazit_container_hoch
         val textColorRes = if (isError) R.color.rot_sehr_hell else R.color.grau_text_hell
 
         snackbar.setBackgroundTint(ContextCompat.getColor(context, bgColorRes))
         snackbar.setTextColor(ContextCompat.getColor(context, textColorRes))
+
+        if (isError || duration == Snackbar.LENGTH_INDEFINITE) {
+            snackbar.setAction(R.string.dialog_close) {
+                snackbar.dismiss()
+            }
+            snackbar.setActionTextColor(ContextCompat.getColor(context, textColorRes))
+        }
 
         val textView = snackbar.view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
         textView?.maxLines = 3
