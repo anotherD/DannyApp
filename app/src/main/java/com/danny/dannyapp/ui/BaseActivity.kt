@@ -3,6 +3,7 @@ package com.danny.dannyapp.ui
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.view.ViewTreeObserver
 import androidx.annotation.StringRes
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -63,6 +64,17 @@ abstract class BaseActivity : AppCompatActivity() {
                 }
             }
         }
+
+        // Zentraler vertikaler Edge-Fade fuer alle ScrollViews/RecyclerViews im gesamten Hierarchy.
+        // Der OnGlobalLayoutListener wird nach jedem Layout-Durchgang ausgefuehrt, womit auch
+        // dynamisch nachgeladene Fragments (z.B. CareerOverviewFragment, TournamentCalendarFragment)
+        // automatisch erfasst werden, ohne Code in den einzelnen Screens.
+        window.decorView.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+            override fun onGlobalLayout() {
+                val contentView = findViewById<View>(android.R.id.content) ?: return
+                UIHelper.applyVerticalEdgeFadeToHierarchy(contentView)
+            }
+        })
     }
 
     protected fun showMessage(

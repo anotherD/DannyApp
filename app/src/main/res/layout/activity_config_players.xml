@@ -68,7 +68,6 @@
         android:clipToPadding="false"
         android:paddingHorizontal="16dp"
         android:paddingBottom="16dp"
-        android:requiresFadingEdge="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

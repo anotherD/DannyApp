@@ -2,7 +2,9 @@ package com.danny.dannyapp.ui
 
 import android.content.res.ColorStateList
 import android.graphics.Canvas
+import android.graphics.LinearGradient
 import android.graphics.Paint
+import android.graphics.Shader
 import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
@@ -11,10 +13,14 @@ import android.text.Spanned
 import android.text.TextUtils
 import android.text.style.ImageSpan
 import android.view.View
+import android.view.ViewGroup
 import android.widget.HorizontalScrollView
+import androidx.core.widget.NestedScrollView
+import android.widget.ScrollView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.withSave
+import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
 import com.danny.dannyapp.appContainer
 import com.danny.dannyapp.data.db.CareerWithProfile
@@ -447,6 +453,112 @@ object UIHelper {
             chip.chipStrokeWidth = 1 * chip.resources.displayMetrics.density
             chip.setTextColor(ContextCompat.getColor(context, R.color.grau_text_gedaempft))
         }
+    }
+
+    /**
+     * Tag-Key, der markiert, dass ein vertikaler Edge-Fade bereits an einer View registriert wurde.
+     * Verhindert doppelte Registrierung bei mehrfachen Traversierungen.
+     */
+    private val TAG_EDGE_FADE_ATTACHED = R.id.tag_edge_fade_attached
+
+    /**
+     * Hängt einen sauberen vertikalen Edge-Fade (LinearGradient) an eine scrollbare View an.
+     * Unterstützt [RecyclerView], [ScrollView] und [NestedScrollView].
+     *
+     * - Deaktiviert das native vertikale Fading Edge (verhindert doppeltes/zerhacktes Fading).
+     * - Zeichnet am oberen Rand einen Gradienten von [R.color.anthrazit_hintergrund] nach transparent,
+     *   aber nur wenn nach oben gescrollt werden kann.
+     * - Zeichnet am unteren Rand einen Gradienten von transparent nach [R.color.anthrazit_hintergrund],
+     *   aber nur wenn nach unten gescrollt werden kann.
+     * - Idempotent: Mehrfache Aufrufe für dieselbe View haben keine Auswirkung.
+     */
+    fun attachVerticalEdgeFade(scrollableView: View) {
+        // Idempotenz-Check
+        if (scrollableView.getTag(TAG_EDGE_FADE_ATTACHED) == true) return
+        scrollableView.setTag(TAG_EDGE_FADE_ATTACHED, true)
+
+        // Natives Fading deaktivieren
+        scrollableView.isVerticalFadingEdgeEnabled = false
+
+        val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+
+        fun drawFades(canvas: Canvas, view: View) {
+            val fadePx = view.resources.getDimensionPixelSize(R.dimen.fading_edge_length).toFloat()
+            val w = view.width.toFloat()
+            val h = view.height.toFloat()
+            val colorSolid = ContextCompat.getColor(view.context, R.color.anthrazit_hintergrund)
+            val colorTransparent = (colorSolid and 0x00FFFFFF) // gleiche Farbe, aber Alpha=0
+
+            // Oberer Verlauf: nur wenn nach oben gescrollt werden kann
+            if (view.canScrollVertically(-1)) {
+                paint.shader = LinearGradient(
+                    0f, 0f, 0f, fadePx,
+                    colorSolid, colorTransparent,
+                    Shader.TileMode.CLAMP
+                )
+                canvas.drawRect(0f, 0f, w, fadePx, paint)
+            }
+
+            // Unterer Verlauf: nur wenn nach unten gescrollt werden kann
+            if (view.canScrollVertically(1)) {
+                paint.shader = LinearGradient(
+                    0f, h - fadePx, 0f, h,
+                    colorTransparent, colorSolid,
+                    Shader.TileMode.CLAMP
+                )
+                canvas.drawRect(0f, h - fadePx, w, h, paint)
+            }
+        }
+
+        when (scrollableView) {
+            is RecyclerView -> {
+                scrollableView.addItemDecoration(object : RecyclerView.ItemDecoration() {
+                    override fun onDrawOver(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
+                        drawFades(c, parent)
+                    }
+                })
+            }
+            is ScrollView, is NestedScrollView -> {
+                val overlay = scrollableView.overlay
+                val fadePainter = object : Drawable() {
+                    override fun draw(canvas: Canvas) = drawFades(canvas, scrollableView)
+                    override fun setAlpha(alpha: Int) {}
+                    override fun setColorFilter(cf: android.graphics.ColorFilter?) {}
+                    @Deprecated("Deprecated in Java")
+                    override fun getOpacity() = android.graphics.PixelFormat.TRANSLUCENT
+                }
+                overlay.add(fadePainter)
+
+                val invalidate = { fadePainter.invalidateSelf() }
+                scrollableView.setOnScrollChangeListener { _, _, _, _, _ -> invalidate() }
+                scrollableView.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ -> invalidate() }
+            }
+        }
+    }
+
+    /**
+     * Durchläuft [rootView] rekursiv und wendet [attachVerticalEdgeFade] automatisch
+     * auf alle vertikalen [RecyclerView]s, [ScrollView]s und [NestedScrollView]s an.
+     */
+    fun applyVerticalEdgeFadeToHierarchy(rootView: View) {
+        when (rootView) {
+            is RecyclerView -> {
+                // Nur vertikale RecyclerViews erfassen
+                val lm = rootView.layoutManager
+                val isVertical = lm == null ||
+                    (lm is androidx.recyclerview.widget.LinearLayoutManager && lm.orientation == androidx.recyclerview.widget.LinearLayoutManager.VERTICAL) ||
+                    lm is androidx.recyclerview.widget.GridLayoutManager
+                if (isVertical) attachVerticalEdgeFade(rootView)
+            }
+            is ScrollView, is NestedScrollView -> attachVerticalEdgeFade(rootView)
+            is ViewGroup -> {
+                for (i in 0 until rootView.childCount) {
+                    applyVerticalEdgeFadeToHierarchy(rootView.getChildAt(i))
+                }
+            }
+        }
+        // Auch für ViewGroup-Kinder von ScrollView/NestedScrollView rekursiv suchen
+        // (oben bereits erledigt durch den ViewGroup-Zweig)
     }
 
     /**

@@ -45,9 +45,8 @@ object TournamentBracketCardBuilder {
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
             )
-            isVerticalFadingEdgeEnabled = true
-            setFadingEdgeLength(context.resources.getDimensionPixelSize(R.dimen.fading_edge_length))
         }
+        UIHelper.attachVerticalEdgeFade(scrollView)
 
         val mainContainer = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL

@@ -20,7 +20,6 @@
         android:layout_height="0dp"
         android:clipToPadding="false"
         android:padding="16dp"
-        android:requiresFadingEdge="vertical"
         app:layout_constraintBottom_toTopOf="@id/btnCreateNewProfile"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

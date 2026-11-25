@@ -13,6 +13,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.danny.dannyapp.R
 import com.danny.dannyapp.domain.enums.MatchDistancePreset
 import com.danny.dannyapp.domain.enums.TournamentEvent
+import com.danny.dannyapp.ui.UIHelper
 import com.danny.dannyapp.ui.tournament.TournamentDetailMapper
 import com.danny.dannyapp.ui.tournament.TournamentUiHelper
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -125,8 +126,6 @@ object CareerDistanceInfoDialog {
                     ViewGroup.LayoutParams.MATCH_PARENT
                 )
                 isFillViewport = true
-                isVerticalFadingEdgeEnabled = true
-                setFadingEdgeLength(context.resources.getDimensionPixelSize(R.dimen.fading_edge_length))
                 setOnScrollChangeListener { sourceView, _, scrollY, _, _ ->
                     if (!isSyncingScroll) {
                         sharedScrollY = scrollY
@@ -143,6 +142,7 @@ object CareerDistanceInfoDialog {
                     }
                 }
             }
+            UIHelper.attachVerticalEdgeFade(scrollView)
             return PresetViewHolder(scrollView)
         }
 

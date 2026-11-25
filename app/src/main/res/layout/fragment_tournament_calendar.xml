@@ -31,7 +31,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checked="true"
-                android:text="@string/tournament_type_major" />
+                android:text="@string/tournament_type_major"
+                app:checkedIconVisible="false" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipFilterEt"
@@ -39,7 +40,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checked="true"
-                android:text="@string/tournament_type_european_tour" />
+                android:text="@string/tournament_type_european_tour"
+                app:checkedIconVisible="false" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipFilterPc"
@@ -47,7 +49,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checked="true"
-                android:text="@string/tournament_type_players_championship" />
+                android:text="@string/tournament_type_players_championship"
+                app:checkedIconVisible="false" />
 
         </com.google.android.material.chip.ChipGroup>
     </HorizontalScrollView>
@@ -60,7 +63,6 @@
         android:paddingHorizontal="12dp"
         android:paddingTop="4dp"
         android:paddingBottom="72dp"
-        android:requiresFadingEdge="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
