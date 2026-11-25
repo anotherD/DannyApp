@@ -20,7 +20,10 @@ import com.danny.dannyapp.data.db.Career
 import com.danny.dannyapp.domain.model.UserTourCardOutcome
 import com.danny.dannyapp.ui.BaseActivity
 import com.danny.dannyapp.ui.UIHelper
+import com.danny.dannyapp.ui.model.EntrantGroupInfo
+import com.danny.dannyapp.ui.model.PlayerUiInfo
 import com.danny.dannyapp.ui.navigation.AppScreen
+import com.danny.dannyapp.ui.tournament.TournamentDetailUiHelper
 import com.danny.dannyapp.ui.tournament.TournamentUiHelper
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
@@ -49,6 +52,8 @@ class SeasonSummaryActivity : BaseActivity() {
     private lateinit var layoutSummaryTopClimberContainer: View
     private lateinit var tvSummaryTopClimber: TextView
     private lateinit var layoutMajorWinnersList: LinearLayout
+    private lateinit var tvSummaryRelegatedNone: TextView
+    private lateinit var layoutRelegatedPlayersList: LinearLayout
 
     private lateinit var btnStartNextSeason: Button
     private lateinit var layoutSeasonSummaryLoadingOverlay: View
@@ -91,6 +96,8 @@ class SeasonSummaryActivity : BaseActivity() {
         layoutSummaryTopClimberContainer = findViewById(R.id.layoutSummaryTopClimberContainer)
         tvSummaryTopClimber = findViewById(R.id.tvSummaryTopClimber)
         layoutMajorWinnersList = findViewById(R.id.layoutMajorWinnersList)
+        tvSummaryRelegatedNone = findViewById(R.id.tvSummaryRelegatedNone)
+        layoutRelegatedPlayersList = findViewById(R.id.layoutRelegatedPlayersList)
 
         btnStartNextSeason = findViewById(R.id.btnStartNextSeason)
         layoutSeasonSummaryLoadingOverlay = findViewById(R.id.layoutSeasonSummaryLoadingOverlay)
@@ -225,7 +232,7 @@ class SeasonSummaryActivity : BaseActivity() {
                                 }
                                 layoutMajorWinnersList.addView(tvNone)
                             } else {
-                                for ((tournamentName, _, winnerName, winnerCountryCode) in summary.majorWinners) {
+                                for ((tournamentName, winnerId, winnerName, winnerCountryCode) in summary.majorWinners) {
                                     val row = LinearLayout(this@SeasonSummaryActivity).apply {
                                         layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
                                             bottomMargin = (4 * resources.displayMetrics.density).toInt()
@@ -247,14 +254,41 @@ class SeasonSummaryActivity : BaseActivity() {
                                         setTextColor(ContextCompat.getColor(this@SeasonSummaryActivity, R.color.grau_text_hell))
                                         setTypeface(null, Typeface.BOLD)
                                     }
-                                    UIHelper.formatFlagAndText(tvWinner,
-                                        winnerCountryCode,
-                                        winnerName
+                                    UIHelper.bindSmartPlayerName(
+                                        tvWinner,
+                                        PlayerUiInfo(
+                                            id = winnerId,
+                                            name = winnerName,
+                                            countryCode = winnerCountryCode
+                                        ),
+                                        isLeft = true
                                     )
                                     row.addView(tvTour)
                                     row.addView(tvWinner)
                                     layoutMajorWinnersList.addView(row)
                                 }
+                            }
+
+                            val playerInfos = summary.relegatedPlayers.map { player ->
+                                PlayerUiInfo(
+                                    id = player.playerId,
+                                    name = player.playerName,
+                                    countryCode = player.countryCode,
+                                    seed = player.oomRank
+                                )
+                            }
+                            if (summary.relegatedPlayers.isEmpty()) {
+                                tvSummaryRelegatedNone.visibility = View.VISIBLE
+                                layoutRelegatedPlayersList.visibility = View.GONE
+                            } else {
+                                tvSummaryRelegatedNone.visibility = View.GONE
+                                layoutRelegatedPlayersList.visibility = View.VISIBLE
+                                TournamentDetailUiHelper.renderOpenDrawEntrants(
+                                    this@SeasonSummaryActivity,
+                                    layoutRelegatedPlayersList,
+                                    listOf(EntrantGroupInfo("", playerInfos))
+                                )
+                                layoutRelegatedPlayersList.getChildAt(0)?.visibility = View.GONE
                             }
                         }
                         is SeasonSummaryUiState.Completed -> {

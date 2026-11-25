@@ -327,6 +327,8 @@
     <string name="season_summary_major_winners_label">Major-Sieger der Saison</string>
     <string name="season_summary_start_next_season_format">Nächste Saison (%d) starten</string>
     <string name="season_summary_level_dialog_title">Karriere-Level anpassen?</string>
-    <string name="season_summary_level_dialog_message">Möchtest du dein Karriere-Level für die neue Saison anpassen? Die abgelaufene Saision hast du auf Level %d gespielt.</string>
+    <string name="season_summary_level_dialog_message">Möchtest du dein Karriere-Level für die neue Saison anpassen? Die abgelaufene Saison hast du auf Level %d gespielt.</string>
     <string name="season_summary_level_dialog_confirm">Weiter</string>
+    <string name="season_summary_relegated_label">Tour-Card-Absteiger</string>
+    <string name="season_summary_relegated_none">Keine Tour-Card-Absteiger</string>
 </resources>
