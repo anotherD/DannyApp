@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import com.danny.dannyapp.R
 import com.danny.dannyapp.ui.BaseActivity
+import com.danny.dannyapp.ui.navigation.AppScreen
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.materialswitch.MaterialSwitch
 
@@ -21,8 +22,7 @@ class SettingsActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
-        setupToolbar(getString(R.string.config_title),
-            rootViewId = R.id.configurationMain, menuResId = 0)
+        setupNavigationToolbar(AppScreen.SETTINGS, rootViewId = R.id.configurationMain)
 
         switchDebugMode = findViewById(R.id.switchDebugMode)
         switchAutoSimulateCpu = findViewById(R.id.switchAutoSimulateCpu)

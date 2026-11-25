@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
 import com.danny.dannyapp.data.db.UserProfile
 import com.danny.dannyapp.ui.BaseActivity
+import com.danny.dannyapp.ui.navigation.AppScreen
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 
@@ -25,7 +26,7 @@ class ProfilesActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_profiles)
-        setupToolbar(getString(R.string.profiles), rootViewId = R.id.profilesMain)
+        setupNavigationToolbar(AppScreen.PROFILES, rootViewId = R.id.profilesMain)
 
         rvProfiles = findViewById(R.id.rvProfiles)
         tvEmptyProfiles = findViewById(R.id.tvEmptyProfiles)

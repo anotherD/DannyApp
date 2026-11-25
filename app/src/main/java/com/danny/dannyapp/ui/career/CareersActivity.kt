@@ -21,6 +21,7 @@ import com.danny.dannyapp.data.db.Career
 import com.danny.dannyapp.data.db.UserProfile
 import com.danny.dannyapp.domain.enums.MatchDistancePreset
 import com.danny.dannyapp.ui.BaseActivity
+import com.danny.dannyapp.ui.navigation.AppScreen
 import com.danny.dannyapp.ui.profile.ProfileDialogs
 import com.danny.dannyapp.ui.profile.ProfilesViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -39,7 +40,7 @@ class CareersActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_careers)
-        setupToolbar(getString(R.string.careers), rootViewId = R.id.careersMain)
+        setupNavigationToolbar(AppScreen.CAREERS, rootViewId = R.id.careersMain)
 
         rvCareers = findViewById(R.id.rvCareers)
         tvEmptyCareers = findViewById(R.id.tvEmptyCareers)

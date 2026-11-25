@@ -15,6 +15,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.danny.dannyapp.AppContainer
 import com.danny.dannyapp.DannyApp
 import com.danny.dannyapp.R
+import com.danny.dannyapp.ui.navigation.AppScreen
 import com.danny.dannyapp.ui.settings.SettingsActivity
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.snackbar.Snackbar
@@ -23,6 +24,30 @@ import kotlinx.coroutines.launch
 abstract class BaseActivity : AppCompatActivity() {
 
     protected var toolbar: MaterialToolbar? = null
+
+    protected var currentScreen: AppScreen? = null
+
+    protected open fun buildUpNavigationExtras(parentScreen: AppScreen, intent: Intent) {}
+
+    protected fun setupNavigationToolbar(
+        screen: AppScreen,
+        titleOverride: String? = null,
+        dynamicBreadcrumbLabels: Map<AppScreen, String> = emptyMap(),
+        rootViewId: Int = android.R.id.content
+    ) {
+        currentScreen = screen
+        val title = titleOverride ?: getString(screen.titleResId)
+        val subtitle = screen.buildBreadcrumb(this, dynamicBreadcrumbLabels)
+        val showBack = (screen != AppScreen.HOME)
+        val menuResId = if (screen.showSettingsMenu) R.menu.menu_main else 0
+        setupToolbar(
+            titleText = title,
+            subtitleText = subtitle,
+            showBack = showBack,
+            rootViewId = rootViewId,
+            menuResId = menuResId
+        )
+    }
 
     /**
      * Central application dependency container.
@@ -160,7 +185,20 @@ abstract class BaseActivity : AppCompatActivity() {
     }
 
     protected open fun onToolbarNavigationClicked() {
-        onBackPressedDispatcher.onBackPressed()
+        val screen = currentScreen ?: AppScreen.fromActivity(this)
+        if (screen?.parent != null) {
+            val parentScreen = screen.parent
+            val intent = Intent(this, parentScreen.activityClass).apply {
+                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            }
+            buildUpNavigationExtras(parentScreen, intent)
+            startActivity(intent)
+            finish()
+        } else if (screen != null && screen.parent == null && screen != AppScreen.HOME) {
+            finish()
+        } else {
+            onBackPressedDispatcher.onBackPressed()
+        }
     }
 
 

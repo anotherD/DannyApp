@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
 import com.danny.dannyapp.domain.usecase.GetPlayersUseCase
 import com.danny.dannyapp.ui.BaseActivity
+import com.danny.dannyapp.ui.navigation.AppScreen
 import com.google.android.material.button.MaterialButtonToggleGroup
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -33,11 +34,7 @@ class SettingsPlayersActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_config_players)
-        setupToolbar(
-            titleText = getString(R.string.config_players),
-            subtitleText = getString(R.string.config_title),
-            rootViewId = R.id.playersMain,
-        )
+        setupNavigationToolbar(AppScreen.SETTINGS_PLAYERS, rootViewId = R.id.playersMain)
 
         getPlayersUseCase = appContainer.getPlayersUseCase
 
