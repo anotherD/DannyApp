@@ -29,8 +29,8 @@ enum class AppScreen(
     PROFILES(ProfilesActivity::class.java, parent = HOME, titleResId = R.string.profiles),
     CAREERS(CareersActivity::class.java, parent = HOME, titleResId = R.string.careers),
     CAREER_OVERVIEW(CareerDetailActivity::class.java, parent = CAREERS, titleResId = R.string.career_overview_header),
-    SEASON_CALENDAR(SeasonCalendarActivity::class.java, parent = CAREER_OVERVIEW, titleResId = R.string.tab_calendar, includeInBreadcrumb = true, breadcrumbIconResId = R.drawable.ic_calendar),
-    ORDER_OF_MERIT(OrderOfMeritActivity::class.java, parent = CAREER_OVERVIEW, titleResId = R.string.tab_oom),
+    SEASON_CALENDAR(SeasonCalendarActivity::class.java, parent = CAREER_OVERVIEW, titleResId = R.string.nav_calendar, includeInBreadcrumb = true, breadcrumbIconResId = R.drawable.ic_calendar),
+    ORDER_OF_MERIT(OrderOfMeritActivity::class.java, parent = CAREER_OVERVIEW, titleResId = R.string.nav_oom),
     TOURNAMENT_DETAIL(TournamentDetailActivity::class.java, parent = SEASON_CALENDAR, titleResId = R.string.tournament_detail),
     SETTINGS(SettingsActivity::class.java, parent = null, titleResId = R.string.config_title, includeInBreadcrumb = false, showSettingsMenu = false),
     SETTINGS_PLAYERS(SettingsPlayersActivity::class.java, parent = SETTINGS, titleResId = R.string.config_players, showSettingsMenu = false);

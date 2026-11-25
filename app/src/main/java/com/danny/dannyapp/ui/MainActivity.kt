@@ -13,6 +13,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.isVisible
 import com.danny.dannyapp.R
 import com.danny.dannyapp.ui.career.CareersActivity
+import com.danny.dannyapp.ui.navigation.AppScreen
 import com.danny.dannyapp.ui.profile.ProfilesActivity
 import com.danny.dannyapp.webview.ScoliaWebViewManager
 
@@ -45,7 +46,7 @@ class MainActivity : BaseActivity() {
         }
 
         // Set up the toolbar for the start screen – no back button.
-        setupToolbar("", showBack = false, rootViewId = R.id.main)
+        setupNavigationToolbar(AppScreen.HOME, titleOverride = "", rootViewId = R.id.main)
 
         btnOpenScolia.setOnClickListener { showScoliaBrowserView(startLayout, webView) }
         btnProfiles.setOnClickListener {

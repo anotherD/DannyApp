@@ -16,11 +16,9 @@
     <string name="careers_create_profile_hint">Profil auswählen</string>
     <string name="careers_create_error_empty_profile">Bitte wähle ein Profil aus.</string>
     <string name="career_overview_header">Aktuelle Karriere</string>
-    <string name="career">Karrieren</string>
-    <string name="breadcrumb_format">Karrieren > %s</string>
-    <string name="tab_overview">Übersicht</string>
-    <string name="tab_calendar">Saisonkalender</string>
-    <string name="tab_oom">Ranglisten</string>
+    <string name="career">Karriere</string>
+    <string name="nav_calendar">Saisonkalender</string>
+    <string name="nav_oom">Ranglisten</string>
     <string name="tournament_type_players_championship">Players Championship</string>
     <string name="tournament_type_european_tour">European Tour</string>
     <string name="tournament_type_major">Major</string>

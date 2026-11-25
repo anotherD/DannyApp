@@ -194,7 +194,7 @@ abstract class BaseActivity : AppCompatActivity() {
             buildUpNavigationExtras(parentScreen, intent)
             startActivity(intent)
             finish()
-        } else if (screen != null && screen.parent == null && screen != AppScreen.HOME) {
+        } else if (screen != null && screen != AppScreen.HOME) {
             finish()
         } else {
             onBackPressedDispatcher.onBackPressed()
