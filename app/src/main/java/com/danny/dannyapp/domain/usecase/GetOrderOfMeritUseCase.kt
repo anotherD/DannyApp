@@ -11,9 +11,9 @@ import com.danny.dannyapp.domain.enums.SkillLevel
 import com.danny.dannyapp.domain.model.OrderOfMeritEntry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 
 class GetOrderOfMeritUseCase(
@@ -97,9 +97,13 @@ class GetOrderOfMeritUseCase(
         // Ensure user is in map
         prizeMoneyMap[USER_ID] = 0.0
 
-        val tourCardPlayerIds = currentSeason?.let { seasonRepository.getTourCardPlayerIdsForSeason(it.id) }.orEmpty()
-        for (tcPlayerId in tourCardPlayerIds) {
-            prizeMoneyMap.putIfAbsent(tcPlayerId, 0.0)
+        if (currentSeason != null) {
+            val tourCardPlayerIds = seasonRepository.getTourCardPlayerIdsForSeason(currentSeason.id)
+            for (tcPlayerId in tourCardPlayerIds) {
+                if (tcPlayerId == USER_ID || playerMap.containsKey(tcPlayerId)) {
+                    prizeMoneyMap.putIfAbsent(tcPlayerId, 0.0)
+                }
+            }
         }
 
         for (placement in filteredPlacements) {
@@ -211,11 +215,18 @@ class GetOrderOfMeritUseCase(
                 if (seasonIds.isEmpty()) {
                     flowOf(emptyList())
                 } else {
-                    tournamentRepository.getPlacementsFlowForSeasons(seasonIds)
+                    val currentSeason = seasons.maxByOrNull { it.seasonNumber }
+                    if (currentSeason == null) {
+                        flowOf(emptyList())
+                    } else {
+                        combine(
+                            tournamentRepository.getPlacementsFlowForSeasons(seasonIds),
+                            seasonRepository.getTourCardsForSeason(currentSeason.id)
+                        ) { _, _ ->
+                            invoke(careerId, type)
+                        }
+                    }
                 }
-            }
-            .map {
-                invoke(careerId, type)
             }
     }
 }

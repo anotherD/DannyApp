@@ -44,21 +44,46 @@ class OrderOfMeritViewModel(application: Application) : AndroidViewModel(applica
 
         loadJob?.cancel()
         loadJob = viewModelScope.launch {
+            try {
+                _oomEntries.value = getOrderOfMeritUseCase(careerId, OrderOfMeritType.OOM)
+                _ptOomEntries.value = getOrderOfMeritUseCase(careerId, OrderOfMeritType.PT_OOM)
+                _pcOomEntries.value = getOrderOfMeritUseCase(careerId, OrderOfMeritType.PC_OOM)
+                _etOomEntries.value = getOrderOfMeritUseCase(careerId, OrderOfMeritType.ET_OOM)
+            } catch (e: Exception) {
+                getApplication<Application>().appContainer.reportError("Rangliste laden", e)
+            }
+
             launch {
-                getOrderOfMeritUseCase.observeOrderOfMerit(careerId, OrderOfMeritType.OOM)
-                    .collect { _oomEntries.value = it }
+                try {
+                    getOrderOfMeritUseCase.observeOrderOfMerit(careerId, OrderOfMeritType.OOM)
+                        .collect { _oomEntries.value = it }
+                } catch (e: Exception) {
+                    getApplication<Application>().appContainer.reportError("Rangliste laden", e)
+                }
             }
             launch {
-                getOrderOfMeritUseCase.observeOrderOfMerit(careerId, OrderOfMeritType.PT_OOM)
-                    .collect { _ptOomEntries.value = it }
+                try {
+                    getOrderOfMeritUseCase.observeOrderOfMerit(careerId, OrderOfMeritType.PT_OOM)
+                        .collect { _ptOomEntries.value = it }
+                } catch (e: Exception) {
+                    getApplication<Application>().appContainer.reportError("Rangliste laden", e)
+                }
             }
             launch {
-                getOrderOfMeritUseCase.observeOrderOfMerit(careerId, OrderOfMeritType.PC_OOM)
-                    .collect { _pcOomEntries.value = it }
+                try {
+                    getOrderOfMeritUseCase.observeOrderOfMerit(careerId, OrderOfMeritType.PC_OOM)
+                        .collect { _pcOomEntries.value = it }
+                } catch (e: Exception) {
+                    getApplication<Application>().appContainer.reportError("Rangliste laden", e)
+                }
             }
             launch {
-                getOrderOfMeritUseCase.observeOrderOfMerit(careerId, OrderOfMeritType.ET_OOM)
-                    .collect { _etOomEntries.value = it }
+                try {
+                    getOrderOfMeritUseCase.observeOrderOfMerit(careerId, OrderOfMeritType.ET_OOM)
+                        .collect { _etOomEntries.value = it }
+                } catch (e: Exception) {
+                    getApplication<Application>().appContainer.reportError("Rangliste laden", e)
+                }
             }
         }
     }
