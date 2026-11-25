@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.TextView
 import android.widget.LinearLayout
@@ -45,6 +46,7 @@ class CareerOverviewFragment : Fragment(R.layout.fragment_career_overview) {
     private lateinit var layoutOverviewRankEt: LinearLayout
     private lateinit var containerActiveTournament: FrameLayout
     private lateinit var tvNoActiveTournament: TextView
+    private lateinit var btnEndSeason: Button
     private lateinit var cardShortcutCalendar: MaterialCardView
 
     private var careerId: Long = -1L
@@ -75,6 +77,7 @@ class CareerOverviewFragment : Fragment(R.layout.fragment_career_overview) {
         layoutOverviewRankEt = view.findViewById(R.id.layoutOverviewRankEt)
         containerActiveTournament = view.findViewById(R.id.containerActiveTournament)
         tvNoActiveTournament = view.findViewById(R.id.tvNoActiveTournament)
+        btnEndSeason = view.findViewById(R.id.btnEndSeason)
         cardShortcutCalendar = view.findViewById(R.id.cardShortcutCalendar)
 
         layoutOverviewRankOom.setOnClickListener { careerViewModel.requestOpenRanking(OrderOfMeritType.OOM) }
@@ -82,6 +85,13 @@ class CareerOverviewFragment : Fragment(R.layout.fragment_career_overview) {
         layoutOverviewRankPc.setOnClickListener { careerViewModel.requestOpenRanking(OrderOfMeritType.PC_OOM) }
         layoutOverviewRankEt.setOnClickListener { careerViewModel.requestOpenRanking(OrderOfMeritType.ET_OOM) }
         cardShortcutCalendar.setOnClickListener { careerViewModel.requestOpenCalendar() }
+        btnEndSeason.setOnClickListener {
+            val intent = Intent(requireContext(), SeasonSummaryActivity::class.java).apply {
+                putExtra(SeasonSummaryActivity.EXTRA_CAREER_ID, careerId)
+                putExtra(SeasonSummaryActivity.EXTRA_CAREER_NAME, careerName)
+            }
+            startActivity(intent)
+        }
 
         observeData()
     }
@@ -92,7 +102,10 @@ class CareerOverviewFragment : Fragment(R.layout.fragment_career_overview) {
         if (model != null) {
             containerActiveTournament.visibility = View.VISIBLE
             tvNoActiveTournament.visibility = View.GONE
+            btnEndSeason.visibility = View.GONE
             bindActiveTournament(containerActiveTournament, model, boundSimulatingTournamentId)
+        } else {
+            tvNoActiveTournament.visibility = View.VISIBLE
         }
     }
 
@@ -121,10 +134,12 @@ class CareerOverviewFragment : Fragment(R.layout.fragment_career_overview) {
                                 ?: state.tournaments.find { it.isNextPlanned }
                                 ?: state.tournaments.firstOrNull { !it.tournament.isCompleted }
 
+                            val isSimulating = state.simulationProgress != null
+
                             if (targetModel != null) {
                                 tvNoActiveTournament.visibility = View.GONE
+                                btnEndSeason.visibility = View.GONE
                                 containerActiveTournament.visibility = View.VISIBLE
-                                val isSimulating = state.simulationProgress != null
                                 boundTournamentModel = targetModel
                                 boundSimulatingTournamentId = if (isSimulating) targetModel.tournament.id else null
                                 bindActiveTournament(containerActiveTournament, targetModel, boundSimulatingTournamentId)
@@ -134,6 +149,7 @@ class CareerOverviewFragment : Fragment(R.layout.fragment_career_overview) {
                                 containerActiveTournament.removeAllViews()
                                 containerActiveTournament.visibility = View.GONE
                                 tvNoActiveTournament.visibility = View.VISIBLE
+                                btnEndSeason.visibility = if (isSimulating) View.GONE else View.VISIBLE
                             }
                         }
                     }

@@ -127,6 +127,16 @@ class CareerDetailActivity : BaseActivity() {
         }
     }
 
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        careerId = intent.getLongExtra(EXTRA_CAREER_ID, careerId)
+        careerName = intent.getStringExtra(EXTRA_CAREER_NAME) ?: careerName
+        careerViewModel.loadCareer(careerId)
+        calendarViewModel.loadTournaments(careerId)
+        oomViewModel.loadOrderOfMerit(careerId)
+    }
+
     companion object {
         const val EXTRA_CAREER_ID = "extra_career_id"
         const val EXTRA_CAREER_NAME = "extra_career_name"

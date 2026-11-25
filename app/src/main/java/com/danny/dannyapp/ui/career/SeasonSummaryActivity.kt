@@ -9,6 +9,7 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.NumberPicker
 import android.widget.TextView
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
@@ -95,6 +96,13 @@ class SeasonSummaryActivity : BaseActivity() {
         layoutSeasonSummaryLoadingOverlay = findViewById(R.id.layoutSeasonSummaryLoadingOverlay)
         tvSeasonSummaryLoadingText = findViewById(R.id.tvSeasonSummaryLoadingText)
 
+        val summaryBackPressedCallback = object : OnBackPressedCallback(false) {
+            override fun handleOnBackPressed() {
+                // Block back navigation during season advance
+            }
+        }
+        onBackPressedDispatcher.addCallback(this, summaryBackPressedCallback)
+
         btnStartNextSeason.setOnClickListener {
             val summary = (viewModel.uiState.value as? SeasonSummaryUiState.Ready)?.summary ?: return@setOnClickListener
             val numberPicker = NumberPicker(this).apply {
@@ -130,15 +138,18 @@ class SeasonSummaryActivity : BaseActivity() {
                             layoutSeasonSummaryLoadingOverlay.visibility = View.VISIBLE
                             tvSeasonSummaryLoadingText.text = getString(R.string.loading)
                             btnStartNextSeason.isEnabled = false
+                            summaryBackPressedCallback.isEnabled = false
                         }
                         is SeasonSummaryUiState.Advancing -> {
                             layoutSeasonSummaryLoadingOverlay.visibility = View.VISIBLE
-                            tvSeasonSummaryLoadingText.text = getString(R.string.simulating_tournament)
+                            tvSeasonSummaryLoadingText.text = getString(R.string.season_summary_advancing_text)
                             btnStartNextSeason.isEnabled = false
+                            summaryBackPressedCallback.isEnabled = true
                         }
                         is SeasonSummaryUiState.Ready -> {
                             layoutSeasonSummaryLoadingOverlay.visibility = View.GONE
                             btnStartNextSeason.isEnabled = true
+                            summaryBackPressedCallback.isEnabled = false
                             val summary = state.summary
                             if (careerName.isBlank()) {
                                 careerName = summary.careerName

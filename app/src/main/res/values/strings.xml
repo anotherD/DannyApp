@@ -25,7 +25,9 @@
     <string name="tournament_type_major_qualifier">Major-Qualifier</string>
     <string name="tournament_type_et_qualifier">ET-Qualifier</string>
     <string name="current_or_next_tournament">Aktuelles / Nächstes Turnier</string>
-    <string name="no_active_or_next_tournament">Kein aktives oder nächstes Turnier vorhanden.</string>
+    <string name="no_active_or_next_tournament">Alle Turniere wurden gespielt, die Saison ist beendet</string>
+    <string name="btn_end_season">Saison beenden</string>
+    <string name="season_summary_advancing_text">Neue Saison wird vorbereitet…</string>
     <string name="round_winner">Turniersieger</string>
     <string name="round_qual_prelim">Vorrunde</string>
     <string name="round_qual_r1">Runde 1</string>

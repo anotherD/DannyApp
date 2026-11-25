@@ -299,5 +299,14 @@
             android:visibility="gone"
             tools:visibility="visible" />
 
+        <Button
+            android:id="@+id/btnEndSeason"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/btn_end_season"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>
