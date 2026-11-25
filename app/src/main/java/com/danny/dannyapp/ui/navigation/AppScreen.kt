@@ -10,6 +10,7 @@ import com.danny.dannyapp.ui.MainActivity
 import com.danny.dannyapp.ui.UIHelper
 import com.danny.dannyapp.ui.career.CareerDetailActivity
 import com.danny.dannyapp.ui.career.CareersActivity
+import com.danny.dannyapp.ui.career.SeasonSummaryActivity
 import com.danny.dannyapp.ui.tournament.SeasonCalendarActivity
 import com.danny.dannyapp.ui.oom.OrderOfMeritActivity
 import com.danny.dannyapp.ui.profile.ProfilesActivity
@@ -29,6 +30,7 @@ enum class AppScreen(
     PROFILES(ProfilesActivity::class.java, parent = HOME, titleResId = R.string.profiles),
     CAREERS(CareersActivity::class.java, parent = HOME, titleResId = R.string.careers),
     CAREER_OVERVIEW(CareerDetailActivity::class.java, parent = CAREERS, titleResId = R.string.career_overview_header),
+    SEASON_SUMMARY(SeasonSummaryActivity::class.java, parent = CAREER_OVERVIEW, titleResId = R.string.season_summary_title, includeInBreadcrumb = false),
     SEASON_CALENDAR(SeasonCalendarActivity::class.java, parent = CAREER_OVERVIEW, titleResId = R.string.nav_calendar, includeInBreadcrumb = true, breadcrumbIconResId = R.drawable.ic_calendar),
     ORDER_OF_MERIT(OrderOfMeritActivity::class.java, parent = CAREER_OVERVIEW, titleResId = R.string.nav_oom),
     TOURNAMENT_DETAIL(TournamentDetailActivity::class.java, parent = SEASON_CALENDAR, titleResId = R.string.tournament_detail),

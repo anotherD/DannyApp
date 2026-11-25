@@ -45,6 +45,10 @@
             android:exported="false" />
 
         <activity
+            android:name=".ui.career.SeasonSummaryActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".ui.settings.SettingsActivity"
             android:exported="false" />
 

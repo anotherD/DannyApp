@@ -279,21 +279,25 @@ class GetSeasonSummaryUseCase(
             )
         }
 
-        val shuffledPlayerIds = preSeasonEntries.map { it.playerId }.shuffled()
-        val randomTieBreakerMap = shuffledPlayerIds.mapIndexed { index, playerId -> playerId to index }.toMap()
+        val preSeasonRankMap: Map<Long, Int> = if (preSeasonTournaments.isEmpty()) {
+            postSeasonOom.associate { it.playerId to postSeasonOom.size }
+        } else {
+            val shuffledPlayerIds = preSeasonEntries.map { it.playerId }.shuffled()
+            val randomTieBreakerMap = shuffledPlayerIds.mapIndexed { index, playerId -> playerId to index }.toMap()
 
-        val sortedPreSeason = preSeasonEntries.sortedWith { entryA, entryB ->
-            val prizeDiff = entryB.prizeMoney.compareTo(entryA.prizeMoney)
-            if (prizeDiff != 0) return@sortedWith prizeDiff
+            val sortedPreSeason = preSeasonEntries.sortedWith { entryA, entryB ->
+                val prizeDiff = entryB.prizeMoney.compareTo(entryA.prizeMoney)
+                if (prizeDiff != 0) return@sortedWith prizeDiff
 
-            val tieBreakerA = requireNotNull(randomTieBreakerMap[entryA.playerId])
-            val tieBreakerB = requireNotNull(randomTieBreakerMap[entryB.playerId])
-            tieBreakerA.compareTo(tieBreakerB)
+                val tieBreakerA = requireNotNull(randomTieBreakerMap[entryA.playerId])
+                val tieBreakerB = requireNotNull(randomTieBreakerMap[entryB.playerId])
+                tieBreakerA.compareTo(tieBreakerB)
+            }
+
+            sortedPreSeason.mapIndexed { index, entry ->
+                entry.playerId to (index + 1)
+            }.toMap()
         }
-
-        val preSeasonRankMap = sortedPreSeason.mapIndexed { index, entry ->
-            entry.playerId to (index + 1)
-        }.toMap()
 
         val postSeasonRankMap = postSeasonOom.associate { it.playerId to it.rank }
 

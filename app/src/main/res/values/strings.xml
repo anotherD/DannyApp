@@ -301,4 +301,29 @@
     <string name="career_distance_category_world_championship">World Championship</string>
     <string name="cd_open_season_calendar">Saisonkalender öffnen</string>
     <string name="cd_open_statistics">Statistiken öffnen</string>
+
+    <!-- Season Summary -->
+    <string name="season_summary_title">Saisonabschluss</string>
+    <string name="season_summary_header_format">Saison %d – Zusammenfassung</string>
+    <string name="season_summary_section_personal">Deine Saisonbilanz</string>
+    <string name="season_summary_section_highlights">Saison-Highlights</string>
+    <string name="season_summary_matches_label">Match-Bilanz</string>
+    <string name="season_summary_matches_value_format">%1$d Siege • %2$d Niederlagen (%3$d Turniere)</string>
+    <string name="season_summary_best_result_label">Bestes Turnierergebnis</string>
+    <string name="season_summary_best_result_format">%1$s (%2$s)</string>
+    <string name="season_summary_best_result_none">Keine Hauptfeld-Teilnahme</string>
+    <string name="season_summary_tour_card_label">Tour-Card-Status</string>
+    <string name="season_summary_tour_card_top64">Tour Card über Top 64 OOM gehalten</string>
+    <string name="season_summary_tour_card_second_year">Aufstieg ins 2. Tour-Card-Jahr</string>
+    <string name="season_summary_tour_card_qschool">Tour Card verloren – über Q-School zurückgewonnen</string>
+    <string name="season_summary_world_champion_label">Weltmeister</string>
+    <string name="season_summary_oom_leader_label">Nr. 1 Order of Merit</string>
+    <string name="season_summary_oom_leader_format">%1$s (%2$s)</string>
+    <string name="season_summary_top_climber_label">Aufsteiger der Saison</string>
+    <string name="season_summary_top_climber_format">%1$s (+%2$d Plätze, +%3$s)</string>
+    <string name="season_summary_major_winners_label">Major-Sieger der Saison</string>
+    <string name="season_summary_start_next_season_format">Nächste Saison (%d) starten</string>
+    <string name="season_summary_level_dialog_title">Karriere-Level anpassen?</string>
+    <string name="season_summary_level_dialog_message">Möchtest du dein Karriere-Level für die neue Saison anpassen? Aktuell ist Level %d ausgewählt.</string>
+    <string name="season_summary_level_dialog_confirm">Weiter</string>
 </resources>

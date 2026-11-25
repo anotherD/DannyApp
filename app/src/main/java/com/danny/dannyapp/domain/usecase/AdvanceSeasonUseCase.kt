@@ -35,14 +35,18 @@ class AdvanceSeasonUseCase(
 
         val oomEntries = getOrderOfMeritUseCase(careerId, OrderOfMeritType.OOM)
 
-        val newSeasonId = seasonRepository.advanceToNextSeason(careerId, oomEntries)
+        val newSeasonId = tournamentRepository.runInTransaction {
+            val sId = seasonRepository.advanceToNextSeason(careerId, oomEntries)
 
-        val updatedLevel = newCareerLevel ?: career.level
-        val updatedCareer = career.copy(
-            season = career.season + 1,
-            level = updatedLevel
-        )
-        careerRepository.updateCareer(updatedCareer)
+            val updatedLevel = newCareerLevel ?: career.level
+            val updatedCareer = career.copy(
+                season = career.season + 1,
+                level = updatedLevel
+            )
+            careerRepository.updateCareer(updatedCareer)
+
+            sId
+        }
 
         newSeasonId
     }
