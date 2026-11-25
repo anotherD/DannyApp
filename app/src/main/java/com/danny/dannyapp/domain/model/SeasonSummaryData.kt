@@ -1,5 +1,12 @@
 package com.danny.dannyapp.domain.model
 
+data class RelegatedPlayerSummary(
+    val playerId: Long,
+    val playerName: String,
+    val countryCode: String,
+    val oomRank: Int
+)
+
 data class SeasonSummaryData(
     val careerName: String,
     val completedSeasonNumber: Int,
@@ -22,6 +29,7 @@ data class SeasonSummaryData(
     val bestTournamentName: String?,
     val bestReachedRoundKey: String?,
     val tourCardOutcome: UserTourCardOutcome,
+    val relegatedPlayers: List<RelegatedPlayerSummary>,
     // Saison-Highlights (Alle Spieler)
     val worldChampion: MajorWinnerSummary?,
     val majorWinners: List<MajorWinnerSummary>,

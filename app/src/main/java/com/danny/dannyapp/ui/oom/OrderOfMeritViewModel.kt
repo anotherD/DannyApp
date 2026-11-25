@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.danny.dannyapp.appContainer
 import com.danny.dannyapp.domain.enums.OrderOfMeritType
 import com.danny.dannyapp.domain.model.OrderOfMeritEntry
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -35,12 +36,14 @@ class OrderOfMeritViewModel(application: Application) : AndroidViewModel(applica
     }
 
     private var currentCareerId: Long = -1L
+    private var loadJob: Job? = null
 
     fun loadOrderOfMerit(careerId: Long) {
         if (careerId <= 0L) return
         this.currentCareerId = careerId
 
-        viewModelScope.launch {
+        loadJob?.cancel()
+        loadJob = viewModelScope.launch {
             launch {
                 getOrderOfMeritUseCase.observeOrderOfMerit(careerId, OrderOfMeritType.OOM)
                     .collect { _oomEntries.value = it }

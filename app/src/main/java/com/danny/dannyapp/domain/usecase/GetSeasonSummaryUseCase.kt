@@ -16,6 +16,7 @@ import com.danny.dannyapp.domain.enums.TournamentRound
 import com.danny.dannyapp.domain.model.ClimberSummary
 import com.danny.dannyapp.domain.model.MajorWinnerSummary
 import com.danny.dannyapp.domain.model.OrderOfMeritEntry
+import com.danny.dannyapp.domain.model.RelegatedPlayerSummary
 import com.danny.dannyapp.domain.model.SeasonSummaryData
 import com.danny.dannyapp.domain.model.UserTourCardOutcome
 import kotlinx.coroutines.Dispatchers
@@ -129,6 +130,29 @@ class GetSeasonSummaryUseCase(
             else -> UserTourCardOutcome.LOST_AND_REGAINED_Q_SCHOOL
         }
 
+        // Tour-Card-Absteiger
+        val top64PlayerIds = oomList.take(64).map { it.playerId }.toSet()
+        val oomRankMap = oomList.associate { it.playerId to it.rank }
+
+        val relegatedPlayers = seasonTourCards
+            .filter { it.tourCard.tourCardYear == 2 && it.tourCard.playerId !in top64PlayerIds }
+            .map { tcWithPlayer ->
+                val playerId = tcWithPlayer.tourCard.playerId
+                val (playerName, countryCode) = if (playerId == USER_ID) {
+                    careerWithProfile.playerName to careerWithProfile.countryCode
+                } else {
+                    val player = tcWithPlayer.player ?: requireNotNull(playerMap[playerId]) { "Spieler mit ID $playerId nicht gefunden" }
+                    player.name to player.countryCode
+                }
+                RelegatedPlayerSummary(
+                    playerId = playerId,
+                    playerName = playerName,
+                    countryCode = countryCode,
+                    oomRank = oomRankMap[playerId] ?: oomList.size
+                )
+            }
+            .sortedBy { it.oomRank }
+
         // 5. Major Winners & World Champion
         val majorTournaments = tournaments
             .filter { TournamentEvent.valueOf(it.type).isMajor }
@@ -195,6 +219,7 @@ class GetSeasonSummaryUseCase(
             bestTournamentName = bestTournamentName,
             bestReachedRoundKey = bestReachedRoundKey,
             tourCardOutcome = tourCardOutcome,
+            relegatedPlayers = relegatedPlayers,
             worldChampion = worldChampion,
             majorWinners = majorWinners,
             oomLeader = oomLeader,

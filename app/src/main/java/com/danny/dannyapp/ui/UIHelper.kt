@@ -23,6 +23,7 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.ColorUtils
 import androidx.core.graphics.withSave
+import androidx.core.graphics.withTranslation
 import androidx.recyclerview.widget.RecyclerView
 import com.danny.dannyapp.R
 import com.danny.dannyapp.appContainer
@@ -550,37 +551,41 @@ object UIHelper {
                 val midColor   = ColorUtils.setAlphaComponent(colorSolid, 90)   // ~35 % Deckkraft
                 val colorTransp = ColorUtils.setAlphaComponent(colorSolid, 0)
 
-                // ── Oberer Verlauf ──────────────────────────────────────────────────────────
-                if (scrollableView.canScrollVertically(-1)) {
-                    val scrollOffset = getVerticalScrollOffset(scrollableView).toFloat()
-                    val alphaFraction = (scrollOffset / fadePx).coerceIn(0f, 1f)
+                val translateY = if (scrollableView is ScrollView || scrollableView is NestedScrollView) scrollableView.scrollY.toFloat() else 0f
 
-                    fadePaint.shader = LinearGradient(
-                        0f, 0f, 0f, fadePx,
-                        intArrayOf(colorSolid, midColor, colorTransp),
-                        floatArrayOf(0f, 0.45f, 1f),
-                        Shader.TileMode.CLAMP
-                    )
-                    fadePaint.alpha = (255 * alphaFraction).toInt()
-                    canvas.drawRect(0f, 0f, w, fadePx, fadePaint)
-                }
+                canvas.withTranslation(y = translateY) {
+                    // ── Oberer Verlauf ──────────────────────────────────────────────────────────
+                    if (scrollableView.canScrollVertically(-1)) {
+                        val scrollOffset = getVerticalScrollOffset(scrollableView).toFloat()
+                        val alphaFraction = (scrollOffset / fadePx).coerceIn(0f, 1f)
 
-                // ── Unterer Verlauf ─────────────────────────────────────────────────────────
-                if (scrollableView.canScrollVertically(1)) {
-                    val scrollRange  = getVerticalScrollRange(scrollableView).toFloat()
-                    val scrollExtent = getVerticalScrollExtent(scrollableView).toFloat()
-                    val scrollOffset = getVerticalScrollOffset(scrollableView).toFloat()
-                    val remaining = (scrollRange - scrollExtent - scrollOffset).coerceAtLeast(0f)
-                    val alphaFraction = (remaining / fadePx).coerceIn(0f, 1f)
+                        fadePaint.shader = LinearGradient(
+                            0f, 0f, 0f, fadePx,
+                            intArrayOf(colorSolid, midColor, colorTransp),
+                            floatArrayOf(0f, 0.45f, 1f),
+                            Shader.TileMode.CLAMP
+                        )
+                        fadePaint.alpha = (255 * alphaFraction).toInt()
+                        canvas.drawRect(0f, 0f, w, fadePx, fadePaint)
+                    }
 
-                    fadePaint.shader = LinearGradient(
-                        0f, h - fadePx, 0f, h,
-                        intArrayOf(colorTransp, midColor, colorSolid),
-                        floatArrayOf(0f, 0.45f, 1f),
-                        Shader.TileMode.CLAMP
-                    )
-                    fadePaint.alpha = (255 * alphaFraction).toInt()
-                    canvas.drawRect(0f, h - fadePx, w, h, fadePaint)
+                    // ── Unterer Verlauf ─────────────────────────────────────────────────────────
+                    if (scrollableView.canScrollVertically(1)) {
+                        val scrollRange  = getVerticalScrollRange(scrollableView).toFloat()
+                        val scrollExtent = getVerticalScrollExtent(scrollableView).toFloat()
+                        val scrollOffset = getVerticalScrollOffset(scrollableView).toFloat()
+                        val remaining = (scrollRange - scrollExtent - scrollOffset).coerceAtLeast(0f)
+                        val alphaFraction = (remaining / fadePx).coerceIn(0f, 1f)
+
+                        fadePaint.shader = LinearGradient(
+                            0f, h - fadePx, 0f, h,
+                            intArrayOf(colorTransp, midColor, colorSolid),
+                            floatArrayOf(0f, 0.45f, 1f),
+                            Shader.TileMode.CLAMP
+                        )
+                        fadePaint.alpha = (255 * alphaFraction).toInt()
+                        canvas.drawRect(0f, h - fadePx, w, h, fadePaint)
+                    }
                 }
 
                 // Alpha zurücksetzen, damit nachfolgende draw-Aufrufe nicht beeinflusst werden

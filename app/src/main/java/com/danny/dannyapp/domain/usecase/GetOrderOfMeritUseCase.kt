@@ -97,6 +97,11 @@ class GetOrderOfMeritUseCase(
         // Ensure user is in map
         prizeMoneyMap[USER_ID] = 0.0
 
+        val tourCardPlayerIds = currentSeason?.let { seasonRepository.getTourCardPlayerIdsForSeason(it.id) }.orEmpty()
+        for (tcPlayerId in tourCardPlayerIds) {
+            prizeMoneyMap.putIfAbsent(tcPlayerId, 0.0)
+        }
+
         for (placement in filteredPlacements) {
             val current = prizeMoneyMap[placement.playerId] ?: 0.0
             prizeMoneyMap[placement.playerId] = current + placement.prizeMoney
