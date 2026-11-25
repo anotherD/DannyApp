@@ -83,7 +83,7 @@ object UIHelper {
         }
 
         val textView = snackbar.view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
-        textView?.maxLines = 3
+        textView?.maxLines = if (isError) 15 else 3
 
         snackbar.show()
     }
