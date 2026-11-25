@@ -513,7 +513,7 @@ class TournamentDetailActivity : BaseActivity() {
             availableGroups.forEachIndexed { index, groupLetter ->
                 val isSelected = (index == selectedGroupIndex)
                 val chip = Chip(this).apply {
-                    text = getString(R.string.group_label, groupLetter)
+                    text = getString(R.string.group_label_nav, groupLetter)
                     isCheckable = true
                     isChecked = isSelected
                     UIHelper.styleSelectionChip(this, isSelected)

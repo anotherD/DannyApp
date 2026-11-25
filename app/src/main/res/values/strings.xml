@@ -106,6 +106,7 @@
     <string name="tournament_review_winner_label">Sieger:</string>
     <string name="tournament_review_user_round">Deine erreichte Runde: %s</string>
     <string name="tournament_review_user_prize">Gewonnenes Preisgeld: %s</string>
+    <string name="group_label_nav">%s</string>
     <string name="group_label">Gruppe %s</string>
     <string name="group_selection_label">Gruppe:</string>
     <string name="tournament_preview_prizes_title">Preisgelder &amp; Match-Distanzen</string>
