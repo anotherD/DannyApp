@@ -52,6 +52,16 @@ abstract class BaseActivity : AppCompatActivity() {
             settingsManager.autoAdvanceRound = value
         }
 
+    private val globalLayoutListener = ViewTreeObserver.OnGlobalLayoutListener {
+        val contentView = findViewById<View>(android.R.id.content) ?: return@OnGlobalLayoutListener
+        UIHelper.applyVerticalEdgeFadeToHierarchy(contentView)
+    }
+
+    private val scrollChangedListener = ViewTreeObserver.OnScrollChangedListener {
+        val contentView = findViewById<View>(android.R.id.content) ?: return@OnScrollChangedListener
+        UIHelper.applyVerticalEdgeFadeToHierarchy(contentView)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
@@ -66,15 +76,20 @@ abstract class BaseActivity : AppCompatActivity() {
         }
 
         // Zentraler vertikaler Edge-Fade fuer alle ScrollViews/RecyclerViews im gesamten Hierarchy.
-        // Der OnGlobalLayoutListener wird nach jedem Layout-Durchgang ausgefuehrt, womit auch
-        // dynamisch nachgeladene Fragments (z.B. CareerOverviewFragment, TournamentCalendarFragment)
-        // automatisch erfasst werden, ohne Code in den einzelnen Screens.
-        window.decorView.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
-            override fun onGlobalLayout() {
-                val contentView = findViewById<View>(android.R.id.content) ?: return
-                UIHelper.applyVerticalEdgeFadeToHierarchy(contentView)
-            }
-        })
+        // Der OnGlobalLayoutListener und OnScrollChangedListener erfassen auch nachtraeglich
+        // instanziierte ViewPager2-Fragmente (z.B. OrderOfMeritFragment beim Wischen).
+        val vto = window.decorView.viewTreeObserver
+        vto.addOnGlobalLayoutListener(globalLayoutListener)
+        vto.addOnScrollChangedListener(scrollChangedListener)
+    }
+
+    override fun onDestroy() {
+        val vto = window.decorView.viewTreeObserver
+        if (vto.isAlive) {
+            vto.removeOnGlobalLayoutListener(globalLayoutListener)
+            vto.removeOnScrollChangedListener(scrollChangedListener)
+        }
+        super.onDestroy()
     }
 
     protected fun showMessage(

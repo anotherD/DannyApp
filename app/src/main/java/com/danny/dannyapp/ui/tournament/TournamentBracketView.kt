@@ -20,6 +20,7 @@ import android.widget.FrameLayout
 import android.widget.OverScroller
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.ColorUtils
 import com.danny.dannyapp.R
 import com.danny.dannyapp.data.db.USER_ID
 import com.danny.dannyapp.domain.enums.TournamentRound
@@ -828,14 +829,16 @@ class TournamentBracketView @JvmOverloads constructor(
         val fadingEdgeLength = resources.getDimensionPixelSize(R.dimen.fading_edge_length).toFloat()
         val maxScroll = maxScrollYForCurrentFocus()
         val backgroundColor = ContextCompat.getColor(context, R.color.anthrazit_hintergrund)
-        val transparentColor = backgroundColor and 0x00FFFFFF
+        val transparentColor = ColorUtils.setAlphaComponent(backgroundColor, 0)
+        val midColor = ColorUtils.setAlphaComponent(backgroundColor, 90)
 
         if (scrollYOffset > 0.5f) {
             val topAlphaFraction = (scrollYOffset / fadingEdgeLength).coerceIn(0f, 1f)
             val topShader = LinearGradient(
                 0f, clipTop,
                 0f, clipTop + fadingEdgeLength,
-                backgroundColor, transparentColor,
+                intArrayOf(backgroundColor, midColor, transparentColor),
+                floatArrayOf(0f, 0.45f, 1f),
                 Shader.TileMode.CLAMP
             )
             fadingEdgePaint.shader = topShader
@@ -849,7 +852,8 @@ class TournamentBracketView @JvmOverloads constructor(
             val bottomShader = LinearGradient(
                 0f, height.toFloat() - fadingEdgeLength,
                 0f, height.toFloat(),
-                transparentColor, backgroundColor,
+                intArrayOf(transparentColor, midColor, backgroundColor),
+                floatArrayOf(0f, 0.45f, 1f),
                 Shader.TileMode.CLAMP
             )
             fadingEdgePaint.shader = bottomShader
