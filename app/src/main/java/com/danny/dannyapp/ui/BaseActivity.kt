@@ -49,6 +49,27 @@ abstract class BaseActivity : AppCompatActivity() {
         )
     }
 
+    protected fun setupCareerNavigationToolbar(
+        screen: AppScreen,
+        careerName: String,
+        seasonNumber: Int? = null,
+        titleOverride: String? = null,
+        rootViewId: Int = android.R.id.content
+    ) {
+        val overviewLabel = when {
+            careerName.isNotBlank() && seasonNumber != null ->
+                getString(R.string.career_season_label_format, careerName, seasonNumber)
+            careerName.isNotBlank() -> careerName
+            else -> getString(R.string.career)
+        }
+        setupNavigationToolbar(
+            screen = screen,
+            titleOverride = titleOverride,
+            dynamicBreadcrumbLabels = mapOf(AppScreen.CAREER_OVERVIEW to overviewLabel),
+            rootViewId = rootViewId
+        )
+    }
+
     /**
      * Central application dependency container.
      */

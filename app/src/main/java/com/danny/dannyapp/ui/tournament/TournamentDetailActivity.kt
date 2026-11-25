@@ -161,11 +161,7 @@ class TournamentDetailActivity : BaseActivity() {
             careerName = intentCareerName
         }
 
-        setupNavigationToolbar(
-            screen = AppScreen.TOURNAMENT_DETAIL,
-            dynamicBreadcrumbLabels = mapOf(AppScreen.CAREER_OVERVIEW to careerName.ifBlank { getString(R.string.career) }),
-            rootViewId = R.id.tournamentDetailMain
-        )
+        setupCareerNavigationToolbar(AppScreen.TOURNAMENT_DETAIL, careerName, rootViewId = R.id.tournamentDetailMain)
 
         val onBackPressedCallback = object : androidx.activity.OnBackPressedCallback(false) {
             override fun handleOnBackPressed() {
@@ -357,12 +353,7 @@ class TournamentDetailActivity : BaseActivity() {
                 layoutTournamentContent.visibility = View.GONE
 
                 val activeCareerName = state.careerName.ifBlank { careerName }
-                setupNavigationToolbar(
-                    screen = AppScreen.TOURNAMENT_DETAIL,
-                    titleOverride = state.tournament.name,
-                    dynamicBreadcrumbLabels = mapOf(AppScreen.CAREER_OVERVIEW to getString(R.string.career_season_label_format, activeCareerName, state.seasonNumber)),
-                    rootViewId = R.id.tournamentDetailMain
-                )
+                setupCareerNavigationToolbar(AppScreen.TOURNAMENT_DETAIL, activeCareerName, state.seasonNumber, titleOverride = state.tournament.name, rootViewId = R.id.tournamentDetailMain)
 
                 TournamentUiHelper.bindTournamentHeader(
                     this, tvPreviewTitle, tvStatusBadgePreview, tvPreviewTypeBadge, tvPreviewHost,
@@ -387,12 +378,7 @@ class TournamentDetailActivity : BaseActivity() {
                 cardReviewSummary.visibility = View.GONE
 
                 val activeCareerName = state.careerName.ifBlank { careerName }
-                setupNavigationToolbar(
-                    screen = AppScreen.TOURNAMENT_DETAIL,
-                    titleOverride = state.tournament.name,
-                    dynamicBreadcrumbLabels = mapOf(AppScreen.CAREER_OVERVIEW to getString(R.string.career_season_label_format, activeCareerName, state.seasonNumber)),
-                    rootViewId = R.id.tournamentDetailMain
-                )
+                setupCareerNavigationToolbar(AppScreen.TOURNAMENT_DETAIL, activeCareerName, state.seasonNumber, titleOverride = state.tournament.name, rootViewId = R.id.tournamentDetailMain)
 
                 TournamentUiHelper.bindTournamentHeader(
                     this, tvActiveTitle, tvStatusBadgeActive, tvActiveTypeBadge, tvActiveHost,
@@ -433,12 +419,7 @@ class TournamentDetailActivity : BaseActivity() {
                 cardReviewSummary.visibility = View.VISIBLE
 
                 val activeCareerName = state.careerName.ifBlank { careerName }
-                setupNavigationToolbar(
-                    screen = AppScreen.TOURNAMENT_DETAIL,
-                    titleOverride = state.tournament.name,
-                    dynamicBreadcrumbLabels = mapOf(AppScreen.CAREER_OVERVIEW to getString(R.string.career_season_label_format, activeCareerName, state.seasonNumber)),
-                    rootViewId = R.id.tournamentDetailMain
-                )
+                setupCareerNavigationToolbar(AppScreen.TOURNAMENT_DETAIL, activeCareerName, state.seasonNumber, titleOverride = state.tournament.name, rootViewId = R.id.tournamentDetailMain)
 
                 TournamentUiHelper.bindTournamentHeader(
                     this, tvReviewTitle, tvStatusBadgeReview, tvReviewTypeBadge, tvReviewHost,

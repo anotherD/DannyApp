@@ -42,11 +42,7 @@ class SeasonCalendarActivity : BaseActivity() {
         careerId = intent.getLongExtra(EXTRA_CAREER_ID, -1L)
         careerName = intent.getStringExtra(EXTRA_CAREER_NAME) ?: ""
 
-        setupNavigationToolbar(
-            screen = AppScreen.SEASON_CALENDAR,
-            dynamicBreadcrumbLabels = mapOf(AppScreen.CAREER_OVERVIEW to careerName.ifBlank { getString(R.string.career) }),
-            rootViewId = R.id.seasonCalendarMain
-        )
+        setupCareerNavigationToolbar(AppScreen.SEASON_CALENDAR, careerName, rootViewId = R.id.seasonCalendarMain)
 
         layoutCareerSimulatingOverlay = findViewById(R.id.layoutCareerSimulatingOverlay)
         tvCareerSimulationProgress = findViewById(R.id.tvCareerSimulationProgress)
@@ -75,11 +71,7 @@ class SeasonCalendarActivity : BaseActivity() {
                             is CareerDetailState.Success -> {
                                 val career = state.careerWithProfile.career
                                 careerName = career.name
-                                setupNavigationToolbar(
-                                    screen = AppScreen.SEASON_CALENDAR,
-                                    dynamicBreadcrumbLabels = mapOf(AppScreen.CAREER_OVERVIEW to getString(R.string.career_season_label_format, careerName, career.season)),
-                                    rootViewId = R.id.seasonCalendarMain
-                                )
+                                setupCareerNavigationToolbar(AppScreen.SEASON_CALENDAR, careerName, career.season, rootViewId = R.id.seasonCalendarMain)
                             }
                             else -> {}
                         }

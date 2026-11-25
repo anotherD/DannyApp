@@ -38,11 +38,7 @@ class OrderOfMeritActivity : BaseActivity() {
         careerName = intent.getStringExtra(EXTRA_CAREER_NAME) ?: ""
         val oomTypeName = intent.getStringExtra(EXTRA_OOM_TYPE)
 
-        setupNavigationToolbar(
-            screen = AppScreen.ORDER_OF_MERIT,
-            dynamicBreadcrumbLabels = mapOf(AppScreen.CAREER_OVERVIEW to careerName.ifBlank { getString(R.string.career) }),
-            rootViewId = R.id.orderOfMeritMain
-        )
+        setupCareerNavigationToolbar(AppScreen.ORDER_OF_MERIT, careerName, rootViewId = R.id.orderOfMeritMain)
 
         if (savedInstanceState == null) {
             oomTypeName?.let { typeName ->
@@ -60,20 +56,14 @@ class OrderOfMeritActivity : BaseActivity() {
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                launch {
-                    careerViewModel.careerState.collect { state ->
-                        when (state) {
-                            is CareerDetailState.Success -> {
-                                val career = state.careerWithProfile.career
-                                careerName = career.name
-                                setupNavigationToolbar(
-                                    screen = AppScreen.ORDER_OF_MERIT,
-                                    dynamicBreadcrumbLabels = mapOf(AppScreen.CAREER_OVERVIEW to getString(R.string.career_season_label_format, careerName, career.season)),
-                                    rootViewId = R.id.orderOfMeritMain
-                                )
-                            }
-                            else -> {}
+                careerViewModel.careerState.collect { state ->
+                    when (state) {
+                        is CareerDetailState.Success -> {
+                            val career = state.careerWithProfile.career
+                            careerName = career.name
+                            setupCareerNavigationToolbar(AppScreen.ORDER_OF_MERIT, careerName, career.season, rootViewId = R.id.orderOfMeritMain)
                         }
+                        else -> {}
                     }
                 }
             }
