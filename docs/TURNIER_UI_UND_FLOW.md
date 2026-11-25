@@ -21,7 +21,7 @@ Dieses Dokument beschreibt die Benutzeroberfläche und den Interaktions-Flow fü
 * **Fokus & Hervorhebung:** Das aktive oder nächste geplante Turnier ist optisch hervorgehoben. Beim Öffnen scrollt die Liste automatisch zu diesem Turnier.
 * **Strikte Turnier-Sperre (Sequenzieller Ablauf):** Es darf immer nur ein Turnier gleichzeitig aktiv sein. Ein neues Turnier kann erst gestartet werden, wenn das vorherige abgeschlossen ist.
 * **Status-Zustände:**
-    * **Abgeschlossen:** Zeigt bei Einzelsieger-Turnieren den Turniersieger an. Bei Multi-Sieger-Qualifiern (`QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIFIER_WM`, `QUALIFIER_WORLD_MASTERS`)) steht im Kalender nur *„Abgeschlossen“* ohne Einzel-Pokal und ohne Gewinnerliste (diese wird erst im Turnier-Rückblick gezeigt).
+    * **Abgeschlossen:** Zeigt bei Einzelsieger-Turnieren den Turniersieger an. Bei Multi-Sieger-Qualifiern (`QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIFIER_WM`, `QUALIFIER_WORLD_MASTERS`) steht im Kalender nur *„Abgeschlossen“* ohne Einzel-Pokal und ohne Gewinnerliste (diese wird erst im Turnier-Rückblick gezeigt).
     * **Aktiv:** Zeigt die aktuell laufende Turnierrunde an.
     * **Geplant:** Das nächste anstehende Turnier bietet den Button **„Turnier starten“**.
 * **Debug-Funktion:** Bei aktiviertem Debug-Modus (`debugMode == true`) steht an jedem nicht abgeschlossenen Turnier ein kompakter Fast-Forward-Button (`⏩`) zur Verfügung, der alle offenen Turniere der Saison chronologisch bis einschließlich zum gewählten Turnier mit Fortschritts-Overlay durchsimuliert.
@@ -37,7 +37,7 @@ Dieses Dokument beschreibt die Benutzeroberfläche und den Interaktions-Flow fü
     * Ist es das nächste anstehende Turnier im Kalender, kann es über **„Turnier starten“** gestartet werden.
 2. **Aktiver Turnier-Modus (Laufendes Turnier):**
     * **Farbliche Akzentuierung:** Die obere Steuerungskarte ist je nach Turniertyp (Major, Major-Qualifier, European Tour, ET-Qualifier, Players Championship) farblich abgesetzt.
-    * **Runden-Navigation:** Horizontale Runden-Chips (farblich kodiert nach *Abgeschlossen*, *Aktiv* und *Ausstehend*) sowie horizontale Wischgesten (Swipe links/rechts) zum Wechseln zwischen den Runden. Beim Grand Slam of Darts gibt es zusätzlich eine Gruppen-Auswahl (`A–P`).
+    * **Runden-Navigation & Grand Slam:** Gemeinsamer Inhaltsbereich (`layoutTournamentContent`) für aktiven Modus und Rückblick. Horizontale Runden-Pillen (`8dp` Eckenradius, Hintergrund kodiert nach *Abgeschlossen*, *Aktiv* und *Ausstehend*, aktive Auswahl mit weißem `2dp`-Rahmen und automatischer mittiger Zentrierung) sowie horizontale Wischgesten (Swipe links/rechts). Beim **Grand Slam of Darts** erscheint in der Gruppenphase eine 2-zeilige Gruppen-Auswahl (`A–H` oben, `I–P` unten, je 8 gleich breite Pillen mit weißem Auswahlrahmen) sowie direkt darunter die vergrößerte **Gruppentabelle** oberhalb der 3 Gruppen-Matches.
     * **Vorab-Turnierbaum vs. Freie Auslosung:**
         * Turniere mit festem Turnierbaum zeigen alle Runden vorab an und tragen feststehende Sieger sowie gesetzte Einsteiger (z. B. Top 16 OOM in Runde 2 der European Tour oder Freilos-Spieler in Runde 1 der Qualifier) direkt ein.
         * Bei Turnieren mit offener Runden-Auslosung (`UK Open` und `European Open`) zeigen noch nicht ausgeloste Folgerunden einen Hinweis auf den Auslosungszeitpunkt samt Liste der bereits qualifizierten Einsteiger.
@@ -46,12 +46,15 @@ Dieses Dokument beschreibt die Benutzeroberfläche und den Interaktions-Flow fü
         * **Tab 1 – Preisgelder & Distanzen:** Zeigt Gesamtpreisgeld, Runden-Preisgelder, Match-Distanzen sowie turnierspezifische Ranglisten-Ausnahmen (z. B. £0 bei Auftaktniederlage gesetzter Spieler auf der European Tour bzw. £0 in Runde 1 bei PC/UK Open/European Open).
         * **Tab 2 – Teilnehmer:** Zeigt Qualifikationsregeln, alle qualifizierten Teilnehmer gruppiert nach Qualifikationsweg samt Setzposition sowie einen Hinweis, ob das Teilnehmerfeld noch vorläufig oder bereits eingefroren ist (inkl. offener Qualifier-Plätze).
     * **Simulations-Sperre:** Während einer Batch-Simulation blockiert ein Lade-Overlay die Eingabe und die Zurück-Navigation.
+3. **Rückblick-Modus (Abgeschlossenes Turnier):**
+    * Zeigt oben die Zusammenfassungskarte (`cardReviewSummary`) mit Turniersieger (bzw. Qualifier-Gewinnern), eigener erreichter Runde und gewonnenem Preisgeld.
+    * Nutzt darunter denselben gemeinsamen Inhaltsbereich (`layoutTournamentContent`) wie der aktive Modus (inkl. Runden-Pillen, Grand-Slam-Gruppenauswahl in 2x8er-Reihen + Gruppentabelle sowie Qualifier-Board-Filter im Turnierbaum), jedoch vollständig schreibgeschützt (`read-only`).
 
 ### 3.2 Simulations-Steuerung, Settings & Button-Matrix (Single Source of Truth)
 
 Jeder Simulations-Button hängt an genau einer Einstellung in `SettingsManager`:
 
-| Button / Aktion | Ort | Abhängiges Setting | Sichtbarkeits- & Aktivierungsbedingung |
+| Button / Aktion | Ort | Abhängiges Setting | Sichtbarkits- & Aktivierungsbedingung |
 | :--- | :--- | :--- | :--- |
 | **`CPU simulieren`** | Turnieransicht (Aktiv) | `autoSimulateCpu` | Sichtbar, wenn `autoSimulateCpu == false` und offene CPU-Matches in der aktiven Runde existieren (unabhängig von `debugMode`). |
 | **`Nächste Runde` / `Turnier abschließen`** | Turnieransicht (Aktiv) | `autoAdvanceRound` | Sichtbar, wenn `autoAdvanceRound == false` und alle Matches der aktiven Runde beendet sind (unabhängig von `debugMode`). |
@@ -71,6 +74,7 @@ Jeder Simulations-Button hängt an genau einer Einstellung in `SettingsManager`:
 * **Schwebe-Buttons unten:** Im aktiven Modus und im Rückblick ermöglichen zwei runde Buttons das Zentrieren auf das eigene Match in der aktuellen Runde (deaktiviert/ausgegraut, falls der User in dieser Runde nicht spielt) sowie das Umschalten zwischen **Rundenliste** und **Turnierbaum**.
 * **Turnierbaum & Layout-Regeln:**
     * Zeigt alle Runden nebeneinander mit synchronem vertikalem Scrollen, Verbindungslinien (mit Hervorhebung eigener Siege) und kompakten Matchkacheln.
+    * **Header-Runden-Pillen:** Einheitliche Pillen (`8dp` Eckenradius, `2dp` weißer Rahmen bei Auswahl, `1dp` dunkler Rahmen unselektiert), die sich beim Tippen oder horizontalen Wischen flüssig in der Bildschirmmitte zentrieren.
     * **1:1-Vorrunden-Ausrichtung (`QUAL_PRELIM` → `QUAL_R1`, European Tour `L48` → `L32`):** Vorrunden-Kacheln stehen unabhängig von der fokussierten Runde immer exakt auf derselben vertikalen Höhe links vor ihrem zugehörigen Ziel-Match in der Folgerunde (gerade 1:1-Verbindungslinie, Lücken zwischen nicht belegten Runde-1-Matches bleiben erhalten, kein vertikales Springen beim Rundenwechsel).
     * **Grand Slam of Darts (Gruppenphase → K.o.-Runde):** In der Gruppenphase werden die 16 Gruppentabellen (`A–P`) angezeigt; je zwei benachbarte Gruppen (`A+B`, `C+D`, …, `O+P`) führen mit 2:1-Verbindungslinien zu ihrem Achtelfinal-Match (`L16`).
     * **Offene Auslosungen (`UK Open` & `European Open`):** Zwischen Runden mit freier Neu-Auslosung (`R1_160`, `R2_128`, `R3_96`) werden keine Verbindungslinien gezeichnet; erst ab dem festen 64er-Turnierbaum (`L64` bis `F`) werden reguläre 2:1-Baumlinien dargestellt.
