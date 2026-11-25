@@ -64,7 +64,6 @@ class TournamentDetailActivity : BaseActivity() {
     private lateinit var scrollBoardPills: HorizontalScrollView
     private lateinit var chipGroupBoards: ChipGroup
     private lateinit var layoutGroupSelector: View
-    private lateinit var scrollGroupPills: HorizontalScrollView
     private lateinit var chipGroupGroups: ChipGroup
     private lateinit var rvMatches: RecyclerView
     private lateinit var matchesAdapter: TournamentMatchAdapter
@@ -203,7 +202,6 @@ class TournamentDetailActivity : BaseActivity() {
         scrollBoardPills = findViewById(R.id.scrollBoardPills)
         chipGroupBoards = findViewById(R.id.chipGroupBoards)
         layoutGroupSelector = findViewById(R.id.layoutGroupSelector)
-        scrollGroupPills = findViewById(R.id.scrollGroupPills)
         chipGroupGroups = findViewById(R.id.chipGroupGroups)
         rvMatches = findViewById(R.id.rvMatches)
         bracketView = findViewById(R.id.bracketView)
@@ -509,25 +507,24 @@ class TournamentDetailActivity : BaseActivity() {
         if (availableGroups.isNotEmpty()) {
             layoutGroupSelector.visibility = View.VISIBLE
             chipGroupGroups.removeAllViews()
-            var selectedGroupChip: Chip? = null
+            val density = resources.displayMetrics.density
+            val horizontalPadding = (8 * density).toInt()
             availableGroups.forEachIndexed { index, groupLetter ->
                 val isSelected = (index == selectedGroupIndex)
                 val chip = Chip(this).apply {
                     text = getString(R.string.group_label_nav, groupLetter)
+                    textAlignment = View.TEXT_ALIGNMENT_CENTER
                     isCheckable = true
                     isChecked = isSelected
+                    setEnsureMinTouchTargetSize(false)
+                    chipStartPadding = horizontalPadding.toFloat()
+                    chipEndPadding = horizontalPadding.toFloat()
                     UIHelper.styleSelectionChip(this, isSelected)
                     setOnClickListener {
                         viewModel.selectGroup(index)
                     }
                 }
                 chipGroupGroups.addView(chip)
-                if (isSelected) {
-                    selectedGroupChip = chip
-                }
-            }
-            selectedGroupChip?.let {
-                UIHelper.centerViewInHorizontalScroll(scrollGroupPills, it)
             }
         } else {
             layoutGroupSelector.visibility = View.GONE

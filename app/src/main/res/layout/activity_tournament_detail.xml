@@ -576,23 +576,16 @@
                 android:textSize="14sp"
                 android:textStyle="bold" />
 
-            <HorizontalScrollView
-                android:id="@+id/scrollGroupPills"
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chipGroupGroups"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:fadingEdgeLength="16dp"
-                android:requiresFadingEdge="horizontal"
-                android:scrollbars="none">
-
-                <com.google.android.material.chip.ChipGroup
-                    android:id="@+id/chipGroupGroups"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:selectionRequired="true"
-                    app:singleLine="true"
-                    app:singleSelection="true" />
-            </HorizontalScrollView>
+                app:chipSpacingHorizontal="4dp"
+                app:chipSpacingVertical="4dp"
+                app:selectionRequired="true"
+                app:singleLine="false"
+                app:singleSelection="true" />
         </LinearLayout>
 
         <!-- Group Standings Table Container (for Grand Slam List View) -->
