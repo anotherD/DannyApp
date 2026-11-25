@@ -38,12 +38,12 @@ class MainActivity : BaseActivity() {
         val btnCareers: Button = findViewById(R.id.btnCareers)
 
         // Start-Choreografie nur beim ersten Öffnen (nicht nach Bildschirm-Drehung) abspielen
-        if (savedInstanceState == null) {
-            setupWalkOnEntranceAnimation(
-                splashScreen = splashScreen,
-                buttons = listOf(btnOpenScolia, btnProfiles, btnCareers)
-            )
-        }
+//        if (savedInstanceState == null) {
+//            setupWalkOnEntranceAnimation(
+//                splashScreen = splashScreen,
+//                buttons = listOf(btnOpenScolia, btnProfiles, btnCareers)
+//            )
+//        }
 
         // Set up the toolbar for the start screen – no back button.
         setupNavigationToolbar(AppScreen.HOME, titleOverride = "", rootViewId = R.id.main)

@@ -2,6 +2,7 @@ package com.danny.dannyapp.data.db
 
 import android.content.Context
 import com.danny.dannyapp.domain.config.TournamentConfigLoader
+import com.danny.dannyapp.domain.model.OrderOfMeritEntry
 import com.danny.dannyapp.domain.usecase.GenerateSeasonCalendarUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -193,30 +194,70 @@ class SeasonRepository(
         seasonId
     }
 
+    /**
+     * Schließt die aktuelle Saison ab, legt die nächste Saison an,
+     * erzeugt die 128 Tour Cards über die OOM- und Q-School-Logik und generiert den Saisonkalender.
+     */
+    suspend fun advanceToNextSeason(
+        careerId: Long,
+        oomEntries: List<OrderOfMeritEntry>
+    ): Long = withContext(Dispatchers.IO) {
+        require(careerId > 0L) { "Ungültige Karriere-ID: $careerId" }
+        val currentSeason = seasonDao.getCurrentSeasonForCareer(careerId)
+        requireNotNull(currentSeason) { "Keine aktuelle Saison für Karriere-ID $careerId gefunden" }
+
+        seasonDao.updateSeason(currentSeason.copy(isCompleted = true))
+
+        val nextSeasonNumber = currentSeason.seasonNumber + 1
+        val newSeason = Season(
+            careerId = careerId,
+            seasonNumber = nextSeasonNumber
+        )
+        val newSeasonId = seasonDao.insertSeason(newSeason)
+
+        val tourCards = determineTourCardsForSeason(
+            seasonId = newSeasonId,
+            seasonNumber = nextSeasonNumber,
+            previousSeasonId = currentSeason.id,
+            oomEntries = oomEntries
+        )
+
+        tourCardDao.insertTourCards(tourCards)
+
+        val generateCalendarUseCase = GenerateSeasonCalendarUseCase(tournamentRepository)
+        generateCalendarUseCase(newSeasonId)
+
+        newSeasonId
+    }
+
     private suspend fun determineTourCardsForSeason(
         seasonId: Long,
         seasonNumber: Int,
-        previousSeasonId: Long?
+        previousSeasonId: Long?,
+        oomEntries: List<OrderOfMeritEntry> = emptyList()
     ): List<TourCard> {
-        val tourCards = mutableListOf<TourCard>()
-
-        // 1. Human User receives 1 Tour Card (playerId = USER_ID, tourCardYear = 2)
-        tourCards.add(
-            TourCard(
-                seasonId = seasonId,
-                playerId = USER_ID,
-                tourCardYear = 2
+        val tourCards = if (seasonNumber == 1 || previousSeasonId == null) {
+            val cards = mutableListOf<TourCard>()
+            // 1. Human User receives 1 Tour Card (playerId = USER_ID, tourCardYear = 2)
+            cards.add(
+                TourCard(
+                    seasonId = seasonId,
+                    playerId = USER_ID,
+                    tourCardYear = 2
+                )
             )
-        )
-
-        // 2. Determine CPU Tour Cards (127 spots)
-        val cpuTourCards = if (seasonNumber == 1 || previousSeasonId == null) {
-            determineInitialCpuTourCards(seasonId, targetCount = CPU_TOUR_CARDS_TARGET)
+            // 2. Determine CPU Tour Cards (127 spots)
+            val cpuTourCards = determineInitialCpuTourCards(seasonId, targetCount = CPU_TOUR_CARDS_TARGET)
+            cards.addAll(cpuTourCards)
+            cards
         } else {
-            determineNextSeasonCpuTourCards(seasonId, previousSeasonId, targetCount = CPU_TOUR_CARDS_TARGET)
+            determineNextSeasonCpuTourCards(seasonId, previousSeasonId, oomEntries)
         }
 
-        tourCards.addAll(cpuTourCards)
+        check(tourCards.size == TOTAL_TOUR_CARDS_PER_SEASON) {
+            "Soll-Anzahl von $TOTAL_TOUR_CARDS_PER_SEASON Tour Cards nicht erreicht: ${tourCards.size}"
+        }
+
         return tourCards
     }
 
@@ -285,11 +326,87 @@ class SeasonRepository(
     private suspend fun determineNextSeasonCpuTourCards(
         seasonId: Long,
         previousSeasonId: Long,
-        targetCount: Int
+        oomEntries: List<OrderOfMeritEntry>
     ): List<TourCard> {
-        // TODO: Calculate tour cards from previous season Order of Merit / rankings when implemented.
-        // Temporary logic: fallback to initial player selection rules
-        return determineInitialCpuTourCards(seasonId, targetCount)
+        val previousTourCards = tourCardDao.getRawTourCardsForSeason(previousSeasonId)
+        require(previousTourCards.isNotEmpty()) { "Keine Tour-Cards der Vorsaison (ID $previousSeasonId) gefunden" }
+
+        val top64PlayerIds = oomEntries.take(64).map { it.playerId }.toSet()
+
+        val retainedCards = mutableListOf<TourCard>()
+        for (previousCard in previousTourCards) {
+            val isTop64 = previousCard.playerId in top64PlayerIds
+            if (isTop64) {
+                // Behält Tour Card; Jahr 1 steigt auf Jahr 2 auf, Jahr 2 bleibt Jahr 2
+                retainedCards.add(
+                    TourCard(
+                        seasonId = seasonId,
+                        playerId = previousCard.playerId,
+                        tourCardYear = 2
+                    )
+                )
+            } else if (previousCard.tourCardYear == 1) {
+                // Nicht in Top 64, aber Jahr 1 -> steigt ins 2. Jahr auf
+                retainedCards.add(
+                    TourCard(
+                        seasonId = seasonId,
+                        playerId = previousCard.playerId,
+                        tourCardYear = 2
+                    )
+                )
+            }
+            // Sonst: Nicht in Top 64 & war Jahr 2 -> verliert Tour Card
+        }
+
+        val retainedPlayerIds = retainedCards.map { it.playerId }.toSet()
+        val userRetained = USER_ID in retainedPlayerIds
+        val userWonQSchool = !userRetained
+
+        val resultCards = mutableListOf<TourCard>()
+        resultCards.addAll(retainedCards)
+
+        if (userWonQSchool) {
+            resultCards.add(
+                TourCard(
+                    seasonId = seasonId,
+                    playerId = USER_ID,
+                    tourCardYear = 1
+                )
+            )
+        }
+
+        val remainingSlots = TOTAL_TOUR_CARDS_PER_SEASON - resultCards.size
+        if (remainingSlots > 0) {
+            val allCpuPlayers = playerDao.getAllPlayersList()
+            val cpuCandidates = allCpuPlayers.filter { it.id !in retainedPlayerIds }
+
+            val selectedCpuQSchoolPlayers = cpuCandidates
+                .groupBy { it.skill }
+                .entries
+                .sortedByDescending { it.key }
+                .flatMap { (_, playersWithSameSkill) -> playersWithSameSkill.shuffled() }
+                .take(remainingSlots)
+
+            check(selectedCpuQSchoolPlayers.size == remainingSlots) {
+                "Nicht genügend CPU-Kandidaten für Q-School. Benötigt: $remainingSlots, verfügbar: ${selectedCpuQSchoolPlayers.size}"
+            }
+
+            selectedCpuQSchoolPlayers.forEach { cpuPlayer ->
+                resultCards.add(
+                    TourCard(
+                        seasonId = seasonId,
+                        playerId = cpuPlayer.id,
+                        tourCardYear = 1
+                    )
+                )
+            }
+        }
+
+        check(resultCards.size == TOTAL_TOUR_CARDS_PER_SEASON) {
+            "Soll-Anzahl von $TOTAL_TOUR_CARDS_PER_SEASON Tour Cards nicht erreicht: ${resultCards.size}"
+        }
+
+        return resultCards
     }
 
     companion object {

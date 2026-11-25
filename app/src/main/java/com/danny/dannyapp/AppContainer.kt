@@ -9,6 +9,7 @@ import com.danny.dannyapp.data.db.PlayerRepository
 import com.danny.dannyapp.data.db.SeasonRepository
 import com.danny.dannyapp.data.db.TournamentRepository
 import com.danny.dannyapp.data.db.UserProfileRepository
+import com.danny.dannyapp.domain.usecase.AdvanceSeasonUseCase
 import com.danny.dannyapp.domain.usecase.AdvanceTournamentRoundUseCase
 import com.danny.dannyapp.domain.usecase.CalculateGroupStandingsUseCase
 import com.danny.dannyapp.domain.usecase.CompleteMatchUseCase
@@ -16,6 +17,7 @@ import com.danny.dannyapp.domain.usecase.GenerateBracketUseCase
 import com.danny.dannyapp.domain.usecase.GenerateSeasonCalendarUseCase
 import com.danny.dannyapp.domain.usecase.GetOrderOfMeritUseCase
 import com.danny.dannyapp.domain.usecase.GetPlayersUseCase
+import com.danny.dannyapp.domain.usecase.GetSeasonSummaryUseCase
 import com.danny.dannyapp.domain.usecase.GetTournamentSummaryUseCase
 import com.danny.dannyapp.domain.usecase.InitializeCareerOomUseCase
 import com.danny.dannyapp.domain.usecase.TournamentProgressionUseCase
@@ -208,6 +210,31 @@ class AppContainer(context: Context) {
             tournamentRepository,
             generateBracketUseCase,
             settingsManager
+        )
+    }
+
+    /**
+     * Use case for calculating season summaries.
+     */
+    val getSeasonSummaryUseCase: GetSeasonSummaryUseCase by lazy {
+        GetSeasonSummaryUseCase(
+            careerRepository = careerRepository,
+            seasonRepository = seasonRepository,
+            tournamentRepository = tournamentRepository,
+            playerRepository = playerRepository,
+            getOrderOfMeritUseCase = getOrderOfMeritUseCase
+        )
+    }
+
+    /**
+     * Use case for advancing to the next season.
+     */
+    val advanceSeasonUseCase: AdvanceSeasonUseCase by lazy {
+        AdvanceSeasonUseCase(
+            careerRepository = careerRepository,
+            seasonRepository = seasonRepository,
+            tournamentRepository = tournamentRepository,
+            getOrderOfMeritUseCase = getOrderOfMeritUseCase
         )
     }
 }
