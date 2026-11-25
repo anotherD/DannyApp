@@ -225,7 +225,7 @@ class SeasonSummaryActivity : BaseActivity() {
                                 }
                                 layoutMajorWinnersList.addView(tvNone)
                             } else {
-                                for (mw in summary.majorWinners) {
+                                for ((tournamentName, _, winnerName, winnerCountryCode) in summary.majorWinners) {
                                     val row = LinearLayout(this@SeasonSummaryActivity).apply {
                                         layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
                                             bottomMargin = (4 * resources.displayMetrics.density).toInt()
@@ -236,7 +236,7 @@ class SeasonSummaryActivity : BaseActivity() {
                                     }
                                     val tvTour = TextView(this@SeasonSummaryActivity).apply {
                                         layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-                                        text = mw.tournamentName
+                                        text = tournamentName
                                         textSize = 14f
                                         setTextColor(ContextCompat.getColor(this@SeasonSummaryActivity, R.color.grau_text_hell))
                                     }
@@ -247,7 +247,10 @@ class SeasonSummaryActivity : BaseActivity() {
                                         setTextColor(ContextCompat.getColor(this@SeasonSummaryActivity, R.color.grau_text_hell))
                                         setTypeface(null, Typeface.BOLD)
                                     }
-                                    UIHelper.formatFlagAndText(tvWinner, mw.winnerCountryCode, mw.winnerName, isLeft = true)
+                                    UIHelper.formatFlagAndText(tvWinner,
+                                        winnerCountryCode,
+                                        winnerName
+                                    )
                                     row.addView(tvTour)
                                     row.addView(tvWinner)
                                     layoutMajorWinnersList.addView(row)

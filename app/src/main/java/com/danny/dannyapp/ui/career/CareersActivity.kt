@@ -108,7 +108,6 @@ class CareersActivity : BaseActivity() {
                         ProfileDialogs.showProfileDialog(
                             context = this@CareersActivity,
                             anchorView = findViewById(android.R.id.content),
-                            existingProfile = null,
                             onSave = { name, playerName, countryCode, description ->
                                 profilesViewModel.saveUserProfile(name, playerName, countryCode, description)
                             },
@@ -226,9 +225,9 @@ class CareersActivity : BaseActivity() {
                 }
 
                 if (careerName.isEmpty()) {
-                    UIHelper.showSnackbar(dialog.window!!.decorView, getString(R.string.careers_create_error_empty_name), isError = true)
+                    UIHelper.showSnackbar((dialog.window ?: return@setOnClickListener).decorView, getString(R.string.careers_create_error_empty_name), isError = true)
                 } else if (matchedProfile == null || selectedProfileId <= 0L) {
-                    UIHelper.showSnackbar(dialog.window!!.decorView, getString(R.string.careers_create_error_empty_profile), isError = true)
+                    UIHelper.showSnackbar((dialog.window ?: return@setOnClickListener).decorView, getString(R.string.careers_create_error_empty_profile), isError = true)
                 } else {
                     val level = numberPickerLevel.value
                     val prefillOom = cbPrefillOom.isChecked
@@ -246,7 +245,7 @@ class CareersActivity : BaseActivity() {
                                 dialog.dismiss()
                             }
                             is SaveCareerResult.Error -> {
-                                UIHelper.showSnackbar(dialog.window!!.decorView, result.message, isError = true, duration = Snackbar.LENGTH_LONG)
+                                UIHelper.showSnackbar((dialog.window ?: return@launch).decorView, result.message, isError = true, duration = Snackbar.LENGTH_LONG)
                             }
                         }
                     }
@@ -302,7 +301,7 @@ class CareersActivity : BaseActivity() {
             positiveButton?.setOnClickListener {
                 val newName = editText.text.toString().trim()
                 if (newName.isEmpty()) {
-                    UIHelper.showSnackbar(dialog.window!!.decorView, getString(R.string.careers_create_error_empty_name), isError = true)
+                    UIHelper.showSnackbar((dialog.window ?: return@setOnClickListener).decorView, getString(R.string.careers_create_error_empty_name), isError = true)
                 } else {
                     lifecycleScope.launch {
                         when (val result = viewModel.updateCareerName(career, newName)) {
@@ -313,7 +312,7 @@ class CareersActivity : BaseActivity() {
                                 dialog.dismiss()
                             }
                             is SaveCareerResult.Error -> {
-                                UIHelper.showSnackbar(dialog.window!!.decorView, result.message, isError = true, duration = Snackbar.LENGTH_LONG)
+                                UIHelper.showSnackbar((dialog.window ?: return@launch).decorView, result.message, isError = true, duration = Snackbar.LENGTH_LONG)
                             }
                         }
                     }

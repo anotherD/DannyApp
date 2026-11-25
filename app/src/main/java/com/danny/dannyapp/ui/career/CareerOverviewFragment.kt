@@ -104,8 +104,6 @@ class CareerOverviewFragment : Fragment(R.layout.fragment_career_overview) {
             tvNoActiveTournament.visibility = View.GONE
             btnEndSeason.visibility = View.GONE
             bindActiveTournament(containerActiveTournament, model, boundSimulatingTournamentId)
-        } else {
-            tvNoActiveTournament.visibility = View.VISIBLE
         }
     }
 

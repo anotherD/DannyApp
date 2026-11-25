@@ -18,6 +18,7 @@ import com.danny.dannyapp.ui.enums.TournamentStatus
 import com.danny.dannyapp.ui.model.PlayerUiInfo
 import com.danny.dannyapp.ui.model.TournamentUiModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -45,6 +46,8 @@ class TournamentCalendarViewModel(application: Application) : AndroidViewModel(a
     private val tournamentProgressionUseCase = application.appContainer.tournamentProgressionUseCase
     private val getTournamentSummaryUseCase = application.appContainer.getTournamentSummaryUseCase
 
+    private var loadJob: Job? = null
+
     private val _simulationProgress = MutableStateFlow<SimulationProgress?>(null)
 
     private val _uiState = MutableStateFlow<TournamentCalendarState>(TournamentCalendarState.Loading)
@@ -54,12 +57,13 @@ class TournamentCalendarViewModel(application: Application) : AndroidViewModel(a
      * Lädt alle Turniere der aktuellen Saison einer Karriere und beobachtet deren Status.
      */
     fun loadTournaments(careerId: Long) {
+        loadJob?.cancel()
         if (careerId <= 0L) {
             _uiState.value = TournamentCalendarState.Error(getApplication<Application>().getString(R.string.error_invalid_career_id))
             return
         }
 
-        viewModelScope.launch {
+        loadJob = viewModelScope.launch {
             _uiState.value = TournamentCalendarState.Loading
             try {
                 val season = seasonRepository.getOrCreateInitialSeasonForCareer(careerId)
