@@ -6,7 +6,8 @@ Dieses Dokument beschreibt die Benutzeroberfläche und den Interaktions-Flow fü
 
 ## 🧭 1. Navigation & Einstieg aus der Karriere-Ansicht
 
-* **Top-Bar & Breadcrumbs:** Jede Unterseite zeigt als Titel den gewählten Bereich (z. B. `Saisonkalender`, `Turnieransicht`, `Ranglisten`) und als Subtitel den Pfad `Karrieren > <Karrierename> (Saison X)`.
+* **Zentraler Navigationsbaum (`AppScreen`):** Alle App-Screens sind hierarchisch in `AppScreen` definiert. Der Toolbar-Pfeil oben links folgt immer der festen Eltern-Beziehung (`parent` mit `CLEAR_TOP`), während die System-Zurück-Geste/Taste chronologisch arbeitet. In den Einstellungen (`SettingsActivity`, `SettingsPlayersActivity`) ist das Zahnrad-Icon ausgeblendet, um Endlos-Schleifen zu verhindern.
+* **Top-Bar & Breadcrumbs:** Jede Unterseite zeigt als Titel den gewählten Bereich (z. B. `Saisonkalender`, `Turnieransicht`, `Ranglisten`) und als Subtitel den automatischen Breadcrumb-Pfad aus `AppScreen` (z. B. `Karrieren > <Karrierename> (Saison X)` bzw. mit Kalender-Icon in der Turnieransicht).
 * **Karrieren-Kacheln & Übersicht:** Zeigen Karrierename, aktuelle Saison, Level, Profilname sowie Spielername inklusive Landesflagge. Über das Kontextmenü (Long-Press) lassen sich bestehende Karrieren umbenennen oder löschen.
 * **Eigenständige Seiten aus der Karriere-Ansicht (`CareerDetailActivity`):**
     1. **Karriere-Übersicht (`CareerDetailActivity`):** Kompakte Karriere-Infos, klickbare Anzeige der eigenen Positionen und Preisgelder in allen 4 Ranglisten (`OOM`, `PT OOM`, `PC OOM`, `ET OOM`), Schnellzugriffs-Kacheln rechts daneben (oben: Saisonkalender, unten: Statistiken) sowie Direktzugriff auf das aktuelle oder nächste Turnier.

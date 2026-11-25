@@ -9,7 +9,7 @@ Dieses Dokument bietet einen Gesamtüberblick über die Schichtenarchitektur, ze
 Die App folgt dem **Model-View-ViewModel (MVVM)** Muster mit **Kotlin Coroutines / Flow** und strikter Schichten-Trennung:
 
 ```
-[ UI Layer: ui/ (Activities, Fragments, ViewModels, Adapter in feature sub-packages: career/, profile/, oom/, tournament/, settings/, model/, enums/) ]
+[ UI Layer: ui/ (Activities, Fragments, ViewModels, Adapter in feature sub-packages: career/, profile/, oom/, tournament/, settings/, navigation/, model/, enums/) ]
                               │
                               ▼
 [ Domain Layer: domain/ (UseCases, Models, Enums, Config, Strategy) ]
@@ -21,6 +21,7 @@ Die App folgt dem **Model-View-ViewModel (MVVM)** Muster mit **Kotlin Coroutines
 * **Schichtenregel:** `ui` greift ausschließlich auf `domain` (und lesende Repositories) zu; `domain` enthält keinerlei Android-UI-Imports (`R.drawable`, `R.color`, `Context`).
 * **Reaktive UI:** Änderungen in der Room-Datenbank werden über `Flow` beobachtet, sodass sich Kalender, Turnieransicht und Ranglisten automatisch aktualisieren.
 * **Repository-Pflicht (Kein direkter DAO-Zugriff in UI & Domain):** Neue Datenbank-Zugriffe werden ausschließlich über Repositories (`data/db/*Repository.kt`) gekapselt, die garantierte non-null Verträge (`requireNotNull`) und zusammengesetzte Transaktionen bereitstellen – `ui/` und `domain/` greifen niemals direkt auf rohe DAOs zu.
+* **Zentrale Baum-Navigation (`AppScreen` & `BaseActivity`):** Alle Screens, deren Hierarchie (`parent`), Breadcrumb-Sichtbarkeit (`includeInBreadcrumb`, `breadcrumbIconResId`) sowie Zahnrad-Menü-Sichtbarkeit (`showSettingsMenu`) sind zentral im Enum `ui/navigation/AppScreen.kt` definiert. `BaseActivity.setupNavigationToolbar(...)` und `setupCareerNavigationToolbar(...)` steuern Breadcrumb und hierarchische Up-Navigation (`FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP` bzw. `finish()` beim Einstellungs-Baum).
 
 ---
 
@@ -108,6 +109,7 @@ Wenn du `initial_placements.csv` in den Assets bearbeitest:
 
 ### 5.2 UI-Paketstruktur & Helper (`ui/`)
 * **`ui/UIHelper.kt`**: Zentrale Helper für Flaggen-Rendering (`formatFlagAndText`), dynamische Namenskürzungen (`bindSmartPlayerName`) und Match-Kachel-Stile (`applyMatchCardStyle`).
+* **`ui/navigation/`**: Zentraler Navigationsbaum (`AppScreen`) für Up-Navigation, Breadcrumbs und Menü-Sichtbarkeit.
 * **`ui/career/`**: Karrieren-Übersicht, Detailansicht und Pager.
 * **`ui/profile/`**: Profilverwaltung und -auswahl.
 * **`ui/oom/`**: Order of Merit Container, Fragmente und Adapter.
