@@ -78,15 +78,15 @@ Jeder Simulations-Button hängt an genau einer Einstellung in `SettingsManager`:
     * **1:1-Vorrunden-Ausrichtung (`QUAL_PRELIM` → `QUAL_R1`, European Tour `L48` → `L32`):** Vorrunden-Kacheln stehen unabhängig von der fokussierten Runde immer exakt auf derselben vertikalen Höhe links vor ihrem zugehörigen Ziel-Match in der Folgerunde (gerade 1:1-Verbindungslinie, Lücken zwischen nicht belegten Runde-1-Matches bleiben erhalten, kein vertikales Springen beim Rundenwechsel).
     * **Grand Slam of Darts (Gruppenphase → K.o.-Runde):** In der Gruppenphase werden die 16 Gruppentabellen (`A–P`) angezeigt; je zwei benachbarte Gruppen (`A+B`, `C+D`, …, `O+P`) führen mit 2:1-Verbindungslinien zu ihrem Achtelfinal-Match (`L16`).
     * **Offene Auslosungen (`UK Open` & `European Open`):** Zwischen Runden mit freier Neu-Auslosung (`R1_160`, `R2_128`, `R3_96`) werden keine Verbindungslinien gezeichnet; erst ab dem festen 64er-Turnierbaum (`L64` bis `F`) werden reguläre 2:1-Baumlinien dargestellt.
-* **Sonderformate:** Im Grand Slam of Darts werden in der Gruppenphase kompakte Gruppentabellen angezeigt; bei Qualifiern lassen sich einzelne Boards (`Board 1..K` oder `Alle`) filtern.
+* **Sonderformate:** Im Grand Slam of Darts werden in der Gruppenphase kompakte Gruppentabellen angezeigt; bei Qualifiern lassen sich einzelne Boards (`Board 1..K` oder `Alle`) über einheitlich gestylte, mittig zentrierte Filter-Pillen filtern.
 
 ---
 
 ## 🏆 4. Ranglisten-Ansicht
 
-* **Auswahl:** 4 Filter-Chips für *Order of Merit (OOM)*, *Pro Tour (PT OOM)*, *Players Championship (PC OOM)* und *European Tour (ET OOM)*.
+* **Auswahl & Wischgeste:** 4 Filter-Pillen für *Order of Merit (OOM)*, *Pro Tour (PT OOM)*, *Players Championship (PC OOM)* und *European Tour (ET OOM)* sowie horizontales Durchwischen (`ViewPager2`) zwischen allen 4 Ranglisten. Die aktive Pille wird mit einem weißen `2dp`-Rahmen markiert und automatisch mittig zentriert.
 * **Darstellung:** Liste mit Rang, Landesflagge, Spielername und Preisgeld. Die Zeile des Users ist farblich hervorgehoben.
-* **Sticky-User-Karte:** Scrollt der User aus dem sichtbaren Bereich heraus, erscheint oben bzw. unten eine schwebende Karte mit seiner aktuellen Platzierung. Ein Klick darauf scrollt direkt zur eigenen Position.
+* **Sticky-User-Karte:** Scrollt der User aus dem sichtbaren Bereich heraus, erscheint oben bzw. unten direkt in der jeweiligen Rangliste eine schwebende Karte mit seiner aktuellen Platzierung. Ein Klick darauf scrollt direkt zur eigenen Position.
 
 ---
 
