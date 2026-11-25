@@ -595,6 +595,19 @@
             </HorizontalScrollView>
         </LinearLayout>
 
+        <!-- Group Standings Table Container (for Grand Slam List View) -->
+        <FrameLayout
+            android:id="@+id/containerGroupTable"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="12dp"
+            android:layout_marginTop="6dp"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/layoutGroupSelector"
+            tools:visibility="visible" />
+
         <!-- Matches RecyclerView -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvMatches"
@@ -607,7 +620,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/layoutGroupSelector" />
+            app:layout_constraintTop_toBottomOf="@id/containerGroupTable" />
 
         <!-- Tournament Bracket Custom View -->
         <com.danny.dannyapp.ui.tournament.TournamentBracketView
@@ -622,7 +635,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/layoutGroupSelector"
+            app:layout_constraintTop_toBottomOf="@id/containerGroupTable"
             tools:visibility="gone" />
 
         <!-- Open Draw Info Container for UK Open / European Open -->

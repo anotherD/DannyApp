@@ -72,6 +72,7 @@ class TournamentDetailActivity : BaseActivity() {
     private lateinit var layoutOpenDrawInfo: View
     private lateinit var tvDrawAfterRoundInfo: TextView
     private lateinit var layoutEntrantsContainer: LinearLayout
+    private lateinit var containerGroupTable: ViewGroup
 
     // Active Card
     private lateinit var cardActiveControls: MaterialCardView
@@ -209,6 +210,7 @@ class TournamentDetailActivity : BaseActivity() {
         layoutOpenDrawInfo = findViewById(R.id.layoutOpenDrawInfo)
         tvDrawAfterRoundInfo = findViewById(R.id.tvDrawAfterRoundInfo)
         layoutEntrantsContainer = findViewById(R.id.layoutEntrantsContainer)
+        containerGroupTable = findViewById(R.id.containerGroupTable)
 
         // Active
         cardActiveControls = findViewById(R.id.cardActiveControls)
@@ -531,6 +533,24 @@ class TournamentDetailActivity : BaseActivity() {
             layoutGroupSelector.visibility = View.GONE
         }
 
+        val selectedGroupLetter = availableGroups.getOrNull(selectedGroupIndex)
+        if (selectedGroupLetter != null && !settingsManager.isBracketViewEnabled) {
+            containerGroupTable.visibility = View.VISIBLE
+            containerGroupTable.removeAllViews()
+            val standings = grandSlamGroupStandings[selectedGroupLetter] ?: emptyList()
+            val groupCard = TournamentBracketCardBuilder.createGroupCardView(
+                this,
+                resources.displayMetrics.density,
+                selectedGroupLetter,
+                standings,
+                isLargeLayout = true
+            )
+            containerGroupTable.addView(groupCard)
+        } else {
+            containerGroupTable.visibility = View.GONE
+            containerGroupTable.removeAllViews()
+        }
+
         if (settingsManager.isBracketViewEnabled) {
             scrollRoundPills.visibility = View.GONE
             layoutGroupSelector.visibility = View.GONE
@@ -538,6 +558,7 @@ class TournamentDetailActivity : BaseActivity() {
             layoutOpenDrawInfo.visibility = View.GONE
             scrollBoardPills.visibility = View.VISIBLE
             bracketView.visibility = View.VISIBLE
+            containerGroupTable.visibility = View.GONE
             setupQualifierBoardFilterChips(event, allRoundsMatches, scrollBoardPills, chipGroupBoards) { filteredRounds ->
                 bracketView.setRoundHeaders(availableRoundDisplayNames, roundStatuses)
                 bracketView.setRounds(
