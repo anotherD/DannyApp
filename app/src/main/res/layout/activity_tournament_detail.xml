@@ -167,157 +167,344 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <!-- 2. AKTIVER MODUS (Laufendes Turnier) -->
+    <!-- 2. KOPFKARTE AKTIV (Steuerungskarte) -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardActiveControls"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="12dp"
+        android:visibility="gone"
+        app:cardBackgroundColor="?attr/colorSurface"
+        app:cardCornerRadius="12dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        app:strokeColor="?attr/colorOutlineVariant"
+        app:strokeWidth="1dp"
+        tools:visibility="visible">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="12dp">
+
+            <TextView
+                android:id="@+id/tvActiveTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toStartOf="@id/btnPrizeInfoActive"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="World Matchplay" />
+
+            <!-- Info Icon -->
+            <ImageView
+                android:id="@+id/btnPrizeInfoActive"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginEnd="8dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:contentDescription="@string/tournament_preview_prizes_title"
+                android:focusable="true"
+                android:src="@drawable/ic_info"
+                app:layout_constraintBottom_toBottomOf="@id/tvStatusBadgeActive"
+                app:layout_constraintEnd_toStartOf="@id/tvStatusBadgeActive"
+                app:layout_constraintTop_toTopOf="@id/tvStatusBadgeActive"
+                app:tint="?attr/colorOnSurfaceVariant" />
+
+            <!-- Status Badge Top Right (shows active round name) -->
+            <TextView
+                android:id="@+id/tvStatusBadgeActive"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_skill_badge"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="3dp"
+                android:textColor="@color/white"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Achtelfinale" />
+
+            <TextView
+                android:id="@+id/tvActiveTypeBadge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_major_badge"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="3dp"
+                android:textColor="@color/white"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvActiveTitle"
+                tools:text="Major" />
+
+            <TextView
+                android:id="@+id/tvActiveHost"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:textSize="14sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvActiveTitle"
+                tools:text="🏴󠁧󠁢󠁥󠁮󠁧󠁿 Blackpool" />
+
+            <!-- Action Buttons -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:orientation="vertical"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvActiveTypeBadge">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/btnSimulateCpuMatches"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="4dp"
+                        android:layout_weight="1"
+                        android:text="@string/btn_simulate_cpu"
+                        android:textSize="12sp" />
+
+                    <Button
+                        android:id="@+id/btnAdvanceRound"
+                        style="@style/Widget.Material3.Button"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:layout_weight="1"
+                        android:text="@string/btn_advance_round"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/btnSimulateComplete"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="@string/tournament_simulate_complete"
+                    android:textSize="12sp"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
+            </LinearLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- 3. KOPFKARTE RÜCKBLICK (Zusammenfassungskarte) -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardReviewSummary"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="12dp"
+        android:visibility="gone"
+        app:cardBackgroundColor="?attr/colorSurface"
+        app:cardCornerRadius="12dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        app:strokeColor="?attr/colorOutlineVariant"
+        app:strokeWidth="1dp"
+        tools:visibility="gone">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="14dp">
+
+            <TextView
+                android:id="@+id/tvReviewTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toStartOf="@id/btnPrizeInfoReview"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="World Matchplay" />
+
+            <!-- Info Icon -->
+            <ImageView
+                android:id="@+id/btnPrizeInfoReview"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginEnd="8dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:contentDescription="@string/tournament_preview_prizes_title"
+                android:focusable="true"
+                android:src="@drawable/ic_info"
+                app:layout_constraintBottom_toBottomOf="@id/tvStatusBadgeReview"
+                app:layout_constraintEnd_toStartOf="@id/tvStatusBadgeReview"
+                app:layout_constraintTop_toTopOf="@id/tvStatusBadgeReview"
+                app:tint="?attr/colorOnSurfaceVariant" />
+
+            <TextView
+                android:id="@+id/tvStatusBadgeReview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_skill_badge"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="3dp"
+                android:textColor="@color/white"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Abgeschlossen" />
+
+            <TextView
+                android:id="@+id/tvReviewTypeBadge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_major_badge"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="3dp"
+                android:textColor="@color/white"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvReviewTitle"
+                tools:text="Major" />
+
+            <TextView
+                android:id="@+id/tvReviewHost"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:textSize="14sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvReviewTitle"
+                tools:text="🏴󠁧󠁢󠁥󠁮󠁧󠁿 Blackpool" />
+
+            <TextView
+                android:id="@+id/tvReviewWinnerLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/tournament_review_winner_label"
+                android:textColor="?attr/colorPrimary"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvReviewTypeBadge"
+                tools:text="Sieger:" />
+
+            <TextView
+                android:id="@+id/tvReviewWinner"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:textColor="?attr/colorPrimary"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:layout_constraintBaseline_toBaselineOf="@id/tvReviewWinnerLabel"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/tvReviewWinnerLabel"
+                tools:text="Luke Humphries" />
+
+            <TextView
+                android:id="@+id/tvReviewQualifierHeader"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/qualifier_winners_header"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvReviewTypeBadge"
+                tools:visibility="visible" />
+
+            <LinearLayout
+                android:id="@+id/layoutReviewQualifierWinnersList"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:orientation="vertical"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvReviewQualifierHeader"
+                tools:visibility="visible" />
+
+            <androidx.constraintlayout.widget.Barrier
+                android:id="@+id/barrierReviewBottom"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:barrierDirection="bottom"
+                app:constraint_referenced_ids="tvReviewWinner,layoutReviewQualifierWinnersList" />
+
+            <TextView
+                android:id="@+id/tvReviewUserRound"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:textSize="14sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/barrierReviewBottom"
+                tools:text="Deine erreichte Runde: Viertelfinale" />
+
+            <TextView
+                android:id="@+id/tvReviewUserPrize"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:textSize="14sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvReviewUserRound"
+                tools:text="Gewonnenes Preisgeld: £35,000" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Barrier unter den Kopfkarten -->
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/barrierTopHeaderCards"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="bottom"
+        app:constraint_referenced_ids="cardActiveControls,cardReviewSummary" />
+
+    <!-- 4. GEMEINSAMER INHALTSBEREICH (Aktives & Abgeschlossenes Turnier) -->
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/layoutActiveContainer"
+        android:id="@+id/layoutTournamentContent"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        app:layout_constraintTop_toBottomOf="@id/barrierTopHeaderCards"
         tools:visibility="visible">
-
-        <!-- Controls Card -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cardActiveControls"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_margin="12dp"
-            app:cardBackgroundColor="?attr/colorSurface"
-            app:cardCornerRadius="12dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:strokeColor="?attr/colorOutlineVariant"
-            app:strokeWidth="1dp">
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="12dp">
-
-                <TextView
-                    android:id="@+id/tvActiveTitle"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:textColor="?attr/colorOnSurface"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    app:layout_constraintEnd_toStartOf="@id/btnPrizeInfoActive"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    tools:text="World Matchplay" />
-
-                <!-- Info Icon -->
-                <ImageView
-                    android:id="@+id/btnPrizeInfoActive"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_marginEnd="8dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:clickable="true"
-                    android:contentDescription="@string/tournament_preview_prizes_title"
-                    android:focusable="true"
-                    android:src="@drawable/ic_info"
-                    app:layout_constraintBottom_toBottomOf="@id/tvStatusBadgeActive"
-                    app:layout_constraintEnd_toStartOf="@id/tvStatusBadgeActive"
-                    app:layout_constraintTop_toTopOf="@id/tvStatusBadgeActive"
-                    app:tint="?attr/colorOnSurfaceVariant" />
-
-                <!-- Status Badge Top Right (shows active round name) -->
-                <TextView
-                    android:id="@+id/tvStatusBadgeActive"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/bg_skill_badge"
-                    android:paddingHorizontal="8dp"
-                    android:paddingVertical="3dp"
-                    android:textColor="@color/white"
-                    android:textSize="11sp"
-                    android:textStyle="bold"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    tools:text="Achtelfinale" />
-
-                <TextView
-                    android:id="@+id/tvActiveTypeBadge"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:background="@drawable/bg_major_badge"
-                    android:paddingHorizontal="8dp"
-                    android:paddingVertical="3dp"
-                    android:textColor="@color/white"
-                    android:textSize="11sp"
-                    android:textStyle="bold"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/tvActiveTitle"
-                    tools:text="Major" />
-
-                <TextView
-                    android:id="@+id/tvActiveHost"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:textColor="?attr/colorOnSurfaceVariant"
-                    android:textSize="14sp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/tvActiveTitle"
-                    tools:text="🏴󠁧󠁢󠁥󠁮󠁧󠁿 Blackpool" />
-
-                <!-- Action Buttons -->
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:orientation="vertical"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/tvActiveTypeBadge">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-
-                        <Button
-                            android:id="@+id/btnSimulateCpuMatches"
-                            style="@style/Widget.Material3.Button.OutlinedButton"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginEnd="4dp"
-                            android:layout_weight="1"
-                            android:text="@string/btn_simulate_cpu"
-                            android:textSize="12sp" />
-
-                        <Button
-                            android:id="@+id/btnAdvanceRound"
-                            style="@style/Widget.Material3.Button"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="4dp"
-                            android:layout_weight="1"
-                            android:text="@string/btn_advance_round"
-                            android:textSize="12sp" />
-                    </LinearLayout>
-
-                    <Button
-                        android:id="@+id/btnSimulateComplete"
-                        style="@style/Widget.Material3.Button.OutlinedButton"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="@string/tournament_simulate_complete"
-                        android:textSize="12sp"
-                        android:visibility="gone"
-                        tools:visibility="visible" />
-                </LinearLayout>
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-        </com.google.android.material.card.MaterialCardView>
 
         <!-- Round Selector Chips (Outside & directly below upper Card) -->
         <HorizontalScrollView
@@ -331,7 +518,7 @@
             android:scrollbars="none"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/cardActiveControls">
+            app:layout_constraintTop_toTopOf="parent">
 
             <com.google.android.material.chip.ChipGroup
                 android:id="@+id/chipGroupRounds"
@@ -416,22 +603,21 @@
             android:layout_marginTop="6dp"
             android:clipToPadding="false"
             android:paddingHorizontal="12dp"
-            android:paddingBottom="88dp"
+            android:paddingBottom="72dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/layoutGroupSelector" />
 
-        <!-- Active Bracket ViewPager2 -->
-        <!-- Active Bracket Custom View -->
+        <!-- Tournament Bracket Custom View -->
         <com.danny.dannyapp.ui.tournament.TournamentBracketView
-            android:id="@+id/bracketViewActive"
+            android:id="@+id/bracketView"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginTop="6dp"
             android:clipChildren="false"
             android:clipToPadding="false"
-            android:paddingBottom="88dp"
+            android:paddingBottom="72dp"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -449,7 +635,7 @@
             android:orientation="vertical"
             android:paddingHorizontal="16dp"
             android:paddingTop="16dp"
-            android:paddingBottom="88dp"
+            android:paddingBottom="72dp"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -461,19 +647,19 @@
                 android:id="@+id/tvDrawAfterRoundInfo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingBottom="16dp"
                 android:text="@string/draw_after_round_info"
                 android:textColor="?attr/colorOnSurface"
                 android:textSize="16sp"
-                android:textStyle="bold"
-                android:gravity="center"
-                android:paddingBottom="16dp" />
+                android:textStyle="bold" />
 
             <ScrollView
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
                 android:clipToPadding="false"
-                android:paddingBottom="88dp"
+                android:paddingBottom="72dp"
                 android:scrollbars="vertical">
 
                 <LinearLayout
@@ -483,274 +669,6 @@
                     android:orientation="vertical" />
             </ScrollView>
         </LinearLayout>
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <!-- 3. RÜCKBLICK-MODUS (Abgeschlossenes Turnier) -->
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/layoutReviewContainer"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/toolbar"
-        tools:visibility="gone">
-
-        <!-- Winner & Summary Card -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cardReviewSummary"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_margin="12dp"
-            app:cardBackgroundColor="?attr/colorSurface"
-            app:cardCornerRadius="12dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:strokeColor="?attr/colorOutlineVariant"
-            app:strokeWidth="1dp">
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="14dp">
-
-                <TextView
-                    android:id="@+id/tvReviewTitle"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:textColor="?attr/colorOnSurface"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    app:layout_constraintEnd_toStartOf="@id/btnPrizeInfoReview"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    tools:text="World Matchplay" />
-
-                <!-- Info Icon -->
-                <ImageView
-                    android:id="@+id/btnPrizeInfoReview"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_marginEnd="8dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:clickable="true"
-                    android:contentDescription="@string/tournament_preview_prizes_title"
-                    android:focusable="true"
-                    android:src="@drawable/ic_info"
-                    app:layout_constraintBottom_toBottomOf="@id/tvStatusBadgeReview"
-                    app:layout_constraintEnd_toStartOf="@id/tvStatusBadgeReview"
-                    app:layout_constraintTop_toTopOf="@id/tvStatusBadgeReview"
-                    app:tint="?attr/colorOnSurfaceVariant" />
-
-                <TextView
-                    android:id="@+id/tvStatusBadgeReview"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/bg_skill_badge"
-                    android:paddingHorizontal="8dp"
-                    android:paddingVertical="3dp"
-                    android:textColor="@color/white"
-                    android:textSize="11sp"
-                    android:textStyle="bold"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    tools:text="Abgeschlossen" />
-
-                <TextView
-                    android:id="@+id/tvReviewTypeBadge"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:background="@drawable/bg_major_badge"
-                    android:paddingHorizontal="8dp"
-                    android:paddingVertical="3dp"
-                    android:textColor="@color/white"
-                    android:textSize="11sp"
-                    android:textStyle="bold"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/tvReviewTitle"
-                    tools:text="Major" />
-
-                <TextView
-                    android:id="@+id/tvReviewHost"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:textColor="?attr/colorOnSurfaceVariant"
-                    android:textSize="14sp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/tvReviewTitle"
-                    tools:text="🏴󠁧󠁢󠁥󠁮󠁧󠁿 Blackpool" />
-
-                <TextView
-                    android:id="@+id/tvReviewWinnerLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="@string/tournament_review_winner_label"
-                    android:textColor="?attr/colorPrimary"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/tvReviewTypeBadge"
-                    tools:text="Sieger:" />
-
-                <TextView
-                    android:id="@+id/tvReviewWinner"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="6dp"
-                    android:textColor="?attr/colorPrimary"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    app:layout_constraintBaseline_toBaselineOf="@id/tvReviewWinnerLabel"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@id/tvReviewWinnerLabel"
-                    tools:text="Luke Humphries" />
-
-                <TextView
-                    android:id="@+id/tvReviewQualifierHeader"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="@string/qualifier_winners_header"
-                    android:textColor="?attr/colorOnSurfaceVariant"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
-                    android:visibility="gone"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/tvReviewTypeBadge"
-                    tools:visibility="visible" />
-
-                <LinearLayout
-                    android:id="@+id/layoutReviewQualifierWinnersList"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:orientation="vertical"
-                    android:visibility="gone"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/tvReviewQualifierHeader"
-                    tools:visibility="visible" />
-
-                <androidx.constraintlayout.widget.Barrier
-                    android:id="@+id/barrierReviewBottom"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:barrierDirection="bottom"
-                    app:constraint_referenced_ids="tvReviewWinner,layoutReviewQualifierWinnersList" />
-
-                <TextView
-                    android:id="@+id/tvReviewUserRound"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:textColor="?attr/colorOnSurfaceVariant"
-                    android:textSize="14sp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/barrierReviewBottom"
-                    tools:text="Deine erreichte Runde: Viertelfinale" />
-
-                <TextView
-                    android:id="@+id/tvReviewUserPrize"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:textColor="?attr/colorOnSurfaceVariant"
-                    android:textSize="14sp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/tvReviewUserRound"
-                    tools:text="Gewonnenes Preisgeld: £35,000" />
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- Review Round Selector Chips (Outside & directly below summary Card) -->
-        <HorizontalScrollView
-            android:id="@+id/scrollReviewRoundPills"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:fadingEdgeLength="16dp"
-            android:paddingHorizontal="12dp"
-            android:requiresFadingEdge="horizontal"
-            android:scrollbars="none"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/cardReviewSummary">
-
-            <com.google.android.material.chip.ChipGroup
-                android:id="@+id/chipGroupReviewRounds"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:selectionRequired="true"
-                app:singleLine="true"
-                app:singleSelection="true" />
-        </HorizontalScrollView>
-
-        <!-- Review Board Selector Chips (for Qualifiers) -->
-        <HorizontalScrollView
-            android:id="@+id/scrollReviewBoardPills"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:fadingEdgeLength="16dp"
-            android:paddingHorizontal="12dp"
-            android:requiresFadingEdge="horizontal"
-            android:scrollbars="none"
-            android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/scrollReviewRoundPills"
-            tools:visibility="visible">
-
-            <com.google.android.material.chip.ChipGroup
-                android:id="@+id/chipGroupReviewBoards"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:selectionRequired="true"
-                app:singleLine="true"
-                app:singleSelection="true" />
-        </HorizontalScrollView>
-
-        <!-- Review Matches RecyclerView -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvReviewMatches"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginTop="6dp"
-            android:clipToPadding="false"
-            android:paddingHorizontal="12dp"
-            android:paddingBottom="55dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/scrollReviewBoardPills" />
-
-        <!-- Review Bracket ViewPager2 -->
-        <!-- Review Bracket Custom View -->
-        <com.danny.dannyapp.ui.tournament.TournamentBracketView
-            android:id="@+id/bracketViewReview"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginTop="6dp"
-            android:clipChildren="false"
-            android:clipToPadding="false"
-            android:paddingBottom="55dp"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/scrollReviewBoardPills"
-            tools:visibility="gone" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

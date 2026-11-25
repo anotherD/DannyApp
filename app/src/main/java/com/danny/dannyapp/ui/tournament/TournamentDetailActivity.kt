@@ -11,7 +11,6 @@ import android.widget.ProgressBar
 import android.widget.ScrollView
 import android.widget.TextView
 import androidx.activity.viewModels
-import com.google.android.material.snackbar.Snackbar
 import androidx.core.view.children
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -24,12 +23,15 @@ import com.danny.dannyapp.domain.enums.TournamentEvent
 import com.danny.dannyapp.ui.BaseActivity
 import com.danny.dannyapp.ui.UIHelper
 import com.danny.dannyapp.ui.enums.RoundStatus
+import com.danny.dannyapp.ui.model.EntrantGroupInfo
+import com.danny.dannyapp.ui.model.GrandSlamGroupItem
 import com.danny.dannyapp.ui.model.MatchUiModel
 import com.danny.dannyapp.ui.model.PrizeMoneyItem
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 
 class TournamentDetailActivity : BaseActivity() {
@@ -55,14 +57,8 @@ class TournamentDetailActivity : BaseActivity() {
     private lateinit var btnStartTournamentPreview: Button
     private var currentEvent: TournamentEvent? = null
 
-    // Active
-    private lateinit var cardActiveControls: MaterialCardView
-    private lateinit var layoutActiveContainer: View
-    private lateinit var tvActiveTitle: TextView
-    private lateinit var btnPrizeInfoActive: View
-    private lateinit var tvStatusBadgeActive: TextView
-    private lateinit var tvActiveTypeBadge: TextView
-    private lateinit var tvActiveHost: TextView
+    // Common Content
+    private lateinit var layoutTournamentContent: View
     private lateinit var scrollRoundPills: HorizontalScrollView
     private lateinit var chipGroupRounds: ChipGroup
     private lateinit var scrollBoardPills: HorizontalScrollView
@@ -70,19 +66,26 @@ class TournamentDetailActivity : BaseActivity() {
     private lateinit var layoutGroupSelector: View
     private lateinit var scrollGroupPills: HorizontalScrollView
     private lateinit var chipGroupGroups: ChipGroup
-    private lateinit var btnSimulateCpuMatches: Button
-    private lateinit var btnSimulateComplete: Button
-    private lateinit var btnAdvanceRound: Button
     private lateinit var rvMatches: RecyclerView
+    private lateinit var matchesAdapter: TournamentMatchAdapter
+    private lateinit var bracketView: TournamentBracketView
     private lateinit var layoutOpenDrawInfo: View
     private lateinit var tvDrawAfterRoundInfo: TextView
     private lateinit var layoutEntrantsContainer: LinearLayout
-    private lateinit var activeMatchesAdapter: TournamentMatchAdapter
-    private lateinit var bracketViewActive: TournamentBracketView
 
-    // Review
+    // Active Card
+    private lateinit var cardActiveControls: MaterialCardView
+    private lateinit var tvActiveTitle: TextView
+    private lateinit var btnPrizeInfoActive: View
+    private lateinit var tvStatusBadgeActive: TextView
+    private lateinit var tvActiveTypeBadge: TextView
+    private lateinit var tvActiveHost: TextView
+    private lateinit var btnSimulateCpuMatches: Button
+    private lateinit var btnSimulateComplete: Button
+    private lateinit var btnAdvanceRound: Button
+
+    // Review Card
     private lateinit var cardReviewSummary: MaterialCardView
-    private lateinit var layoutReviewContainer: View
     private lateinit var tvReviewTitle: TextView
     private lateinit var tvReviewTypeBadge: TextView
     private lateinit var tvReviewHost: TextView
@@ -94,13 +97,6 @@ class TournamentDetailActivity : BaseActivity() {
     private lateinit var tvStatusBadgeReview: TextView
     private lateinit var tvReviewUserRound: TextView
     private lateinit var tvReviewUserPrize: TextView
-    private lateinit var scrollReviewRoundPills: HorizontalScrollView
-    private lateinit var chipGroupReviewRounds: ChipGroup
-    private lateinit var scrollReviewBoardPills: HorizontalScrollView
-    private lateinit var chipGroupReviewBoards: ChipGroup
-    private lateinit var rvReviewMatches: RecyclerView
-    private lateinit var reviewMatchesAdapter: TournamentMatchAdapter
-    private lateinit var bracketViewReview: TournamentBracketView
     private lateinit var layoutSimulatingOverlay: View
 
     private var tournamentId: Long = -1L
@@ -113,7 +109,7 @@ class TournamentDetailActivity : BaseActivity() {
         val openDrawScrollView = (layoutOpenDrawInfo as? ViewGroup)?.children?.filterIsInstance<ScrollView>()?.firstOrNull()
         TournamentDetailUiHelper.attachHorizontalSwipe(
             views = listOfNotNull(layoutOpenDrawInfo, layoutEntrantsContainer, openDrawScrollView),
-            recyclerViews = listOf(rvMatches, rvReviewMatches),
+            recyclerViews = listOf(rvMatches),
             onSwipeLeft = { onSwipeNextRound() },
             onSwipeRight = { onSwipePreviousRound() }
         )
@@ -180,10 +176,8 @@ class TournamentDetailActivity : BaseActivity() {
         super.onResume()
         viewModel.onSettingsResumed()
         renderState(viewModel.uiState.value)
-        if (::activeMatchesAdapter.isInitialized) activeMatchesAdapter.notifyItemRangeChanged(0, activeMatchesAdapter.itemCount)
-        if (::reviewMatchesAdapter.isInitialized) reviewMatchesAdapter.notifyItemRangeChanged(0, reviewMatchesAdapter.itemCount)
-        if (::bracketViewActive.isInitialized) bracketViewActive.refreshStyles()
-        if (::bracketViewReview.isInitialized) bracketViewReview.refreshStyles()
+        if (::matchesAdapter.isInitialized) matchesAdapter.notifyItemRangeChanged(0, matchesAdapter.itemCount)
+        if (::bracketView.isInitialized) bracketView.refreshStyles()
     }
 
     private fun initViews() {
@@ -201,14 +195,8 @@ class TournamentDetailActivity : BaseActivity() {
         btnPrizeInfoPreview = findViewById(R.id.btnPrizeInfoPreview)
         btnStartTournamentPreview = findViewById(R.id.btnStartTournamentPreview)
 
-        // Active
-        cardActiveControls = findViewById(R.id.cardActiveControls)
-        layoutActiveContainer = findViewById(R.id.layoutActiveContainer)
-        tvActiveTitle = findViewById(R.id.tvActiveTitle)
-        btnPrizeInfoActive = findViewById(R.id.btnPrizeInfoActive)
-        tvStatusBadgeActive = findViewById(R.id.tvStatusBadgeActive)
-        tvActiveTypeBadge = findViewById(R.id.tvActiveTypeBadge)
-        tvActiveHost = findViewById(R.id.tvActiveHost)
+        // Common Content
+        layoutTournamentContent = findViewById(R.id.layoutTournamentContent)
         scrollRoundPills = findViewById(R.id.scrollRoundPills)
         chipGroupRounds = findViewById(R.id.chipGroupRounds)
         scrollBoardPills = findViewById(R.id.scrollBoardPills)
@@ -216,18 +204,25 @@ class TournamentDetailActivity : BaseActivity() {
         layoutGroupSelector = findViewById(R.id.layoutGroupSelector)
         scrollGroupPills = findViewById(R.id.scrollGroupPills)
         chipGroupGroups = findViewById(R.id.chipGroupGroups)
-        btnSimulateCpuMatches = findViewById(R.id.btnSimulateCpuMatches)
-        btnSimulateComplete = findViewById(R.id.btnSimulateComplete)
-        btnAdvanceRound = findViewById(R.id.btnAdvanceRound)
         rvMatches = findViewById(R.id.rvMatches)
-        bracketViewActive = findViewById(R.id.bracketViewActive)
+        bracketView = findViewById(R.id.bracketView)
         layoutOpenDrawInfo = findViewById(R.id.layoutOpenDrawInfo)
         tvDrawAfterRoundInfo = findViewById(R.id.tvDrawAfterRoundInfo)
         layoutEntrantsContainer = findViewById(R.id.layoutEntrantsContainer)
 
+        // Active
+        cardActiveControls = findViewById(R.id.cardActiveControls)
+        tvActiveTitle = findViewById(R.id.tvActiveTitle)
+        btnPrizeInfoActive = findViewById(R.id.btnPrizeInfoActive)
+        tvStatusBadgeActive = findViewById(R.id.tvStatusBadgeActive)
+        tvActiveTypeBadge = findViewById(R.id.tvActiveTypeBadge)
+        tvActiveHost = findViewById(R.id.tvActiveHost)
+        btnSimulateCpuMatches = findViewById(R.id.btnSimulateCpuMatches)
+        btnSimulateComplete = findViewById(R.id.btnSimulateComplete)
+        btnAdvanceRound = findViewById(R.id.btnAdvanceRound)
+
         // Review
         cardReviewSummary = findViewById(R.id.cardReviewSummary)
-        layoutReviewContainer = findViewById(R.id.layoutReviewContainer)
         tvReviewTitle = findViewById(R.id.tvReviewTitle)
         tvReviewTypeBadge = findViewById(R.id.tvReviewTypeBadge)
         tvReviewHost = findViewById(R.id.tvReviewHost)
@@ -239,12 +234,6 @@ class TournamentDetailActivity : BaseActivity() {
         tvStatusBadgeReview = findViewById(R.id.tvStatusBadgeReview)
         tvReviewUserRound = findViewById(R.id.tvReviewUserRound)
         tvReviewUserPrize = findViewById(R.id.tvReviewUserPrize)
-        scrollReviewRoundPills = findViewById(R.id.scrollReviewRoundPills)
-        chipGroupReviewRounds = findViewById(R.id.chipGroupReviewRounds)
-        scrollReviewBoardPills = findViewById(R.id.scrollReviewBoardPills)
-        chipGroupReviewBoards = findViewById(R.id.chipGroupReviewBoards)
-        rvReviewMatches = findViewById(R.id.rvReviewMatches)
-        bracketViewReview = findViewById(R.id.bracketViewReview)
 
         // FABs
         layoutFabContainer = findViewById(R.id.layoutFabContainer)
@@ -253,29 +242,22 @@ class TournamentDetailActivity : BaseActivity() {
     }
 
     private fun setupAdapters() {
-        activeMatchesAdapter = TournamentMatchAdapter { matchModel ->
-            if (!matchModel.isCompleted && matchModel.isUserMatch) {
+        matchesAdapter = TournamentMatchAdapter { matchModel ->
+            val state = viewModel.uiState.value
+            if (state is TournamentDetailState.Active && !matchModel.isCompleted && matchModel.isUserMatch) {
                 showUserMatchOptionsDialog(matchModel)
             }
         }
         rvMatches.layoutManager = LinearLayoutManager(this)
-        rvMatches.adapter = activeMatchesAdapter
+        rvMatches.adapter = matchesAdapter
 
-        reviewMatchesAdapter = TournamentMatchAdapter { /* read-only */ }
-        rvReviewMatches.layoutManager = LinearLayoutManager(this)
-        rvReviewMatches.adapter = reviewMatchesAdapter
-
-        bracketViewActive.onMatchClick = { matchModel ->
-            if (!matchModel.isCompleted && matchModel.isUserMatch) {
+        bracketView.onMatchClick = { matchModel ->
+            val state = viewModel.uiState.value
+            if (state is TournamentDetailState.Active && !matchModel.isCompleted && matchModel.isUserMatch) {
                 showUserMatchOptionsDialog(matchModel)
             }
         }
-        bracketViewActive.onRoundSelected = { index ->
-            viewModel.selectRound(index)
-        }
-
-        bracketViewReview.onMatchClick = { /* read-only */ }
-        bracketViewReview.onRoundSelected = { index ->
+        bracketView.onRoundSelected = { index ->
             viewModel.selectRound(index)
         }
     }
@@ -347,15 +329,17 @@ class TournamentDetailActivity : BaseActivity() {
             is TournamentDetailState.Loading -> {
                 pbLoading.visibility = View.VISIBLE
                 layoutPreviewContainer.visibility = View.GONE
-                layoutActiveContainer.visibility = View.GONE
-                layoutReviewContainer.visibility = View.GONE
+                cardActiveControls.visibility = View.GONE
+                cardReviewSummary.visibility = View.GONE
+                layoutTournamentContent.visibility = View.GONE
             }
 
             is TournamentDetailState.Preview -> {
                 pbLoading.visibility = View.GONE
                 layoutPreviewContainer.visibility = View.VISIBLE
-                layoutActiveContainer.visibility = View.GONE
-                layoutReviewContainer.visibility = View.GONE
+                cardActiveControls.visibility = View.GONE
+                cardReviewSummary.visibility = View.GONE
+                layoutTournamentContent.visibility = View.GONE
 
                 val activeCareerName = state.careerName.ifBlank { careerName }
                 setupToolbar(
@@ -383,8 +367,8 @@ class TournamentDetailActivity : BaseActivity() {
             is TournamentDetailState.Active -> {
                 pbLoading.visibility = View.GONE
                 layoutPreviewContainer.visibility = View.GONE
-                layoutActiveContainer.visibility = View.VISIBLE
-                layoutReviewContainer.visibility = View.GONE
+                cardActiveControls.visibility = View.VISIBLE
+                cardReviewSummary.visibility = View.GONE
 
                 val activeCareerName = state.careerName.ifBlank { careerName }
                 setupToolbar(
@@ -408,91 +392,28 @@ class TournamentDetailActivity : BaseActivity() {
 
                 currentPrizeMoneyItems = state.prizeMoneyItems
 
-                // Round Chips setup
-                TournamentDetailUiHelper.bindRoundChips(
-                    chipGroup = chipGroupRounds,
-                    scrollContainer = scrollRoundPills,
-                    roundDisplayNames = state.availableRoundDisplayNames,
+                renderTournamentContent(
+                    event = state.event,
+                    availableRoundDisplayNames = state.availableRoundDisplayNames,
                     roundStatuses = state.roundStatuses,
-                    selectedIndex = state.selectedRoundIndex,
-                    onRoundSelected = { index -> viewModel.selectRound(index) }
+                    selectedRoundIndex = state.selectedRoundIndex,
+                    availableGroups = state.availableGroups,
+                    selectedGroupIndex = state.selectedGroupIndex,
+                    matches = state.matches,
+                    allRoundsMatches = state.allRoundsMatches,
+                    grandSlamGroupStandings = state.grandSlamGroupStandings,
+                    isOpenDrawInfoVisible = state.isOpenDrawInfoVisible,
+                    prevRoundDisplayName = state.prevRoundDisplayName,
+                    openEntrantsGroups = state.openEntrantsGroups,
+                    openDrawInfoMap = state.openDrawInfoMap
                 )
-
-                // Group Chips setup
-                if (state.availableGroups.isNotEmpty()) {
-                    layoutGroupSelector.visibility = View.VISIBLE
-                    chipGroupGroups.removeAllViews()
-                    var selectedGroupChip: Chip? = null
-                    state.availableGroups.forEachIndexed { index, groupLetter ->
-                        val isSelected = (index == state.selectedGroupIndex)
-                        val chip = Chip(this).apply {
-                            text = getString(R.string.group_label, groupLetter)
-                            isCheckable = true
-                            isChecked = isSelected
-                            UIHelper.styleSelectionChip(this, isSelected)
-                            setOnClickListener {
-                                viewModel.selectGroup(index)
-                            }
-                        }
-                        chipGroupGroups.addView(chip)
-                        if (isSelected) {
-                            selectedGroupChip = chip
-                        }
-                    }
-                    selectedGroupChip?.let {
-                        UIHelper.centerViewInHorizontalScroll(scrollGroupPills, it)
-                    }
-                } else {
-                    layoutGroupSelector.visibility = View.GONE
-                }
-
-                if (settingsManager.isBracketViewEnabled) {
-                    scrollRoundPills.visibility = View.GONE
-                    layoutGroupSelector.visibility = View.GONE
-                    rvMatches.visibility = View.GONE
-                    layoutOpenDrawInfo.visibility = View.GONE
-                    scrollBoardPills.visibility = View.VISIBLE
-                    bracketViewActive.visibility = View.VISIBLE
-                    setupQualifierBoardFilterChips(state.event, state.allRoundsMatches, scrollBoardPills, chipGroupBoards) { filteredRounds ->
-                        bracketViewActive.setRoundHeaders(state.availableRoundDisplayNames, state.roundStatuses)
-                        bracketViewActive.setRounds(
-                            filteredRounds,
-                            state.selectedRoundIndex,
-                            state.grandSlamGroupStandings,
-                            state.prevRoundDisplayName,
-                            state.openEntrantsGroups,
-                            state.isOpenDrawInfoVisible,
-                            state.openDrawInfoMap
-                        )
-                        bracketViewActive.selectRound(state.selectedRoundIndex)
-                    }
-                } else {
-                    scrollBoardPills.visibility = View.GONE
-                    scrollRoundPills.visibility = View.VISIBLE
-                    bracketViewActive.visibility = View.GONE
-                    if (state.isOpenDrawInfoVisible) {
-                        rvMatches.visibility = View.GONE
-                        layoutOpenDrawInfo.visibility = View.VISIBLE
-                        tvDrawAfterRoundInfo.text = getString(R.string.draw_after_round_info, state.prevRoundDisplayName)
-                        if (state.openEntrantsGroups.isNotEmpty()) {
-                            TournamentDetailUiHelper.renderOpenDrawEntrants(this, layoutEntrantsContainer, state.openEntrantsGroups)
-                        } else {
-                            layoutEntrantsContainer.visibility = View.GONE
-                        }
-                    } else {
-                        rvMatches.visibility = View.VISIBLE
-                        layoutOpenDrawInfo.visibility = View.GONE
-                        activeMatchesAdapter.qualifierBoardCount = TournamentDetailUiHelper.getQualifierBoardCountFromRounds(state.event, state.allRoundsMatches)
-                        activeMatchesAdapter.submitList(state.matches)
-                    }
-                }
             }
 
             is TournamentDetailState.Review -> {
                 pbLoading.visibility = View.GONE
                 layoutPreviewContainer.visibility = View.GONE
-                layoutActiveContainer.visibility = View.GONE
-                layoutReviewContainer.visibility = View.VISIBLE
+                cardActiveControls.visibility = View.GONE
+                cardReviewSummary.visibility = View.VISIBLE
 
                 val activeCareerName = state.careerName.ifBlank { careerName }
                 setupToolbar(
@@ -529,38 +450,125 @@ class TournamentDetailActivity : BaseActivity() {
 
                 currentPrizeMoneyItems = state.prizeMoneyItems
 
-                // Round Chips
-                TournamentDetailUiHelper.bindRoundChips(
-                    chipGroup = chipGroupReviewRounds,
-                    scrollContainer = scrollReviewRoundPills,
-                    roundDisplayNames = state.availableRoundDisplayNames,
-                    selectedIndex = state.selectedRoundIndex,
-                    onRoundSelected = { index -> viewModel.selectRound(index) }
-                )
+                val reviewRoundStatuses = List(state.availableRoundDisplayNames.size) { RoundStatus.COMPLETED }
 
-                if (settingsManager.isBracketViewEnabled) {
-                    scrollReviewRoundPills.visibility = View.GONE
-                    rvReviewMatches.visibility = View.GONE
-                    bracketViewReview.visibility = View.VISIBLE
-                    val reviewRoundStatuses = List(state.availableRoundDisplayNames.size) { RoundStatus.COMPLETED }
-                    setupQualifierBoardFilterChips(state.event, state.allRoundsMatches, scrollReviewBoardPills, chipGroupReviewBoards) { filteredRounds ->
-                        bracketViewReview.setRoundHeaders(state.availableRoundDisplayNames, reviewRoundStatuses)
-                        bracketViewReview.setRounds(filteredRounds, state.selectedRoundIndex, state.grandSlamGroupStandings)
-                        bracketViewReview.selectRound(state.selectedRoundIndex)
-                    }
-                } else {
-                    scrollReviewBoardPills.visibility = View.GONE
-                    scrollReviewRoundPills.visibility = View.VISIBLE
-                    bracketViewReview.visibility = View.GONE
-                    rvReviewMatches.visibility = View.VISIBLE
-                    reviewMatchesAdapter.qualifierBoardCount = TournamentDetailUiHelper.getQualifierBoardCountFromRounds(state.event, state.allRoundsMatches)
-                    reviewMatchesAdapter.submitList(state.matches)
-                }
+                renderTournamentContent(
+                    event = state.event,
+                    availableRoundDisplayNames = state.availableRoundDisplayNames,
+                    roundStatuses = reviewRoundStatuses,
+                    selectedRoundIndex = state.selectedRoundIndex,
+                    availableGroups = state.availableGroups,
+                    selectedGroupIndex = state.selectedGroupIndex,
+                    matches = state.matches,
+                    allRoundsMatches = state.allRoundsMatches,
+                    grandSlamGroupStandings = state.grandSlamGroupStandings
+                )
             }
 
             is TournamentDetailState.Error -> {
                 pbLoading.visibility = View.VISIBLE
+                layoutPreviewContainer.visibility = View.GONE
+                cardActiveControls.visibility = View.GONE
+                cardReviewSummary.visibility = View.GONE
+                layoutTournamentContent.visibility = View.GONE
                 showMessage(state.message, isError = true, duration = Snackbar.LENGTH_LONG)
+            }
+        }
+    }
+
+    private fun renderTournamentContent(
+        event: TournamentEvent,
+        availableRoundDisplayNames: List<String>,
+        roundStatuses: List<RoundStatus>,
+        selectedRoundIndex: Int,
+        availableGroups: List<String>,
+        selectedGroupIndex: Int,
+        matches: List<MatchUiModel>,
+        allRoundsMatches: List<List<MatchUiModel>>,
+        grandSlamGroupStandings: Map<String, List<GrandSlamGroupItem>>,
+        isOpenDrawInfoVisible: Boolean = false,
+        prevRoundDisplayName: String = "",
+        openEntrantsGroups: List<EntrantGroupInfo> = emptyList(),
+        openDrawInfoMap: Map<Int, Pair<String, List<EntrantGroupInfo>>> = emptyMap()
+    ) {
+        layoutTournamentContent.visibility = View.VISIBLE
+
+        // Round Chips setup
+        TournamentDetailUiHelper.bindRoundChips(
+            chipGroup = chipGroupRounds,
+            scrollContainer = scrollRoundPills,
+            roundDisplayNames = availableRoundDisplayNames,
+            roundStatuses = roundStatuses,
+            selectedIndex = selectedRoundIndex,
+            onRoundSelected = { index -> viewModel.selectRound(index) }
+        )
+
+        // Group Chips setup
+        if (availableGroups.isNotEmpty()) {
+            layoutGroupSelector.visibility = View.VISIBLE
+            chipGroupGroups.removeAllViews()
+            var selectedGroupChip: Chip? = null
+            availableGroups.forEachIndexed { index, groupLetter ->
+                val isSelected = (index == selectedGroupIndex)
+                val chip = Chip(this).apply {
+                    text = getString(R.string.group_label, groupLetter)
+                    isCheckable = true
+                    isChecked = isSelected
+                    UIHelper.styleSelectionChip(this, isSelected)
+                    setOnClickListener {
+                        viewModel.selectGroup(index)
+                    }
+                }
+                chipGroupGroups.addView(chip)
+                if (isSelected) {
+                    selectedGroupChip = chip
+                }
+            }
+            selectedGroupChip?.let {
+                UIHelper.centerViewInHorizontalScroll(scrollGroupPills, it)
+            }
+        } else {
+            layoutGroupSelector.visibility = View.GONE
+        }
+
+        if (settingsManager.isBracketViewEnabled) {
+            scrollRoundPills.visibility = View.GONE
+            layoutGroupSelector.visibility = View.GONE
+            rvMatches.visibility = View.GONE
+            layoutOpenDrawInfo.visibility = View.GONE
+            scrollBoardPills.visibility = View.VISIBLE
+            bracketView.visibility = View.VISIBLE
+            setupQualifierBoardFilterChips(event, allRoundsMatches, scrollBoardPills, chipGroupBoards) { filteredRounds ->
+                bracketView.setRoundHeaders(availableRoundDisplayNames, roundStatuses)
+                bracketView.setRounds(
+                    filteredRounds,
+                    selectedRoundIndex,
+                    grandSlamGroupStandings,
+                    prevRoundDisplayName,
+                    openEntrantsGroups,
+                    isOpenDrawInfoVisible,
+                    openDrawInfoMap
+                )
+                bracketView.selectRound(selectedRoundIndex)
+            }
+        } else {
+            scrollBoardPills.visibility = View.GONE
+            scrollRoundPills.visibility = View.VISIBLE
+            bracketView.visibility = View.GONE
+            if (isOpenDrawInfoVisible) {
+                rvMatches.visibility = View.GONE
+                layoutOpenDrawInfo.visibility = View.VISIBLE
+                tvDrawAfterRoundInfo.text = getString(R.string.draw_after_round_info, prevRoundDisplayName)
+                if (openEntrantsGroups.isNotEmpty()) {
+                    TournamentDetailUiHelper.renderOpenDrawEntrants(this, layoutEntrantsContainer, openEntrantsGroups)
+                } else {
+                    layoutEntrantsContainer.visibility = View.GONE
+                }
+            } else {
+                rvMatches.visibility = View.VISIBLE
+                layoutOpenDrawInfo.visibility = View.GONE
+                matchesAdapter.qualifierBoardCount = TournamentDetailUiHelper.getQualifierBoardCountFromRounds(event, allRoundsMatches)
+                matchesAdapter.submitList(matches)
             }
         }
     }
@@ -708,32 +716,23 @@ class TournamentDetailActivity : BaseActivity() {
 
     private fun onFocusUserMatchClicked() {
         val state = viewModel.uiState.value
+        val roundIndex = when (state) {
+            is TournamentDetailState.Active -> state.selectedRoundIndex
+            is TournamentDetailState.Review -> state.selectedRoundIndex
+            else -> return
+        }
+        val matches = when (state) {
+            is TournamentDetailState.Active -> state.matches
+            is TournamentDetailState.Review -> state.matches
+            else -> emptyList()
+        }
+
         if (settingsManager.isBracketViewEnabled) {
-            val bracketView = when (state) {
-                is TournamentDetailState.Active -> bracketViewActive
-                is TournamentDetailState.Review -> bracketViewReview
-                else -> return
-            }
-            val roundIndex = when (state) {
-                is TournamentDetailState.Active -> state.selectedRoundIndex
-                is TournamentDetailState.Review -> state.selectedRoundIndex
-                else -> 0
-            }
             bracketView.scrollToUserMatch(roundIndex)
         } else {
-            val filteredMatches = when (state) {
-                is TournamentDetailState.Active -> state.matches
-                is TournamentDetailState.Review -> state.matches
-                else -> emptyList()
-            }
-            val userMatchIndex = filteredMatches.indexOfFirst { matchUiModel -> matchUiModel.isUserMatch }
+            val userMatchIndex = matches.indexOfFirst { matchUiModel -> matchUiModel.isUserMatch }
             if (userMatchIndex == -1) return
-            val targetRecyclerView = when (state) {
-                is TournamentDetailState.Active -> rvMatches
-                is TournamentDetailState.Review -> rvReviewMatches
-                else -> return
-            }
-            TournamentDetailUiHelper.scrollToMatchCentered(targetRecyclerView, userMatchIndex)
+            TournamentDetailUiHelper.scrollToMatchCentered(rvMatches, userMatchIndex)
         }
     }
 
