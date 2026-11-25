@@ -64,7 +64,7 @@ class TournamentDetailActivity : BaseActivity() {
     private lateinit var scrollBoardPills: HorizontalScrollView
     private lateinit var chipGroupBoards: ChipGroup
     private lateinit var layoutGroupSelector: View
-    private lateinit var chipGroupGroups: ChipGroup
+    private lateinit var layoutGroupRows: LinearLayout
     private lateinit var rvMatches: RecyclerView
     private lateinit var matchesAdapter: TournamentMatchAdapter
     private lateinit var bracketView: TournamentBracketView
@@ -202,7 +202,7 @@ class TournamentDetailActivity : BaseActivity() {
         scrollBoardPills = findViewById(R.id.scrollBoardPills)
         chipGroupBoards = findViewById(R.id.chipGroupBoards)
         layoutGroupSelector = findViewById(R.id.layoutGroupSelector)
-        chipGroupGroups = findViewById(R.id.chipGroupGroups)
+        layoutGroupRows = findViewById(R.id.layoutGroupRows)
         rvMatches = findViewById(R.id.rvMatches)
         bracketView = findViewById(R.id.bracketView)
         layoutOpenDrawInfo = findViewById(R.id.layoutOpenDrawInfo)
@@ -503,28 +503,52 @@ class TournamentDetailActivity : BaseActivity() {
             onRoundSelected = { index -> viewModel.selectRound(index) }
         )
 
-        // Group Chips setup
+        // Group Chips setup (8 equal-width pills per row)
         if (availableGroups.isNotEmpty()) {
             layoutGroupSelector.visibility = View.VISIBLE
-            chipGroupGroups.removeAllViews()
+            layoutGroupRows.removeAllViews()
             val density = resources.displayMetrics.density
-            val horizontalPadding = (8 * density).toInt()
-            availableGroups.forEachIndexed { index, groupLetter ->
-                val isSelected = (index == selectedGroupIndex)
-                val chip = Chip(this).apply {
-                    text = getString(R.string.group_label_nav, groupLetter)
-                    textAlignment = View.TEXT_ALIGNMENT_CENTER
-                    isCheckable = true
-                    isChecked = isSelected
-                    setEnsureMinTouchTargetSize(false)
-                    chipStartPadding = horizontalPadding.toFloat()
-                    chipEndPadding = horizontalPadding.toFloat()
-                    UIHelper.styleSelectionChip(this, isSelected)
-                    setOnClickListener {
-                        viewModel.selectGroup(index)
+            val spacingPx = (4 * density).toInt()
+
+            availableGroups.chunked(8).forEachIndexed { rowIndex, rowGroups ->
+                val rowLayout = LinearLayout(this).apply {
+                    orientation = LinearLayout.HORIZONTAL
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                    ).apply {
+                        if (rowIndex > 0) topMargin = spacingPx
                     }
                 }
-                chipGroupGroups.addView(chip)
+
+                rowGroups.forEachIndexed { colIndex, groupLetter ->
+                    val globalIndex = rowIndex * 8 + colIndex
+                    val isSelected = (globalIndex == selectedGroupIndex)
+                    val chip = Chip(this).apply {
+                        text = getString(R.string.group_label_nav, groupLetter)
+                        textAlignment = View.TEXT_ALIGNMENT_CENTER
+                        isCheckable = true
+                        isChecked = isSelected
+                        setEnsureMinTouchTargetSize(false)
+                        minWidth = 0
+                        minimumWidth = 0
+                        chipStartPadding = 0f
+                        chipEndPadding = 0f
+                        UIHelper.styleSelectionChip(this, isSelected)
+                        layoutParams = LinearLayout.LayoutParams(
+                            0,
+                            LinearLayout.LayoutParams.WRAP_CONTENT,
+                            1f
+                        ).apply {
+                            if (colIndex > 0) marginStart = spacingPx
+                        }
+                        setOnClickListener {
+                            viewModel.selectGroup(globalIndex)
+                        }
+                    }
+                    rowLayout.addView(chip)
+                }
+                layoutGroupRows.addView(rowLayout)
             }
         } else {
             layoutGroupSelector.visibility = View.GONE

@@ -576,16 +576,12 @@
                 android:textSize="14sp"
                 android:textStyle="bold" />
 
-            <com.google.android.material.chip.ChipGroup
-                android:id="@+id/chipGroupGroups"
+            <LinearLayout
+                android:id="@+id/layoutGroupRows"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                app:chipSpacingHorizontal="4dp"
-                app:chipSpacingVertical="4dp"
-                app:selectionRequired="true"
-                app:singleLine="false"
-                app:singleSelection="true" />
+                android:orientation="vertical" />
         </LinearLayout>
 
         <!-- Group Standings Table Container (for Grand Slam List View) -->
@@ -594,7 +590,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="12dp"
-            android:layout_marginTop="6dp"
+            android:layout_marginTop="18dp"
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
