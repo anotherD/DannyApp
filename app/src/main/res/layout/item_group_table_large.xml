@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp"
+    app:strokeWidth="1dp"
+    app:strokeColor="@color/grau_rahmen_dunkel"
+    app:cardBackgroundColor="@color/anthrazit_flaeche">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="10dp">
+
+        <!-- Kopfzeile -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tvGroupTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:textColor="@color/white"
+                tools:text="Gruppe A" />
+
+            <TextView
+                android:layout_width="36dp"
+                android:layout_height="wrap_content"
+                android:gravity="end|center_vertical"
+                android:text="@string/group_table_header_played"
+                android:textColor="@color/grau_text_gedaempft"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:maxLines="1"
+                android:fontFeatureSettings="tnum" />
+
+            <TextView
+                android:layout_width="48dp"
+                android:layout_height="wrap_content"
+                android:gravity="end|center_vertical"
+                android:text="@string/group_table_header_diff"
+                android:textColor="@color/grau_text_gedaempft"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:maxLines="1"
+                android:fontFeatureSettings="tnum" />
+
+            <TextView
+                android:layout_width="40dp"
+                android:layout_height="wrap_content"
+                android:gravity="end|center_vertical"
+                android:text="@string/group_table_header_points"
+                android:textColor="@color/grau_text_gedaempft"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:maxLines="1"
+                android:fontFeatureSettings="tnum" />
+        </LinearLayout>
+
+        <!-- Trennlinie -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginVertical="6dp"
+            android:background="@color/grau_rahmen_dunkel" />
+
+        <!-- 3 Spielerzeilen -->
+        <LinearLayout
+            android:id="@+id/rowGroupPlayer1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="2dp"
+            android:paddingVertical="4dp">
+
+            <TextView
+                android:id="@+id/tvGroupRank1"
+                android:layout_width="22dp"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                tools:text="1." />
+
+            <TextView
+                android:id="@+id/tvGroupName1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textSize="14sp"
+                android:maxLines="1"
+                android:ellipsize="end"
+                tools:text="Spieler 1" />
+
+            <TextView
+                android:id="@+id/tvGroupPlayed1"
+                android:layout_width="36dp"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:gravity="end|center_vertical"
+                android:maxLines="1"
+                android:fontFeatureSettings="tnum"
+                tools:text="2" />
+
+            <TextView
+                android:id="@+id/tvGroupDiff1"
+                android:layout_width="48dp"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:gravity="end|center_vertical"
+                android:maxLines="1"
+                android:fontFeatureSettings="tnum"
+                tools:text="+3" />
+
+            <TextView
+                android:id="@+id/tvGroupPoints1"
+                android:layout_width="40dp"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:gravity="end|center_vertical"
+                android:maxLines="1"
+                android:fontFeatureSettings="tnum"
+                tools:text="4" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/rowGroupPlayer2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="2dp"
+            android:paddingVertical="4dp">
+
+            <TextView
+                android:id="@+id/tvGroupRank2"
+                android:layout_width="22dp"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                tools:text="2." />
+
+            <TextView
+                android:id="@+id/tvGroupName2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textSize="14sp"
+                android:maxLines="1"
+                android:ellipsize="end"
+                tools:text="Spieler 2" />
+
+            <TextView
+                android:id="@+id/tvGroupPlayed2"
+                android:layout_width="36dp"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:gravity="end|center_vertical"
+                android:maxLines="1"
+                android:fontFeatureSettings="tnum"
+                tools:text="2" />
+
+            <TextView
+                android:id="@+id/tvGroupDiff2"
+                android:layout_width="48dp"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:gravity="end|center_vertical"
+                android:maxLines="1"
+                android:fontFeatureSettings="tnum"
+                tools:text="+0" />
+
+            <TextView
+                android:id="@+id/tvGroupPoints2"
+                android:layout_width="40dp"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:gravity="end|center_vertical"
+                android:maxLines="1"
+                android:fontFeatureSettings="tnum"
+                tools:text="2" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/rowGroupPlayer3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="2dp"
+            android:paddingVertical="4dp">
+
+            <TextView
+                android:id="@+id/tvGroupRank3"
+                android:layout_width="22dp"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                tools:text="3." />
+
+            <TextView
+                android:id="@+id/tvGroupName3"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textSize="14sp"
+                android:maxLines="1"
+                android:ellipsize="end"
+                tools:text="Spieler 3" />
+
+            <TextView
+                android:id="@+id/tvGroupPlayed3"
+                android:layout_width="36dp"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:gravity="end|center_vertical"
+                android:maxLines="1"
+                android:fontFeatureSettings="tnum"
+                tools:text="2" />
+
+            <TextView
+                android:id="@+id/tvGroupDiff3"
+                android:layout_width="48dp"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:gravity="end|center_vertical"
+                android:maxLines="1"
+                android:fontFeatureSettings="tnum"
+                tools:text="-3" />
+
+            <TextView
+                android:id="@+id/tvGroupPoints3"
+                android:layout_width="40dp"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:gravity="end|center_vertical"
+                android:maxLines="1"
+                android:fontFeatureSettings="tnum"
+                tools:text="0" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

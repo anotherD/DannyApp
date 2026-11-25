@@ -62,13 +62,8 @@ class TournamentBracketView @JvmOverloads constructor(
         return grandSlamGroupStandings.isNotEmpty() && (firstMatchRoundKey == TournamentRound.GROUP.name)
     }
 
-    private fun getTileHeightForRound(@Suppress("UNUSED_PARAMETER") roundIndex: Int): Float {
-        return 68f * density
-    }
-
-    private fun getSlotHeightForRound(roundIndex: Int): Float {
-        return 76f * density
-    }
+    private val TILE_HEIGHT_DP = 68f
+    private val SLOT_HEIGHT_DP = 76f
 
     private var selectedRoundIndex: Int = 0
     private var focusedRoundFloat: Float = 0f
@@ -489,8 +484,8 @@ class TournamentBracketView @JvmOverloads constructor(
      *   verankert.
      */
     private fun computeIntegerFocusY(roundIndex: Int, matchIndex: Int, focusInt: Int): Float {
-        val tileHeight = getTileHeightForRound(roundIndex)
-        val baseSlotHeight = getSlotHeightForRound(roundIndex)
+        val tileHeight = TILE_HEIGHT_DP * density
+        val baseSlotHeight = SLOT_HEIGHT_DP * density
         val headerHeight = if (isGrandSlamGroupStage()) 60f * density else 40f * density
         val paddingTopPx = paddingTop.toFloat() + headerHeight + 8f * density
 
@@ -539,7 +534,7 @@ class TournamentBracketView @JvmOverloads constructor(
                 val parentY = computeIntegerFocusY(roundIndex + 1, matchIndex / 2, focusInt)
                 val distanceToFocus = focusInt - roundIndex
                 val spreadFactor = 0.5f.pow(distanceToFocus + 1)
-                val verticalOffset = if (matchIndex % 2 == 0) -spreadFactor * getSlotHeightForRound(roundIndex) else spreadFactor * getSlotHeightForRound(roundIndex)
+                val verticalOffset = if (matchIndex % 2 == 0) -spreadFactor * SLOT_HEIGHT_DP * density else spreadFactor * SLOT_HEIGHT_DP * density
                 parentY + verticalOffset
             } else {
                 val targetMatchIndex = getTargetMatchIndex(roundIndex, matchIndex)
@@ -566,7 +561,7 @@ class TournamentBracketView @JvmOverloads constructor(
         val roundViews = matchViews.getOrNull(currentRoundInt) ?: return 0f
         if (roundViews.isEmpty()) return 0f
 
-        val tileHeight = getTileHeightForRound(currentRoundInt)
+        val tileHeight = TILE_HEIGHT_DP * density
         // Maximum über alle Kacheln der Runde bilden, damit Vorrunden vollständig scrollbar sind
         val maxCenterY = roundViews.indices.maxOf { tileIndex ->
             computeMatchCenterY(currentRoundInt, tileIndex, focus)
@@ -594,7 +589,7 @@ class TournamentBracketView @JvmOverloads constructor(
         for ((roundIndex, list) in matchViews.withIndex()) {
             val roundMatches = roundsMatches.getOrNull(roundIndex)
             val isOpenDraw = roundMatches.isNullOrEmpty() && (openDrawInfoMap.containsKey(roundIndex) || openEntrantsGroups.isNotEmpty() || isOpenDrawInfoVisible)
-            val tileH = getTileHeightForRound(roundIndex).toInt()
+            val tileH = (TILE_HEIGHT_DP * density).toInt()
             val childHeightSpec = MeasureSpec.makeMeasureSpec(tileH, MeasureSpec.EXACTLY)
             for (child in list) {
                 if (isOpenDraw) {
@@ -658,7 +653,7 @@ class TournamentBracketView @JvmOverloads constructor(
 
             val roundMatches = roundsMatches.getOrNull(roundIndex)
             val isOpenDraw = roundMatches.isNullOrEmpty() && (openDrawInfoMap.containsKey(roundIndex) || openEntrantsGroups.isNotEmpty() || isOpenDrawInfoVisible)
-            val tileHeight = getTileHeightForRound(roundIndex)
+            val tileHeight = TILE_HEIGHT_DP * density
 
             val diff = focusedRoundFloat - roundIndex
             val scale = if (diff <= 0f) {
