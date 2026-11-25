@@ -2,6 +2,7 @@ package com.danny.dannyapp.data.db
 
 import android.content.Context
 import com.danny.dannyapp.domain.config.TournamentConfigLoader
+import com.danny.dannyapp.domain.enums.TournamentEvent
 import com.danny.dannyapp.domain.model.OrderOfMeritEntry
 import com.danny.dannyapp.domain.usecase.GenerateSeasonCalendarUseCase
 import kotlinx.coroutines.Dispatchers
@@ -166,7 +167,7 @@ class SeasonRepository(
     /**
      * Erstellt eine neue Saison für eine Karriere und generiert den Saisonkalender sowie die Tour-Cards.
      */
-    suspend fun createSeason(careerId: Long): Long = withContext(Dispatchers.IO) {
+    suspend fun createSeason(careerId: Long, shortTestSeason: Boolean = false): Long = withContext(Dispatchers.IO) {
         val currentSeason = seasonDao.getCurrentSeasonForCareer(careerId)
         val nextSeasonNumber = (currentSeason?.seasonNumber ?: 0) + 1
 
@@ -189,7 +190,7 @@ class SeasonRepository(
         tourCardDao.insertTourCards(tourCards)
 
         val generateCalendarUseCase = GenerateSeasonCalendarUseCase(tournamentRepository)
-        generateCalendarUseCase(seasonId)
+        generateCalendarUseCase(seasonId, shortTestSeason)
 
         seasonId
     }
@@ -205,6 +206,9 @@ class SeasonRepository(
         require(careerId > 0L) { "Ungültige Karriere-ID: $careerId" }
         val currentSeason = seasonDao.getCurrentSeasonForCareer(careerId)
         requireNotNull(currentSeason) { "Keine aktuelle Saison für Karriere-ID $careerId gefunden" }
+
+        val currentTournaments = tournamentRepository.getTournamentsListForSeason(currentSeason.id)
+        val isShortTestSeason = currentTournaments.count { it.type == TournamentEvent.PLAYERS_CHAMPIONSHIP.name } == 3
 
         seasonDao.updateSeason(currentSeason.copy(isCompleted = true))
 
@@ -225,7 +229,7 @@ class SeasonRepository(
         tourCardDao.insertTourCards(tourCards)
 
         val generateCalendarUseCase = GenerateSeasonCalendarUseCase(tournamentRepository)
-        generateCalendarUseCase(newSeasonId)
+        generateCalendarUseCase(newSeasonId, isShortTestSeason)
 
         newSeasonId
     }

@@ -33,7 +33,7 @@ class CareerRepository(
         careerDao.getCareerCountForProfile(profileId)
     }
 
-    suspend fun saveCareer(career: Career, prefillOrderOfMerit: Boolean = true): Long = withContext(Dispatchers.IO) {
+    suspend fun saveCareer(career: Career, prefillOrderOfMerit: Boolean = true, shortTestSeason: Boolean = false): Long = withContext(Dispatchers.IO) {
         val isNewCareer = career.id == 0L
         val careerId = careerDao.insertCareer(career)
         if (isNewCareer) {
@@ -41,7 +41,7 @@ class CareerRepository(
                 checkNotNull(initializeCareerOomUseCase) { "InitializeCareerOomUseCase wurde nicht initialisiert" }
                 initializeCareerOomUseCase(careerId)
             }
-            seasonRepository.createSeason(careerId)
+            seasonRepository.createSeason(careerId, shortTestSeason)
         }
         careerId
     }

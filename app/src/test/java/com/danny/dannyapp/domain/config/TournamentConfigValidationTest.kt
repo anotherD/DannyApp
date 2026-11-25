@@ -189,20 +189,7 @@ class TournamentConfigValidationTest {
         }
     }
 
-    @Test
-    fun invalidCalendarOrderThrowsIllegalStateException() {
-        val root = JSONObject(loadValidJsonString())
-        val calendarArray = root.getJSONArray("calendar")
-        for (i in 0 until calendarArray.length()) {
-            val entry = calendarArray.getJSONObject(i)
-            if (entry.getString("type") == "EUROPEAN_CHAMPIONSHIP") {
-                entry.put("order", 1)
-            }
-        }
-        assertThrows(IllegalStateException::class.java) {
-            TournamentConfigLoader.parse(root.toString())
-        }
-    }
+
 
     @Test
     fun invalidJsonThrowsIllegalStateException() {
@@ -277,6 +264,42 @@ class TournamentConfigValidationTest {
 
         assertThrows(IllegalStateException::class.java) {
             TournamentConfigLoader.parse(invalidJson)
+        }
+    }
+
+    @Test
+    fun calendarEntryWithOrderThrowsIllegalArgumentException() {
+        val root = JSONObject(loadValidJsonString())
+        val calendarArray = root.getJSONArray("calendar")
+        val firstEntry = calendarArray.getJSONObject(0)
+        firstEntry.put("order", 1)
+        assertThrows(IllegalArgumentException::class.java) {
+            TournamentConfigLoader.parse(root.toString())
+        }
+    }
+
+    @Test
+    fun emptyCalendarThrowsIllegalArgumentException() {
+        val root = JSONObject(loadValidJsonString())
+        val calendarArray = root.getJSONArray("calendar")
+        while (calendarArray.length() > 0) {
+            calendarArray.remove(0)
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            TournamentConfigLoader.parse(root.toString())
+        }
+    }
+
+    @Test
+    fun verifyNoOrderFieldInCalendarJson() {
+        val file = File("src/main/assets/season_calendar_2027.json").let {
+            if (it.exists()) it else File("app/src/main/assets/season_calendar_2027.json")
+        }
+        val root = JSONObject(file.readText())
+        val calendarArray = root.getJSONArray("calendar")
+        for (i in 0 until calendarArray.length()) {
+            val entry = calendarArray.getJSONObject(i)
+            assertTrue("Kalendereintrag darf kein 'order'-Feld enthalten", !entry.has("order"))
         }
     }
 }

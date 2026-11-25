@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -109,5 +110,15 @@
         android:layout_marginTop="8dp"
         android:text="@string/careers_create_prefill_oom"
         android:checked="true" />
+
+    <com.google.android.material.checkbox.MaterialCheckBox
+        android:id="@+id/cbShortTestSeason"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/careers_create_short_test_season"
+        android:checked="false"
+        android:visibility="gone"
+        tools:visibility="visible" />
 
 </LinearLayout>

@@ -33,9 +33,9 @@ class CareersViewModel(application: Application) : AndroidViewModel(application)
         return userProfileRepository.getUserProfiles()
     }
 
-    suspend fun saveCareer(career: Career, prefillOrderOfMerit: Boolean = true): SaveCareerResult {
+    suspend fun saveCareer(career: Career, prefillOrderOfMerit: Boolean = true, shortTestSeason: Boolean = false): SaveCareerResult {
         return try {
-            careerRepository.saveCareer(career, prefillOrderOfMerit)
+            careerRepository.saveCareer(career, prefillOrderOfMerit, shortTestSeason)
             SaveCareerResult.Success(career.name, career.level)
         } catch (e: Exception) {
             getApplication<Application>().appContainer.reportError("Karriere-Aktion", e)

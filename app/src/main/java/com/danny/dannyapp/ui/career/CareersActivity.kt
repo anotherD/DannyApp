@@ -2,6 +2,7 @@ package com.danny.dannyapp.ui.career
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.AutoCompleteTextView
 import android.widget.Button
 import android.widget.LinearLayout
@@ -177,6 +178,9 @@ class CareersActivity : BaseActivity() {
         val autoCompleteMatchDistance = dialogView.findViewById<AutoCompleteTextView>(R.id.autoCompleteMatchDistance)
         val btnMatchDistanceInfo = dialogView.findViewById<android.widget.ImageView>(R.id.btnMatchDistanceInfo)
         val cbPrefillOom = dialogView.findViewById<com.google.android.material.checkbox.MaterialCheckBox>(R.id.cbPrefillOom)
+        val cbShortTestSeason = dialogView.findViewById<com.google.android.material.checkbox.MaterialCheckBox>(R.id.cbShortTestSeason)
+
+        cbShortTestSeason.visibility = if (debugMode) View.VISIBLE else View.GONE
 
         val matchDistancePresets = MatchDistancePreset.entries
         var selectedMatchDistancePreset = MatchDistancePreset.DEFAULT
@@ -228,6 +232,7 @@ class CareersActivity : BaseActivity() {
                 } else {
                     val level = numberPickerLevel.value
                     val prefillOom = cbPrefillOom.isChecked
+                    val shortTestSeason = debugMode && cbShortTestSeason.isChecked
                     val newCareer = Career(
                         name = careerName,
                         level = level,
@@ -235,7 +240,7 @@ class CareersActivity : BaseActivity() {
                         matchDistancePreset = selectedMatchDistancePreset.name
                     )
                     lifecycleScope.launch {
-                        when (val result = viewModel.saveCareer(newCareer, prefillOom)) {
+                        when (val result = viewModel.saveCareer(newCareer, prefillOom, shortTestSeason)) {
                             is SaveCareerResult.Success -> {
                                 showMessage(getString(R.string.careers_career_created, result.careerName, result.level))
                                 dialog.dismiss()

@@ -9,6 +9,7 @@
     <string name="careers_empty_state">Noch keine Karrieren vorhanden.\nErstelle deine erste Karriere über den Button unten.</string>
     <string name="careers_create_new">Neue Karriere anlegen</string>
     <string name="careers_create_prefill_oom">Order of Merit vorbefüllen</string>
+    <string name="careers_create_short_test_season">Kurze Test-Saison (3 PC / 3 ET)</string>
     <string name="careers_create_name_hint">Karrierename</string>
     <string name="careers_create_level">Level</string>
     <string name="careers_create_positive_button">Anlegen</string>

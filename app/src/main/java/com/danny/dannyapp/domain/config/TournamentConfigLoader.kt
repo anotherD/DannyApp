@@ -179,9 +179,12 @@ object TournamentConfigLoader {
         val calendar = mutableListOf<CalendarEntryConfig>()
         for (index in 0 until calendarJson.length()) {
             val entryJson = calendarJson.getJSONObject(index)
+            require(!entryJson.has("order")) {
+                "Redundantes 'order'-Feld im Kalender-Eintrag '${entryJson.optString("name")}' ist nicht mehr erlaubt"
+            }
             calendar.add(
                 CalendarEntryConfig(
-                    order = entryJson.getInt("order"),
+                    order = index + 1,
                     name = entryJson.getString("name"),
                     type = TournamentEvent.valueOf(entryJson.getString("type")),
                     hostCountry = entryJson.getString("hostCountry"),
@@ -330,6 +333,7 @@ object TournamentConfigLoader {
     }
 
     private fun validateCalendar(calendar: List<CalendarEntryConfig>) {
+        require(calendar.isNotEmpty()) { "Der Saisonkalender darf nicht leer sein." }
         val orders = calendar.map { it.order }
         val expectedOrders = (1..calendar.size).toSet()
         if (orders.toSet() != expectedOrders) {
