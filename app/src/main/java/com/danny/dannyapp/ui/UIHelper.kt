@@ -528,24 +528,23 @@ object UIHelper {
         val fadeDrawable = object : Drawable() {
 
             override fun draw(canvas: Canvas) {
-                val view = scrollableView
-                if (view.width <= 0 || view.height <= 0) return
+                if (scrollableView.width <= 0 || scrollableView.height <= 0) return
 
                 // Bounds direkt vor dem Zeichnen explizit aktualisieren
-                setBounds(0, 0, view.width, view.height)
+                setBounds(0, 0, scrollableView.width, scrollableView.height)
 
-                val fadePx = view.resources
+                val fadePx = scrollableView.resources
                     .getDimensionPixelSize(R.dimen.fading_edge_length).toFloat()
-                val w = view.width.toFloat()
-                val h = view.height.toFloat()
+                val w = scrollableView.width.toFloat()
+                val h = scrollableView.height.toFloat()
 
-                val colorSolid = ContextCompat.getColor(view.context, R.color.anthrazit_hintergrund)
+                val colorSolid = ContextCompat.getColor(scrollableView.context, R.color.anthrazit_hintergrund)
                 val midColor   = ColorUtils.setAlphaComponent(colorSolid, 90)   // ~35 % Deckkraft
                 val colorTransp = ColorUtils.setAlphaComponent(colorSolid, 0)
 
                 // ── Oberer Verlauf ──────────────────────────────────────────────────────────
-                if (view.canScrollVertically(-1)) {
-                    val scrollOffset = getVerticalScrollOffset(view).toFloat()
+                if (scrollableView.canScrollVertically(-1)) {
+                    val scrollOffset = getVerticalScrollOffset(scrollableView).toFloat()
                     val alphaFraction = (scrollOffset / fadePx).coerceIn(0f, 1f)
 
                     fadePaint.shader = LinearGradient(
@@ -559,10 +558,10 @@ object UIHelper {
                 }
 
                 // ── Unterer Verlauf ─────────────────────────────────────────────────────────
-                if (view.canScrollVertically(1)) {
-                    val scrollRange  = getVerticalScrollRange(view).toFloat()
-                    val scrollExtent = getVerticalScrollExtent(view).toFloat()
-                    val scrollOffset = getVerticalScrollOffset(view).toFloat()
+                if (scrollableView.canScrollVertically(1)) {
+                    val scrollRange  = getVerticalScrollRange(scrollableView).toFloat()
+                    val scrollExtent = getVerticalScrollExtent(scrollableView).toFloat()
+                    val scrollOffset = getVerticalScrollOffset(scrollableView).toFloat()
                     val remaining = (scrollRange - scrollExtent - scrollOffset).coerceAtLeast(0f)
                     val alphaFraction = (remaining / fadePx).coerceIn(0f, 1f)
 
