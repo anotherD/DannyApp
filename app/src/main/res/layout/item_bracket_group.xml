@@ -31,7 +31,7 @@
                 android:gravity="center"
                 android:rotation="-90"
                 android:maxLines="1"
-                android:textSize="10sp"
+                android:textSize="11sp"
                 android:textColor="@color/grau_text_gedaempft"
                 tools:text="Gruppe A" />
         </FrameLayout>
@@ -62,7 +62,7 @@
                     android:id="@+id/tvGroupRank1"
                     android:layout_width="14dp"
                     android:layout_height="wrap_content"
-                    android:textSize="10sp"
+                    android:textSize="12sp"
                     tools:text="1." />
 
                 <TextView
@@ -70,34 +70,34 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:textSize="10sp"
+                    android:textSize="12sp"
                     android:maxLines="1"
                     android:ellipsize="end"
                     tools:text="Spieler 1" />
 
                 <TextView
                     android:id="@+id/tvGroupPlayed1"
-                    android:layout_width="26dp"
+                    android:layout_width="18dp"
                     android:layout_height="wrap_content"
-                    android:textSize="10sp"
+                    android:textSize="12sp"
                     android:gravity="end|center_vertical"
                     android:fontFeatureSettings="tnum"
                     tools:text="2" />
 
                 <TextView
                     android:id="@+id/tvGroupDiff1"
-                    android:layout_width="36dp"
+                    android:layout_width="26dp"
                     android:layout_height="wrap_content"
-                    android:textSize="10sp"
+                    android:textSize="12sp"
                     android:gravity="end|center_vertical"
                     android:fontFeatureSettings="tnum"
                     tools:text="+3" />
 
                 <TextView
                     android:id="@+id/tvGroupPoints1"
-                    android:layout_width="28dp"
+                    android:layout_width="20dp"
                     android:layout_height="wrap_content"
-                    android:textSize="10sp"
+                    android:textSize="12sp"
                     android:gravity="end|center_vertical"
                     android:fontFeatureSettings="tnum"
                     tools:text="4" />
@@ -116,7 +116,7 @@
                     android:id="@+id/tvGroupRank2"
                     android:layout_width="14dp"
                     android:layout_height="wrap_content"
-                    android:textSize="10sp"
+                    android:textSize="12sp"
                     tools:text="2." />
 
                 <TextView
@@ -124,34 +124,34 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:textSize="10sp"
+                    android:textSize="12sp"
                     android:maxLines="1"
                     android:ellipsize="end"
                     tools:text="Spieler 2" />
 
                 <TextView
                     android:id="@+id/tvGroupPlayed2"
-                    android:layout_width="26dp"
+                    android:layout_width="18dp"
                     android:layout_height="wrap_content"
-                    android:textSize="10sp"
+                    android:textSize="12sp"
                     android:gravity="end|center_vertical"
                     android:fontFeatureSettings="tnum"
                     tools:text="2" />
 
                 <TextView
                     android:id="@+id/tvGroupDiff2"
-                    android:layout_width="36dp"
+                    android:layout_width="26dp"
                     android:layout_height="wrap_content"
-                    android:textSize="10sp"
+                    android:textSize="12sp"
                     android:gravity="end|center_vertical"
                     android:fontFeatureSettings="tnum"
                     tools:text="+0" />
 
                 <TextView
                     android:id="@+id/tvGroupPoints2"
-                    android:layout_width="28dp"
+                    android:layout_width="20dp"
                     android:layout_height="wrap_content"
-                    android:textSize="10sp"
+                    android:textSize="12sp"
                     android:gravity="end|center_vertical"
                     android:fontFeatureSettings="tnum"
                     tools:text="2" />
@@ -170,7 +170,7 @@
                     android:id="@+id/tvGroupRank3"
                     android:layout_width="14dp"
                     android:layout_height="wrap_content"
-                    android:textSize="10sp"
+                    android:textSize="12sp"
                     tools:text="3." />
 
                 <TextView
@@ -178,34 +178,34 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:textSize="10sp"
+                    android:textSize="12sp"
                     android:maxLines="1"
                     android:ellipsize="end"
                     tools:text="Spieler 3" />
 
                 <TextView
                     android:id="@+id/tvGroupPlayed3"
-                    android:layout_width="26dp"
+                    android:layout_width="18dp"
                     android:layout_height="wrap_content"
-                    android:textSize="10sp"
+                    android:textSize="12sp"
                     android:gravity="end|center_vertical"
                     android:fontFeatureSettings="tnum"
                     tools:text="2" />
 
                 <TextView
                     android:id="@+id/tvGroupDiff3"
-                    android:layout_width="36dp"
+                    android:layout_width="26dp"
                     android:layout_height="wrap_content"
-                    android:textSize="10sp"
+                    android:textSize="12sp"
                     android:gravity="end|center_vertical"
                     android:fontFeatureSettings="tnum"
-                    tools:text="-3" />
+                    tools:text="-13" />
 
                 <TextView
                     android:id="@+id/tvGroupPoints3"
-                    android:layout_width="28dp"
+                    android:layout_width="20dp"
                     android:layout_height="wrap_content"
-                    android:textSize="10sp"
+                    android:textSize="12sp"
                     android:gravity="end|center_vertical"
                     android:fontFeatureSettings="tnum"
                     tools:text="0" />

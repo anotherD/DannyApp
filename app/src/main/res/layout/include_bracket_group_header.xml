@@ -28,34 +28,34 @@
             android:layout_weight="1" />
 
         <TextView
-            android:layout_width="26dp"
+            android:layout_width="18dp"
             android:layout_height="wrap_content"
             android:gravity="end|center_vertical"
             android:text="@string/group_table_header_played"
             android:textColor="@color/grau_text_gedaempft"
-            android:textSize="10sp"
+            android:textSize="12sp"
             android:textStyle="bold"
             android:maxLines="1"
             android:fontFeatureSettings="tnum" />
 
         <TextView
-            android:layout_width="36dp"
+            android:layout_width="26dp"
             android:layout_height="wrap_content"
             android:gravity="end|center_vertical"
             android:text="@string/group_table_header_diff"
             android:textColor="@color/grau_text_gedaempft"
-            android:textSize="10sp"
+            android:textSize="12sp"
             android:textStyle="bold"
             android:maxLines="1"
             android:fontFeatureSettings="tnum" />
 
         <TextView
-            android:layout_width="28dp"
+            android:layout_width="20dp"
             android:layout_height="wrap_content"
             android:gravity="end|center_vertical"
             android:text="@string/group_table_header_points"
             android:textColor="@color/grau_text_gedaempft"
-            android:textSize="10sp"
+            android:textSize="12sp"
             android:textStyle="bold"
             android:maxLines="1"
             android:fontFeatureSettings="tnum" />

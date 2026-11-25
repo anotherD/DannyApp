@@ -47,7 +47,7 @@
                 android:fontFeatureSettings="tnum" />
 
             <TextView
-                android:layout_width="48dp"
+                android:layout_width="34dp"
                 android:layout_height="wrap_content"
                 android:gravity="end|center_vertical"
                 android:text="@string/group_table_header_diff"
@@ -58,7 +58,7 @@
                 android:fontFeatureSettings="tnum" />
 
             <TextView
-                android:layout_width="40dp"
+                android:layout_width="28dp"
                 android:layout_height="wrap_content"
                 android:gravity="end|center_vertical"
                 android:text="@string/group_table_header_points"
@@ -115,17 +115,17 @@
 
             <TextView
                 android:id="@+id/tvGroupDiff1"
-                android:layout_width="48dp"
+                android:layout_width="34dp"
                 android:layout_height="wrap_content"
                 android:textSize="14sp"
                 android:gravity="end|center_vertical"
                 android:maxLines="1"
                 android:fontFeatureSettings="tnum"
-                tools:text="+3" />
+                tools:text="+13" />
 
             <TextView
                 android:id="@+id/tvGroupPoints1"
-                android:layout_width="40dp"
+                android:layout_width="28dp"
                 android:layout_height="wrap_content"
                 android:textSize="14sp"
                 android:gravity="end|center_vertical"
@@ -172,7 +172,7 @@
 
             <TextView
                 android:id="@+id/tvGroupDiff2"
-                android:layout_width="48dp"
+                android:layout_width="34dp"
                 android:layout_height="wrap_content"
                 android:textSize="14sp"
                 android:gravity="end|center_vertical"
@@ -182,7 +182,7 @@
 
             <TextView
                 android:id="@+id/tvGroupPoints2"
-                android:layout_width="40dp"
+                android:layout_width="28dp"
                 android:layout_height="wrap_content"
                 android:textSize="14sp"
                 android:gravity="end|center_vertical"
@@ -229,7 +229,7 @@
 
             <TextView
                 android:id="@+id/tvGroupDiff3"
-                android:layout_width="48dp"
+                android:layout_width="34dp"
                 android:layout_height="wrap_content"
                 android:textSize="14sp"
                 android:gravity="end|center_vertical"
@@ -239,7 +239,7 @@
 
             <TextView
                 android:id="@+id/tvGroupPoints3"
-                android:layout_width="40dp"
+                android:layout_width="28dp"
                 android:layout_height="wrap_content"
                 android:textSize="14sp"
                 android:gravity="end|center_vertical"
