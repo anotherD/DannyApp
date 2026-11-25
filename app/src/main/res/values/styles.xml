@@ -44,6 +44,7 @@
         <!-- Rahmenlinien & Trennstriche -->
         <item name="colorOutline">@color/grau_rahmen</item>
         <item name="colorOutlineVariant">@color/grau_rahmen_dunkel</item>
+        <item name="android:fadingEdgeLength">@dimen/fading_edge_length</item>
 
         <!-- Globaler Stil für TextInputLayout (setzt Hint-Farbe nur im leeren Zustand) -->
         <item name="textInputStyle">@style/Widget.DannyApp.TextInputLayout.OutlinedBox</item>

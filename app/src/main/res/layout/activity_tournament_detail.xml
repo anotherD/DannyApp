@@ -40,6 +40,7 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:padding="16dp"
+            android:requiresFadingEdge="vertical"
             app:layout_constraintBottom_toTopOf="@id/btnStartTournamentPreview"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -512,7 +513,6 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:fadingEdgeLength="16dp"
             android:paddingHorizontal="12dp"
             android:requiresFadingEdge="horizontal"
             android:scrollbars="none"
@@ -535,7 +535,6 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:fadingEdgeLength="16dp"
             android:paddingHorizontal="12dp"
             android:requiresFadingEdge="horizontal"
             android:scrollbars="none"
@@ -606,6 +605,7 @@
             android:clipToPadding="false"
             android:paddingHorizontal="12dp"
             android:paddingBottom="72dp"
+            android:requiresFadingEdge="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -662,6 +662,7 @@
                 android:layout_weight="1"
                 android:clipToPadding="false"
                 android:paddingBottom="72dp"
+                android:requiresFadingEdge="vertical"
                 android:scrollbars="vertical">
 
                 <LinearLayout

@@ -121,6 +121,7 @@
             android:clipToPadding="false"
             android:fillViewport="true"
             android:paddingTop="4dp"
+            android:requiresFadingEdge="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

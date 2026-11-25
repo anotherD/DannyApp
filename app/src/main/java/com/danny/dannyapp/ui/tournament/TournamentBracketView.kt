@@ -3,7 +3,9 @@ package com.danny.dannyapp.ui.tournament
 import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.Canvas
+import android.graphics.LinearGradient
 import android.graphics.Paint
+import android.graphics.Shader
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.text.TextUtils
@@ -95,6 +97,7 @@ class TournamentBracketView @JvmOverloads constructor(
         strokeWidth = 2.5f * density
         style = Paint.Style.STROKE
     }
+    private val fadingEdgePaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
     init {
         setWillNotDraw(false)
@@ -820,6 +823,38 @@ class TournamentBracketView @JvmOverloads constructor(
             for (child in list) {
                 drawChild(canvas, child, dTime)
             }
+        }
+
+        val fadingEdgeLength = resources.getDimensionPixelSize(R.dimen.fading_edge_length).toFloat()
+        val maxScroll = maxScrollYForCurrentFocus()
+        val backgroundColor = ContextCompat.getColor(context, R.color.anthrazit_hintergrund)
+        val transparentColor = backgroundColor and 0x00FFFFFF
+
+        if (scrollYOffset > 0.5f) {
+            val topAlphaFraction = (scrollYOffset / fadingEdgeLength).coerceIn(0f, 1f)
+            val topShader = LinearGradient(
+                0f, clipTop,
+                0f, clipTop + fadingEdgeLength,
+                backgroundColor, transparentColor,
+                Shader.TileMode.CLAMP
+            )
+            fadingEdgePaint.shader = topShader
+            fadingEdgePaint.alpha = (255 * topAlphaFraction).roundToInt()
+            canvas.drawRect(0f, clipTop, width.toFloat(), clipTop + fadingEdgeLength, fadingEdgePaint)
+        }
+
+        if (scrollYOffset < maxScroll - 0.5f) {
+            val remainingScroll = maxScroll - scrollYOffset
+            val bottomAlphaFraction = (remainingScroll / fadingEdgeLength).coerceIn(0f, 1f)
+            val bottomShader = LinearGradient(
+                0f, height.toFloat() - fadingEdgeLength,
+                0f, height.toFloat(),
+                transparentColor, backgroundColor,
+                Shader.TileMode.CLAMP
+            )
+            fadingEdgePaint.shader = bottomShader
+            fadingEdgePaint.alpha = (255 * bottomAlphaFraction).roundToInt()
+            canvas.drawRect(0f, height.toFloat() - fadingEdgeLength, width.toFloat(), height.toFloat(), fadingEdgePaint)
         }
 
         canvas.restore()

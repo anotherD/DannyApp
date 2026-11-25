@@ -125,6 +125,8 @@ object CareerDistanceInfoDialog {
                     ViewGroup.LayoutParams.MATCH_PARENT
                 )
                 isFillViewport = true
+                isVerticalFadingEdgeEnabled = true
+                setFadingEdgeLength(context.resources.getDimensionPixelSize(R.dimen.fading_edge_length))
                 setOnScrollChangeListener { sourceView, _, scrollY, _, _ ->
                     if (!isSyncingScroll) {
                         sharedScrollY = scrollY

@@ -120,12 +120,16 @@ object TournamentDialogs {
         val rv = RecyclerView(context).apply {
             layoutManager = LinearLayoutManager(context)
             adapter = PrizeMoneyAdapter().apply { submitList(prizeMoneyItems) }
+            isVerticalFadingEdgeEnabled = true
+            setFadingEdgeLength(context.resources.getDimensionPixelSize(R.dimen.fading_edge_length))
         }
         tab0Layout.addView(rv)
         rootLayout.addView(tab0Layout)
 
         val tab1ScrollView = ScrollView(context).apply {
             visibility = View.GONE
+            isVerticalFadingEdgeEnabled = true
+            setFadingEdgeLength(context.resources.getDimensionPixelSize(R.dimen.fading_edge_length))
         }
         val tab1Layout = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
