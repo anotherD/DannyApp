@@ -36,11 +36,12 @@ Beim Anlegen einer neuen Karriere entscheidet der User über eine Option (**„O
 
 ## 🔄 3. Vergabe in Folgesaisons (Saison N+1)
 
-Beim Saisonwechsel wird die bisherige Saison als abgeschlossen markiert und die nächste Saison (`seasonNumber + 1`) angelegt:
-* **Geplante Order-of-Merit-Logik:** Spieler im 1. Jahr steigen ins 2. Jahr auf (`tourCardYear = 2`). Spieler im 2. Jahr verlieren ihre Card, sofern sie nicht in den Top 64 der 2-Jahres-Order-of-Merit (`OOM`) stehen. Freie Plätze werden über die Q-School aufgefüllt (`tourCardYear = 1`).
-* **Aktuelle Übergangslogik:** Nutzt dieselbe Übernahme- und Auffülllogik wie Saison 1.
-
----
+Nach Abschluss aller Turniere einer Saison wird der Saisonwechsel nicht automatisch ausgelöst, sondern explizit vom User über die **Saison-Zusammenfassung** gestartet (`AdvanceSeasonUseCase`). Dabei wird die bisherige Saison abgeschlossen, optional das Karriere-Level angepasst, `Career.season` auf `seasonNumber + 1` erhöht und der neue Saisonkalender ohne erneute OOM-Vorbefüllung angelegt:
+* **Top-64- & Tour-Card-Jahr-Regel:** Alle 128 Tour-Card-Inhaber der Vorsaison (inklusive `USER_ID = -1L`) werden gegen die Top 64 der aktuellen 2-Jahres-Order-of-Merit (`OOM`) geprüft:
+  * Spieler in den **Top 64** behalten ihre Tour Card (Jahr 1 steigt auf `tourCardYear = 2` auf; Jahr 2 bleibt bei `tourCardYear = 2`).
+  * Spieler außerhalb der Top 64 im **1. Jahr** (`tourCardYear == 1`) behalten ihre Tour Card und steigen ins 2. Jahr auf (`tourCardYear = 2`).
+  * Spieler außerhalb der Top 64 im **2. Jahr** (`tourCardYear == 2`) verlieren ihre Tour Card (gilt auch für `USER_ID`).
+* **Q-School-Simulation (Auffüllung auf 128 Cards mit `tourCardYear = 1`):** Alle Spieler ohne Tour Card (inklusive soeben ausgeschiedener Spieler) nehmen an der Q-School teil. Hat `USER_ID` seine Tour Card verloren, gewinnt er die Q-School vorläufig garantiert (`tourCardYear = 1`); die verbleibenden freien Plätze werden absteigend nach `skill` (bei gleicher Spielstärke zufällig gemischt) aus den CPU-Kandidaten besetzt.
 
 ## 🏆 4. Turnierteilnahmen & Entkopplung der Match-Zuweisung
 

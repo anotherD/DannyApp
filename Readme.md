@@ -45,12 +45,12 @@ Ausführliche Fachkonzepte, Forschungsberichte und Architekturbeschreibungen bef
     - [ ] Spielsteuerung & Match-Engine (Wurf-Verarbeitung, Bot-Wurf-Timing, Caller/SoundPool-Engine).
     - [ ] Scolia-Steuerung (Match starten, beenden, neustarten, Reconnect & Fehlerbehandlung).
 - [ ] **Saison-Abschluss & Folgesaisons (Basis):**
-    - [ ] Berechnung der Tour Cards für Saison N+1 anhand der 2-Jahres-Order-of-Merit (Top 64 behalten Card, 2. Jahr verfällt).
-    - [ ] Rudimentäre Q-School-Simulation (zufällige Auffüllung neuer Tour-Card-Inhaber).
+    - [x] Berechnung der Tour Cards für Saison N+1 anhand der 2-Jahres-Order-of-Merit (Top 64 behalten Card, 2. Jahr verfällt).
+    - [x] Rudimentäre Q-School-Simulation (User gewinnt garantiert bei Card-Verlust; freie CPU-Plätze nach Spielstärke mit Zufallsauswahl bei Gleichstand) sowie Saison-Zusammenfassung und Level-Anpassung beim Saisonwechsel.
 - [ ] **Karriere-Verwaltung & Übersicht ausbauen:**
     - [x] Auf der Karrieren-Liste (`CareersActivity`) zusätzlich anzeigen, bei welchem Turnier und welcher Runde die Karriere aktuell steht.
     - [x] Karriere-Name nachträglich bearbeitbar machen.
-    - [ ] Karriere-Level hochsetzen ermöglichen (z. B. gezielt nach Saisonende, damit die Karriere bei steigendem eigenem Können spannend bleibt).
+    - [x] Karriere-Level hochsetzen ermöglichen (beim Saisonwechsel über die Saison-Zusammenfassung, damit die Karriere bei steigendem eigenem Können spannend bleibt).
     - [ ] Karriere-Übersicht (`CareerOverviewFragment`) um zentrale Infos ergänzen:
         - [ ] Direktanzeige „Nächstes Match“ zum schnellen Losspielen (über Einstellungen ein-/ausschaltbar, um das Turnier-Feeling bei Bedarf zu erhalten).
         - [x] Aktuelle Saison sowie eigene Positionen in den Ranglisten (`OOM`, `PT OOM`, `PC OOM`, `ET OOM`).
@@ -88,7 +88,7 @@ Ausführliche Fachkonzepte, Forschungsberichte und Architekturbeschreibungen bef
     - [ ] Option für den User, einzelne Turniere abzusagen (inkl. Nachrücker-Regelung).
     - [ ] Dynamische CPU-Absagen (Top-Stars lassen öfter Players Championships aus; Spieler spielen häufiger, wenn ihre Major-Qualifikation oder Tour Card wackelt).
 - [ ] **Erweiterte Q-School & Saison-Warnungen:**
-    - [ ] Spielbare/simulierte Q-School am Saisonende für User (bei Tour-Card-Verlust) und CPU-Spieler.
+    - [ ] Spielbare Q-School am Saisonende für User (bei Tour-Card-Verlust) statt automatischem Gewinn der Tour Card.
     - [ ] Saison-Warnung im 2. Tour-Card-Jahr: Anzeige, wie viel Preisgeld zum sicheren Erhalt der Tour Card (Top 64) fehlt.
 - [ ] **Saison-Historie & Erfolge:** Übersicht abgeschlossener Saisons mit Titeln, besten Major-Resultaten und Karriere-Meilensteinen des Users.
 - [ ] **Optionale Non-Ranking-Events:** Integration von *Premier League*, *World Masters* und *World Series of Darts (inkl. Finals)*.

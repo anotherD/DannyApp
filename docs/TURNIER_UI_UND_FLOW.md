@@ -10,9 +10,10 @@ Dieses Dokument beschreibt die Benutzeroberfläche und den Interaktions-Flow fü
 * **Top-Bar & Breadcrumbs:** Jede Unterseite zeigt als Titel den gewählten Bereich (z. B. `Saisonkalender`, `Turnieransicht`, `Ranglisten`) und als Subtitel den automatischen Breadcrumb-Pfad aus `AppScreen` (z. B. `Karrieren > <Karrierename> (Saison X)` bzw. mit Kalender-Icon in der Turnieransicht).
 * **Karrieren-Kacheln & Übersicht:** Zeigen Karrierename, aktuelle Saison, Level, Profilname sowie Spielername inklusive Landesflagge. Über das Kontextmenü (Long-Press) lassen sich bestehende Karrieren umbenennen oder löschen.
 * **Eigenständige Seiten aus der Karriere-Ansicht (`CareerDetailActivity`):**
-    1. **Karriere-Übersicht (`CareerDetailActivity`):** Kompakte Karriere-Infos, klickbare Anzeige der eigenen Positionen und Preisgelder in allen 4 Ranglisten (`OOM`, `PT OOM`, `PC OOM`, `ET OOM`), Schnellzugriffs-Kacheln rechts daneben (oben: Saisonkalender, unten: Statistiken) sowie Direktzugriff auf das aktuelle oder nächste Turnier.
-    2. **Saisonkalender (`SeasonCalendarActivity`):** Chronologische Übersicht aller Turniere der aktiven Saison.
-    3. **Ranglisten (`OrderOfMeritActivity`):** Auswahl der 4 dynamischen Ranglisten (`OOM`, `PT OOM`, `PC OOM`, `ET OOM`) mit direkter Vorauswahl beim Klick aus der Karriere-Übersicht.
+    1. **Karriere-Übersicht (`CareerDetailActivity`):** Kompakte Karriere-Infos, klickbare Anzeige der eigenen Positionen und Preisgelder in allen 4 Ranglisten (`OOM`, `PT OOM`, `PC OOM`, `ET OOM`), Schnellzugriffs-Kacheln rechts daneben (oben: Saisonkalender, unten: Statistiken) sowie Direktzugriff auf das aktuelle oder nächste Turnier. Sind alle Turniere der Saison beendet, erscheint stattdessen der Hinweis *„Alle Turniere wurden gespielt, die Saison ist beendet“* mit dem Button **„Saison beenden“**.
+    2. **Saisonabschluss (`SeasonSummaryActivity`):** Vollbild-Zusammenfassung der abgelaufenen Saison (persönliche Bilanz und Saison-Highlights) mit dem Button **„Nächste Saison (X) starten“**, der vor dem Saisonwechsel einen Dialog zur optionalen Anpassung des Karriere-Levels öffnet.
+    3. **Saisonkalender (`SeasonCalendarActivity`):** Chronologische Übersicht aller Turniere der aktiven Saison.
+    4. **Ranglisten (`OrderOfMeritActivity`):** Auswahl der 4 dynamischen Ranglisten (`OOM`, `PT OOM`, `PC OOM`, `ET OOM`) mit direkter Vorauswahl beim Klick aus der Karriere-Übersicht.
 
 ---
 

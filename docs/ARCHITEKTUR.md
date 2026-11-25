@@ -105,6 +105,8 @@ Wenn du `initial_placements.csv` in den Assets bearbeitest:
 * **`CalculateGroupStandingsUseCase`**: Single Source of Truth für Grand-Slam-Gruppentabellen und Tabellenberechnung.
 * **`GetTournamentSummaryUseCase`**: Einheitliche Zustandsermittlung (`COMPLETED`/`ACTIVE`/`PLANNED`), Sieger- & User-Platzierungs-Zusammenfassung für den Saisonkalender und die Detailansicht.
 * **`GetOrderOfMeritUseCase`**: Berechnet und liefert die 4 dynamischen Ranglisten (`OOM`, `PT OOM`, `PC OOM`, `ET OOM`).
+* **`GetSeasonSummaryUseCase`**: Berechnet nach Abschluss aller Saisonturniere die persönliche Bilanz (Endplatzierungen, Match-Bilanz, bestes Ergebnis, Tour-Card-Status) sowie die Saison-Highlights (Weltmeister, Major-Sieger, OOM-Spitzenreiter, Aufsteiger der Saison).
+* **`AdvanceSeasonUseCase`**: Schließt die aktuelle Saison atomar in einer Transaktion ab, vergibt die 128 Tour Cards für Saison N+1 (Top 64 OOM + Q-School-Simulation), aktualisiert `Career.season` sowie optional `Career.level` und erzeugt den neuen Saisonkalender.
 * **`GetPlayersUseCase`**: Reaktiver Zugriff auf sortierte Spielerlisten für die Spielerkonfiguration (`SettingsPlayersActivity`).
 
 ### 5.2 UI-Paketstruktur & Helper (`ui/`)
