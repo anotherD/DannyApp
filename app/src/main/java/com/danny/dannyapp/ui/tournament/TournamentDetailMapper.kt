@@ -176,15 +176,30 @@ object TournamentDetailMapper {
         preset: MatchDistancePreset = MatchDistancePreset.DEFAULT
     ): List<PrizeMoneyItem> {
         val reversedSequence = sequence.reversed()
-        val roundItems = reversedSequence.map { round ->
-            val prize = event.getRankingPrizeMoney(round)
-            val prizeText = if (prize > 0) "£%,d".format(Locale.US, prize.toLong()) else "£0"
-            val distance = event.getMatchDistance(round, preset)
-            PrizeMoneyItem(
-                roundName = TournamentUiHelper.getDisplayRoundName(round.name, context),
-                matchDistanceText = formatMatchDistance(context, distance),
-                prizeMoneyText = prizeText
-            )
+        val roundItems = reversedSequence.flatMap { round ->
+            if (event == TournamentEvent.GRAND_SLAM_OF_DARTS && round == TournamentRound.GROUP) {
+                val groupDistanceText = formatMatchDistance(context, event.getMatchDistance(TournamentRound.GROUP, preset))
+                listOf(TournamentRound.GROUP_2ND, TournamentRound.GROUP_3RD).map { groupPlacementRound ->
+                    val prize = event.getRankingPrizeMoney(groupPlacementRound)
+                    val prizeText = if (prize > 0) "£%,d".format(Locale.US, prize.toLong()) else "£0"
+                    PrizeMoneyItem(
+                        roundName = TournamentUiHelper.getDisplayRoundName(groupPlacementRound.name, context),
+                        matchDistanceText = groupDistanceText,
+                        prizeMoneyText = prizeText
+                    )
+                }
+            } else {
+                val prize = event.getRankingPrizeMoney(round)
+                val prizeText = if (prize > 0) "£%,d".format(Locale.US, prize.toLong()) else "£0"
+                val distance = event.getMatchDistance(round, preset)
+                listOf(
+                    PrizeMoneyItem(
+                        roundName = TournamentUiHelper.getDisplayRoundName(round.name, context),
+                        matchDistanceText = formatMatchDistance(context, distance),
+                        prizeMoneyText = prizeText
+                    )
+                )
+            }
         }
         if (event.isQualifier) {
             return roundItems
