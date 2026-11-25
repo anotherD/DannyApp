@@ -4,9 +4,9 @@ import android.content.Context
 import android.graphics.Typeface
 import android.text.TextUtils
 import android.view.Gravity
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
@@ -143,15 +143,18 @@ object TournamentBracketCardBuilder {
     }
 
     /**
-     * Erstellt einen gemeinsamen Spaltenkopf für Gruppentabellen.
-     *
-     * @param isLargeLayout `true` für die große Tabellenkarte in der Listenansicht,
-     *                      `false` für die kompakte Darstellung im Turnierbaum.
+     * Inflatiert das XML-Layout des Gruppen-Spaltenkopfs für den Turnierbaum.
+     */
+    fun inflateBracketGroupHeaderView(context: Context, parent: ViewGroup): View {
+        return LayoutInflater.from(context).inflate(R.layout.include_bracket_group_header, parent, false)
+    }
+
+    /**
+     * Erstellt einen gemeinsamen Spaltenkopf für Gruppentabellen in der Listenansicht.
      */
     fun createGroupTableHeaderView(
         context: Context,
         density: Float,
-        isLargeLayout: Boolean = false,
         groupLetter: String? = null
     ): View {
         val headerLayout = LinearLayout(context).apply {
@@ -159,128 +162,59 @@ object TournamentBracketCardBuilder {
             gravity = Gravity.CENTER_VERTICAL
         }
 
-        if (isLargeLayout) {
-            val pxH = (12 * density).toInt()
-            val pxV = (6 * density).toInt()
-            headerLayout.setPadding(pxH, pxV, pxH, pxV)
+        val pxH = (12 * density).toInt()
+        val pxV = (6 * density).toInt()
+        headerLayout.setPadding(pxH, pxV, pxH, pxV)
 
-            val widthPlayed = (36 * density).toInt()
-            val widthDiff = (48 * density).toInt()
-            val widthPoints = (40 * density).toInt()
+        val widthPlayed = (36 * density).toInt()
+        val widthDiff = (48 * density).toInt()
+        val widthPoints = (40 * density).toInt()
 
-            val tvTitle = TextView(context).apply {
-                text = if (!groupLetter.isNullOrEmpty()) context.getString(R.string.group_label, groupLetter) else ""
-                textSize = 15f
-                typeface = Typeface.DEFAULT_BOLD
-                setTextColor(ContextCompat.getColor(context, R.color.white))
-                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-            }
-
-            val tvHeaderPlayed = TextView(context).apply {
-                text = context.getString(R.string.group_table_header_played)
-                textSize = 12f
-                typeface = Typeface.DEFAULT_BOLD
-                gravity = Gravity.END or Gravity.CENTER_VERTICAL
-                maxLines = 1
-                fontFeatureSettings = "tnum"
-                setTextColor(ContextCompat.getColor(context, R.color.grau_text_gedaempft))
-                layoutParams = LinearLayout.LayoutParams(widthPlayed, LinearLayout.LayoutParams.WRAP_CONTENT)
-            }
-
-            val tvHeaderDiff = TextView(context).apply {
-                text = context.getString(R.string.group_table_header_diff)
-                textSize = 12f
-                typeface = Typeface.DEFAULT_BOLD
-                gravity = Gravity.END or Gravity.CENTER_VERTICAL
-                maxLines = 1
-                fontFeatureSettings = "tnum"
-                setTextColor(ContextCompat.getColor(context, R.color.grau_text_gedaempft))
-                layoutParams = LinearLayout.LayoutParams(widthDiff, LinearLayout.LayoutParams.WRAP_CONTENT)
-            }
-
-            val tvHeaderPoints = TextView(context).apply {
-                text = context.getString(R.string.group_table_header_points)
-                textSize = 12f
-                typeface = Typeface.DEFAULT_BOLD
-                gravity = Gravity.END or Gravity.CENTER_VERTICAL
-                maxLines = 1
-                fontFeatureSettings = "tnum"
-                setTextColor(ContextCompat.getColor(context, R.color.grau_text_gedaempft))
-                layoutParams = LinearLayout.LayoutParams(widthPoints, LinearLayout.LayoutParams.WRAP_CONTENT)
-            }
-
-            headerLayout.addView(tvTitle)
-            headerLayout.addView(tvHeaderPlayed)
-            headerLayout.addView(tvHeaderDiff)
-            headerLayout.addView(tvHeaderPoints)
-        } else {
-            val pxH = (6 * density).toInt()
-            headerLayout.setPadding(pxH, 0, pxH, 0)
-
-            val leftSpacer = View(context).apply {
-                layoutParams = LinearLayout.LayoutParams((21 * density).toInt(), ViewGroup.LayoutParams.MATCH_PARENT)
-            }
-            headerLayout.addView(leftSpacer)
-
-            val rightContainer = LinearLayout(context).apply {
-                orientation = LinearLayout.HORIZONTAL
-                gravity = Gravity.CENTER_VERTICAL
-                layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f)
-            }
-
-            val widthRank = (14 * density).toInt()
-            val widthPlayed = (26 * density).toInt()
-            val widthDiff = (36 * density).toInt()
-            val widthPoints = (28 * density).toInt()
-
-            val rankSpacer = View(context).apply {
-                layoutParams = LinearLayout.LayoutParams(widthRank, ViewGroup.LayoutParams.MATCH_PARENT)
-            }
-            rightContainer.addView(rankSpacer)
-
-            val nameSpacer = View(context).apply {
-                layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f)
-            }
-            rightContainer.addView(nameSpacer)
-
-            val tvHeaderPlayed = TextView(context).apply {
-                text = context.getString(R.string.group_table_header_played)
-                textSize = 10f
-                typeface = Typeface.DEFAULT_BOLD
-                gravity = Gravity.END or Gravity.CENTER_VERTICAL
-                maxLines = 1
-                fontFeatureSettings = "tnum"
-                setTextColor(ContextCompat.getColor(context, R.color.grau_text_gedaempft))
-                layoutParams = LinearLayout.LayoutParams(widthPlayed, LinearLayout.LayoutParams.WRAP_CONTENT)
-            }
-
-            val tvHeaderDiff = TextView(context).apply {
-                text = context.getString(R.string.group_table_header_diff)
-                textSize = 10f
-                typeface = Typeface.DEFAULT_BOLD
-                gravity = Gravity.END or Gravity.CENTER_VERTICAL
-                maxLines = 1
-                fontFeatureSettings = "tnum"
-                setTextColor(ContextCompat.getColor(context, R.color.grau_text_gedaempft))
-                layoutParams = LinearLayout.LayoutParams(widthDiff, LinearLayout.LayoutParams.WRAP_CONTENT)
-            }
-
-            val tvHeaderPoints = TextView(context).apply {
-                text = context.getString(R.string.group_table_header_points)
-                textSize = 10f
-                typeface = Typeface.DEFAULT_BOLD
-                gravity = Gravity.END or Gravity.CENTER_VERTICAL
-                maxLines = 1
-                fontFeatureSettings = "tnum"
-                setTextColor(ContextCompat.getColor(context, R.color.grau_text_gedaempft))
-                layoutParams = LinearLayout.LayoutParams(widthPoints, LinearLayout.LayoutParams.WRAP_CONTENT)
-            }
-
-            rightContainer.addView(tvHeaderPlayed)
-            rightContainer.addView(tvHeaderDiff)
-            rightContainer.addView(tvHeaderPoints)
-            headerLayout.addView(rightContainer)
+        val tvTitle = TextView(context).apply {
+            text = if (!groupLetter.isNullOrEmpty()) context.getString(R.string.group_label, groupLetter) else ""
+            textSize = 15f
+            typeface = Typeface.DEFAULT_BOLD
+            setTextColor(ContextCompat.getColor(context, R.color.white))
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
         }
+
+        val tvHeaderPlayed = TextView(context).apply {
+            text = context.getString(R.string.group_table_header_played)
+            textSize = 12f
+            typeface = Typeface.DEFAULT_BOLD
+            gravity = Gravity.END or Gravity.CENTER_VERTICAL
+            maxLines = 1
+            fontFeatureSettings = "tnum"
+            setTextColor(ContextCompat.getColor(context, R.color.grau_text_gedaempft))
+            layoutParams = LinearLayout.LayoutParams(widthPlayed, LinearLayout.LayoutParams.WRAP_CONTENT)
+        }
+
+        val tvHeaderDiff = TextView(context).apply {
+            text = context.getString(R.string.group_table_header_diff)
+            textSize = 12f
+            typeface = Typeface.DEFAULT_BOLD
+            gravity = Gravity.END or Gravity.CENTER_VERTICAL
+            maxLines = 1
+            fontFeatureSettings = "tnum"
+            setTextColor(ContextCompat.getColor(context, R.color.grau_text_gedaempft))
+            layoutParams = LinearLayout.LayoutParams(widthDiff, LinearLayout.LayoutParams.WRAP_CONTENT)
+        }
+
+        val tvHeaderPoints = TextView(context).apply {
+            text = context.getString(R.string.group_table_header_points)
+            textSize = 12f
+            typeface = Typeface.DEFAULT_BOLD
+            gravity = Gravity.END or Gravity.CENTER_VERTICAL
+            maxLines = 1
+            fontFeatureSettings = "tnum"
+            setTextColor(ContextCompat.getColor(context, R.color.grau_text_gedaempft))
+            layoutParams = LinearLayout.LayoutParams(widthPoints, LinearLayout.LayoutParams.WRAP_CONTENT)
+        }
+
+        headerLayout.addView(tvTitle)
+        headerLayout.addView(tvHeaderPlayed)
+        headerLayout.addView(tvHeaderDiff)
+        headerLayout.addView(tvHeaderPoints)
 
         return headerLayout
     }
@@ -296,10 +230,13 @@ object TournamentBracketCardBuilder {
         density: Float,
         groupLetter: String,
         standings: List<GrandSlamGroupItem>,
-        isLargeLayout: Boolean = false
+        isLargeLayout: Boolean = false,
+        parent: ViewGroup? = null
     ): View {
         if (!isLargeLayout) {
-            return createCompactGroupCardView(context, density, groupLetter, standings)
+            val view = LayoutInflater.from(context).inflate(R.layout.item_bracket_group, parent, false)
+            bindCompactGroupCardView(view, context, groupLetter, standings)
+            return view
         }
 
         val cardRadius = 12f * density
@@ -327,7 +264,7 @@ object TournamentBracketCardBuilder {
             setPadding(pxH, pxV, pxH, pxV)
         }
 
-        val headerView = createGroupTableHeaderView(context, density, isLargeLayout = true, groupLetter = groupLetter)
+        val headerView = createGroupTableHeaderView(context, density, groupLetter = groupLetter)
         mainContainer.addView(headerView)
 
         val divider = View(context).apply {
@@ -446,126 +383,74 @@ object TournamentBracketCardBuilder {
         return card
     }
 
-    private fun createCompactGroupCardView(
+    private fun bindCompactGroupCardView(
+        view: View,
         context: Context,
-        density: Float,
         groupLetter: String,
         standings: List<GrandSlamGroupItem>
-    ): View {
-        val card = MaterialCardView(context).apply {
-            radius = 6f * density
-            cardElevation = 2f * density
-            strokeWidth = (1f * density).toInt()
-            strokeColor = ContextCompat.getColor(context, R.color.grau_rahmen_dunkel)
-            setCardBackgroundColor(ContextCompat.getColor(context, R.color.anthrazit_flaeche))
-            useCompatPadding = false
-        }
+    ) {
+        val tvBracketGroupLabel: TextView = view.findViewById(R.id.tvBracketGroupLabel)
+        tvBracketGroupLabel.text = context.getString(R.string.group_label, groupLetter)
 
-        val rootLayout = LinearLayout(context).apply {
-            orientation = LinearLayout.HORIZONTAL
-            layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
+        val rowViews = listOf(
+            GroupRowViews(
+                rowLayout = view.findViewById(R.id.rowGroupPlayer1),
+                tvRank = view.findViewById(R.id.tvGroupRank1),
+                tvName = view.findViewById(R.id.tvGroupName1),
+                tvPlayed = view.findViewById(R.id.tvGroupPlayed1),
+                tvDiff = view.findViewById(R.id.tvGroupDiff1),
+                tvPoints = view.findViewById(R.id.tvGroupPoints1)
+            ),
+            GroupRowViews(
+                rowLayout = view.findViewById(R.id.rowGroupPlayer2),
+                tvRank = view.findViewById(R.id.tvGroupRank2),
+                tvName = view.findViewById(R.id.tvGroupName2),
+                tvPlayed = view.findViewById(R.id.tvGroupPlayed2),
+                tvDiff = view.findViewById(R.id.tvGroupDiff2),
+                tvPoints = view.findViewById(R.id.tvGroupPoints2)
+            ),
+            GroupRowViews(
+                rowLayout = view.findViewById(R.id.rowGroupPlayer3),
+                tvRank = view.findViewById(R.id.tvGroupRank3),
+                tvName = view.findViewById(R.id.tvGroupName3),
+                tvPlayed = view.findViewById(R.id.tvGroupPlayed3),
+                tvDiff = view.findViewById(R.id.tvGroupDiff3),
+                tvPoints = view.findViewById(R.id.tvGroupPoints3)
             )
-        }
-
-        val leftFrame = FrameLayout(context).apply {
-            layoutParams = LinearLayout.LayoutParams(
-                (20 * density).toInt(),
-                ViewGroup.LayoutParams.MATCH_PARENT
-            )
-        }
-
-        val tvGroupIndex = TextView(context).apply {
-            text = context.getString(R.string.group_label, groupLetter)
-            textSize = 10f
-            gravity = Gravity.CENTER
-            rotation = -90f
-            maxLines = 1
-            setTextColor(ContextCompat.getColor(context, R.color.grau_text_gedaempft))
-            layoutParams = FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.WRAP_CONTENT,
-                FrameLayout.LayoutParams.WRAP_CONTENT,
-                Gravity.CENTER
-            )
-        }
-        leftFrame.addView(tvGroupIndex)
-        rootLayout.addView(leftFrame)
-
-        val divider = View(context).apply {
-            layoutParams = LinearLayout.LayoutParams(
-                (1 * density).toInt(),
-                ViewGroup.LayoutParams.MATCH_PARENT
-            )
-            setBackgroundColor(ContextCompat.getColor(context, R.color.grau_rahmen_dunkel))
-        }
-        rootLayout.addView(divider)
-
-        val rightContainer = LinearLayout(context).apply {
-            orientation = LinearLayout.VERTICAL
-            layoutParams = LinearLayout.LayoutParams(
-                0,
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                1f
-            )
-            val pxH = (6 * density).toInt()
-            val pxV = (3 * density).toInt()
-            setPadding(pxH, pxV, pxH, pxV)
-        }
-
-        val widthRank = (14 * density).toInt()
-        val widthPlayed = (26 * density).toInt()
-        val widthDiff = (36 * density).toInt()
-        val widthPoints = (28 * density).toInt()
-        val rowPadV = (2 * density).toInt()
+        )
 
         val displayItems = standings.take(3)
         for (i in 0 until 3) {
+            val row = rowViews[i]
             val item = displayItems.getOrNull(i)
-            val rowLayout = LinearLayout(context).apply {
-                orientation = LinearLayout.HORIZONTAL
-                gravity = Gravity.CENTER_VERTICAL
-                layoutParams = LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    0,
-                    1f
-                ).apply {
-                    bottomMargin = rowPadV
-                }
-                if (item != null && item.player.id == USER_ID) {
-                    setBackgroundColor(ContextCompat.getColor(context, R.color.rot_container_dunkel))
-                }
+
+            if (item != null && item.player.id == USER_ID) {
+                row.rowLayout.setBackgroundColor(ContextCompat.getColor(context, R.color.rot_container_dunkel))
+            } else {
+                row.rowLayout.background = null
             }
 
-            val tvRank = TextView(context).apply {
-                text = context.getString(R.string.group_table_rank_format, i + 1)
-                textSize = 10f
-                typeface = if (i == 0) Typeface.DEFAULT_BOLD else Typeface.DEFAULT
-                setTextColor(
-                    if (item != null && item.player.id == USER_ID) ContextCompat.getColor(context, R.color.rot_sehr_hell)
-                    else if (i == 0) ContextCompat.getColor(context, R.color.white)
-                    else ContextCompat.getColor(context, R.color.grau_text_gedaempft)
-                )
-                layoutParams = LinearLayout.LayoutParams(widthRank, LinearLayout.LayoutParams.WRAP_CONTENT)
-            }
+            row.tvRank.text = context.getString(R.string.group_table_rank_format, i + 1)
+            row.tvRank.setTypeface(null, if (i == 0) Typeface.BOLD else Typeface.NORMAL)
+            row.tvRank.setTextColor(
+                if (item != null && item.player.id == USER_ID) ContextCompat.getColor(context, R.color.rot_sehr_hell)
+                else if (i == 0) ContextCompat.getColor(context, R.color.white)
+                else ContextCompat.getColor(context, R.color.grau_text_gedaempft)
+            )
 
-            val tvName = TextView(context).apply {
-                textSize = 10f
-                typeface = if (i == 0) Typeface.DEFAULT_BOLD else Typeface.DEFAULT
-                maxLines = 1
-                ellipsize = TextUtils.TruncateAt.END
-                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-                if (item != null) {
-                    UIHelper.bindSmartPlayerName(this, item.player)
-                    if (item.player.id == USER_ID) {
-                        setTextColor(ContextCompat.getColor(context, R.color.rot_sehr_hell))
-                    } else if (i != 0) {
-                        setTextColor(ContextCompat.getColor(context, R.color.grau_text_gedaempft))
-                    }
+            row.tvName.setTypeface(null, if (i == 0) Typeface.BOLD else Typeface.NORMAL)
+            if (item != null) {
+                UIHelper.bindSmartPlayerName(row.tvName, item.player)
+                if (item.player.id == USER_ID) {
+                    row.tvName.setTextColor(ContextCompat.getColor(context, R.color.rot_sehr_hell))
+                } else if (i != 0) {
+                    row.tvName.setTextColor(ContextCompat.getColor(context, R.color.grau_text_gedaempft))
                 } else {
-                    text = "-"
-                    setTextColor(ContextCompat.getColor(context, R.color.grau_text_gedaempft))
+                    row.tvName.setTextColor(ContextCompat.getColor(context, R.color.white))
                 }
+            } else {
+                row.tvName.text = "-"
+                row.tvName.setTextColor(ContextCompat.getColor(context, R.color.grau_text_gedaempft))
             }
 
             val statsTextColor = if (item != null && item.player.id == USER_ID) {
@@ -576,57 +461,35 @@ object TournamentBracketCardBuilder {
                 ContextCompat.getColor(context, R.color.grau_text_gedaempft)
             }
 
-            val tvPlayed = TextView(context).apply {
-                text = item?.played?.toString() ?: "0"
-                textSize = 10f
-                typeface = if (i == 0) Typeface.DEFAULT_BOLD else Typeface.DEFAULT
-                if (i == 0) paint.isFakeBoldText = true
-                gravity = Gravity.END or Gravity.CENTER_VERTICAL
-                maxLines = 1
-                fontFeatureSettings = "tnum"
-                setTextColor(statsTextColor)
-                layoutParams = LinearLayout.LayoutParams(widthPlayed, LinearLayout.LayoutParams.WRAP_CONTENT)
-            }
+            row.tvPlayed.text = item?.played?.toString() ?: "0"
+            row.tvPlayed.setTypeface(null, if (i == 0) Typeface.BOLD else Typeface.NORMAL)
+            if (i == 0) row.tvPlayed.paint.isFakeBoldText = true
 
             val diffStr = if (item != null) {
                 if (item.legDiff > 0) "+${item.legDiff}" else "${item.legDiff}"
             } else {
                 "0"
             }
-            val tvDiff = TextView(context).apply {
-                text = diffStr
-                textSize = 10f
-                typeface = if (i == 0) Typeface.DEFAULT_BOLD else Typeface.DEFAULT
-                if (i == 0) paint.isFakeBoldText = true
-                gravity = Gravity.END or Gravity.CENTER_VERTICAL
-                maxLines = 1
-                fontFeatureSettings = "tnum"
-                setTextColor(statsTextColor)
-                layoutParams = LinearLayout.LayoutParams(widthDiff, LinearLayout.LayoutParams.WRAP_CONTENT)
-            }
+            row.tvDiff.text = diffStr
+            row.tvDiff.setTypeface(null, if (i == 0) Typeface.BOLD else Typeface.NORMAL)
+            if (i == 0) row.tvDiff.paint.isFakeBoldText = true
 
-            val tvPoints = TextView(context).apply {
-                text = item?.points?.toString() ?: "0"
-                textSize = 10f
-                typeface = if (i == 0) Typeface.DEFAULT_BOLD else Typeface.DEFAULT
-                if (i == 0) paint.isFakeBoldText = true
-                gravity = Gravity.END or Gravity.CENTER_VERTICAL
-                maxLines = 1
-                fontFeatureSettings = "tnum"
-                setTextColor(statsTextColor)
-                layoutParams = LinearLayout.LayoutParams(widthPoints, LinearLayout.LayoutParams.WRAP_CONTENT)
-            }
+            row.tvPoints.text = item?.points?.toString() ?: "0"
+            row.tvPoints.setTypeface(null, if (i == 0) Typeface.BOLD else Typeface.NORMAL)
+            if (i == 0) row.tvPoints.paint.isFakeBoldText = true
 
-            rowLayout.addView(tvRank)
-            rowLayout.addView(tvName)
-            rowLayout.addView(tvPlayed)
-            rowLayout.addView(tvDiff)
-            rowLayout.addView(tvPoints)
-            rightContainer.addView(rowLayout)
+            row.tvPlayed.setTextColor(statsTextColor)
+            row.tvDiff.setTextColor(statsTextColor)
+            row.tvPoints.setTextColor(statsTextColor)
         }
-
-        rootLayout.addView(rightContainer)
-        card.addView(rootLayout)
-        return card
     }
+
+    private data class GroupRowViews(
+        val rowLayout: LinearLayout,
+        val tvRank: TextView,
+        val tvName: TextView,
+        val tvPlayed: TextView,
+        val tvDiff: TextView,
+        val tvPoints: TextView
+    )
 }
