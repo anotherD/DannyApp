@@ -1,5 +1,6 @@
 package com.danny.dannyapp.ui
 
+import android.content.res.ColorStateList
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Typeface
@@ -10,6 +11,7 @@ import android.text.Spanned
 import android.text.TextUtils
 import android.text.style.ImageSpan
 import android.view.View
+import android.widget.HorizontalScrollView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.withSave
@@ -23,6 +25,7 @@ import com.danny.dannyapp.domain.model.Country
 import com.danny.dannyapp.ui.model.MatchUiModel
 import com.danny.dannyapp.ui.model.PlayerUiInfo
 import com.google.android.material.card.MaterialCardView
+import com.google.android.material.chip.Chip
 import com.google.android.material.snackbar.Snackbar
 
 /**
@@ -424,6 +427,35 @@ object UIHelper {
             player2Score.setTypeface(null, Typeface.NORMAL)
             player2Name.setTextColor(colorTextHell)
             player2Score.setTextColor(colorTextHell)
+        }
+    }
+
+    /**
+     * Wendet das einheitliche Styling für Selektions-Chips (Pillen) an.
+     */
+    fun styleSelectionChip(chip: Chip, isSelected: Boolean) {
+        val context = chip.context
+        chip.chipBackgroundColor = ColorStateList.valueOf(
+            ContextCompat.getColor(context, R.color.anthrazit_container_niedrig)
+        )
+        if (isSelected) {
+            chip.chipStrokeColor = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.white))
+            chip.chipStrokeWidth = 2 * chip.resources.displayMetrics.density
+            chip.setTextColor(ContextCompat.getColor(context, R.color.white))
+        } else {
+            chip.chipStrokeColor = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.grau_rahmen_dunkel))
+            chip.chipStrokeWidth = 1 * chip.resources.displayMetrics.density
+            chip.setTextColor(ContextCompat.getColor(context, R.color.grau_text_gedaempft))
+        }
+    }
+
+    /**
+     * Scrollt eine View innerhalb eines HorizontalScrollView mittig in den sichtbaren Bereich.
+     */
+    fun centerViewInHorizontalScroll(scrollView: HorizontalScrollView, targetView: View) {
+        targetView.post {
+            val scrollX = targetView.left - (scrollView.width - targetView.width) / 2
+            scrollView.smoothScrollTo(scrollX.coerceAtLeast(0), 0)
         }
     }
 }

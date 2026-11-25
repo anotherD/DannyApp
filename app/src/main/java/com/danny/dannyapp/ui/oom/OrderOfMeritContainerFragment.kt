@@ -1,10 +1,8 @@
 package com.danny.dannyapp.ui.oom
 
-import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.View
 import android.widget.HorizontalScrollView
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
@@ -14,6 +12,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.danny.dannyapp.R
 import com.danny.dannyapp.domain.enums.OrderOfMeritType
+import com.danny.dannyapp.ui.UIHelper
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import kotlinx.coroutines.launch
@@ -90,9 +89,8 @@ class OrderOfMeritContainerFragment : Fragment(R.layout.fragment_order_of_merit_
                     isInitialSelection = false
 
                     val selectedChip = chipGroupOomTypes.findViewById<View>(chipId)
-                    selectedChip?.post {
-                        val scrollX = selectedChip.left - (scrollOomChips.width - selectedChip.width) / 2
-                        scrollOomChips.smoothScrollTo(scrollX.coerceAtLeast(0), 0)
+                    selectedChip?.let {
+                        UIHelper.centerViewInHorizontalScroll(scrollOomChips, it)
                     }
                 }
             }
@@ -100,23 +98,9 @@ class OrderOfMeritContainerFragment : Fragment(R.layout.fragment_order_of_merit_
     }
 
     private fun updateChipStyles(selectedChipId: Int) {
-        val ctx = context ?: return
-        val density = ctx.resources.displayMetrics.density
-        val whiteColor = ContextCompat.getColor(ctx, R.color.white)
-        val darkBorderColor = ContextCompat.getColor(ctx, R.color.grau_rahmen_dunkel)
-        val mutedTextColor = ContextCompat.getColor(ctx, R.color.grau_text_gedaempft)
-
         for (i in 0 until chipGroupOomTypes.childCount) {
             val chip = chipGroupOomTypes.getChildAt(i) as? Chip ?: continue
-            if (chip.id == selectedChipId) {
-                chip.chipStrokeColor = ColorStateList.valueOf(whiteColor)
-                chip.chipStrokeWidth = 2 * density
-                chip.setTextColor(whiteColor)
-            } else {
-                chip.chipStrokeColor = ColorStateList.valueOf(darkBorderColor)
-                chip.chipStrokeWidth = 1 * density
-                chip.setTextColor(mutedTextColor)
-            }
+            UIHelper.styleSelectionChip(chip, chip.id == selectedChipId)
         }
     }
 

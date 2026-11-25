@@ -27,6 +27,7 @@ import com.danny.dannyapp.ui.enums.RoundStatus
 import com.danny.dannyapp.ui.model.MatchUiModel
 import com.danny.dannyapp.ui.model.PrizeMoneyItem
 import com.google.android.material.card.MaterialCardView
+import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.launch
@@ -67,6 +68,7 @@ class TournamentDetailActivity : BaseActivity() {
     private lateinit var scrollBoardPills: HorizontalScrollView
     private lateinit var chipGroupBoards: ChipGroup
     private lateinit var layoutGroupSelector: View
+    private lateinit var scrollGroupPills: HorizontalScrollView
     private lateinit var chipGroupGroups: ChipGroup
     private lateinit var btnSimulateCpuMatches: Button
     private lateinit var btnSimulateComplete: Button
@@ -212,6 +214,7 @@ class TournamentDetailActivity : BaseActivity() {
         scrollBoardPills = findViewById(R.id.scrollBoardPills)
         chipGroupBoards = findViewById(R.id.chipGroupBoards)
         layoutGroupSelector = findViewById(R.id.layoutGroupSelector)
+        scrollGroupPills = findViewById(R.id.scrollGroupPills)
         chipGroupGroups = findViewById(R.id.chipGroupGroups)
         btnSimulateCpuMatches = findViewById(R.id.btnSimulateCpuMatches)
         btnSimulateComplete = findViewById(R.id.btnSimulateComplete)
@@ -419,16 +422,25 @@ class TournamentDetailActivity : BaseActivity() {
                 if (state.availableGroups.isNotEmpty()) {
                     layoutGroupSelector.visibility = View.VISIBLE
                     chipGroupGroups.removeAllViews()
+                    var selectedGroupChip: Chip? = null
                     state.availableGroups.forEachIndexed { index, groupLetter ->
-                        val chip = com.google.android.material.chip.Chip(this).apply {
+                        val isSelected = (index == state.selectedGroupIndex)
+                        val chip = Chip(this).apply {
                             text = getString(R.string.group_label, groupLetter)
                             isCheckable = true
-                            isChecked = (index == state.selectedGroupIndex)
+                            isChecked = isSelected
+                            UIHelper.styleSelectionChip(this, isSelected)
                             setOnClickListener {
                                 viewModel.selectGroup(index)
                             }
                         }
                         chipGroupGroups.addView(chip)
+                        if (isSelected) {
+                            selectedGroupChip = chip
+                        }
+                    }
+                    selectedGroupChip?.let {
+                        UIHelper.centerViewInHorizontalScroll(scrollGroupPills, it)
                     }
                 } else {
                     layoutGroupSelector.visibility = View.GONE
@@ -646,28 +658,44 @@ class TournamentDetailActivity : BaseActivity() {
 
         chipGroup.removeAllViews()
 
-        val chipAll = com.google.android.material.chip.Chip(this).apply {
+        var selectedBoardChip: Chip? = null
+
+        val isAllSelected = (selectedBoardFilterIndex == -1)
+        val chipAll = Chip(this).apply {
             text = getString(R.string.bracket_board_all)
             isCheckable = true
-            isChecked = (selectedBoardFilterIndex == -1)
+            isChecked = isAllSelected
+            UIHelper.styleSelectionChip(this, isAllSelected)
             setOnClickListener {
                 selectedBoardFilterIndex = -1
                 setupQualifierBoardFilterChips(event, allRoundsMatches, scrollView, chipGroup, onFilterChanged)
             }
         }
         chipGroup.addView(chipAll)
+        if (isAllSelected) {
+            selectedBoardChip = chipAll
+        }
 
         for (boardIdx in 0 until boardCount) {
-            val chipBoard = com.google.android.material.chip.Chip(this).apply {
+            val isBoardSelected = (selectedBoardFilterIndex == boardIdx)
+            val chipBoard = Chip(this).apply {
                 text = getString(R.string.bracket_board_format, boardIdx + 1)
                 isCheckable = true
-                isChecked = (selectedBoardFilterIndex == boardIdx)
+                isChecked = isBoardSelected
+                UIHelper.styleSelectionChip(this, isBoardSelected)
                 setOnClickListener {
                     selectedBoardFilterIndex = boardIdx
                     setupQualifierBoardFilterChips(event, allRoundsMatches, scrollView, chipGroup, onFilterChanged)
                 }
             }
             chipGroup.addView(chipBoard)
+            if (isBoardSelected) {
+                selectedBoardChip = chipBoard
+            }
+        }
+
+        selectedBoardChip?.let {
+            UIHelper.centerViewInHorizontalScroll(scrollView, it)
         }
 
         val filtered = TournamentDetailUiHelper.filterMatchesForBoard(
