@@ -55,6 +55,20 @@ class TournamentBracketView @JvmOverloads constructor(
     private var headerDisplayNames: List<String> = emptyList()
     private var headerStatuses: List<RoundStatus> = emptyList()
     private var headerViews: List<View> = emptyList()
+    private var groupTableHeaderView: View? = null
+
+    private fun isGrandSlamGroupStage(): Boolean {
+        val firstMatchRoundKey = roundsMatches.firstOrNull()?.firstOrNull()?.match?.round
+        return grandSlamGroupStandings.isNotEmpty() && (firstMatchRoundKey == TournamentRound.GROUP.name)
+    }
+
+    private fun getTileHeightForRound(roundIndex: Int): Float {
+        return if (roundIndex == 0 && isGrandSlamGroupStage()) 74f * density else 68f * density
+    }
+
+    private fun getSlotHeightForRound(roundIndex: Int): Float {
+        return if (roundIndex == 0 && isGrandSlamGroupStage()) 82f * density else 76f * density
+    }
 
     private var selectedRoundIndex: Int = 0
     private var focusedRoundFloat: Float = 0f
@@ -214,7 +228,7 @@ class TournamentBracketView @JvmOverloads constructor(
 
         val targetCenterY = computeMatchCenterY(clampedRoundIndex, userMatchIndex, targetFocusedRound)
         val viewHeight = height.toFloat()
-        val headerHeightPx = 40f * density
+        val headerHeightPx = if (isGrandSlamGroupStage()) 60f * density else 40f * density
         val availableHeight = viewHeight - headerHeightPx - paddingTop.toFloat() - paddingBottom.toFloat()
         val maxScrollYAtTarget = computeMaxScrollYForFocus(targetFocusedRound)
         val targetScrollY = (targetCenterY - headerHeightPx - paddingTop.toFloat() - availableHeight / 2f)
@@ -273,13 +287,16 @@ class TournamentBracketView @JvmOverloads constructor(
             }
         }
         matchViews = emptyList()
+        groupTableHeaderView?.let {
+            removeView(it)
+        }
+        groupTableHeaderView = null
 
         val inflater = LayoutInflater.from(context)
         val newMatchViews = mutableListOf<List<View>>()
         var insertIndex = 0
 
-        val firstMatchRoundKey = roundsMatches.firstOrNull()?.firstOrNull()?.match?.round
-        val isGsGroupStage = grandSlamGroupStandings.isNotEmpty() && (firstMatchRoundKey == TournamentRound.GROUP.name)
+        val isGsGroupStage = isGrandSlamGroupStage()
 
         for ((roundIdx, roundMatches) in roundsMatches.withIndex()) {
             val currentRoundViews = mutableListOf<View>()
@@ -287,7 +304,7 @@ class TournamentBracketView @JvmOverloads constructor(
                 val groupLetters = ('A'..'P').map { it.toString() }
                 for (groupLetter in groupLetters) {
                     val standings = grandSlamGroupStandings[groupLetter] ?: emptyList()
-                    val cardView = TournamentBracketCardBuilder.createGroupCardView(context, density, groupLetter, standings)
+                    val cardView = TournamentBracketCardBuilder.createGroupCardView(context, density, groupLetter, standings, isLargeLayout = false)
                     addView(cardView, insertIndex++)
                     currentRoundViews.add(cardView)
                 }
@@ -307,6 +324,12 @@ class TournamentBracketView @JvmOverloads constructor(
             newMatchViews.add(currentRoundViews)
         }
         this.matchViews = newMatchViews
+
+        if (isGsGroupStage) {
+            val headerView = TournamentBracketCardBuilder.createGroupTableHeaderView(context, density, isLargeLayout = false)
+            addView(headerView, insertIndex++)
+            groupTableHeaderView = headerView
+        }
     }
 
     private fun rebuildHeaderViews() {
@@ -466,9 +489,9 @@ class TournamentBracketView @JvmOverloads constructor(
      *   verankert.
      */
     private fun computeIntegerFocusY(roundIndex: Int, matchIndex: Int, focusInt: Int): Float {
-        val tileHeight = 68f * density
-        val baseSlotHeight = 76f * density
-        val headerHeight = 40f * density
+        val tileHeight = getTileHeightForRound(roundIndex)
+        val baseSlotHeight = getSlotHeightForRound(roundIndex)
+        val headerHeight = if (isGrandSlamGroupStage()) 60f * density else 40f * density
         val paddingTopPx = paddingTop.toFloat() + headerHeight + 8f * density
 
         // ── Spezialregel 1: Verankerte Runde → immer auf Höhe des Ziel-Matches in der Folgerunde ──
@@ -516,7 +539,7 @@ class TournamentBracketView @JvmOverloads constructor(
                 val parentY = computeIntegerFocusY(roundIndex + 1, matchIndex / 2, focusInt)
                 val distanceToFocus = focusInt - roundIndex
                 val spreadFactor = 0.5f.pow(distanceToFocus + 1)
-                val verticalOffset = if (matchIndex % 2 == 0) -spreadFactor * baseSlotHeight else spreadFactor * baseSlotHeight
+                val verticalOffset = if (matchIndex % 2 == 0) -spreadFactor * getSlotHeightForRound(roundIndex) else spreadFactor * getSlotHeightForRound(roundIndex)
                 parentY + verticalOffset
             } else {
                 val targetMatchIndex = getTargetMatchIndex(roundIndex, matchIndex)
@@ -543,7 +566,7 @@ class TournamentBracketView @JvmOverloads constructor(
         val roundViews = matchViews.getOrNull(currentRoundInt) ?: return 0f
         if (roundViews.isEmpty()) return 0f
 
-        val tileHeight = 68f * density
+        val tileHeight = getTileHeightForRound(currentRoundInt)
         // Maximum über alle Kacheln der Runde bilden, damit Vorrunden vollständig scrollbar sind
         val maxCenterY = roundViews.indices.maxOf { tileIndex ->
             computeMatchCenterY(currentRoundInt, tileIndex, focus)
@@ -556,14 +579,13 @@ class TournamentBracketView @JvmOverloads constructor(
         val viewWidth = MeasureSpec.getSize(widthMeasureSpec)
         val viewHeight = MeasureSpec.getSize(heightMeasureSpec)
 
+        val isGsGroupStage = isGrandSlamGroupStage()
         val columnWidth = (viewWidth * 0.56f).toInt()
-        val tileHeightPx = (68 * density).toInt()
         val headerChildHeightPx = (32 * density).toInt()
-        val headerAreaHeight = (40 * density).toInt()
-        val infoCardHeightPx = if (viewHeight > 0) viewHeight - headerAreaHeight - (16 * density).toInt() else (500 * density).toInt()
+        val headerAreaHeight = (if (isGsGroupStage) 60 else 40) * density
+        val infoCardHeightPx = if (viewHeight > 0) viewHeight - headerAreaHeight.toInt() - (16 * density).toInt() else (500 * density).toInt()
 
         val childWidthSpec = MeasureSpec.makeMeasureSpec(columnWidth, MeasureSpec.EXACTLY)
-        val childHeightSpec = MeasureSpec.makeMeasureSpec(tileHeightPx, MeasureSpec.EXACTLY)
         val infoCardHeightSpec = MeasureSpec.makeMeasureSpec(infoCardHeightPx.coerceAtLeast((200 * density).toInt()), MeasureSpec.EXACTLY)
 
         val headerChildWidthSpec = MeasureSpec.makeMeasureSpec(columnWidth, MeasureSpec.AT_MOST)
@@ -572,6 +594,8 @@ class TournamentBracketView @JvmOverloads constructor(
         for ((roundIndex, list) in matchViews.withIndex()) {
             val roundMatches = roundsMatches.getOrNull(roundIndex)
             val isOpenDraw = roundMatches.isNullOrEmpty() && (openDrawInfoMap.containsKey(roundIndex) || openEntrantsGroups.isNotEmpty() || isOpenDrawInfoVisible)
+            val tileH = getTileHeightForRound(roundIndex).toInt()
+            val childHeightSpec = MeasureSpec.makeMeasureSpec(tileH, MeasureSpec.EXACTLY)
             for (child in list) {
                 if (isOpenDraw) {
                     child.measure(childWidthSpec, infoCardHeightSpec)
@@ -583,6 +607,10 @@ class TournamentBracketView @JvmOverloads constructor(
         for (headerChild in headerViews) {
             headerChild.measure(headerChildWidthSpec, headerChildHeightSpec)
         }
+        groupTableHeaderView?.let {
+            val groupHeaderHeightSpec = MeasureSpec.makeMeasureSpec((20 * density).toInt(), MeasureSpec.EXACTLY)
+            it.measure(childWidthSpec, groupHeaderHeightSpec)
+        }
 
         setMeasuredDimension(widthMeasureSpec, heightMeasureSpec)
     }
@@ -592,11 +620,11 @@ class TournamentBracketView @JvmOverloads constructor(
         val viewHeight = bottom - top
         if (viewWidth <= 0 || viewHeight <= 0) return
 
+        val isGsGroupStage = isGrandSlamGroupStage()
         val columnWidth = (viewWidth * 0.56f).toInt()
         val columnStepX = viewWidth * 0.60f
         val centerX = viewWidth / 2f
-        val tileHeight = 68f * density
-        val headerAreaHeight = 40f * density
+        val headerAreaHeight = (if (isGsGroupStage) 60 else 40) * density
 
         for (roundIndex in headerViews.indices) {
             val headerView = headerViews[roundIndex]
@@ -605,8 +633,21 @@ class TournamentBracketView @JvmOverloads constructor(
             val measuredH = headerView.measuredHeight
             val hLeft = (columnCenterX - measuredW / 2f).toInt()
             val hRight = hLeft + measuredW
-            val hTop = (paddingTop + (headerAreaHeight - measuredH) / 2f).toInt()
+            val topOffset = if (isGsGroupStage) 20f * density else 0f
+            val hTop = (paddingTop + topOffset + (40f * density - measuredH) / 2f).toInt()
             val hBottom = hTop + measuredH
+            headerView.layout(hLeft, hTop, hRight, hBottom)
+        }
+
+        groupTableHeaderView?.let { headerView ->
+            val columnCenterX = centerX + (0 - focusedRoundFloat) * columnStepX
+            val measuredW = headerView.measuredWidth
+            val measuredH = headerView.measuredHeight
+            val hLeft = (columnCenterX - measuredW / 2f).toInt()
+            val hRight = hLeft + measuredW
+            val clipTop = paddingTop.toFloat() + headerAreaHeight
+            val hTop = (clipTop - measuredH).toInt()
+            val hBottom = clipTop.toInt()
             headerView.layout(hLeft, hTop, hRight, hBottom)
         }
 
@@ -620,6 +661,7 @@ class TournamentBracketView @JvmOverloads constructor(
 
             val roundMatches = roundsMatches.getOrNull(roundIndex)
             val isOpenDraw = roundMatches.isNullOrEmpty() && (openDrawInfoMap.containsKey(roundIndex) || openEntrantsGroups.isNotEmpty() || isOpenDrawInfoVisible)
+            val tileHeight = getTileHeightForRound(roundIndex)
 
             val diff = focusedRoundFloat - roundIndex
             val scale = if (diff <= 0f) {
@@ -669,7 +711,8 @@ class TournamentBracketView @JvmOverloads constructor(
     }
 
     override fun dispatchDraw(canvas: Canvas) {
-        val headerHeightPx = 40f * density
+        val isGsGroupStage = isGrandSlamGroupStage()
+        val headerHeightPx = if (isGsGroupStage) 60f * density else 40f * density
         val clipTop = paddingTop.toFloat() + headerHeightPx
 
         canvas.save()
@@ -791,6 +834,9 @@ class TournamentBracketView @JvmOverloads constructor(
 
         for (headerChild in headerViews) {
             drawChild(canvas, headerChild, dTime)
+        }
+        groupTableHeaderView?.let {
+            drawChild(canvas, it, dTime)
         }
     }
 
