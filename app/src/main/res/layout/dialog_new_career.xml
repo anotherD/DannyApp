@@ -5,12 +5,12 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="24dp">
+    android:padding="20dp">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="12dp"
         android:text="@string/careers_create_new"
         android:textSize="20sp"
         android:textStyle="bold" />
@@ -18,7 +18,7 @@
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp">
+        android:layout_marginBottom="10dp">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etCareerName"
@@ -34,7 +34,8 @@
         style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="10dp"
+        app:boxCollapsedPaddingTop="4dp"
         android:hint="@string/careers_create_profile_hint">
 
         <AutoCompleteTextView
@@ -42,6 +43,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/careers_create_profile_hint"
+            android:minHeight="40dp"
+            android:paddingVertical="8dp"
+            android:textSize="14sp"
             android:inputType="none" />
 
     </com.google.android.material.textfield.TextInputLayout>
@@ -49,37 +53,37 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="4dp"
         android:text="@string/careers_create_level"
-        android:textSize="16sp"
+        android:textSize="15sp"
         android:labelFor="@+id/numberPickerLevel" />
 
     <NumberPicker
         android:id="@+id/numberPickerLevel"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="110dp"
         android:layout_gravity="center"
-        android:layout_marginBottom="8dp" />
+        android:layout_marginBottom="10dp" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:layout_marginTop="12dp"
-        android:layout_marginBottom="8dp">
+        android:layout_marginBottom="10dp">
 
         <TextView
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:text="@string/careers_create_match_distance"
-            android:textSize="16sp" />
+            android:textSize="15sp" />
 
         <ImageView
             android:id="@+id/btnMatchDistanceInfo"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_marginStart="6dp"
+            android:layout_marginEnd="12dp"
             android:src="@drawable/ic_info"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:clickable="true"
@@ -87,27 +91,30 @@
             android:contentDescription="@string/match_distance_info_title"
             app:tint="?attr/colorOnSurfaceVariant" />
 
-    </LinearLayout>
-
-    <com.google.android.material.textfield.TextInputLayout
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp">
-
-        <AutoCompleteTextView
-            android:id="@+id/autoCompleteMatchDistance"
-            android:layout_width="match_parent"
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:inputType="none" />
+            app:boxCollapsedPaddingTop="4dp">
 
-    </com.google.android.material.textfield.TextInputLayout>
+            <AutoCompleteTextView
+                android:id="@+id/autoCompleteMatchDistance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="40dp"
+                android:paddingVertical="8dp"
+                android:textSize="14sp"
+                android:inputType="none" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+    </LinearLayout>
 
     <com.google.android.material.checkbox.MaterialCheckBox
         android:id="@+id/cbPrefillOom"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
         android:text="@string/careers_create_prefill_oom"
         android:checked="true" />
 
@@ -115,7 +122,7 @@
         android:id="@+id/cbShortTestSeason"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="4dp"
         android:text="@string/careers_create_short_test_season"
         android:checked="false"
         android:visibility="gone"
