@@ -1,5 +1,6 @@
 package com.danny.dannyapp.ui
 
+import android.app.ActivityOptions
 import android.content.Intent
 import android.hardware.display.DisplayManager
 import android.os.Bundle
@@ -33,25 +34,37 @@ abstract class BaseActivity : AppCompatActivity() {
     protected var currentScreen: AppScreen? = null
 
     private var displayManager: DisplayManager? = null
+    private var isMovingDisplay = false
 
     private val displayListener = object : DisplayManager.DisplayListener {
         override fun onDisplayAdded(displayId: Int) {
-            if (!ExternalDisplayHelper.isOnExternalDisplay(this@BaseActivity)) {
-                val externalDisplay = ExternalDisplayHelper.findExternalDisplay(this@BaseActivity)
-                if (externalDisplay != null) {
-                    ExternalDisplayHelper.moveActivityToDisplay(this@BaseActivity, externalDisplay.displayId)
-                }
-            }
+            checkAndMoveToExternalDisplay()
         }
 
         override fun onDisplayRemoved(displayId: Int) {
             val currentDisplayId = this@BaseActivity.display?.displayId ?: Display.DEFAULT_DISPLAY
             if (displayId == currentDisplayId || ExternalDisplayHelper.isOnExternalDisplay(this@BaseActivity)) {
-                ExternalDisplayHelper.moveActivityToDisplay(this@BaseActivity, Display.DEFAULT_DISPLAY)
+                if (!isMovingDisplay) {
+                    isMovingDisplay = true
+                    ExternalDisplayHelper.moveActivityToDisplay(this@BaseActivity, Display.DEFAULT_DISPLAY)
+                }
             }
         }
 
-        override fun onDisplayChanged(displayId: Int) {}
+        override fun onDisplayChanged(displayId: Int) {
+            checkAndMoveToExternalDisplay()
+        }
+
+        private fun checkAndMoveToExternalDisplay() {
+            if (isMovingDisplay) return
+            if (!ExternalDisplayHelper.isOnExternalDisplay(this@BaseActivity)) {
+                val externalDisplay = ExternalDisplayHelper.findExternalDisplay(this@BaseActivity)
+                if (externalDisplay != null) {
+                    isMovingDisplay = true
+                    ExternalDisplayHelper.moveActivityToDisplay(this@BaseActivity, externalDisplay.displayId)
+                }
+            }
+        }
     }
 
     protected open fun buildUpNavigationExtras(parentScreen: AppScreen, intent: Intent) {}
@@ -141,6 +154,7 @@ abstract class BaseActivity : AppCompatActivity() {
 
         val externalDisplay = ExternalDisplayHelper.findExternalDisplay(this)
         if (externalDisplay != null && !ExternalDisplayHelper.isOnExternalDisplay(this)) {
+            isMovingDisplay = true
             ExternalDisplayHelper.moveActivityToDisplay(this, externalDisplay.displayId)
             return
         }
@@ -172,9 +186,33 @@ abstract class BaseActivity : AppCompatActivity() {
         displayManager?.registerDisplayListener(displayListener, null)
     }
 
+    override fun onResume() {
+        super.onResume()
+        updateSystemBarsForDisplay()
+    }
+
     override fun onStop() {
         displayManager?.unregisterDisplayListener(displayListener)
         super.onStop()
+    }
+
+    override fun startActivity(intent: Intent?, options: Bundle?) {
+        var finalOptions = options
+        val ext = ExternalDisplayHelper.findExternalDisplay(this)
+        if (ext != null) {
+            val hasLaunchDisplayId = options != null && options.containsKey("android.activity.launchDisplayId")
+            if (!hasLaunchDisplayId) {
+                val displayOptions = ActivityOptions.makeBasic().apply {
+                    launchDisplayId = ext.displayId
+                }.toBundle()
+                finalOptions = if (options != null) {
+                    Bundle(options).apply { putAll(displayOptions) }
+                } else {
+                    displayOptions
+                }
+            }
+        }
+        super.startActivity(intent, finalOptions)
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {

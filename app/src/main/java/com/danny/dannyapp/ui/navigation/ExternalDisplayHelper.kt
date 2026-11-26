@@ -13,18 +13,25 @@ object ExternalDisplayHelper {
 
     fun findExternalDisplay(context: Context): Display? {
         val displayManager = context.getSystemService(Context.DISPLAY_SERVICE) as? DisplayManager ?: return null
+
         val presentationDisplays = displayManager.getDisplays(DisplayManager.DISPLAY_CATEGORY_PRESENTATION)
-        val presentationDisplay = presentationDisplays.firstOrNull {
+        val activePresentationDisplay = presentationDisplays.firstOrNull {
             it.displayId != Display.DEFAULT_DISPLAY && it.state != Display.STATE_OFF
         }
-        if (presentationDisplay != null) {
-            return presentationDisplay
+        if (activePresentationDisplay != null) {
+            return activePresentationDisplay
         }
 
         val allDisplays = displayManager.displays
-        return allDisplays.firstOrNull {
+        val activeDisplay = allDisplays.firstOrNull {
             it.displayId != Display.DEFAULT_DISPLAY && it.state != Display.STATE_OFF
         }
+        if (activeDisplay != null) {
+            return activeDisplay
+        }
+
+        return presentationDisplays.firstOrNull { it.displayId != Display.DEFAULT_DISPLAY }
+            ?: allDisplays.firstOrNull { it.displayId != Display.DEFAULT_DISPLAY }
     }
 
     fun isOnExternalDisplay(activity: Activity): Boolean {
@@ -38,15 +45,25 @@ object ExternalDisplayHelper {
         }
 
         val intent = Intent(activity.intent).apply {
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
             putExtra(EXTRA_TARGET_DISPLAY_ID, targetDisplayId)
         }
 
         val options = ActivityOptions.makeBasic().apply {
-            setLaunchDisplayId(targetDisplayId)
+            launchDisplayId = targetDisplayId
         }
 
         activity.startActivity(intent, options.toBundle())
-        activity.finish()
+
+        if (targetDisplayId != Display.DEFAULT_DISPLAY) {
+            if (activity.isTaskRoot) {
+                activity.finishAndRemoveTask()
+            } else {
+                activity.finish()
+            }
+        } else {
+            activity.finish()
+        }
     }
 }
+
