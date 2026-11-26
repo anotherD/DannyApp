@@ -55,6 +55,7 @@ class SeasonSummaryViewModel(application: Application) : AndroidViewModel(applic
                     val summary = getSeasonSummaryUseCase(careerId)
                     _uiState.value = SeasonSummaryUiState.Ready(summary)
                 } catch (ex: Exception) {
+                    appContainer.reportError("Saison-Zusammenfassung neu laden", ex)
                     _uiState.value = SeasonSummaryUiState.Error(e.message ?: "Unbekannter Fehler")
                 }
             }

@@ -144,16 +144,18 @@ class AdvanceTournamentRoundUseCase(
             if (state.isFinalRound) {
                 if (strategy.awardsPrizeMoneyAndPlacements) {
                     val finalMatches = allMatches.filter { it.round == TournamentRound.F.name || it.round == TournamentRound.QUAL_FINAL.name }
-                    val finalMatch = finalMatches.firstOrNull()
-                    val winnerId = finalMatch?.winnerId
-                    if (winnerId != null) {
-                        tournamentRepository.upsertPlayerPlacement(
-                            tournamentId = tournamentId,
-                            playerId = winnerId,
-                            reachedRound = TournamentRound.WINNER.name,
-                            prizeMoney = event.getRankingPrizeMoney(TournamentRound.WINNER)
-                        )
+                    val finalMatch = requireNotNull(finalMatches.firstOrNull()) {
+                        "Final-Match für Turnier $tournamentId ($event) nicht gefunden"
                     }
+                    val winnerId = requireNotNull(finalMatch.winnerId) {
+                        "Final-Match ${finalMatch.id} in Turnier $tournamentId hat keinen winnerId"
+                    }
+                    tournamentRepository.upsertPlayerPlacement(
+                        tournamentId = tournamentId,
+                        playerId = winnerId,
+                        reachedRound = TournamentRound.WINNER.name,
+                        prizeMoney = event.getRankingPrizeMoney(TournamentRound.WINNER)
+                    )
                 }
                 tournamentRepository.updateTournament(tournament.copy(isCompleted = true, currentRound = null))
                 return@runInTransaction true
@@ -243,7 +245,9 @@ class AdvanceTournamentRoundUseCase(
             val nextRoundEnum = roundSequence[currentIndex + 1]
 
             val currentRoundMatches = allMatches.filter { it.round == currentRoundKey }
-            val winners = currentRoundMatches.sortedBy { it.matchIndex }.mapNotNull { it.winnerId }
+            val winners = currentRoundMatches.sortedBy { it.matchIndex }.map { match ->
+                requireNotNull(match.winnerId) { "Match ${match.id} in Runde $currentRoundKey hat keinen winnerId" }
+            }
             val shuffledWinners = winners.shuffled()
 
             val participants = tournamentRepository.getParticipantsForTournament(tournament.id)
@@ -367,25 +371,26 @@ class AdvanceTournamentRoundUseCase(
 
         if (strategy.awardsPrizeMoneyAndPlacements && currentRoundKey != TournamentRound.GROUP.name) {
             val roundSequence = QualificationHelper.getRoundSequence(event, allMatches)
-            val currentRoundEnum = TournamentRound.fromKey(currentRoundKey)
-            if (currentRoundEnum != null) {
-                val currentIdx = roundSequence.indexOf(currentRoundEnum)
-                if (currentIdx >= 0) {
-                    val reachedRound = if (currentRoundEnum == TournamentRound.F) {
-                        TournamentRound.WINNER
-                    } else {
-                        roundSequence.getOrNull(currentIdx + 1)
-                    }
-                    if (reachedRound != null) {
-                        tournamentRepository.upsertPlayerPlacement(
-                            tournamentId = match.tournamentId,
-                            playerId = winnerId,
-                            reachedRound = reachedRound.name,
-                            prizeMoney = event.getRankingPrizeMoney(reachedRound)
-                        )
-                    }
+            val currentRoundEnum = requireNotNull(TournamentRound.fromKey(currentRoundKey)) {
+                "Ungültige Runde '$currentRoundKey' in Turnier ${match.tournamentId} ($event)"
+            }
+            val currentIdx = roundSequence.indexOf(currentRoundEnum)
+            check(currentIdx >= 0) {
+                "Runde $currentRoundEnum nicht in Runden-Sequenz für $event gefunden"
+            }
+            val reachedRound = if (currentRoundEnum == TournamentRound.F) {
+                TournamentRound.WINNER
+            } else {
+                checkNotNull(roundSequence.getOrNull(currentIdx + 1)) {
+                    "Keine Folgerunde für $currentRoundEnum in $event gefunden"
                 }
             }
+            tournamentRepository.upsertPlayerPlacement(
+                tournamentId = match.tournamentId,
+                playerId = winnerId,
+                reachedRound = reachedRound.name,
+                prizeMoney = event.getRankingPrizeMoney(reachedRound)
+            )
         }
 
         if (event == TournamentEvent.UK_OPEN || event == TournamentEvent.EUROPEAN_OPEN) {

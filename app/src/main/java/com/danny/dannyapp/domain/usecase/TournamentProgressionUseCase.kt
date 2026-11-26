@@ -49,14 +49,18 @@ class TournamentProgressionUseCase(
             val tournament = tournamentRepository.getTournamentById(tournamentId)
             if (tournament.isCompleted) break
 
-            val state = advanceTournamentRoundUseCase.evaluateTournamentState(tournamentId) ?: break
+            val state = requireNotNull(advanceTournamentRoundUseCase.evaluateTournamentState(tournamentId)) {
+                "Turnier-Status für laufendes Turnier $tournamentId konnte nicht ermittelt werden"
+            }
 
             if (settingsManager.autoSimulateCpu && state.hasOpenCpuMatchesInActiveRound) {
                 completeMatchUseCase.simulateAllOpenCpuMatches(tournamentId)
                 continue
             }
 
-            val updatedState = advanceTournamentRoundUseCase.evaluateTournamentState(tournamentId) ?: break
+            val updatedState = requireNotNull(advanceTournamentRoundUseCase.evaluateTournamentState(tournamentId)) {
+                "Turnier-Status für laufendes Turnier $tournamentId konnte nicht ermittelt werden"
+            }
 
             if (settingsManager.autoAdvanceRound && updatedState.canAdvanceRound) {
                 advanceTournamentRoundUseCase(tournamentId)
@@ -110,8 +114,8 @@ class TournamentProgressionUseCase(
             for (match in openUserMatches) {
                 val isPlayer1User = (match.player1Id == USER_ID)
                 val opponentId = if (isPlayer1User) match.player2Id else match.player1Id
-                if (opponentId <= 0L && opponentId != USER_ID) {
-                    continue
+                require(opponentId > 0L || opponentId == USER_ID) {
+                    "Unaufgelöste Gegner-ID $opponentId in aktivem User-Match ${match.id} (Turnier $tournamentId, Runde $activeRoundKey)"
                 }
 
                 completeMatchUseCase.simulateMatch(match, includeUserMatches = true)

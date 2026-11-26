@@ -40,9 +40,7 @@ class GetSeasonSummaryUseCase(
         val career = careerWithProfile.career
 
         val seasons = seasonRepository.getSeasonsListForCareer(careerId)
-        val currentSeason = requireNotNull(seasons.maxByOrNull { it.seasonNumber }) {
-            "Keine Saison für Karriere $careerId gefunden"
-        }
+        val currentSeason = seasonRepository.getCurrentSeasonForCareer(careerId)
 
         val tournaments = tournamentRepository.getTournamentsListForSeason(currentSeason.id)
         check(tournaments.isNotEmpty() && tournaments.all { it.isCompleted }) {
@@ -242,11 +240,14 @@ class GetSeasonSummaryUseCase(
         val allPlacements = tournamentRepository.getPlacementsForSeasons(allSeasonIds)
 
         val seasonMap = seasons.associateBy { it.id }
+        val tournamentMap = allTournaments.associateBy { it.id }
 
         val preSeasonTournaments = allTournaments.filter { it.seasonId != currentSeasonId }
         val preSeasonPlacements = allPlacements.filter { placement ->
-            val t = allTournaments.find { it.id == placement.tournamentId }
-            t != null && t.seasonId != currentSeasonId
+            val tournament = requireNotNull(tournamentMap[placement.tournamentId]) {
+                "Turnier mit ID ${placement.tournamentId} für Placement ${placement.id} nicht gefunden"
+            }
+            tournament.seasonId != currentSeasonId
         }
 
         val tournamentChronologicalDescendingComparator = compareByDescending<Tournament> {
@@ -354,8 +355,8 @@ class GetSeasonSummaryUseCase(
                 val (pName, pCountry) = if (pId == USER_ID) {
                     userName to userCountryCode
                 } else {
-                    val p = playerMap[pId] ?: continue
-                    p.name to p.countryCode
+                    val player = requireNotNull(playerMap[pId]) { "CPU-Spieler mit ID $pId nicht gefunden" }
+                    player.name to player.countryCode
                 }
 
                 bestClimber = ClimberSummary(

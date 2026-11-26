@@ -32,11 +32,7 @@ class PreQualifyMainTournamentUseCase(
         qualifierTournament: Tournament,
         seasonTournaments: List<Tournament>
     ): Tournament {
-        val qualifierEvent = try {
-            TournamentEvent.valueOf(qualifierTournament.type)
-        } catch (_: Exception) {
-            throw IllegalStateException("Unbekannter Qualifier-Typ: ${qualifierTournament.type}")
-        }
+        val qualifierEvent = TournamentEvent.valueOf(qualifierTournament.type)
 
         return when (qualifierEvent) {
             TournamentEvent.QUALIFIER_ET -> {
@@ -71,11 +67,7 @@ class PreQualifyMainTournamentUseCase(
         mainTournament: Tournament,
         seasonTournaments: List<Tournament>
     ): Tournament? {
-        val mainEvent = try {
-            TournamentEvent.valueOf(mainTournament.type)
-        } catch (_: Exception) {
-            return null
-        }
+        val mainEvent = TournamentEvent.valueOf(mainTournament.type)
         val qualifierEvent = mainEvent.qualifierEventForMain ?: return null
         return when (qualifierEvent) {
             TournamentEvent.QUALIFIER_ET -> {

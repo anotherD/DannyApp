@@ -179,6 +179,7 @@ class TournamentDetailViewModel(
                         loadTournament(currentTournamentId, season.careerId)
                     } catch (e: Exception) {
                         getApplication<Application>().appContainer.reportError("Turnier laden", e)
+                        _uiState.value = TournamentDetailState.Error(e.message ?: getApplication<Application>().getString(R.string.error_unknown))
                     }
                 }
             }
@@ -234,6 +235,7 @@ class TournamentDetailViewModel(
                 }
             } catch (e: Exception) {
                 getApplication<Application>().appContainer.reportError("Turnier laden", e)
+                _uiState.value = TournamentDetailState.Error(e.message ?: getApplication<Application>().getString(R.string.error_unknown))
             }
         }
     }
