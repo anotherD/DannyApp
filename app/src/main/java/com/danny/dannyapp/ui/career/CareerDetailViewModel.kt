@@ -19,6 +19,7 @@ sealed interface CareerDetailState {
     object Loading : CareerDetailState
     object InvalidId : CareerDetailState
     data class Success(val careerWithProfile: CareerWithProfile) : CareerDetailState
+    data class Error(val message: String) : CareerDetailState
 }
 
 class CareerDetailViewModel(
@@ -65,6 +66,7 @@ class CareerDetailViewModel(
                 _careerState.value = CareerDetailState.Success(careerWithProfile)
             } catch (e: Exception) {
                 getApplication<Application>().appContainer.reportError("Karriere laden", e)
+                _careerState.value = CareerDetailState.Error(e.message ?: "Unbekannter Fehler")
             }
         }
     }

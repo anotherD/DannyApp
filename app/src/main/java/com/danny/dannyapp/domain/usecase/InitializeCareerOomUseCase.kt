@@ -71,7 +71,7 @@ class InitializeCareerOomUseCase(
             val playerName = parts[0].trim()
             val dateStr = parts[1].trim()
             val rawTournamentName = parts[2].trim()
-            val prizeMoney = parts[3].trim().toDoubleOrNull() ?: continue
+            val prizeMoney = requireNotNull(parts[3].trim().toDoubleOrNull()) { "Ungültiges Preisgeld '${parts[3]}' in initial_placements.csv für Spieler '$playerName'" }
 
             val playerId = nameToPlayerId[playerName] ?: continue
 

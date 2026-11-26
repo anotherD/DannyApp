@@ -873,7 +873,9 @@ class TournamentQualificationUseCase(
             val prevRoundEnum = sequence[roundIndex - 1]
             val prevMatches = allMatches.filter { it.round == prevRoundEnum.name }.sortedBy { it.matchIndex }
             if (prevMatches.isNotEmpty() && prevMatches.any { it.isCompleted }) {
-                val winnerIds = prevMatches.mapNotNull { if (it.isCompleted) it.winnerId else null }
+                val winnerIds = prevMatches.filter { it.isCompleted }.map { match ->
+                    requireNotNull(match.winnerId) { "Abgeschlossenes Match ${match.id} in Runde ${prevRoundEnum.name} hat keinen winnerId" }
+                }
                 if (winnerIds.isNotEmpty()) {
                     val winnerPlayers = winnerIds.map { id -> createEntrantPlayerDomainInfo(id, null) }
                     groups.add(
