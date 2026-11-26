@@ -97,6 +97,12 @@ class CareerDetailActivity : BaseActivity() {
                                     rootViewId = R.id.careerDetailMain
                                 )
                             }
+                            is CareerDetailState.Error -> {
+                                showMessage(state.message, isError = true)
+                            }
+                            is CareerDetailState.InvalidId -> {
+                                showMessage(getString(R.string.error_invalid_career_id), isError = true)
+                            }
                             else -> {}
                         }
                     }

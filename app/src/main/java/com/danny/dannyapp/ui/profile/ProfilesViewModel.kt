@@ -59,6 +59,7 @@ class ProfilesViewModel(application: Application) : AndroidViewModel(application
             if (isDuplicate) {
                 SaveProfileResult.DuplicateName(trimmedName)
             } else {
+                getApplication<Application>().appContainer.reportError("Profil speichern", e)
                 SaveProfileResult.Error(e.localizedMessage ?: getApplication<Application>().getString(R.string.error_unknown))
             }
         }
@@ -95,6 +96,7 @@ class ProfilesViewModel(application: Application) : AndroidViewModel(application
             if (isDuplicate) {
                 SaveProfileResult.DuplicateName(trimmedName)
             } else {
+                getApplication<Application>().appContainer.reportError("Profil speichern", e)
                 SaveProfileResult.Error(e.localizedMessage ?: getApplication<Application>().getString(R.string.error_unknown))
             }
         }
@@ -102,6 +104,11 @@ class ProfilesViewModel(application: Application) : AndroidViewModel(application
 
     suspend fun deleteUserProfile(profileId: Long) {
         require(profileId > 0L) { "Ungültige Profil-ID: $profileId" }
-        userProfileRepository.deleteUserProfile(profileId)
+        try {
+            userProfileRepository.deleteUserProfile(profileId)
+        } catch (e: Exception) {
+            getApplication<Application>().appContainer.reportError("Profil löschen", e)
+            throw e
+        }
     }
 }
