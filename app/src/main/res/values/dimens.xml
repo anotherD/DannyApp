@@ -58,4 +58,27 @@
     <dimen name="toolbar_subtitle_size">12sp</dimen>
     <dimen name="toolbar_min_height">56dp</dimen>
     <dimen name="toolbar_breadcrumb_icon_size">14dp</dimen>
+    <dimen name="settings_padding">16dp</dimen>
+    <dimen name="settings_section_header_size">14sp</dimen>
+    <dimen name="settings_section_header_margin">8dp</dimen>
+    <dimen name="settings_card_margin_bottom">16dp</dimen>
+    <dimen name="settings_item_text_size">16sp</dimen>
+    <dimen name="settings_divider_margin_v">12dp</dimen>
+    <dimen name="players_sort_padding_h">16dp</dimen>
+    <dimen name="players_sort_padding_top">8dp</dimen>
+    <dimen name="players_sort_padding_bottom">4dp</dimen>
+    <dimen name="players_sort_label_size">14sp</dimen>
+    <dimen name="players_sort_label_margin_end">12dp</dimen>
+    <dimen name="players_sort_button_text_size">14sp</dimen>
+    <dimen name="players_list_padding_h">16dp</dimen>
+    <dimen name="players_list_padding_bottom">16dp</dimen>
+    <dimen name="player_item_margin_v">4dp</dimen>
+    <dimen name="player_item_padding_h">10dp</dimen>
+    <dimen name="player_item_padding_v">8dp</dimen>
+    <dimen name="player_item_name_size">16sp</dimen>
+    <dimen name="player_item_tourcard_container_width">32dp</dimen>
+    <dimen name="player_item_tourcard_icon_size">14sp</dimen>
+    <dimen name="player_item_skill_width">36dp</dimen>
+    <dimen name="player_item_skill_height">24dp</dimen>
+    <dimen name="player_item_skill_text_size">12sp</dimen>
 </resources>

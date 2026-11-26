@@ -20,9 +20,9 @@
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingHorizontal="16dp"
-        android:paddingTop="8dp"
-        android:paddingBottom="4dp"
+        android:paddingHorizontal="@dimen/players_sort_padding_h"
+        android:paddingTop="@dimen/players_sort_padding_top"
+        android:paddingBottom="@dimen/players_sort_padding_bottom"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/toolbar">
@@ -30,9 +30,9 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="12dp"
+            android:layout_marginEnd="@dimen/players_sort_label_margin_end"
             android:text="@string/sort_by_label"
-            android:textSize="14sp"
+            android:textSize="@dimen/players_sort_label_size"
             android:textStyle="bold" />
 
         <com.google.android.material.button.MaterialButtonToggleGroup
@@ -48,6 +48,7 @@
                 style="?attr/materialButtonOutlinedStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textSize="@dimen/players_sort_button_text_size"
                 android:text="@string/player_skill" />
 
             <com.google.android.material.button.MaterialButton
@@ -55,6 +56,7 @@
                 style="?attr/materialButtonOutlinedStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textSize="@dimen/players_sort_button_text_size"
                 android:text="@string/player_name" />
 
         </com.google.android.material.button.MaterialButtonToggleGroup>
@@ -66,8 +68,8 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:clipToPadding="false"
-        android:paddingHorizontal="16dp"
-        android:paddingBottom="16dp"
+        android:paddingHorizontal="@dimen/players_list_padding_h"
+        android:paddingBottom="@dimen/players_list_padding_bottom"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

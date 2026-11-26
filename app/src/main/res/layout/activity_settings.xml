@@ -27,48 +27,48 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="@dimen/settings_padding">
 
             <!-- Section 1: Gameplay & Simulation -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
+                android:layout_marginBottom="@dimen/settings_section_header_margin"
                 android:text="@string/settings_section_gameplay"
                 android:textColor="@color/rot_hell"
-                android:textSize="14sp"
+                android:textSize="@dimen/settings_section_header_size"
                 android:textStyle="bold" />
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="@dimen/settings_card_margin_bottom"
                 app:cardCornerRadius="12dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="@dimen/settings_padding">
 
                     <com.google.android.material.materialswitch.MaterialSwitch
                         android:id="@+id/switchAutoSimulateCpu"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/config_auto_simulate_cpu"
-                        android:textSize="16sp" />
+                        android:textSize="@dimen/settings_item_text_size" />
 
                     <com.google.android.material.divider.MaterialDivider
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginVertical="12dp" />
+                        android:layout_marginVertical="@dimen/settings_divider_margin_v" />
 
                     <com.google.android.material.materialswitch.MaterialSwitch
                         android:id="@+id/switchAutoAdvanceRound"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/config_auto_advance_round"
-                        android:textSize="16sp" />
+                        android:textSize="@dimen/settings_item_text_size" />
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -77,30 +77,30 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
+                android:layout_marginBottom="@dimen/settings_section_header_margin"
                 android:text="@string/settings_section_design"
                 android:textColor="@color/rot_hell"
-                android:textSize="14sp"
+                android:textSize="@dimen/settings_section_header_size"
                 android:textStyle="bold" />
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="@dimen/settings_card_margin_bottom"
                 app:cardCornerRadius="12dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="@dimen/settings_padding">
 
                     <com.google.android.material.materialswitch.MaterialSwitch
                         android:id="@+id/switchModernMatchCard"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/settings_modern_match_card"
-                        android:textSize="16sp" />
+                        android:textSize="@dimen/settings_item_text_size" />
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -109,30 +109,30 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
+                android:layout_marginBottom="@dimen/settings_section_header_margin"
                 android:text="@string/settings_section_developer"
                 android:textColor="@color/rot_hell"
-                android:textSize="14sp"
+                android:textSize="@dimen/settings_section_header_size"
                 android:textStyle="bold" />
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="@dimen/settings_card_margin_bottom"
                 app:cardCornerRadius="12dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="@dimen/settings_padding">
 
                     <com.google.android.material.materialswitch.MaterialSwitch
                         android:id="@+id/switchDebugMode"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/config_debug_mode"
-                        android:textSize="16sp" />
+                        android:textSize="@dimen/settings_item_text_size" />
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -142,7 +142,7 @@
                 android:id="@+id/cardPlayers"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
+                android:layout_marginBottom="@dimen/settings_card_margin_bottom"
                 app:cardCornerRadius="12dp"
                 android:clickable="true"
                 android:focusable="true">
@@ -150,10 +150,10 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="16dp"
+                    android:padding="@dimen/settings_padding"
                     android:gravity="center_vertical"
                     android:text="@string/config_players"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/settings_item_text_size"
                     android:textStyle="bold"
                     app:drawableEndCompat="@drawable/ic_arrow_forward" />
             </com.google.android.material.card.MaterialCardView>
