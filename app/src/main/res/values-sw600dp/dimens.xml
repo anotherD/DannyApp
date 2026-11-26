@@ -10,14 +10,14 @@
     <dimen name="start_subtitle_line_width">52dp</dimen>
     <dimen name="start_subtitle_trans_y">21dp</dimen>
     <dimen name="start_subtitle_line_height">3.2dp</dimen>
-    <dimen name="overview_max_content_width">680dp</dimen>
-    <dimen name="overview_padding">24dp</dimen>
-    <dimen name="overview_section_spacing">32dp</dimen>
-    <dimen name="overview_player_text_size">32sp</dimen>
-    <dimen name="overview_meta_text_size">20sp</dimen>
-    <dimen name="overview_ranking_label_size">17sp</dimen>
-    <dimen name="overview_ranking_value_size">22sp</dimen>
-    <dimen name="overview_shortcut_icon_size">52dp</dimen>
-    <dimen name="overview_section_header_size">24sp</dimen>
-    <dimen name="overview_empty_text_size">20sp</dimen>
+    <dimen name="overview_padding_horizontal">32dp</dimen>
+    <dimen name="overview_padding">32dp</dimen>
+    <dimen name="overview_section_spacing">48dp</dimen>
+    <dimen name="overview_player_text_size">46sp</dimen>
+    <dimen name="overview_meta_text_size">30sp</dimen>
+    <dimen name="overview_ranking_label_size">25sp</dimen>
+    <dimen name="overview_ranking_value_size">32sp</dimen>
+    <dimen name="overview_shortcut_icon_size">76dp</dimen>
+    <dimen name="overview_section_header_size">38sp</dimen>
+    <dimen name="overview_empty_text_size">30sp</dimen>
 </resources>

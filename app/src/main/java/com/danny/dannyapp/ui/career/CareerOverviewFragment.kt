@@ -2,10 +2,8 @@ package com.danny.dannyapp.ui.career
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.TextView
@@ -37,7 +35,6 @@ class CareerOverviewFragment : Fragment(R.layout.fragment_career_overview) {
 
     private lateinit var tvCareerOverviewPlayer: TextView
     private lateinit var tvCareerOverviewMeta: TextView
-    private lateinit var layoutCareerOverviewContent: LinearLayout
     private lateinit var tvOverviewRankOom: TextView
     private lateinit var tvOverviewRankPt: TextView
     private lateinit var tvOverviewRankPc: TextView
@@ -68,7 +65,6 @@ class CareerOverviewFragment : Fragment(R.layout.fragment_career_overview) {
 
         tvCareerOverviewPlayer = view.findViewById(R.id.tvCareerOverviewPlayer)
         tvCareerOverviewMeta = view.findViewById(R.id.tvCareerOverviewMeta)
-        layoutCareerOverviewContent = view.findViewById(R.id.layoutCareerOverviewContent)
         tvOverviewRankOom = view.findViewById(R.id.tvOverviewRankOom)
         tvOverviewRankPt = view.findViewById(R.id.tvOverviewRankPt)
         tvOverviewRankPc = view.findViewById(R.id.tvOverviewRankPc)
@@ -81,17 +77,6 @@ class CareerOverviewFragment : Fragment(R.layout.fragment_career_overview) {
         tvNoActiveTournament = view.findViewById(R.id.tvNoActiveTournament)
         btnEndSeason = view.findViewById(R.id.btnEndSeason)
         cardShortcutCalendar = view.findViewById(R.id.cardShortcutCalendar)
-
-        val maxWidth = resources.getDimensionPixelSize(R.dimen.overview_max_content_width)
-        val params = layoutCareerOverviewContent.layoutParams as FrameLayout.LayoutParams
-        if (maxWidth > 0) {
-            params.width = maxWidth
-            params.gravity = Gravity.CENTER_HORIZONTAL
-        } else {
-            params.width = ViewGroup.LayoutParams.MATCH_PARENT
-            params.gravity = Gravity.NO_GRAVITY
-        }
-        layoutCareerOverviewContent.layoutParams = params
 
         layoutOverviewRankOom.setOnClickListener { careerViewModel.requestOpenRanking(OrderOfMeritType.OOM) }
         layoutOverviewRankPt.setOnClickListener { careerViewModel.requestOpenRanking(OrderOfMeritType.PT_OOM) }
