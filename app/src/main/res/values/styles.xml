@@ -77,8 +77,12 @@
         <item name="android:textColorHint">@color/eingabe_hint</item>
     </style>
 
+    <style name="TextAppearance.DannyApp.ToolbarTitle" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:textSize">@dimen/toolbar_title_size</item>
+    </style>
+
     <style name="TextAppearance.DannyApp.ToolbarSubtitle" parent="TextAppearance.Material3.BodySmall">
-        <item name="android:textSize">12sp</item>
+        <item name="android:textSize">@dimen/toolbar_subtitle_size</item>
         <item name="android:textColor">@color/grau_text_gedaempft</item>
     </style>
 </resources>

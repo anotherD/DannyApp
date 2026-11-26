@@ -44,4 +44,17 @@
     <dimen name="tournament_card_sim_btn_width">72dp</dimen>
     <dimen name="tournament_card_sim_btn_height">56dp</dimen>
     <dimen name="tournament_card_sim_icon_size">36dp</dimen>
+    <dimen name="badge_corner_radius">12dp</dimen>
+    <dimen name="tournament_card_start_btn_pad_h">36dp</dimen>
+    <dimen name="dialog_padding">36dp</dimen>
+    <dimen name="dialog_title_size">34sp</dimen>
+    <dimen name="dialog_label_size">26sp</dimen>
+    <dimen name="dialog_input_text_size">24sp</dimen>
+    <dimen name="dialog_field_spacing">18dp</dimen>
+    <dimen name="dialog_picker_height">190dp</dimen>
+    <dimen name="dialog_info_icon_size">38dp</dimen>
+    <dimen name="toolbar_title_size">30sp</dimen>
+    <dimen name="toolbar_subtitle_size">18sp</dimen>
+    <dimen name="toolbar_min_height">84dp</dimen>
+    <dimen name="toolbar_breadcrumb_icon_size">21dp</dimen>
 </resources>

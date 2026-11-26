@@ -50,8 +50,7 @@ enum class AppScreen(
         ancestors.reverse()
 
         val builder = SpannableStringBuilder()
-        val density = context.resources.displayMetrics.density
-        val sizePx = (14 * density).toInt()
+        val sizePx = context.resources.getDimensionPixelSize(R.dimen.toolbar_breadcrumb_icon_size)
         val tintColor = ContextCompat.getColor(context, R.color.grau_text_gedaempft)
 
         for ((index, screen) in ancestors.withIndex()) {
