@@ -85,4 +85,30 @@
         <item name="android:textSize">@dimen/toolbar_subtitle_size</item>
         <item name="android:textColor">@color/grau_text_gedaempft</item>
     </style>
+
+    <style name="TextAppearance.DannyApp.DialogTitle" parent="MaterialAlertDialog.Material3.Title.Text">
+        <item name="android:textSize">@dimen/dialog_title_size</item>
+    </style>
+
+    <style name="TextAppearance.DannyApp.DialogBody" parent="MaterialAlertDialog.Material3.Body.Text">
+        <item name="android:textSize">@dimen/dialog_message_text_size</item>
+    </style>
+
+    <style name="Widget.DannyApp.DialogButton" parent="Widget.Material3.Button.TextButton.Dialog">
+        <item name="android:textSize">@dimen/dialog_button_text_size</item>
+        <item name="android:paddingHorizontal">@dimen/dialog_button_pad_h</item>
+        <item name="android:paddingVertical">@dimen/dialog_button_pad_v</item>
+    </style>
+
+    <style name="TextAppearance.DannyApp.TextInputHint" parent="TextAppearance.Design.Hint">
+        <item name="android:textSize">@dimen/dialog_input_hint_size</item>
+    </style>
+
+    <style name="ThemeOverlay.DannyApp.MaterialAlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="materialAlertDialogTitleTextStyle">@style/TextAppearance.DannyApp.DialogTitle</item>
+        <item name="materialAlertDialogBodyTextStyle">@style/TextAppearance.DannyApp.DialogBody</item>
+        <item name="buttonBarPositiveButtonStyle">@style/Widget.DannyApp.DialogButton</item>
+        <item name="buttonBarNegativeButtonStyle">@style/Widget.DannyApp.DialogButton</item>
+        <item name="buttonBarNeutralButtonStyle">@style/Widget.DannyApp.DialogButton</item>
+    </style>
 </resources>

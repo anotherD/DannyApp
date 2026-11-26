@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -17,7 +18,10 @@
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/profile_dialog_field_spacing">
+        android:layout_marginBottom="@dimen/profile_dialog_field_spacing"
+        app:boxStrokeWidth="@dimen/dialog_box_stroke_width"
+        app:boxStrokeWidthFocused="@dimen/dialog_box_stroke_width_focused"
+        app:hintTextAppearance="@style/TextAppearance.DannyApp.TextInputHint">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etProfileName"
@@ -33,7 +37,10 @@
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/profile_dialog_field_spacing">
+        android:layout_marginBottom="@dimen/profile_dialog_field_spacing"
+        app:boxStrokeWidth="@dimen/dialog_box_stroke_width"
+        app:boxStrokeWidthFocused="@dimen/dialog_box_stroke_width_focused"
+        app:hintTextAppearance="@style/TextAppearance.DannyApp.TextInputHint">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etPlayerName"
@@ -51,7 +58,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/profile_dialog_field_spacing"
-        android:hint="@string/profiles_create_country_hint">
+        android:hint="@string/profiles_create_country_hint"
+        app:boxStrokeWidth="@dimen/dialog_box_stroke_width"
+        app:boxStrokeWidthFocused="@dimen/dialog_box_stroke_width_focused"
+        app:hintTextAppearance="@style/TextAppearance.DannyApp.TextInputHint">
 
         <AutoCompleteTextView
             android:id="@+id/actvCountry"
@@ -65,7 +75,10 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        app:boxStrokeWidth="@dimen/dialog_box_stroke_width"
+        app:boxStrokeWidthFocused="@dimen/dialog_box_stroke_width_focused"
+        app:hintTextAppearance="@style/TextAppearance.DannyApp.TextInputHint">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etProfileDescription"

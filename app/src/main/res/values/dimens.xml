@@ -49,6 +49,13 @@
     <dimen name="tournament_card_start_btn_pad_h">20dp</dimen>
     <dimen name="dialog_padding">20dp</dimen>
     <dimen name="dialog_title_size">20sp</dimen>
+    <dimen name="dialog_message_text_size">15sp</dimen>
+    <dimen name="dialog_button_text_size">14sp</dimen>
+    <dimen name="dialog_button_pad_h">16dp</dimen>
+    <dimen name="dialog_button_pad_v">10dp</dimen>
+    <dimen name="dialog_input_hint_size">12sp</dimen>
+    <dimen name="dialog_box_stroke_width">1dp</dimen>
+    <dimen name="dialog_box_stroke_width_focused">2dp</dimen>
     <dimen name="dialog_label_size">15sp</dimen>
     <dimen name="dialog_input_text_size">14sp</dimen>
     <dimen name="dialog_field_spacing">10dp</dimen>
@@ -89,4 +96,16 @@
     <dimen name="players_sort_button_pad_h">16dp</dimen>
     <dimen name="players_sort_button_pad_v">8dp</dimen>
     <dimen name="players_sort_button_min_height">40dp</dimen>
+    <dimen name="oom_chip_group_pad_h">16dp</dimen>
+    <dimen name="oom_chip_group_pad_v">8dp</dimen>
+    <dimen name="oom_chip_spacing">8dp</dimen>
+    <dimen name="oom_chip_text_size">14sp</dimen>
+    <dimen name="oom_chip_min_height">36dp</dimen>
+    <dimen name="oom_row_padding_h">16dp</dimen>
+    <dimen name="oom_row_padding_v">10dp</dimen>
+    <dimen name="oom_rank_width">36dp</dimen>
+    <dimen name="oom_rank_text_size">14sp</dimen>
+    <dimen name="oom_player_margin_h">8dp</dimen>
+    <dimen name="oom_player_text_size">15sp</dimen>
+    <dimen name="oom_money_text_size">14sp</dimen>
 </resources>
