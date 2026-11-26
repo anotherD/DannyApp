@@ -11,4 +11,14 @@
     <dimen name="start_subtitle_trans_y">10dp</dimen>
     <dimen name="start_title_text_size">44sp</dimen>
     <dimen name="start_subtitle_line_height">1.5dp</dimen>
+    <dimen name="overview_max_content_width">-1px</dimen>
+    <dimen name="overview_padding">16dp</dimen>
+    <dimen name="overview_section_spacing">24dp</dimen>
+    <dimen name="overview_player_text_size">22sp</dimen>
+    <dimen name="overview_meta_text_size">14sp</dimen>
+    <dimen name="overview_ranking_label_size">12sp</dimen>
+    <dimen name="overview_ranking_value_size">15sp</dimen>
+    <dimen name="overview_shortcut_icon_size">36dp</dimen>
+    <dimen name="overview_section_header_size">18sp</dimen>
+    <dimen name="overview_empty_text_size">14sp</dimen>
 </resources>

@@ -2,8 +2,10 @@ package com.danny.dannyapp.ui.career
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.TextView
@@ -35,7 +37,7 @@ class CareerOverviewFragment : Fragment(R.layout.fragment_career_overview) {
 
     private lateinit var tvCareerOverviewPlayer: TextView
     private lateinit var tvCareerOverviewMeta: TextView
-    private lateinit var tvCareerOverviewProfile: TextView
+    private lateinit var layoutCareerOverviewContent: LinearLayout
     private lateinit var tvOverviewRankOom: TextView
     private lateinit var tvOverviewRankPt: TextView
     private lateinit var tvOverviewRankPc: TextView
@@ -66,7 +68,7 @@ class CareerOverviewFragment : Fragment(R.layout.fragment_career_overview) {
 
         tvCareerOverviewPlayer = view.findViewById(R.id.tvCareerOverviewPlayer)
         tvCareerOverviewMeta = view.findViewById(R.id.tvCareerOverviewMeta)
-        tvCareerOverviewProfile = view.findViewById(R.id.tvCareerOverviewProfile)
+        layoutCareerOverviewContent = view.findViewById(R.id.layoutCareerOverviewContent)
         tvOverviewRankOom = view.findViewById(R.id.tvOverviewRankOom)
         tvOverviewRankPt = view.findViewById(R.id.tvOverviewRankPt)
         tvOverviewRankPc = view.findViewById(R.id.tvOverviewRankPc)
@@ -79,6 +81,17 @@ class CareerOverviewFragment : Fragment(R.layout.fragment_career_overview) {
         tvNoActiveTournament = view.findViewById(R.id.tvNoActiveTournament)
         btnEndSeason = view.findViewById(R.id.btnEndSeason)
         cardShortcutCalendar = view.findViewById(R.id.cardShortcutCalendar)
+
+        val maxWidth = resources.getDimensionPixelSize(R.dimen.overview_max_content_width)
+        val params = layoutCareerOverviewContent.layoutParams as FrameLayout.LayoutParams
+        if (maxWidth > 0) {
+            params.width = maxWidth
+            params.gravity = Gravity.CENTER_HORIZONTAL
+        } else {
+            params.width = ViewGroup.LayoutParams.MATCH_PARENT
+            params.gravity = Gravity.NO_GRAVITY
+        }
+        layoutCareerOverviewContent.layoutParams = params
 
         layoutOverviewRankOom.setOnClickListener { careerViewModel.requestOpenRanking(OrderOfMeritType.OOM) }
         layoutOverviewRankPt.setOnClickListener { careerViewModel.requestOpenRanking(OrderOfMeritType.PT_OOM) }
@@ -117,10 +130,17 @@ class CareerOverviewFragment : Fragment(R.layout.fragment_career_overview) {
                             val career = careerWithProfile.career
                             careerName = career.name
 
-                            tvCareerOverviewMeta.text = getString(R.string.career_season_level_format, getString(R.string.season_format, career.season), getString(R.string.career_level_format, career.level))
+                            val profileText = getString(R.string.career_profile_format, careerWithProfile.profileName)
+                            val seasonText = getString(R.string.season_format, career.season)
+                            val levelText = getString(R.string.career_level_format, career.level)
+                            tvCareerOverviewMeta.text = getString(
+                                R.string.career_overview_meta_full_format,
+                                profileText,
+                                seasonText,
+                                levelText
+                            )
 
                             UIHelper.formatFlagAndText(tvCareerOverviewPlayer, careerWithProfile.countryCode, careerWithProfile.playerName)
-                            tvCareerOverviewProfile.text = getString(R.string.career_profile_format, careerWithProfile.profileName)
                         }
                     }
                 }

@@ -59,6 +59,7 @@
     <string name="career_create_no_profile_message">Es existiert noch kein Profil. Bitte erstelle zuerst ein Profil, um eine Karriere anlegen zu können.</string>
     <string name="career_create_no_profile_button">Profil anlegen</string>
     <string name="career_profile_format">Profil: %s</string>
+    <string name="career_overview_meta_full_format">%1$s • %2$s • %3$s</string>
     <string name="profiles">Profile</string>
     <string name="profiles_empty_state">Noch keine Profile vorhanden.\nErstelle dein erstes Profil über den Button unten.</string>
     <string name="profiles_create_new">Neues Profil erstellen</string>

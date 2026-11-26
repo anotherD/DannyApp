@@ -7,15 +7,16 @@
     android:fillViewport="true">
 
     <LinearLayout
+        android:id="@+id/layoutCareerOverviewContent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="@dimen/overview_padding">
 
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
+            android:layout_marginBottom="@dimen/overview_section_spacing"
             app:cardBackgroundColor="?attr/colorSurfaceVariant"
             app:cardCornerRadius="12dp"
             app:strokeWidth="0dp">
@@ -24,34 +25,27 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp"
+                android:padding="@dimen/overview_padding"
                 android:gravity="center_horizontal">
 
                 <TextView
                     android:id="@+id/tvCareerOverviewPlayer"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="22sp"
+                    android:textSize="@dimen/overview_player_text_size"
                     android:textStyle="bold"
                     tools:text="🇩🇪 Max Verstappen" />
-
-                <TextView
-                    android:id="@+id/tvCareerOverviewProfile"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:textSize="14sp"
-                    android:textColor="?attr/colorOnSurfaceVariant"
-                    tools:text="Profil: Pro Player" />
 
                 <TextView
                     android:id="@+id/tvCareerOverviewMeta"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:textSize="14sp"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:textSize="@dimen/overview_meta_text_size"
                     android:textColor="?attr/colorOnSurfaceVariant"
-                    tools:text="Saison 1 • Level 5" />
+                    tools:text="Profil: Pro Player • Saison 1 • Level 5" />
 
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
@@ -59,7 +53,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp">
+            android:layout_marginBottom="@dimen/overview_section_spacing">
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardOverviewRankings"
@@ -79,7 +73,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="@dimen/overview_padding">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -106,14 +100,14 @@
                                 android:layout_height="wrap_content"
                                 android:text="@string/oom_tab_oom"
                                 android:textColor="?attr/colorOnSurfaceVariant"
-                                android:textSize="12sp" />
+                                android:textSize="@dimen/overview_ranking_label_size" />
 
                             <TextView
                                 android:id="@+id/tvOverviewRankOom"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:textColor="?attr/colorOnSurface"
-                                android:textSize="15sp"
+                                android:textSize="@dimen/overview_ranking_value_size"
                                 android:textStyle="bold"
                                 tools:text="#12 (£45,000)" />
                         </LinearLayout>
@@ -136,14 +130,14 @@
                                 android:layout_height="wrap_content"
                                 android:text="@string/oom_tab_pt"
                                 android:textColor="?attr/colorOnSurfaceVariant"
-                                android:textSize="12sp" />
+                                android:textSize="@dimen/overview_ranking_label_size" />
 
                             <TextView
                                 android:id="@+id/tvOverviewRankPt"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:textColor="?attr/colorOnSurface"
-                                android:textSize="15sp"
+                                android:textSize="@dimen/overview_ranking_value_size"
                                 android:textStyle="bold"
                                 tools:text="#18 (£15,000)" />
                         </LinearLayout>
@@ -176,14 +170,14 @@
                                 android:layout_height="wrap_content"
                                 android:text="@string/oom_tab_pc"
                                 android:textColor="?attr/colorOnSurfaceVariant"
-                                android:textSize="12sp" />
+                                android:textSize="@dimen/overview_ranking_label_size" />
 
                             <TextView
                                 android:id="@+id/tvOverviewRankPc"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:textColor="?attr/colorOnSurface"
-                                android:textSize="15sp"
+                                android:textSize="@dimen/overview_ranking_value_size"
                                 android:textStyle="bold"
                                 tools:text="#15 (£10,000)" />
                         </LinearLayout>
@@ -206,14 +200,14 @@
                                 android:layout_height="wrap_content"
                                 android:text="@string/oom_tab_et"
                                 android:textColor="?attr/colorOnSurfaceVariant"
-                                android:textSize="12sp" />
+                                android:textSize="@dimen/overview_ranking_label_size" />
 
                             <TextView
                                 android:id="@+id/tvOverviewRankEt"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:textColor="?attr/colorOnSurface"
-                                android:textSize="15sp"
+                                android:textSize="@dimen/overview_ranking_value_size"
                                 android:textStyle="bold"
                                 tools:text="#24 (£5,000)" />
                         </LinearLayout>
@@ -239,8 +233,8 @@
                 app:layout_constraintEnd_toEndOf="parent">
 
                 <ImageView
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
+                    android:layout_width="@dimen/overview_shortcut_icon_size"
+                    android:layout_height="@dimen/overview_shortcut_icon_size"
                     android:layout_gravity="center"
                     android:src="@drawable/ic_calendar"
                     app:tint="?attr/colorOnSurface"
@@ -264,8 +258,8 @@
                 app:layout_constraintEnd_toEndOf="parent">
 
                 <ImageView
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
+                    android:layout_width="@dimen/overview_shortcut_icon_size"
+                    android:layout_height="@dimen/overview_shortcut_icon_size"
                     android:layout_gravity="center"
                     android:src="@drawable/ic_stats"
                     app:tint="?attr/colorOnSurfaceVariant"
@@ -279,7 +273,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
             android:text="@string/current_or_next_tournament"
-            android:textSize="18sp"
+            android:textSize="@dimen/overview_section_header_size"
             android:textStyle="bold" />
 
         <FrameLayout
@@ -295,7 +289,7 @@
             android:text="@string/no_active_or_next_tournament"
             android:textAlignment="center"
             android:textColor="?attr/colorOnSurfaceVariant"
-            android:textSize="14sp"
+            android:textSize="@dimen/overview_empty_text_size"
             android:visibility="gone"
             tools:visibility="visible" />
 
@@ -305,6 +299,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="@string/btn_end_season"
+            android:textSize="@dimen/overview_empty_text_size"
             android:visibility="gone"
             tools:visibility="visible" />
 
