@@ -23,10 +23,7 @@ class AdvanceSeasonUseCase(
         val careerWithProfile = careerRepository.getCareerById(careerId)
         val career = careerWithProfile.career
 
-        val seasons = seasonRepository.getSeasonsListForCareer(careerId)
-        val currentSeason = requireNotNull(seasons.maxByOrNull { it.seasonNumber }) {
-            "Keine Saison für Karriere $careerId gefunden"
-        }
+        val currentSeason = seasonRepository.getCurrentSeasonForCareer(careerId)
 
         val tournaments = tournamentRepository.getTournamentsListForSeason(currentSeason.id)
         check(tournaments.isNotEmpty() && tournaments.all { it.isCompleted }) {

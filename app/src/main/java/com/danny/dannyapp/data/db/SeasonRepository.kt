@@ -116,6 +116,16 @@ class SeasonRepository(
     }
 
     /**
+     * Liefert die aktuelle Saison einer Karriere (Fail-Fast).
+     */
+    suspend fun getCurrentSeasonForCareer(careerId: Long): Season = withContext(Dispatchers.IO) {
+        require(careerId > 0L) { "Ungültige Karriere-ID: $careerId" }
+        requireNotNull(seasonDao.getCurrentSeasonForCareer(careerId)) {
+            "Keine aktuelle Saison für Karriere-ID $careerId gefunden"
+        }
+    }
+
+    /**
      * Ruft die aktuelle Saison einer Karriere ab oder erstellt Saison 1, falls noch keine Saison existiert.
      */
     suspend fun getOrCreateInitialSeasonForCareer(careerId: Long): Season {
@@ -203,9 +213,7 @@ class SeasonRepository(
         careerId: Long,
         oomEntries: List<OrderOfMeritEntry>
     ): Long = withContext(Dispatchers.IO) {
-        require(careerId > 0L) { "Ungültige Karriere-ID: $careerId" }
-        val currentSeason = seasonDao.getCurrentSeasonForCareer(careerId)
-        requireNotNull(currentSeason) { "Keine aktuelle Saison für Karriere-ID $careerId gefunden" }
+        val currentSeason = getCurrentSeasonForCareer(careerId)
 
         val currentTournaments = tournamentRepository.getTournamentsListForSeason(currentSeason.id)
         val isShortTestSeason = currentTournaments.count { it.type == TournamentEvent.PLAYERS_CHAMPIONSHIP.name } == 3

@@ -7,6 +7,7 @@ import androidx.room.Embedded
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
 data class CareerWithProfile(
@@ -54,8 +55,11 @@ interface CareerDao {
     @Query("SELECT COUNT(*) FROM careers WHERE profile_id = :profileId")
     suspend fun getCareerCountForProfile(profileId: Long): Int
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insertCareer(career: Career): Long
+
+    @Update
+    suspend fun updateCareer(career: Career)
 
     @Query("DELETE FROM careers WHERE id = :id")
     suspend fun deleteCareerById(id: Long)

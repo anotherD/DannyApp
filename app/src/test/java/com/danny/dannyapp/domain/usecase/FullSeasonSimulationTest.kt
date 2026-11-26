@@ -379,6 +379,11 @@ class FullSeasonSimulationTest {
             return id
         }
 
+        override suspend fun updateCareer(career: Career) {
+            careers.removeIf { it.id == career.id }
+            careers.add(career)
+        }
+
         override suspend fun deleteCareerById(id: Long) {
             careers.removeIf { it.id == id }
         }

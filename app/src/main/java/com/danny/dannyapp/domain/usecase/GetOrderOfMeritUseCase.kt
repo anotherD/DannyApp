@@ -26,10 +26,10 @@ class GetOrderOfMeritUseCase(
     suspend operator fun invoke(careerId: Long, type: OrderOfMeritType): List<OrderOfMeritEntry> = withContext(Dispatchers.IO) {
         require(careerId > 0L) { "Ungültige Karriere-ID: $careerId" }
         val seasons = seasonRepository.getSeasonsListForCareer(careerId)
-        if (seasons.isEmpty()) return@withContext emptyList()
+        require(seasons.isNotEmpty()) { "Keine Saisons für Karriere-ID $careerId gefunden" }
 
         val seasonIds = seasons.map { it.id }
-        val currentSeason = seasons.maxByOrNull { it.seasonNumber }
+        val currentSeason = seasonRepository.getCurrentSeasonForCareer(careerId)
 
         val allTournaments = tournamentRepository.getTournamentsListForSeasons(seasonIds)
 
@@ -67,21 +67,13 @@ class GetOrderOfMeritUseCase(
             }
             .sortedWith(tournamentChronologicalDescendingComparator)
 
-        val pcOomTournaments = if (currentSeason == null) {
-            emptyList()
-        } else {
-            allTournaments.filter {
-                it.seasonId == currentSeason.id && it.type.uppercase().contains("PLAYERS_CHAMPIONSHIP")
-            }.sortedWith(tournamentChronologicalDescendingComparator)
-        }
+        val pcOomTournaments = allTournaments.filter {
+            it.seasonId == currentSeason.id && it.type.uppercase().contains("PLAYERS_CHAMPIONSHIP")
+        }.sortedWith(tournamentChronologicalDescendingComparator)
 
-        val etOomTournaments = if (currentSeason == null) {
-            emptyList()
-        } else {
-            allTournaments.filter {
-                it.seasonId == currentSeason.id && it.type.uppercase().contains("EUROPEAN_TOUR")
-            }.sortedWith(tournamentChronologicalDescendingComparator)
-        }
+        val etOomTournaments = allTournaments.filter {
+            it.seasonId == currentSeason.id && it.type.uppercase().contains("EUROPEAN_TOUR")
+        }.sortedWith(tournamentChronologicalDescendingComparator)
 
         val relevantTournaments = when (type) {
             OrderOfMeritType.OOM -> oomTournaments
@@ -97,12 +89,10 @@ class GetOrderOfMeritUseCase(
         // Ensure user is in map
         prizeMoneyMap[USER_ID] = 0.0
 
-        if (currentSeason != null) {
-            val tourCardPlayerIds = seasonRepository.getTourCardPlayerIdsForSeason(currentSeason.id)
-            for (tcPlayerId in tourCardPlayerIds) {
-                if (tcPlayerId == USER_ID || playerMap.containsKey(tcPlayerId)) {
-                    prizeMoneyMap.putIfAbsent(tcPlayerId, 0.0)
-                }
+        val tourCardPlayerIds = seasonRepository.getTourCardPlayerIdsForSeason(currentSeason.id)
+        for (tcPlayerId in tourCardPlayerIds) {
+            if (tcPlayerId == USER_ID || playerMap.containsKey(tcPlayerId)) {
+                prizeMoneyMap.putIfAbsent(tcPlayerId, 0.0)
             }
         }
 
@@ -209,22 +199,19 @@ class GetOrderOfMeritUseCase(
      */
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     fun observeOrderOfMerit(careerId: Long, type: OrderOfMeritType): Flow<List<OrderOfMeritEntry>> {
+        require(careerId > 0L) { "Ungültige Karriere-ID: $careerId" }
         return seasonRepository.getSeasonsForCareer(careerId)
             .flatMapLatest { seasons ->
-                val seasonIds = seasons.map { it.id }
-                if (seasonIds.isEmpty()) {
+                if (seasons.isEmpty()) {
                     flowOf(emptyList())
                 } else {
-                    val currentSeason = seasons.maxByOrNull { it.seasonNumber }
-                    if (currentSeason == null) {
-                        flowOf(emptyList())
-                    } else {
-                        combine(
-                            tournamentRepository.getPlacementsFlowForSeasons(seasonIds),
-                            seasonRepository.getTourCardsForSeason(currentSeason.id)
-                        ) { _, _ ->
-                            invoke(careerId, type)
-                        }
+                    val seasonIds = seasons.map { it.id }
+                    val currentSeason = requireNotNull(seasons.maxByOrNull { it.seasonNumber })
+                    combine(
+                        tournamentRepository.getPlacementsFlowForSeasons(seasonIds),
+                        seasonRepository.getTourCardsForSeason(currentSeason.id)
+                    ) { _, _ ->
+                        invoke(careerId, type)
                     }
                 }
             }

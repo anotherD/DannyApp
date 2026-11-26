@@ -51,7 +51,7 @@ class CareerRepository(
      */
     suspend fun updateCareer(career: Career) = withContext(Dispatchers.IO) {
         require(career.id > 0L) { "Cannot update career without valid ID" }
-        careerDao.insertCareer(career)
+        careerDao.updateCareer(career)
     }
 
     suspend fun deleteCareer(id: Long) = withContext(Dispatchers.IO) {
