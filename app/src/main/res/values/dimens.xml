@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="fading_edge_length">18dp</dimen>
+    <dimen name="start_button_width">245dp</dimen>
+    <dimen name="start_button_min_height">48dp</dimen>
+    <dimen name="start_button_text_size">16sp</dimen>
+    <dimen name="start_button_spacing">10dp</dimen>
+    <dimen name="start_subtitle_text_size">14sp</dimen>
+    <dimen name="start_subtitle_line_width">24dp</dimen>
+    <dimen name="start_title_max_text_size">48sp</dimen>
 </resources>

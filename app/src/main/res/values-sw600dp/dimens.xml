@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="start_button_width">380dp</dimen>
+    <dimen name="start_button_min_height">60dp</dimen>
+    <dimen name="start_button_text_size">22sp</dimen>
+    <dimen name="start_button_spacing">16dp</dimen>
+    <dimen name="start_subtitle_text_size">20sp</dimen>
+    <dimen name="start_subtitle_line_width">36dp</dimen>
+    <dimen name="start_title_max_text_size">76sp</dimen>
+</resources>

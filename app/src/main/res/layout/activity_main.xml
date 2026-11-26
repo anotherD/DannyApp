@@ -34,87 +34,104 @@
             android:orientation="horizontal"
             app:layout_constraintGuide_percent="0.64" />
 
-        <!-- Großes, freigestelltes Hero-Bild über fast die volle Breite -->
-        <ImageView
-            android:id="@+id/ivCardImage"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginTop="28dp"
-            android:layout_marginBottom="0dp"
-            android:contentDescription="@string/app_name"
-            android:scaleType="fitCenter"
-            android:src="@drawable/stage"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/heroPosterContainer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constrainedWidth="true"
+            app:layout_constrainedHeight="true"
             app:layout_constraintBottom_toTopOf="@id/guidelineTop"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent">
 
-        <!-- Show-Titel "Walk-On" -->
-        <TextView
-            android:id="@+id/tvAppTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/bowlby_one_sc"
-            android:gravity="center"
-            android:letterSpacing="0.14"
-            android:rotation="-3"
-            android:rotationX="15"
-            android:rotationY="0"
-            android:shadowColor="#CCFFB300"
-            android:shadowDx="0"
-            android:shadowDy="0"
-            android:shadowRadius="24"
-            android:text="@string/app_name"
-            android:textAllCaps="false"
-            android:textColor="#FFFDF5"
-            android:textSize="44sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <!-- Untertitel eingerahmt von zwei goldenen Linien -->
-        <LinearLayout
-            android:id="@+id/layoutSubtitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="4dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            app:layout_constraintBottom_toTopOf="@id/guidelineTop"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent">
-
-            <View
-                android:layout_width="24dp"
-                android:layout_height="1.5dp"
-                android:layout_marginEnd="10dp"
-                android:background="#80F5B041" />
-
-            <TextView
-                android:id="@+id/tvSubtitle"
+            <!-- Großes, freigestelltes Hero-Bild über fast die volle Breite -->
+            <ImageView
+                android:id="@+id/ivCardImage"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-medium"
+                android:layout_marginTop="24dp"
+                android:adjustViewBounds="true"
+                android:contentDescription="@string/app_name"
+                android:scaleType="fitCenter"
+                android:src="@drawable/stage"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <!-- Show-Titel "Walk-On" -->
+            <TextView
+                android:id="@+id/tvAppTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/bowlby_one_sc"
                 android:gravity="center"
-                android:letterSpacing="0.12"
-                android:shadowColor="#F0000000"
+                android:letterSpacing="0.14"
+                android:maxLines="1"
+                android:rotation="-3"
+                android:rotationX="15"
+                android:rotationY="0"
+                android:shadowColor="#CCFFB300"
                 android:shadowDx="0"
-                android:shadowDy="2"
-                android:shadowRadius="8"
-                android:text="@string/app_subtitle"
-                android:textAllCaps="true"
-                android:textColor="#F5B041"
-                android:textSize="14sp"
-                android:textStyle="bold" />
+                android:shadowDy="0"
+                android:shadowRadius="24"
+                android:text="@string/app_name"
+                android:textAllCaps="false"
+                android:textColor="#FFFDF5"
+                app:autoSizeMaxTextSize="@dimen/start_title_max_text_size"
+                app:autoSizeMinTextSize="24sp"
+                app:autoSizeStepGranularity="1sp"
+                app:autoSizeTextType="uniform"
+                app:layout_constraintEnd_toEndOf="@id/ivCardImage"
+                app:layout_constraintStart_toStartOf="@id/ivCardImage"
+                app:layout_constraintTop_toTopOf="parent" />
 
-            <View
-                android:layout_width="24dp"
-                android:layout_height="1.5dp"
-                android:layout_marginStart="10dp"
-                android:background="#CCF5B041" />
-        </LinearLayout>
+            <!-- Untertitel eingerahmt von zwei goldenen Linien -->
+            <LinearLayout
+                android:id="@+id/layoutSubtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                app:layout_constraintBottom_toBottomOf="@id/ivCardImage"
+                app:layout_constraintEnd_toEndOf="@id/ivCardImage"
+                app:layout_constraintStart_toStartOf="@id/ivCardImage">
 
-        <!-- Bottom Button Area (approx. 2/3 width) -->
+                <View
+                    android:layout_width="@dimen/start_subtitle_line_width"
+                    android:layout_height="1.5dp"
+                    android:layout_marginEnd="10dp"
+                    android:background="#80F5B041" />
+
+                <TextView
+                    android:id="@+id/tvSubtitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-medium"
+                    android:gravity="center"
+                    android:letterSpacing="0.12"
+                    android:shadowColor="#F0000000"
+                    android:shadowDx="0"
+                    android:shadowDy="2"
+                    android:shadowRadius="8"
+                    android:text="@string/app_subtitle"
+                    android:textAllCaps="true"
+                    android:textColor="#F5B041"
+                    android:textSize="@dimen/start_subtitle_text_size"
+                    android:textStyle="bold" />
+
+                <View
+                    android:layout_width="@dimen/start_subtitle_line_width"
+                    android:layout_height="1.5dp"
+                    android:layout_marginStart="10dp"
+                    android:background="#CCF5B041" />
+            </LinearLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- Bottom Button Area -->
         <ScrollView
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -124,41 +141,43 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/guidelineTop"
-            app:layout_constraintWidth_percent="0.68">
+            app:layout_constraintTop_toBottomOf="@id/guidelineTop">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
+                android:gravity="center"
                 android:orientation="vertical">
 
                 <!-- Button 1: Scolia Browser -->
                 <Button
                     android:id="@+id/btnOpenScolia"
-                    android:layout_width="match_parent"
+                    android:layout_width="@dimen/start_button_width"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="10dp"
+                    android:layout_marginBottom="@dimen/start_button_spacing"
+                    android:minHeight="@dimen/start_button_min_height"
                     android:text="@string/scolia_browser"
-                    android:textSize="16sp" />
+                    android:textSize="@dimen/start_button_text_size" />
 
                 <!-- Button 2: Profile -->
                 <Button
                     android:id="@+id/btnProfiles"
-                    android:layout_width="match_parent"
+                    android:layout_width="@dimen/start_button_width"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="10dp"
+                    android:layout_marginBottom="@dimen/start_button_spacing"
+                    android:minHeight="@dimen/start_button_min_height"
                     android:text="@string/profiles"
-                    android:textSize="16sp" />
+                    android:textSize="@dimen/start_button_text_size" />
 
                 <!-- Button 3: Karriere -->
                 <Button
                     android:id="@+id/btnCareers"
-                    android:layout_width="match_parent"
+                    android:layout_width="@dimen/start_button_width"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="10dp"
+                    android:layout_marginBottom="@dimen/start_button_spacing"
+                    android:minHeight="@dimen/start_button_min_height"
                     android:text="@string/careers"
-                    android:textSize="16sp" />
+                    android:textSize="@dimen/start_button_text_size" />
 
             </LinearLayout>
         </ScrollView>
