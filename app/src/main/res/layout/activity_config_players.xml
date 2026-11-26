@@ -48,6 +48,10 @@
                 style="?attr/materialButtonOutlinedStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:paddingHorizontal="@dimen/players_sort_button_pad_h"
+                android:paddingVertical="@dimen/players_sort_button_pad_v"
+                android:minHeight="@dimen/players_sort_button_min_height"
+                app:strokeWidth="@dimen/card_stroke_thin"
                 android:textSize="@dimen/players_sort_button_text_size"
                 android:text="@string/player_skill" />
 
@@ -56,6 +60,10 @@
                 style="?attr/materialButtonOutlinedStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:paddingHorizontal="@dimen/players_sort_button_pad_h"
+                android:paddingVertical="@dimen/players_sort_button_pad_v"
+                android:minHeight="@dimen/players_sort_button_min_height"
+                app:strokeWidth="@dimen/card_stroke_thin"
                 android:textSize="@dimen/players_sort_button_text_size"
                 android:text="@string/player_name" />
 

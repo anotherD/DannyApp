@@ -3,8 +3,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="12dp"
+    android:layout_marginBottom="@dimen/career_card_margin_bottom"
     app:cardCornerRadius="12dp"
+    app:strokeColor="?attr/colorOutlineVariant"
+    app:strokeWidth="@dimen/card_stroke_thin"
     android:clickable="true"
     android:focusable="true">
 
@@ -12,29 +14,29 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="@dimen/career_card_padding">
 
         <TextView
             android:id="@+id/tvProfileName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="18sp"
+            android:textSize="@dimen/career_card_title_size"
             android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tvPlayerNameAndFlag"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textSize="14sp"
+            android:layout_marginTop="@dimen/career_card_sub_spacing"
+            android:textSize="@dimen/career_card_body_size"
             android:textColor="?attr/colorOnSurfaceVariant" />
 
         <TextView
             android:id="@+id/tvProfileDescription"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textSize="14sp"
+            android:layout_marginTop="@dimen/career_card_sub_spacing"
+            android:textSize="@dimen/career_card_body_size"
             android:visibility="gone" />
 
     </LinearLayout>

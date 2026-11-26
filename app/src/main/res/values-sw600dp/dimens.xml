@@ -53,6 +53,9 @@
     <dimen name="dialog_field_spacing">18dp</dimen>
     <dimen name="dialog_picker_height">190dp</dimen>
     <dimen name="dialog_info_icon_size">38dp</dimen>
+    <dimen name="profile_dialog_padding">48dp</dimen>
+    <dimen name="profile_dialog_field_spacing">32dp</dimen>
+    <dimen name="profile_dialog_input_text_size">32sp</dimen>
     <dimen name="toolbar_title_size">30sp</dimen>
     <dimen name="toolbar_subtitle_size">18sp</dimen>
     <dimen name="toolbar_min_height">84dp</dimen>
@@ -80,4 +83,9 @@
     <dimen name="player_item_skill_width">54dp</dimen>
     <dimen name="player_item_skill_height">36dp</dimen>
     <dimen name="player_item_skill_text_size">18sp</dimen>
+    <dimen name="card_stroke_thin">2dp</dimen>
+    <dimen name="card_stroke_thick">4dp</dimen>
+    <dimen name="players_sort_button_pad_h">34dp</dimen>
+    <dimen name="players_sort_button_pad_v">16dp</dimen>
+    <dimen name="players_sort_button_min_height">76dp</dimen>
 </resources>

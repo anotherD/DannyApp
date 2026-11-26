@@ -6,6 +6,8 @@
     android:layout_height="wrap_content"
     android:layout_marginBottom="@dimen/career_card_margin_bottom"
     app:cardCornerRadius="12dp"
+    app:strokeColor="?attr/colorOutlineVariant"
+    app:strokeWidth="@dimen/card_stroke_thin"
     android:clickable="true"
     android:focusable="true">
 

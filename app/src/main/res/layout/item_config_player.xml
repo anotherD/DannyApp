@@ -8,7 +8,7 @@
     android:layout_marginBottom="@dimen/player_item_margin_v"
     tools:layout_marginTop="24dp"
     app:cardCornerRadius="8dp"
-    app:strokeWidth="2dp">
+    app:strokeWidth="@dimen/card_stroke_thick">
 
     <LinearLayout
         android:layout_width="match_parent"
