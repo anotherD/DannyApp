@@ -1,14 +1,18 @@
 package com.danny.dannyapp.ui
 
 import android.content.Intent
+import android.hardware.display.DisplayManager
 import android.os.Bundle
+import android.view.Display
 import android.view.View
 import android.view.ViewTreeObserver
 import androidx.annotation.StringRes
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -16,6 +20,7 @@ import com.danny.dannyapp.AppContainer
 import com.danny.dannyapp.DannyApp
 import com.danny.dannyapp.R
 import com.danny.dannyapp.ui.navigation.AppScreen
+import com.danny.dannyapp.ui.navigation.ExternalDisplayHelper
 import com.danny.dannyapp.ui.settings.SettingsActivity
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.snackbar.Snackbar
@@ -26,6 +31,28 @@ abstract class BaseActivity : AppCompatActivity() {
     protected var toolbar: MaterialToolbar? = null
 
     protected var currentScreen: AppScreen? = null
+
+    private var displayManager: DisplayManager? = null
+
+    private val displayListener = object : DisplayManager.DisplayListener {
+        override fun onDisplayAdded(displayId: Int) {
+            if (!ExternalDisplayHelper.isOnExternalDisplay(this@BaseActivity)) {
+                val externalDisplay = ExternalDisplayHelper.findExternalDisplay(this@BaseActivity)
+                if (externalDisplay != null) {
+                    ExternalDisplayHelper.moveActivityToDisplay(this@BaseActivity, externalDisplay.displayId)
+                }
+            }
+        }
+
+        override fun onDisplayRemoved(displayId: Int) {
+            val currentDisplayId = this@BaseActivity.display?.displayId ?: Display.DEFAULT_DISPLAY
+            if (displayId == currentDisplayId || ExternalDisplayHelper.isOnExternalDisplay(this@BaseActivity)) {
+                ExternalDisplayHelper.moveActivityToDisplay(this@BaseActivity, Display.DEFAULT_DISPLAY)
+            }
+        }
+
+        override fun onDisplayChanged(displayId: Int) {}
+    }
 
     protected open fun buildUpNavigationExtras(parentScreen: AppScreen, intent: Intent) {}
 
@@ -112,6 +139,14 @@ abstract class BaseActivity : AppCompatActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
+        val externalDisplay = ExternalDisplayHelper.findExternalDisplay(this)
+        if (externalDisplay != null && !ExternalDisplayHelper.isOnExternalDisplay(this)) {
+            ExternalDisplayHelper.moveActivityToDisplay(this, externalDisplay.displayId)
+            return
+        }
+
+        updateSystemBarsForDisplay()
+
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 appContainer.errorEvents.collect { message ->
@@ -127,6 +162,37 @@ abstract class BaseActivity : AppCompatActivity() {
         val vto = window.decorView.viewTreeObserver
         vto.addOnGlobalLayoutListener(globalLayoutListener)
         vto.addOnScrollChangedListener(scrollChangedListener)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        if (displayManager == null) {
+            displayManager = getSystemService(DISPLAY_SERVICE) as? DisplayManager
+        }
+        displayManager?.registerDisplayListener(displayListener, null)
+    }
+
+    override fun onStop() {
+        displayManager?.unregisterDisplayListener(displayListener)
+        super.onStop()
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus) {
+            updateSystemBarsForDisplay()
+        }
+    }
+
+    private fun updateSystemBarsForDisplay() {
+        val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
+        if (ExternalDisplayHelper.isOnExternalDisplay(this)) {
+            windowInsetsController.systemBarsBehavior =
+                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            windowInsetsController.hide(WindowInsetsCompat.Type.systemBars())
+        } else {
+            windowInsetsController.show(WindowInsetsCompat.Type.systemBars())
+        }
     }
 
     override fun onDestroy() {
@@ -197,9 +263,15 @@ abstract class BaseActivity : AppCompatActivity() {
             val initialBottom = toolbar?.paddingBottom ?: 0
 
             ViewCompat.setOnApplyWindowInsetsListener(rootView) { _, windowInsets ->
-                val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-                toolbar?.setPadding(initialLeft, insets.top, initialRight, initialBottom)
-                rootView.setPadding(insets.left, 0, insets.right, insets.bottom)
+                if (ExternalDisplayHelper.isOnExternalDisplay(this)) {
+                    val cutoutInsets = windowInsets.getInsets(WindowInsetsCompat.Type.displayCutout())
+                    toolbar?.setPadding(initialLeft, cutoutInsets.top, initialRight, initialBottom)
+                    rootView.setPadding(cutoutInsets.left, 0, cutoutInsets.right, cutoutInsets.bottom)
+                } else {
+                    val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+                    toolbar?.setPadding(initialLeft, insets.top, initialRight, initialBottom)
+                    rootView.setPadding(insets.left, 0, insets.right, insets.bottom)
+                }
                 windowInsets
             }
         }
