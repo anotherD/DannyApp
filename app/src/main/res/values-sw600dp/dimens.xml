@@ -4,7 +4,10 @@
     <dimen name="start_button_min_height">80dp</dimen>
     <dimen name="start_button_text_size">32sp</dimen>
     <dimen name="start_button_spacing">20dp</dimen>
-    <dimen name="start_title_text_size">94sp</dimen>
+    <dimen name="start_image_margin_top">145dp</dimen>
+    <dimen name="start_title_text_size">99sp</dimen>
     <dimen name="start_subtitle_text_size">30sp</dimen>
     <dimen name="start_subtitle_line_width">52dp</dimen>
+    <dimen name="start_subtitle_trans_y">21dp</dimen>
+    <dimen name="start_subtitle_line_height">3.2dp</dimen>
 </resources>

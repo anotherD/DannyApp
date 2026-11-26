@@ -54,7 +54,7 @@
                 android:id="@+id/ivCardImage"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/start_subtitle_line_width"
+                android:layout_marginTop="@dimen/start_image_margin_top"
                 android:adjustViewBounds="true"
                 android:contentDescription="@string/app_name"
                 android:scaleType="fitCenter"
@@ -98,13 +98,14 @@
                 android:layout_marginBottom="4dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
+                android:translationY="@dimen/start_subtitle_trans_y"
                 app:layout_constraintBottom_toBottomOf="@id/ivCardImage"
                 app:layout_constraintEnd_toEndOf="@id/ivCardImage"
                 app:layout_constraintStart_toStartOf="@id/ivCardImage">
 
                 <View
                     android:layout_width="@dimen/start_subtitle_line_width"
-                    android:layout_height="1.5dp"
+                    android:layout_height="@dimen/start_subtitle_line_height"
                     android:layout_marginEnd="10dp"
                     android:background="#80F5B041" />
 
@@ -127,7 +128,7 @@
 
                 <View
                     android:layout_width="@dimen/start_subtitle_line_width"
-                    android:layout_height="1.5dp"
+                    android:layout_height="@dimen/start_subtitle_line_height"
                     android:layout_marginStart="10dp"
                     android:background="#CCF5B041" />
             </LinearLayout>
