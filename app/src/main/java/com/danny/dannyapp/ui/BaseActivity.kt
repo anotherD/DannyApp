@@ -231,6 +231,15 @@ abstract class BaseActivity : AppCompatActivity() {
         } else {
             windowInsetsController.show(WindowInsetsCompat.Type.systemBars())
         }
+        updateKeepScreenOn()
+    }
+
+    private fun updateKeepScreenOn() {
+        if (ExternalDisplayHelper.isOnExternalDisplay(this)) {
+            window.addFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        } else {
+            window.clearFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        }
     }
 
     override fun onDestroy() {
