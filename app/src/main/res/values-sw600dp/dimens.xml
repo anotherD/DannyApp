@@ -23,7 +23,7 @@
     <dimen name="list_screen_padding">32dp</dimen>
     <dimen name="list_empty_margin_h">64dp</dimen>
     <dimen name="list_empty_text_size">34sp</dimen>
-    <dimen name="primary_bottom_button_margin_h">48dp</dimen>
+    <dimen name="primary_bottom_button_margin_h">54dp</dimen>
     <dimen name="primary_bottom_button_margin_bottom">40dp</dimen>
     <dimen name="primary_bottom_button_text_size">32sp</dimen>
     <dimen name="career_card_margin_bottom">24dp</dimen>
@@ -153,7 +153,9 @@
     <dimen name="card_elevation_modern">3dp</dimen>
     <dimen name="sticky_card_elevation">24dp</dimen>
     <dimen name="sticky_shadow_height">18dp</dimen>
+    <dimen name="screen_margin">21dp</dimen>
     <dimen name="screen_margin_small">18dp</dimen>
+    <dimen name="hero_margin_bottom">25dp</dimen>
     <dimen name="list_bottom_padding_fab">96dp</dimen>
     <dimen name="crash_title_size">36sp</dimen>
     <dimen name="crash_subtitle_size">24sp</dimen>

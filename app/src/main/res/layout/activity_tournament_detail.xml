@@ -103,10 +103,9 @@
     <!-- 2. KOPFKARTE AKTIV (Steuerungskarte) -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardActiveControls"
-        style="@style/Widget.DannyApp.Card"
+        style="@style/Widget.DannyApp.Card.Hero"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/screen_margin_small"
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

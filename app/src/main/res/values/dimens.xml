@@ -154,7 +154,9 @@
     <dimen name="card_elevation_modern">2dp</dimen>
     <dimen name="sticky_card_elevation">16dp</dimen>
     <dimen name="sticky_shadow_height">12dp</dimen>
+    <dimen name="screen_margin">10dp</dimen>
     <dimen name="screen_margin_small">12dp</dimen>
+    <dimen name="hero_margin_bottom">12dp</dimen>
     <dimen name="list_bottom_padding_fab">72dp</dimen>
     <dimen name="crash_title_size">24sp</dimen>
     <dimen name="crash_subtitle_size">16sp</dimen>
