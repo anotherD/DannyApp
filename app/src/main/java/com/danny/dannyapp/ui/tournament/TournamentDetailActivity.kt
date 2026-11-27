@@ -2,6 +2,7 @@ package com.danny.dannyapp.ui.tournament
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
@@ -528,6 +529,8 @@ class TournamentDetailActivity : BaseActivity() {
                         textAlignment = View.TEXT_ALIGNMENT_CENTER
                         isCheckable = true
                         isChecked = isSelected
+                        setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.tour_control_chip_text_size))
+                        minHeight = resources.getDimensionPixelSize(R.dimen.tour_control_chip_min_height)
                         setEnsureMinTouchTargetSize(false)
                         minWidth = 0
                         minimumWidth = 0
@@ -714,6 +717,8 @@ class TournamentDetailActivity : BaseActivity() {
             text = getString(R.string.bracket_board_all)
             isCheckable = true
             isChecked = isAllSelected
+            setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.tour_control_chip_text_size))
+            minHeight = resources.getDimensionPixelSize(R.dimen.tour_control_chip_min_height)
             UIHelper.styleSelectionChip(this, isAllSelected)
             setOnClickListener {
                 selectedBoardFilterIndex = -1
@@ -731,6 +736,8 @@ class TournamentDetailActivity : BaseActivity() {
                 text = getString(R.string.bracket_board_format, boardIdx + 1)
                 isCheckable = true
                 isChecked = isBoardSelected
+                setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.tour_control_chip_text_size))
+                minHeight = resources.getDimensionPixelSize(R.dimen.tour_control_chip_min_height)
                 UIHelper.styleSelectionChip(this, isBoardSelected)
                 setOnClickListener {
                     selectedBoardFilterIndex = boardIdx

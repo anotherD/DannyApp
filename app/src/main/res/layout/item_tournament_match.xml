@@ -27,7 +27,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/rot_hell"
-            android:textSize="12sp"
+            android:textSize="@dimen/match_card_badge_size"
             android:textStyle="bold"
             tools:text="Board 1" />
     </LinearLayout>
@@ -37,10 +37,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        app:cardBackgroundColor="?attr/colorSurface"
-        app:cardCornerRadius="12dp"
-        app:strokeColor="?attr/colorOutlineVariant"
-        app:strokeWidth="1dp"
+        style="@style/Widget.DannyApp.Card"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -49,8 +46,8 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingHorizontal="12dp"
-            android:paddingVertical="10dp">
+            android:paddingHorizontal="@dimen/match_card_padding_h"
+            android:paddingVertical="@dimen/match_card_padding_v">
 
             <!-- Player 1 -->
             <TextView
@@ -62,7 +59,7 @@
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:textColor="?attr/colorOnSurface"
-                android:textSize="14sp"
+                android:textSize="@dimen/match_card_name_size"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/tvPlayer1Score"
@@ -73,11 +70,11 @@
             <!-- Score Center -->
             <TextView
                 android:id="@+id/tvPlayer1Score"
-                android:layout_width="28dp"
+                android:layout_width="@dimen/match_card_score_width"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:textColor="?attr/colorOnSurface"
-                android:textSize="18sp"
+                android:textSize="@dimen/match_card_score_size"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/tvScoreDivider"
@@ -90,7 +87,7 @@
                 android:layout_height="wrap_content"
                 android:text=":"
                 android:textColor="?attr/colorOnSurfaceVariant"
-                android:textSize="16sp"
+                android:textSize="@dimen/match_card_divider_size"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -99,11 +96,11 @@
 
             <TextView
                 android:id="@+id/tvPlayer2Score"
-                android:layout_width="28dp"
+                android:layout_width="@dimen/match_card_score_width"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:textColor="?attr/colorOnSurface"
-                android:textSize="18sp"
+                android:textSize="@dimen/match_card_score_size"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@id/tvScoreDivider"
@@ -121,7 +118,7 @@
                 android:gravity="end"
                 android:maxLines="1"
                 android:textColor="?attr/colorOnSurface"
-                android:textSize="14sp"
+                android:textSize="@dimen/match_card_name_size"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -142,7 +139,7 @@
         android:paddingHorizontal="8dp"
         android:paddingVertical="1dp"
         android:textColor="@color/grau_text_gedaempft"
-        android:textSize="11sp"
+        android:textSize="@dimen/match_card_badge_size"
         app:layout_constraintBottom_toTopOf="@id/cardMatch"
         app:layout_constraintEnd_toEndOf="@id/cardMatch"
         app:layout_constraintStart_toStartOf="@id/cardMatch"

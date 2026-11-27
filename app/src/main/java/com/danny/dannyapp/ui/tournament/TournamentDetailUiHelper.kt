@@ -390,6 +390,8 @@ object TournamentDetailUiHelper {
                 text = displayName
                 isCheckable = true
                 isChecked = (index == selectedIndex)
+                setTextSize(TypedValue.COMPLEX_UNIT_PX, context.resources.getDimension(R.dimen.tour_control_chip_text_size))
+                minHeight = context.resources.getDimensionPixelSize(R.dimen.tour_control_chip_min_height)
 
                 val (bgRes, textRes) = when (status) {
                     RoundStatus.COMPLETED -> R.color.status_completed to R.color.grau_text_gedaempft

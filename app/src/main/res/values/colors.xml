@@ -27,6 +27,7 @@
     <color name="surface_karte_aktiv">#FF2E2E2E</color>
     <color name="surface_major_tint">#FF262012</color>
     <color name="surface_et_tint">#FF261414</color>
+    <color name="overlay_scrim">#80000000</color>
 
     <!-- Text- & Rahmen grau (reines Neutral-Grau) -->
     <color name="grau_rahmen_dunkel">#FF383838</color>

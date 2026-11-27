@@ -124,4 +124,26 @@
     <dimen name="summary_sub_size">13sp</dimen>
     <dimen name="summary_card_spacing">24dp</dimen>
     <dimen name="summary_row_spacing">12dp</dimen>
+    <dimen name="overlay_text_size">16sp</dimen>
+    <dimen name="tour_hero_padding">16dp</dimen>
+    <dimen name="tour_hero_title_size">18sp</dimen>
+    <dimen name="tour_hero_badge_size">11sp</dimen>
+    <dimen name="tour_hero_badge_pad_h">8dp</dimen>
+    <dimen name="tour_hero_badge_pad_v">3dp</dimen>
+    <dimen name="tour_hero_body_size">14sp</dimen>
+    <dimen name="tour_hero_highlight_size">16sp</dimen>
+    <dimen name="tour_hero_icon_size">24dp</dimen>
+    <dimen name="tour_hero_button_text_size">12sp</dimen>
+    <dimen name="tour_control_chip_text_size">14sp</dimen>
+    <dimen name="tour_control_chip_min_height">36dp</dimen>
+    <dimen name="tour_fab_size">40dp</dimen>
+    <dimen name="tour_fab_icon_size">24dp</dimen>
+    <dimen name="tour_fab_spacing">32dp</dimen>
+    <dimen name="match_card_padding_h">12dp</dimen>
+    <dimen name="match_card_padding_v">10dp</dimen>
+    <dimen name="match_card_name_size">14sp</dimen>
+    <dimen name="match_card_score_size">18sp</dimen>
+    <dimen name="match_card_score_width">28dp</dimen>
+    <dimen name="match_card_divider_size">16sp</dimen>
+    <dimen name="match_card_badge_size">11sp</dimen>
 </resources>

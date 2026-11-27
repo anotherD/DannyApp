@@ -41,7 +41,7 @@
             app:layout_constraintEnd_toStartOf="@id/tvPrizeMoney"
             app:layout_constraintStart_toEndOf="@id/tvRank"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="🇩🇪 Danny" />
+            tools:text="🇩🇪 Dein Name" />
 
         <TextView
             android:id="@+id/tvPrizeMoney"
