@@ -3,5 +3,6 @@
     <style name="Theme.DannyApp" parent="Base.Theme.DannyApp">
         <item name="materialAlertDialogTheme">@style/ThemeOverlay.DannyApp.MaterialAlertDialog</item>
         <item name="alertDialogTheme">@style/ThemeOverlay.DannyApp.MaterialAlertDialog</item>
+        <item name="textInputStyle">@style/Widget.DannyApp.TextInputLayout</item>
     </style>
 </resources>

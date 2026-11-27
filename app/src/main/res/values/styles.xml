@@ -46,8 +46,7 @@
         <item name="colorOutlineVariant">@color/grau_rahmen_dunkel</item>
         <item name="android:fadingEdgeLength">@dimen/fading_edge_length</item>
 
-        <!-- Globaler Stil für TextInputLayout (setzt Hint-Farbe nur im leeren Zustand) -->
-        <item name="textInputStyle">@style/Widget.DannyApp.TextInputLayout.OutlinedBox</item>
+
 
         <!-- verhindert, dass cards mit elevation eingefärbt werden mit colorPrimary -->
 <!--        <item name="elevationOverlayEnabled">false</item>-->
@@ -72,8 +71,17 @@
         <item name="windowSplashScreenAnimationDuration">11750</item>
         <item name="postSplashScreenTheme">@style/Theme.DannyApp</item>
     </style>
-    <!-- Eigener TextInputLayout-Stil für den Platzhalter (Hint) ohne das schwebende Label zu beeinflussen -->
-    <style name="Widget.DannyApp.TextInputLayout.OutlinedBox" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+    <style name="Widget.DannyApp.TextInputLayout" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="boxStrokeWidth">@dimen/dialog_box_stroke_width</item>
+        <item name="boxStrokeWidthFocused">@dimen/dialog_box_stroke_width_focused</item>
+        <item name="hintTextAppearance">@style/TextAppearance.DannyApp.TextInputHint</item>
+        <item name="android:textColorHint">@color/eingabe_hint</item>
+    </style>
+
+    <style name="Widget.DannyApp.TextInputLayout.Dropdown" parent="Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+        <item name="boxStrokeWidth">@dimen/dialog_box_stroke_width</item>
+        <item name="boxStrokeWidthFocused">@dimen/dialog_box_stroke_width_focused</item>
+        <item name="hintTextAppearance">@style/TextAppearance.DannyApp.TextInputHint</item>
         <item name="android:textColorHint">@color/eingabe_hint</item>
     </style>
 
