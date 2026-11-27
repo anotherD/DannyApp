@@ -62,74 +62,7 @@
                         android:layout_height="wrap_content"
                         android:padding="@dimen/tour_hero_padding">
 
-                        <TextView
-                            android:id="@+id/tvPreviewTitle"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginEnd="8dp"
-                            android:textColor="?attr/colorOnSurface"
-                            android:textSize="@dimen/tour_hero_title_size"
-                            android:textStyle="bold"
-                            app:layout_constraintEnd_toStartOf="@id/btnPrizeInfoPreview"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent"
-                            tools:text="World Matchplay" />
-
-                        <!-- Info Icon -->
-                        <ImageView
-                            android:id="@+id/btnPrizeInfoPreview"
-                            android:layout_width="@dimen/tour_hero_icon_size"
-                            android:layout_height="@dimen/tour_hero_icon_size"
-                            android:layout_marginEnd="8dp"
-                            android:background="?attr/selectableItemBackgroundBorderless"
-                            android:clickable="true"
-                            android:contentDescription="@string/tournament_preview_prizes_title"
-                            android:focusable="true"
-                            android:src="@drawable/ic_info"
-                            app:layout_constraintBottom_toBottomOf="@id/tvStatusBadgePreview"
-                            app:layout_constraintEnd_toStartOf="@id/tvStatusBadgePreview"
-                            app:layout_constraintTop_toTopOf="@id/tvStatusBadgePreview"
-                            app:tint="?attr/colorOnSurfaceVariant" />
-
-                        <TextView
-                            android:id="@+id/tvStatusBadgePreview"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:background="@drawable/bg_skill_badge"
-                            android:paddingHorizontal="@dimen/tour_hero_badge_pad_h"
-                            android:paddingVertical="@dimen/tour_hero_badge_pad_v"
-                            android:textColor="@color/white"
-                            android:textSize="@dimen/tour_hero_badge_size"
-                            android:textStyle="bold"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintTop_toTopOf="parent"
-                            tools:text="Geplant" />
-
-                        <TextView
-                            android:id="@+id/tvPreviewTypeBadge"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:background="@drawable/bg_major_badge"
-                            android:paddingHorizontal="@dimen/tour_hero_badge_pad_h"
-                            android:paddingVertical="@dimen/tour_hero_badge_pad_v"
-                            android:textColor="@color/white"
-                            android:textSize="@dimen/tour_hero_badge_size"
-                            android:textStyle="bold"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@id/tvPreviewTitle"
-                            tools:text="Major" />
-
-                        <TextView
-                            android:id="@+id/tvPreviewHost"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:textColor="?attr/colorOnSurfaceVariant"
-                            android:textSize="@dimen/tour_hero_body_size"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintTop_toBottomOf="@id/tvPreviewTitle"
-                            tools:text="🏴󠁧󠁢󠁥󠁮󠁧󠁿 Blackpool" />
+                        <include layout="@layout/include_tournament_header_top" />
 
                         <TextView
                             android:id="@+id/tvPreviewPrizeFund"
@@ -141,7 +74,7 @@
                             android:textStyle="bold"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@id/tvPreviewTypeBadge"
+                            app:layout_constraintTop_toBottomOf="@id/tvHeaderTypeBadge"
                             tools:text="Gesamtpreisgeld: £1,000,000" />
                     </androidx.constraintlayout.widget.ConstraintLayout>
                 </com.google.android.material.card.MaterialCardView>
@@ -185,75 +118,7 @@
             android:layout_height="wrap_content"
             android:padding="@dimen/tour_hero_padding">
 
-            <TextView
-                android:id="@+id/tvActiveTitle"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:textColor="?attr/colorOnSurface"
-                android:textSize="@dimen/tour_hero_title_size"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toStartOf="@id/btnPrizeInfoActive"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:text="World Matchplay" />
-
-            <!-- Info Icon -->
-            <ImageView
-                android:id="@+id/btnPrizeInfoActive"
-                android:layout_width="@dimen/tour_hero_icon_size"
-                android:layout_height="@dimen/tour_hero_icon_size"
-                android:layout_marginEnd="8dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:clickable="true"
-                android:contentDescription="@string/tournament_preview_prizes_title"
-                android:focusable="true"
-                android:src="@drawable/ic_info"
-                app:layout_constraintBottom_toBottomOf="@id/tvStatusBadgeActive"
-                app:layout_constraintEnd_toStartOf="@id/tvStatusBadgeActive"
-                app:layout_constraintTop_toTopOf="@id/tvStatusBadgeActive"
-                app:tint="?attr/colorOnSurfaceVariant" />
-
-            <!-- Status Badge Top Right (shows active round name) -->
-            <TextView
-                android:id="@+id/tvStatusBadgeActive"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/bg_skill_badge"
-                android:paddingHorizontal="@dimen/tour_hero_badge_pad_h"
-                android:paddingVertical="@dimen/tour_hero_badge_pad_v"
-                android:textColor="@color/white"
-                android:textSize="@dimen/tour_hero_badge_size"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:text="Achtelfinale" />
-
-            <TextView
-                android:id="@+id/tvActiveTypeBadge"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/bg_major_badge"
-                android:paddingHorizontal="@dimen/tour_hero_badge_pad_h"
-                android:paddingVertical="@dimen/tour_hero_badge_pad_v"
-                android:textColor="@color/white"
-                android:textSize="@dimen/tour_hero_badge_size"
-                android:textStyle="bold"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tvActiveTitle"
-                tools:text="Major" />
-
-            <TextView
-                android:id="@+id/tvActiveHost"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:textColor="?attr/colorOnSurfaceVariant"
-                android:textSize="@dimen/tour_hero_body_size"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tvActiveTitle"
-                tools:text="🏴󠁧󠁢󠁥󠁮󠁧󠁿 Blackpool" />
+            <include layout="@layout/include_tournament_header_top" />
 
             <!-- Action Buttons -->
             <LinearLayout
@@ -263,7 +128,7 @@
                 android:orientation="vertical"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tvActiveTypeBadge">
+                app:layout_constraintTop_toBottomOf="@id/tvHeaderTypeBadge">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -324,74 +189,7 @@
             android:layout_height="wrap_content"
             android:padding="@dimen/tour_hero_padding">
 
-            <TextView
-                android:id="@+id/tvReviewTitle"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:textColor="?attr/colorOnSurface"
-                android:textSize="@dimen/tour_hero_title_size"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toStartOf="@id/btnPrizeInfoReview"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:text="World Matchplay" />
-
-            <!-- Info Icon -->
-            <ImageView
-                android:id="@+id/btnPrizeInfoReview"
-                android:layout_width="@dimen/tour_hero_icon_size"
-                android:layout_height="@dimen/tour_hero_icon_size"
-                android:layout_marginEnd="8dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:clickable="true"
-                android:contentDescription="@string/tournament_preview_prizes_title"
-                android:focusable="true"
-                android:src="@drawable/ic_info"
-                app:layout_constraintBottom_toBottomOf="@id/tvStatusBadgeReview"
-                app:layout_constraintEnd_toStartOf="@id/tvStatusBadgeReview"
-                app:layout_constraintTop_toTopOf="@id/tvStatusBadgeReview"
-                app:tint="?attr/colorOnSurfaceVariant" />
-
-            <TextView
-                android:id="@+id/tvStatusBadgeReview"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/bg_skill_badge"
-                android:paddingHorizontal="@dimen/tour_hero_badge_pad_h"
-                android:paddingVertical="@dimen/tour_hero_badge_pad_v"
-                android:textColor="@color/white"
-                android:textSize="@dimen/tour_hero_badge_size"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:text="Abgeschlossen" />
-
-            <TextView
-                android:id="@+id/tvReviewTypeBadge"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/bg_major_badge"
-                android:paddingHorizontal="@dimen/tour_hero_badge_pad_h"
-                android:paddingVertical="@dimen/tour_hero_badge_pad_v"
-                android:textColor="@color/white"
-                android:textSize="@dimen/tour_hero_badge_size"
-                android:textStyle="bold"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tvReviewTitle"
-                tools:text="Major" />
-
-            <TextView
-                android:id="@+id/tvReviewHost"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:textColor="?attr/colorOnSurfaceVariant"
-                android:textSize="@dimen/tour_hero_body_size"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tvReviewTitle"
-                tools:text="🏴󠁧󠁢󠁥󠁮󠁧󠁿 Blackpool" />
+            <include layout="@layout/include_tournament_header_top" />
 
             <TextView
                 android:id="@+id/tvReviewWinnerLabel"
@@ -403,7 +201,7 @@
                 android:textSize="@dimen/tour_hero_highlight_size"
                 android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tvReviewTypeBadge"
+                app:layout_constraintTop_toBottomOf="@id/tvHeaderTypeBadge"
                 tools:text="Sieger:" />
 
             <TextView
@@ -431,7 +229,7 @@
                 android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tvReviewTypeBadge"
+                app:layout_constraintTop_toBottomOf="@id/tvHeaderTypeBadge"
                 tools:visibility="visible" />
 
             <LinearLayout

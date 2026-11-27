@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.HorizontalScrollView
-import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.ScrollView
@@ -51,12 +50,7 @@ class TournamentDetailActivity : BaseActivity() {
     // Preview
     private lateinit var cardPreviewHeader: MaterialCardView
     private lateinit var layoutPreviewContainer: View
-    private lateinit var tvPreviewTitle: TextView
-    private lateinit var tvStatusBadgePreview: TextView
-    private lateinit var tvPreviewTypeBadge: TextView
-    private lateinit var tvPreviewHost: TextView
     private lateinit var tvPreviewPrizeFund: TextView
-    private lateinit var btnPrizeInfoPreview: ImageView
     private lateinit var btnStartTournamentPreview: Button
     private var currentEvent: TournamentEvent? = null
 
@@ -78,26 +72,16 @@ class TournamentDetailActivity : BaseActivity() {
 
     // Active Card
     private lateinit var cardActiveControls: MaterialCardView
-    private lateinit var tvActiveTitle: TextView
-    private lateinit var btnPrizeInfoActive: View
-    private lateinit var tvStatusBadgeActive: TextView
-    private lateinit var tvActiveTypeBadge: TextView
-    private lateinit var tvActiveHost: TextView
     private lateinit var btnSimulateCpuMatches: Button
     private lateinit var btnSimulateComplete: Button
     private lateinit var btnAdvanceRound: Button
 
     // Review Card
     private lateinit var cardReviewSummary: MaterialCardView
-    private lateinit var tvReviewTitle: TextView
-    private lateinit var tvReviewTypeBadge: TextView
-    private lateinit var tvReviewHost: TextView
     private lateinit var tvReviewWinnerLabel: TextView
     private lateinit var tvReviewWinner: TextView
     private lateinit var tvReviewQualifierHeader: TextView
     private lateinit var layoutReviewQualifierWinnersList: LinearLayout
-    private lateinit var btnPrizeInfoReview: View
-    private lateinit var tvStatusBadgeReview: TextView
     private lateinit var tvReviewUserRound: TextView
     private lateinit var tvReviewUserPrize: TextView
     private lateinit var layoutSimulatingOverlay: View
@@ -195,16 +179,12 @@ class TournamentDetailActivity : BaseActivity() {
     private fun initViews() {
         pbLoading = findViewById(R.id.pbLoading)
         layoutSimulatingOverlay = findViewById(R.id.layoutSimulatingOverlay)
+        layoutSimulatingOverlay.findViewById<TextView>(R.id.tvOverlayMessage).setText(R.string.simulating_tournament)
 
         // Preview
         cardPreviewHeader = findViewById(R.id.cardPreviewHeader)
         layoutPreviewContainer = findViewById(R.id.layoutPreviewContainer)
-        tvPreviewTitle = findViewById(R.id.tvPreviewTitle)
-        tvStatusBadgePreview = findViewById(R.id.tvStatusBadgePreview)
-        tvPreviewTypeBadge = findViewById(R.id.tvPreviewTypeBadge)
-        tvPreviewHost = findViewById(R.id.tvPreviewHost)
         tvPreviewPrizeFund = findViewById(R.id.tvPreviewPrizeFund)
-        btnPrizeInfoPreview = findViewById(R.id.btnPrizeInfoPreview)
         btnStartTournamentPreview = findViewById(R.id.btnStartTournamentPreview)
 
         // Common Content
@@ -224,26 +204,16 @@ class TournamentDetailActivity : BaseActivity() {
 
         // Active
         cardActiveControls = findViewById(R.id.cardActiveControls)
-        tvActiveTitle = findViewById(R.id.tvActiveTitle)
-        btnPrizeInfoActive = findViewById(R.id.btnPrizeInfoActive)
-        tvStatusBadgeActive = findViewById(R.id.tvStatusBadgeActive)
-        tvActiveTypeBadge = findViewById(R.id.tvActiveTypeBadge)
-        tvActiveHost = findViewById(R.id.tvActiveHost)
         btnSimulateCpuMatches = findViewById(R.id.btnSimulateCpuMatches)
         btnSimulateComplete = findViewById(R.id.btnSimulateComplete)
         btnAdvanceRound = findViewById(R.id.btnAdvanceRound)
 
         // Review
         cardReviewSummary = findViewById(R.id.cardReviewSummary)
-        tvReviewTitle = findViewById(R.id.tvReviewTitle)
-        tvReviewTypeBadge = findViewById(R.id.tvReviewTypeBadge)
-        tvReviewHost = findViewById(R.id.tvReviewHost)
         tvReviewWinnerLabel = findViewById(R.id.tvReviewWinnerLabel)
         tvReviewWinner = findViewById(R.id.tvReviewWinner)
         tvReviewQualifierHeader = findViewById(R.id.tvReviewQualifierHeader)
         layoutReviewQualifierWinnersList = findViewById(R.id.layoutReviewQualifierWinnersList)
-        btnPrizeInfoReview = findViewById(R.id.btnPrizeInfoReview)
-        tvStatusBadgeReview = findViewById(R.id.tvStatusBadgeReview)
         tvReviewUserRound = findViewById(R.id.tvReviewUserRound)
         tvReviewUserPrize = findViewById(R.id.tvReviewUserPrize)
 
@@ -291,15 +261,15 @@ class TournamentDetailActivity : BaseActivity() {
             viewModel.advanceRound()
         }
 
-        btnPrizeInfoPreview.setOnClickListener {
+        cardPreviewHeader.findViewById<View>(R.id.btnHeaderPrizeInfo).setOnClickListener {
             showPrizeMoneyDialog()
         }
 
-        btnPrizeInfoActive.setOnClickListener {
+        cardActiveControls.findViewById<View>(R.id.btnHeaderPrizeInfo).setOnClickListener {
             showPrizeMoneyDialog()
         }
 
-        btnPrizeInfoReview.setOnClickListener {
+        cardReviewSummary.findViewById<View>(R.id.btnHeaderPrizeInfo).setOnClickListener {
             showPrizeMoneyDialog()
         }
 
@@ -357,8 +327,8 @@ class TournamentDetailActivity : BaseActivity() {
                 setupCareerNavigationToolbar(AppScreen.TOURNAMENT_DETAIL, activeCareerName, state.seasonNumber, titleOverride = state.tournament.name, rootViewId = R.id.tournamentDetailMain)
 
                 TournamentUiHelper.bindTournamentHeader(
-                    this, tvPreviewTitle, tvStatusBadgePreview, tvPreviewTypeBadge, tvPreviewHost,
-                    state.tournament, getString(R.string.tournament_status_planned), R.color.status_planned, cardPreviewHeader
+                    this, cardPreviewHeader,
+                    state.tournament, getString(R.string.tournament_status_planned), R.color.status_planned
                 )
 
                 tvPreviewPrizeFund.text = state.totalPrizeFundText
@@ -382,8 +352,8 @@ class TournamentDetailActivity : BaseActivity() {
                 setupCareerNavigationToolbar(AppScreen.TOURNAMENT_DETAIL, activeCareerName, state.seasonNumber, titleOverride = state.tournament.name, rootViewId = R.id.tournamentDetailMain)
 
                 TournamentUiHelper.bindTournamentHeader(
-                    this, tvActiveTitle, tvStatusBadgeActive, tvActiveTypeBadge, tvActiveHost,
-                    state.tournament, state.activeRoundDisplayName, R.color.status_active, cardActiveControls
+                    this, cardActiveControls,
+                    state.tournament, state.activeRoundDisplayName, R.color.status_active
                 )
 
                 currentEvent = state.event
@@ -423,10 +393,9 @@ class TournamentDetailActivity : BaseActivity() {
                 setupCareerNavigationToolbar(AppScreen.TOURNAMENT_DETAIL, activeCareerName, state.seasonNumber, titleOverride = state.tournament.name, rootViewId = R.id.tournamentDetailMain)
 
                 TournamentUiHelper.bindTournamentHeader(
-                    this, tvReviewTitle, tvStatusBadgeReview, tvReviewTypeBadge, tvReviewHost,
-                    state.tournament, getString(R.string.tournament_status_completed), R.color.status_completed, cardReviewSummary
+                    this, cardReviewSummary,
+                    state.tournament, getString(R.string.tournament_status_completed), R.color.status_completed
                 )
-                UIHelper.formatFlagAndText(tvReviewHost, state.hostCountryCode, state.host)
 
                 currentEvent = state.event
 

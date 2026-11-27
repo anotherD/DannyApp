@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout">
+
+    <TextView
+        android:id="@+id/tvHeaderTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:textColor="?attr/colorOnSurface"
+        android:textSize="@dimen/tour_hero_title_size"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toStartOf="@id/btnHeaderPrizeInfo"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="World Matchplay" />
+
+    <!-- Info Icon -->
+    <ImageView
+        android:id="@+id/btnHeaderPrizeInfo"
+        android:layout_width="@dimen/tour_hero_icon_size"
+        android:layout_height="@dimen/tour_hero_icon_size"
+        android:layout_marginEnd="8dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:clickable="true"
+        android:contentDescription="@string/tournament_preview_prizes_title"
+        android:focusable="true"
+        android:src="@drawable/ic_info"
+        app:layout_constraintBottom_toBottomOf="@id/tvHeaderStatusBadge"
+        app:layout_constraintEnd_toStartOf="@id/tvHeaderStatusBadge"
+        app:layout_constraintTop_toTopOf="@id/tvHeaderStatusBadge"
+        app:tint="?attr/colorOnSurfaceVariant" />
+
+    <TextView
+        android:id="@+id/tvHeaderStatusBadge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_skill_badge"
+        android:paddingHorizontal="@dimen/tour_hero_badge_pad_h"
+        android:paddingVertical="@dimen/tour_hero_badge_pad_v"
+        android:textColor="@color/white"
+        android:textSize="@dimen/tour_hero_badge_size"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Geplant" />
+
+    <TextView
+        android:id="@+id/tvHeaderTypeBadge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/bg_major_badge"
+        android:paddingHorizontal="@dimen/tour_hero_badge_pad_h"
+        android:paddingVertical="@dimen/tour_hero_badge_pad_v"
+        android:textColor="@color/white"
+        android:textSize="@dimen/tour_hero_badge_size"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvHeaderTitle"
+        tools:text="Major" />
+
+    <TextView
+        android:id="@+id/tvHeaderHost"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        android:textSize="@dimen/tour_hero_body_size"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvHeaderTitle"
+        tools:text="🏴󠁧󠁢󠁥󠁮󠁧󠁿 Blackpool" />
+
+</merge>
