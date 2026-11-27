@@ -121,61 +121,24 @@ object CareerDistanceInfoDialog {
             }
 
             categories.forEach { category ->
-                val tvCategory = TextView(context).apply {
-                    text = context.getString(category.titleResId)
-                    setTextSize(TypedValue.COMPLEX_UNIT_PX, context.resources.getDimension(R.dimen.info_dialog_header_size))
-                    setTypeface(null, Typeface.BOLD)
-                    val typedValue = TypedValue()
-                    context.theme.resolveAttribute(android.R.attr.colorPrimary, typedValue, true)
-                    if (typedValue.resourceId != 0) {
-                        setTextColor(ContextCompat.getColor(context, typedValue.resourceId))
-                    }
-                    setPadding(0, (12 * density).toInt(), 0, (4 * density).toInt())
-                }
-                contentLayout.addView(tvCategory)
+                val categoryView = LayoutInflater.from(context).inflate(R.layout.item_distance_category, contentLayout, false)
+                val tvCategory = categoryView.findViewById<TextView>(R.id.tvDistanceCategoryTitle)
+                tvCategory.text = context.getString(category.titleResId)
+                contentLayout.addView(categoryView)
 
                 val roundSequence = category.event.getRoundSequence()
                 roundSequence.forEach { round ->
-                    val rowLayout = LinearLayout(context).apply {
-                        orientation = LinearLayout.HORIZONTAL
-                        setPadding(0, (2 * density).toInt(), 0, (2 * density).toInt())
-                    }
+                    val rowView = LayoutInflater.from(context).inflate(R.layout.item_distance_row, contentLayout, false)
+                    val tvRoundName = rowView.findViewById<TextView>(R.id.tvDistanceRoundName)
+                    val tvDistance = rowView.findViewById<TextView>(R.id.tvDistanceValue)
 
-                    val tvRoundName = TextView(context).apply {
-                        layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-                        text = TournamentUiHelper.getDisplayRoundName(round.name, context)
-                        setTextSize(TypedValue.COMPLEX_UNIT_PX, context.resources.getDimension(R.dimen.info_dialog_sub_size))
-                        val typedValue = TypedValue()
-                        context.theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurface, typedValue, true)
-                        if (typedValue.resourceId != 0) {
-                            setTextColor(ContextCompat.getColor(context, typedValue.resourceId))
-                        }
-                    }
-
+                    tvRoundName.text = TournamentUiHelper.getDisplayRoundName(round.name, context)
                     val distance = category.event.getMatchDistance(round, preset)
-                    val distanceText = TournamentDetailMapper.formatMatchDistance(context, distance)
+                    tvDistance.text = TournamentDetailMapper.formatMatchDistance(context, distance)
 
-                    val tvDistance = TextView(context).apply {
-                        layoutParams = LinearLayout.LayoutParams(
-                            LinearLayout.LayoutParams.WRAP_CONTENT,
-                            LinearLayout.LayoutParams.WRAP_CONTENT
-                        )
-                        text = distanceText
-                        setTextSize(TypedValue.COMPLEX_UNIT_PX, context.resources.getDimension(R.dimen.info_dialog_sub_size))
-                        setTypeface(null, Typeface.BOLD)
-                        val typedValue = TypedValue()
-                        context.theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurfaceVariant, typedValue, true)
-                        if (typedValue.resourceId != 0) {
-                            setTextColor(ContextCompat.getColor(context, typedValue.resourceId))
-                        }
-                    }
-
-                    rowLayout.addView(tvRoundName)
-                    rowLayout.addView(tvDistance)
-                    contentLayout.addView(rowLayout)
+                    contentLayout.addView(rowView)
                 }
             }
-
             holder.scrollView.removeAllViews()
             holder.scrollView.addView(contentLayout)
 

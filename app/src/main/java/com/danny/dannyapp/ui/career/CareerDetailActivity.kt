@@ -42,10 +42,6 @@ class CareerDetailActivity : BaseActivity() {
 
     private lateinit var tvCareerOverviewPlayer: TextView
     private lateinit var tvCareerOverviewMeta: TextView
-    private lateinit var tvOverviewRankOom: View
-    private lateinit var tvOverviewRankPt: View
-    private lateinit var tvOverviewRankPc: View
-    private lateinit var tvOverviewRankEt: View
     private lateinit var layoutOverviewRankOom: LinearLayout
     private lateinit var layoutOverviewRankPt: LinearLayout
     private lateinit var layoutOverviewRankPc: LinearLayout
@@ -78,14 +74,20 @@ class CareerDetailActivity : BaseActivity() {
 
         tvCareerOverviewPlayer = findViewById(R.id.tvCareerOverviewPlayer)
         tvCareerOverviewMeta = findViewById(R.id.tvCareerOverviewMeta)
-        tvOverviewRankOom = layoutOverviewRankOom
-        tvOverviewRankPt = layoutOverviewRankPt
-        tvOverviewRankPc = layoutOverviewRankPc
-        tvOverviewRankEt = layoutOverviewRankEt
         layoutOverviewRankOom = findViewById(R.id.layoutOverviewRankOom)
         layoutOverviewRankPt = findViewById(R.id.layoutOverviewRankPt)
         layoutOverviewRankPc = findViewById(R.id.layoutOverviewRankPc)
         layoutOverviewRankEt = findViewById(R.id.layoutOverviewRankEt)
+
+        layoutOverviewRankOom.findViewById<TextView>(R.id.tvRankingLabel).text = getString(R.string.oom_tab_oom)
+        layoutOverviewRankPt.findViewById<TextView>(R.id.tvRankingLabel).text = getString(R.string.oom_tab_pt)
+        layoutOverviewRankPc.findViewById<TextView>(R.id.tvRankingLabel).text = getString(R.string.oom_tab_pc)
+        layoutOverviewRankEt.findViewById<TextView>(R.id.tvRankingLabel).text = getString(R.string.oom_tab_et)
+        
+        layoutOverviewRankOom.findViewById<TextView>(R.id.tvRankingLabel).text = getString(R.string.oom_tab_oom)
+        layoutOverviewRankPt.findViewById<TextView>(R.id.tvRankingLabel).text = getString(R.string.oom_tab_pt)
+        layoutOverviewRankPc.findViewById<TextView>(R.id.tvRankingLabel).text = getString(R.string.oom_tab_pc)
+        layoutOverviewRankEt.findViewById<TextView>(R.id.tvRankingLabel).text = getString(R.string.oom_tab_et)
         containerActiveTournament = findViewById(R.id.containerActiveTournament)
         tvNoActiveTournament = findViewById(R.id.tvNoActiveTournament)
         btnEndSeason = findViewById(R.id.btnEndSeason)
@@ -215,22 +217,22 @@ class CareerDetailActivity : BaseActivity() {
                 }
                 launch {
                     oomViewModel.oomEntries.collect { entries ->
-                        bindRankingEntry(tvOverviewRankOom, entries)
+                        bindRankingEntry(layoutOverviewRankOom, entries)
                     }
                 }
                 launch {
                     oomViewModel.ptOomEntries.collect { entries ->
-                        bindRankingEntry(tvOverviewRankPt, entries)
+                        bindRankingEntry(layoutOverviewRankPt, entries)
                     }
                 }
                 launch {
                     oomViewModel.pcOomEntries.collect { entries ->
-                        bindRankingEntry(tvOverviewRankPc, entries)
+                        bindRankingEntry(layoutOverviewRankPc, entries)
                     }
                 }
                 launch {
                     oomViewModel.etOomEntries.collect { entries ->
-                        bindRankingEntry(tvOverviewRankEt, entries)
+                        bindRankingEntry(layoutOverviewRankEt, entries)
                     }
                 }
             }

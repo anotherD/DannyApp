@@ -243,27 +243,11 @@ class SeasonSummaryActivity : BaseActivity() {
                                 layoutMajorWinnersList.addView(tvNone)
                             } else {
                                 for ((tournamentName, winnerId, winnerName, winnerCountryCode) in summary.majorWinners) {
-                                    val row = LinearLayout(this@SeasonSummaryActivity).apply {
-                                        layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
-                                            bottomMargin = (4 * resources.displayMetrics.density).toInt()
-                                        }
-                                        orientation = LinearLayout.HORIZONTAL
-                                        weightSum = 2f
-                                        isBaselineAligned = false
-                                    }
-                                    val tvTour = TextView(this@SeasonSummaryActivity).apply {
-                                        layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-                                        text = tournamentName
-                                        setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.summary_body_size))
-                                        setTextColor(ContextCompat.getColor(this@SeasonSummaryActivity, R.color.grau_text_hell))
-                                    }
-                                    val tvWinner = TextView(this@SeasonSummaryActivity).apply {
-                                        layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-                                        gravity = Gravity.END
-                                        setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.summary_body_size))
-                                        setTextColor(ContextCompat.getColor(this@SeasonSummaryActivity, R.color.grau_text_hell))
-                                        setTypeface(null, Typeface.BOLD)
-                                    }
+                                    val rowView = layoutInflater.inflate(R.layout.item_major_winner_row, layoutMajorWinnersList, false)
+                                    val tvTour = rowView.findViewById<TextView>(R.id.tvMajorTournamentName)
+                                    val tvWinner = rowView.findViewById<TextView>(R.id.tvMajorWinnerName)
+
+                                    tvTour.text = tournamentName
                                     UIHelper.bindSmartPlayerName(
                                         tvWinner,
                                         PlayerUiInfo(
@@ -273,9 +257,7 @@ class SeasonSummaryActivity : BaseActivity() {
                                         ),
                                         isLeft = true
                                     )
-                                    row.addView(tvTour)
-                                    row.addView(tvWinner)
-                                    layoutMajorWinnersList.addView(row)
+                                    layoutMajorWinnersList.addView(rowView)
                                 }
                             }
 

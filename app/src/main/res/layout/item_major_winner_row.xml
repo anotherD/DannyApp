@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="@dimen/career_card_sub_spacing"
+    android:orientation="horizontal"
+    android:baselineAligned="false"
+    android:weightSum="2">
+
+    <TextView
+        android:id="@+id/tvMajorTournamentName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:textSize="@dimen/summary_body_size"
+        android:textColor="@color/grau_text_hell" />
+
+    <TextView
+        android:id="@+id/tvMajorWinnerName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="end"
+        android:textSize="@dimen/summary_body_size"
+        android:textStyle="bold"
+        android:textColor="@color/grau_text_hell" />
+
+</LinearLayout>

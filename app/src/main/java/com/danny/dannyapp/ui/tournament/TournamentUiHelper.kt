@@ -1,6 +1,8 @@
 package com.danny.dannyapp.ui.tournament
 
 import android.content.Context
+import android.view.LayoutInflater
+import android.util.TypedValue
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
@@ -152,52 +154,32 @@ object TournamentUiHelper {
             headerTextView.visibility = View.VISIBLE
             containerLayout.visibility = View.VISIBLE
             winners.chunked(2).forEach { rowWinners ->
-                val rowLayout = android.widget.LinearLayout(context).apply {
-                    layoutParams = android.widget.LinearLayout.LayoutParams(
-                        android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
-                        android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
-                    ).apply {
-                        topMargin = (2 * context.resources.displayMetrics.density).toInt()
-                        bottomMargin = (2 * context.resources.displayMetrics.density).toInt()
-                    }
-                    orientation = android.widget.LinearLayout.HORIZONTAL
-                    weightSum = 2f
+                val rowView = LayoutInflater.from(context).inflate(R.layout.item_entrant_row, containerLayout, false)
+                val tvPlayerLeft = rowView.findViewById<TextView>(R.id.tvEntrantPlayerLeft)
+                val tvPlayerRight = rowView.findViewById<TextView>(R.id.tvEntrantPlayerRight)
+
+                if (rowWinners.isNotEmpty()) {
+                    UIHelper.bindSmartPlayerName(tvPlayerLeft, rowWinners[0])
+                }
+                if (rowWinners.size > 1) {
+                    UIHelper.bindSmartPlayerName(tvPlayerRight, rowWinners[1])
+                    tvPlayerRight.visibility = View.VISIBLE
+                } else {
+                    tvPlayerRight.visibility = View.INVISIBLE
                 }
 
-                rowWinners.forEach { player ->
-                    val tvRow = TextView(context).apply {
-                        layoutParams = android.widget.LinearLayout.LayoutParams(
-                            0,
-                            android.widget.LinearLayout.LayoutParams.WRAP_CONTENT,
-                            1f
-                        )
-                        textSize = textSizeSp
-                        if (textColorResId != null) {
-                            setTextColor(ContextCompat.getColor(context, textColorResId))
-                        } else {
-                            val typedValue = android.util.TypedValue()
-                            context.theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurfaceVariant, typedValue, true)
-                            if (typedValue.resourceId != 0) {
-                                setTextColor(ContextCompat.getColor(context, typedValue.resourceId))
-                            }
-                        }
-                    }
-                    UIHelper.bindSmartPlayerName(tvRow, player)
-                    rowLayout.addView(tvRow)
+                if (textColorResId != null) {
+                    val color = ContextCompat.getColor(context, textColorResId)
+                    tvPlayerLeft.setTextColor(color)
+                    tvPlayerRight.setTextColor(color)
+                }
+                if (textSizeSp != 13f) {
+                    val px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, textSizeSp, context.resources.displayMetrics)
+                    tvPlayerLeft.setTextSize(TypedValue.COMPLEX_UNIT_PX, px)
+                    tvPlayerRight.setTextSize(TypedValue.COMPLEX_UNIT_PX, px)
                 }
 
-                if (rowWinners.size == 1) {
-                    val emptyView = View(context).apply {
-                        layoutParams = android.widget.LinearLayout.LayoutParams(
-                            0,
-                            0,
-                            1f
-                        )
-                    }
-                    rowLayout.addView(emptyView)
-                }
-
-                containerLayout.addView(rowLayout)
+                containerLayout.addView(rowView)
             }
         }
     }

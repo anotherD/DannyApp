@@ -54,87 +54,36 @@ object TournamentDetailUiHelper {
         container.visibility = View.VISIBLE
         container.removeAllViews()
         groups.forEachIndexed { groupIndex, group ->
-            if (groupIndex > 0) {
-                val divider = MaterialDivider(context).apply {
-                    layoutParams = LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT
-                    ).apply {
-                        topMargin = (8 * context.resources.displayMetrics.density).toInt()
-                        bottomMargin = (8 * context.resources.displayMetrics.density).toInt()
-                    }
-                }
-                container.addView(divider)
+            val groupView = LayoutInflater.from(context).inflate(R.layout.item_entrant_group, container, false)
+            val tvGroupTitle = groupView.findViewById<TextView>(R.id.tvEntrantGroupTitle)
+            val divider = groupView.findViewById<View>(R.id.dividerEntrantGroup)
+
+            tvGroupTitle.text = group.title
+            if (groupIndex == 0) {
+                divider.visibility = View.GONE
+            } else {
+                divider.visibility = View.VISIBLE
             }
-            val tvGroupTitle = TextView(context).apply {
-                layoutParams = LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-                ).apply {
-                    bottomMargin = (4 * context.resources.displayMetrics.density).toInt()
-                }
-                text = group.title
-                setTextSize(TypedValue.COMPLEX_UNIT_PX, context.resources.getDimension(R.dimen.info_dialog_header_size))
-                setTypeface(null, Typeface.BOLD)
-                gravity = Gravity.CENTER_HORIZONTAL
-                val typedValue = TypedValue()
-                context.theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurface, typedValue, true)
-                if (typedValue.resourceId != 0) {
-                    setTextColor(ContextCompat.getColor(context, typedValue.resourceId))
-                }
-            }
-            container.addView(tvGroupTitle)
+            container.addView(groupView)
 
             group.players.chunked(2).forEach { rowPlayers ->
-                val rowLayout = LinearLayout(context).apply {
-                    layoutParams = LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT
-                    ).apply {
-                        topMargin = (2 * context.resources.displayMetrics.density).toInt()
-                        bottomMargin = (2 * context.resources.displayMetrics.density).toInt()
-                    }
-                    orientation = LinearLayout.HORIZONTAL
-                    weightSum = 2f
+                val rowView = LayoutInflater.from(context).inflate(R.layout.item_entrant_row, container, false)
+                val tvPlayerLeft = rowView.findViewById<TextView>(R.id.tvEntrantPlayerLeft)
+                val tvPlayerRight = rowView.findViewById<TextView>(R.id.tvEntrantPlayerRight)
+
+                if (rowPlayers.isNotEmpty()) {
+                    tvPlayerLeft.alpha = if (isPreliminary) 0.72f else 1.0f
+                    UIHelper.bindSmartPlayerName(tvPlayerLeft, rowPlayers[0])
+                }
+                if (rowPlayers.size > 1) {
+                    tvPlayerRight.alpha = if (isPreliminary) 0.72f else 1.0f
+                    UIHelper.bindSmartPlayerName(tvPlayerRight, rowPlayers[1])
+                    tvPlayerRight.visibility = View.VISIBLE
+                } else {
+                    tvPlayerRight.visibility = View.INVISIBLE
                 }
 
-                rowPlayers.forEachIndexed { columnIndex, player ->
-                    val tvPlayer = TextView(context).apply {
-                        layoutParams = LinearLayout.LayoutParams(
-                            0,
-                            LinearLayout.LayoutParams.WRAP_CONTENT,
-                            1f
-                        ).apply {
-                            if (columnIndex == 0) {
-                                marginEnd = (6 * context.resources.displayMetrics.density).toInt()
-                            }
-                        }
-                        maxLines = 1
-                        ellipsize = TextUtils.TruncateAt.END
-                        alpha = if (isPreliminary) 0.72f else 1.0f
-                        setTextSize(TypedValue.COMPLEX_UNIT_PX, context.resources.getDimension(R.dimen.info_dialog_sub_size))
-                        val typedValue = TypedValue()
-                        context.theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurfaceVariant, typedValue, true)
-                        if (typedValue.resourceId != 0) {
-                            setTextColor(ContextCompat.getColor(context, typedValue.resourceId))
-                        }
-                    }
-                    UIHelper.bindSmartPlayerName(tvPlayer, player)
-                    rowLayout.addView(tvPlayer)
-                }
-
-                if (rowPlayers.size == 1) {
-                    val emptyView = View(context).apply {
-                        layoutParams = LinearLayout.LayoutParams(
-                            0,
-                            0,
-                            1f
-                        )
-                    }
-                    rowLayout.addView(emptyView)
-                }
-
-                container.addView(rowLayout)
+                container.addView(rowView)
             }
         }
     }
