@@ -14,14 +14,113 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/fragmentContainerCalendar"
+    <HorizontalScrollView
+        android:id="@+id/scrollCalendarFilterChips"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="@dimen/oom_chip_group_pad_h"
+        android:paddingVertical="@dimen/oom_chip_group_pad_v"
+        android:requiresFadingEdge="horizontal"
+        android:scrollbars="none"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar">
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chipGroupCalendarFilters"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:chipSpacingHorizontal="@dimen/oom_chip_spacing"
+            app:singleLine="true"
+            app:singleSelection="false">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipFilterPc"
+                style="@style/Widget.Material3.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:minHeight="@dimen/oom_chip_min_height"
+                android:text="@string/tournament_type_players_championship"
+                android:textSize="@dimen/oom_chip_text_size"
+                app:checkedIconVisible="false"
+                app:chipBackgroundColor="@color/chip_bg_pc"
+                app:chipStrokeColor="@color/chip_stroke_pc"
+                app:chipStrokeWidth="@dimen/card_stroke_thin" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipFilterEt"
+                style="@style/Widget.Material3.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:minHeight="@dimen/oom_chip_min_height"
+                android:text="@string/tournament_type_european_tour"
+                android:textSize="@dimen/oom_chip_text_size"
+                app:checkedIconVisible="false"
+                app:chipBackgroundColor="@color/chip_bg_et"
+                app:chipStrokeColor="@color/chip_stroke_et"
+                app:chipStrokeWidth="@dimen/card_stroke_thin" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipFilterMajor"
+                style="@style/Widget.Material3.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:minHeight="@dimen/oom_chip_min_height"
+                android:text="@string/tournament_type_major"
+                android:textSize="@dimen/oom_chip_text_size"
+                app:checkedIconVisible="false"
+                app:chipBackgroundColor="@color/chip_bg_major"
+                app:chipStrokeColor="@color/chip_stroke_major"
+                app:chipStrokeWidth="@dimen/card_stroke_thin" />
+
+        </com.google.android.material.chip.ChipGroup>
+    </HorizontalScrollView>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvTournaments"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:clipToPadding="false"
+        android:paddingHorizontal="12dp"
+        android:paddingTop="4dp"
+        android:paddingBottom="72dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/toolbar" />
+        app:layout_constraintTop_toBottomOf="@id/scrollCalendarFilterChips"
+        tools:listitem="@layout/item_tournament" />
+
+    <TextView
+        android:id="@+id/tvEmptyTournaments"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/list_empty_margin_h"
+        android:text="@string/loading"
+        android:textSize="@dimen/list_empty_text_size"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/scrollCalendarFilterChips" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabFocusCurrentTournament"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:contentDescription="@string/cd_focus_current_tournament"
+        android:src="@drawable/ic_my_location"
+        android:visibility="gone"
+        app:fabSize="mini"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full"
+        app:tint="@color/white"
+        tools:visibility="visible" />
 
     <!-- Simulating Overlay -->
     <androidx.constraintlayout.widget.ConstraintLayout

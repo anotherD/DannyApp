@@ -51,7 +51,7 @@ Ausführliche Fachkonzepte, Forschungsberichte und Architekturbeschreibungen bef
     - [x] Auf der Karrieren-Liste (`CareersActivity`) zusätzlich anzeigen, bei welchem Turnier und welcher Runde die Karriere aktuell steht.
     - [x] Karriere-Name nachträglich bearbeitbar machen.
     - [x] Karriere-Level hochsetzen ermöglichen (beim Saisonwechsel über die Saison-Zusammenfassung, damit die Karriere bei steigendem eigenem Können spannend bleibt).
-    - [ ] Karriere-Übersicht (`CareerOverviewFragment`) um zentrale Infos ergänzen:
+    - [ ] Karriere-Übersicht um zentrale Infos ergänzen:
         - [ ] Direktanzeige „Nächstes Match“ zum schnellen Losspielen (über Einstellungen ein-/ausschaltbar, um das Turnier-Feeling bei Bedarf zu erhalten).
         - [x] Aktuelle Saison sowie eigene Positionen in den Ranglisten (`OOM`, `PT OOM`, `PC OOM`, `ET OOM`).
         - [ ] Turnier-Qualifikationsübersicht mit Ampelstatus (Grün = fix qualifiziert, Gelb = aktuell drin/unsicher, Rot = nicht qualifiziert) – mit Caching/Performance-Fokus.
