@@ -44,6 +44,7 @@
     <dimen name="tournament_card_sim_btn_width">72dp</dimen>
     <dimen name="tournament_card_sim_btn_height">56dp</dimen>
     <dimen name="tournament_card_sim_icon_size">36dp</dimen>
+    <dimen name="tournament_card_sim_icon_pad">10dp</dimen>
     <dimen name="badge_corner_radius">12dp</dimen>
     <dimen name="tournament_card_start_btn_pad_h">36dp</dimen>
     <dimen name="dialog_padding">36dp</dimen>

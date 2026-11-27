@@ -43,7 +43,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/settings_card_margin_bottom"
-                app:cardCornerRadius="12dp">
+                app:cardCornerRadius="12dp"
+                app:strokeColor="?attr/colorOutlineVariant"
+                app:strokeWidth="@dimen/card_stroke_thin">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -87,7 +89,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/settings_card_margin_bottom"
-                app:cardCornerRadius="12dp">
+                app:cardCornerRadius="12dp"
+                app:strokeColor="?attr/colorOutlineVariant"
+                app:strokeWidth="@dimen/card_stroke_thin">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -119,7 +123,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/settings_card_margin_bottom"
-                app:cardCornerRadius="12dp">
+                app:cardCornerRadius="12dp"
+                app:strokeColor="?attr/colorOutlineVariant"
+                app:strokeWidth="@dimen/card_stroke_thin">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -144,6 +150,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/settings_card_margin_bottom"
                 app:cardCornerRadius="12dp"
+                app:strokeColor="?attr/colorOutlineVariant"
+                app:strokeWidth="@dimen/card_stroke_thin"
                 android:clickable="true"
                 android:focusable="true">
 

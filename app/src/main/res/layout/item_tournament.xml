@@ -76,7 +76,7 @@
             android:layout_height="@dimen/tournament_card_sim_btn_height"
             android:minWidth="0dp"
             android:minHeight="0dp"
-            android:padding="0dp"
+            android:padding="@dimen/tournament_card_sim_icon_pad"
             android:insetTop="0dp"
             android:insetBottom="0dp"
             android:visibility="gone"
