@@ -167,14 +167,10 @@
         <item name="android:textSize">@dimen/players_sort_button_text_size</item>
     </style>
 
-    <style name="Widget.DannyApp.Card.StickyUser" parent="Widget.DannyApp.Card.Compact">
-        <item name="cardBackgroundColor">@color/rot_container_dunkel</item>
-        <item name="cardCornerRadius">@dimen/card_corner_radius_sticky</item>
-        <item name="cardElevation">@dimen/sticky_card_elevation</item>
-        <item name="android:translationZ">@dimen/sticky_card_elevation</item>
-        <item name="android:outlineSpotShadowColor">@color/black</item>
-        <item name="android:outlineAmbientShadowColor">@color/black</item>
-        <item name="strokeColor">@color/rot_haupt</item>
-        <item name="strokeWidth">@dimen/card_stroke_thick</item>
+    <style name="Widget.DannyApp.Button.Start" parent="Widget.Material3.Button">
+        <item name="android:layout_width">@dimen/start_button_width</item>
+        <item name="android:layout_marginBottom">@dimen/start_button_spacing</item>
+        <item name="android:minHeight">@dimen/start_button_min_height</item>
+        <item name="android:textSize">@dimen/start_button_text_size</item>
     </style>
 </resources>

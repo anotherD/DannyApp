@@ -156,32 +156,20 @@
                 <!-- Button 1: Scolia Browser -->
                 <Button
                     android:id="@+id/btnOpenScolia"
-                    android:layout_width="@dimen/start_button_width"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="@dimen/start_button_spacing"
-                    android:minHeight="@dimen/start_button_min_height"
-                    android:text="@string/scolia_browser"
-                    android:textSize="@dimen/start_button_text_size" />
+                    style="@style/Widget.DannyApp.Button.Start"
+                    android:text="@string/scolia_browser" />
 
                 <!-- Button 2: Profile -->
                 <Button
                     android:id="@+id/btnProfiles"
-                    android:layout_width="@dimen/start_button_width"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="@dimen/start_button_spacing"
-                    android:minHeight="@dimen/start_button_min_height"
-                    android:text="@string/profiles"
-                    android:textSize="@dimen/start_button_text_size" />
+                    style="@style/Widget.DannyApp.Button.Start"
+                    android:text="@string/profiles" />
 
                 <!-- Button 3: Karriere -->
                 <Button
                     android:id="@+id/btnCareers"
-                    android:layout_width="@dimen/start_button_width"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="@dimen/start_button_spacing"
-                    android:minHeight="@dimen/start_button_min_height"
-                    android:text="@string/careers"
-                    android:textSize="@dimen/start_button_text_size" />
+                    style="@style/Widget.DannyApp.Button.Start"
+                    android:text="@string/careers" />
 
             </LinearLayout>
         </ScrollView>

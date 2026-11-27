@@ -83,11 +83,7 @@ class CareerDetailActivity : BaseActivity() {
         layoutOverviewRankPt.findViewById<TextView>(R.id.tvRankingLabel).text = getString(R.string.oom_tab_pt)
         layoutOverviewRankPc.findViewById<TextView>(R.id.tvRankingLabel).text = getString(R.string.oom_tab_pc)
         layoutOverviewRankEt.findViewById<TextView>(R.id.tvRankingLabel).text = getString(R.string.oom_tab_et)
-        
-        layoutOverviewRankOom.findViewById<TextView>(R.id.tvRankingLabel).text = getString(R.string.oom_tab_oom)
-        layoutOverviewRankPt.findViewById<TextView>(R.id.tvRankingLabel).text = getString(R.string.oom_tab_pt)
-        layoutOverviewRankPc.findViewById<TextView>(R.id.tvRankingLabel).text = getString(R.string.oom_tab_pc)
-        layoutOverviewRankEt.findViewById<TextView>(R.id.tvRankingLabel).text = getString(R.string.oom_tab_et)
+
         containerActiveTournament = findViewById(R.id.containerActiveTournament)
         tvNoActiveTournament = findViewById(R.id.tvNoActiveTournament)
         btnEndSeason = findViewById(R.id.btnEndSeason)
