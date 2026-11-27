@@ -73,7 +73,7 @@ object TournamentDetailUiHelper {
                     bottomMargin = (4 * context.resources.displayMetrics.density).toInt()
                 }
                 text = group.title
-                textSize = 14f
+                setTextSize(TypedValue.COMPLEX_UNIT_PX, context.resources.getDimension(R.dimen.info_dialog_header_size))
                 setTypeface(null, Typeface.BOLD)
                 gravity = Gravity.CENTER_HORIZONTAL
                 val typedValue = TypedValue()
@@ -111,7 +111,7 @@ object TournamentDetailUiHelper {
                         maxLines = 1
                         ellipsize = TextUtils.TruncateAt.END
                         alpha = if (isPreliminary) 0.72f else 1.0f
-                        textSize = 13f
+                        setTextSize(TypedValue.COMPLEX_UNIT_PX, context.resources.getDimension(R.dimen.info_dialog_sub_size))
                         val typedValue = TypedValue()
                         context.theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurfaceVariant, typedValue, true)
                         if (typedValue.resourceId != 0) {

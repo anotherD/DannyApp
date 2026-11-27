@@ -64,7 +64,7 @@ class SeasonCalendarActivity : BaseActivity() {
         setupCareerNavigationToolbar(AppScreen.SEASON_CALENDAR, careerName, rootViewId = R.id.seasonCalendarMain)
 
         layoutCareerSimulatingOverlay = findViewById(R.id.layoutCareerSimulatingOverlay)
-        tvCareerSimulationProgress = findViewById(R.id.tvCareerSimulationProgress)
+        tvCareerSimulationProgress = findViewById(R.id.tvOverlayMessage)
         rvTournaments = findViewById(R.id.rvTournaments)
         tvEmptyTournaments = findViewById(R.id.tvEmptyTournaments)
         fabFocusCurrentTournament = findViewById(R.id.fabFocusCurrentTournament)

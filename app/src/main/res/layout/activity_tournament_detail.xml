@@ -705,44 +705,14 @@
     </LinearLayout>
 
     <!-- Simulating Overlay -->
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <include
         android:id="@+id/layoutSimulatingOverlay"
+        layout="@layout/include_loading_overlay"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:background="@color/overlay_scrim"
-        android:clickable="true"
-        android:focusable="true"
-        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:visibility="gone">
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="vertical"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <ProgressBar
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:indeterminate="true" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="@string/simulating_tournament"
-                android:textColor="@color/white"
-                android:textSize="@dimen/overlay_text_size"
-                android:textStyle="bold" />
-        </LinearLayout>
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

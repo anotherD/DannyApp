@@ -103,7 +103,7 @@ class SeasonSummaryActivity : BaseActivity() {
 
         btnStartNextSeason = findViewById(R.id.btnStartNextSeason)
         layoutSeasonSummaryLoadingOverlay = findViewById(R.id.layoutSeasonSummaryLoadingOverlay)
-        tvSeasonSummaryLoadingText = findViewById(R.id.tvSeasonSummaryLoadingText)
+        tvSeasonSummaryLoadingText = findViewById(R.id.tvOverlayMessage)
 
         val summaryBackPressedCallback = object : OnBackPressedCallback(false) {
             override fun handleOnBackPressed() {

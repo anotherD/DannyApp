@@ -74,7 +74,7 @@ class CareerDetailActivity : BaseActivity() {
         )
 
         layoutCareerSimulatingOverlay = findViewById(R.id.layoutCareerSimulatingOverlay)
-        tvCareerSimulationProgress = findViewById(R.id.tvCareerSimulationProgress)
+        tvCareerSimulationProgress = findViewById(R.id.tvOverlayMessage)
 
         tvCareerOverviewPlayer = findViewById(R.id.tvCareerOverviewPlayer)
         tvCareerOverviewMeta = findViewById(R.id.tvCareerOverviewMeta)
