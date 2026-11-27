@@ -115,4 +115,13 @@
     <dimen name="oom_player_margin_h">8dp</dimen>
     <dimen name="oom_player_text_size">15sp</dimen>
     <dimen name="oom_money_text_size">14sp</dimen>
+    <dimen name="summary_padding">16dp</dimen>
+    <dimen name="summary_header_size">20sp</dimen>
+    <dimen name="summary_section_header_size">16sp</dimen>
+    <dimen name="summary_player_size">18sp</dimen>
+    <dimen name="summary_label_size">12sp</dimen>
+    <dimen name="summary_body_size">14sp</dimen>
+    <dimen name="summary_sub_size">13sp</dimen>
+    <dimen name="summary_card_spacing">24dp</dimen>
+    <dimen name="summary_row_spacing">12dp</dimen>
 </resources>

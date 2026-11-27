@@ -28,14 +28,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="@dimen/summary_padding">
 
             <TextView
                 android:id="@+id/tvSeasonSummaryHeader"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:textSize="20sp"
+                android:layout_marginBottom="@dimen/summary_card_spacing"
+                android:textSize="@dimen/summary_header_size"
                 android:textStyle="bold"
                 tools:text="Saison 1 – Zusammenfassung" />
 
@@ -44,33 +44,31 @@
                 android:id="@+id/tvSectionPersonal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
+                android:layout_marginBottom="@dimen/summary_row_spacing"
                 android:text="@string/season_summary_section_personal"
                 android:textColor="?attr/colorPrimary"
-                android:textSize="16sp"
+                android:textSize="@dimen/summary_section_header_size"
                 android:textStyle="bold" />
 
             <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.DannyApp.Card.Variant"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
-                app:cardBackgroundColor="?attr/colorSurfaceVariant"
-                app:cardCornerRadius="12dp"
-                app:strokeWidth="0dp">
+                android:layout_marginBottom="@dimen/summary_card_spacing">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="@dimen/summary_padding">
 
                     <TextView
                         android:id="@+id/tvSummaryUserPlayer"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
-                        android:layout_marginBottom="16dp"
-                        android:textSize="18sp"
+                        android:layout_marginBottom="@dimen/summary_card_spacing"
+                        android:textSize="@dimen/summary_player_size"
                         android:textStyle="bold"
                         tools:text="🇩🇪 Max Mustermann" />
 
@@ -78,7 +76,7 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="12dp"
+                        android:layout_marginBottom="@dimen/summary_row_spacing"
                         android:orientation="horizontal"
                         android:weightSum="2">
 
@@ -89,21 +87,21 @@
                             android:gravity="center_horizontal"
                             android:orientation="vertical"
                             android:paddingHorizontal="4dp"
-                            android:paddingVertical="6dp">
+                            android:paddingVertical="@dimen/summary_row_spacing">
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/oom_tab_oom"
                                 android:textColor="?attr/colorOnSurfaceVariant"
-                                android:textSize="12sp" />
+                                android:textSize="@dimen/summary_label_size" />
 
                             <TextView
                                 android:id="@+id/tvSummaryOom"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:textColor="?attr/colorOnSurface"
-                                android:textSize="14sp"
+                                android:textSize="@dimen/summary_body_size"
                                 android:textStyle="bold"
                                 tools:text="#1 (£45,000)" />
                         </LinearLayout>
@@ -115,21 +113,21 @@
                             android:gravity="center_horizontal"
                             android:orientation="vertical"
                             android:paddingHorizontal="4dp"
-                            android:paddingVertical="6dp">
+                            android:paddingVertical="@dimen/summary_row_spacing">
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/oom_tab_pt"
                                 android:textColor="?attr/colorOnSurfaceVariant"
-                                android:textSize="12sp" />
+                                android:textSize="@dimen/summary_label_size" />
 
                             <TextView
                                 android:id="@+id/tvSummaryPtOom"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:textColor="?attr/colorOnSurface"
-                                android:textSize="14sp"
+                                android:textSize="@dimen/summary_body_size"
                                 android:textStyle="bold"
                                 tools:text="#2 (£20,000)" />
                         </LinearLayout>
@@ -138,7 +136,7 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="16dp"
+                        android:layout_marginBottom="@dimen/summary_card_spacing"
                         android:orientation="horizontal"
                         android:weightSum="2">
 
@@ -149,21 +147,21 @@
                             android:gravity="center_horizontal"
                             android:orientation="vertical"
                             android:paddingHorizontal="4dp"
-                            android:paddingVertical="6dp">
+                            android:paddingVertical="@dimen/summary_row_spacing">
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/oom_tab_pc"
                                 android:textColor="?attr/colorOnSurfaceVariant"
-                                android:textSize="12sp" />
+                                android:textSize="@dimen/summary_label_size" />
 
                             <TextView
                                 android:id="@+id/tvSummaryPcOom"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:textColor="?attr/colorOnSurface"
-                                android:textSize="14sp"
+                                android:textSize="@dimen/summary_body_size"
                                 android:textStyle="bold"
                                 tools:text="#3 (£10,000)" />
                         </LinearLayout>
@@ -175,21 +173,21 @@
                             android:gravity="center_horizontal"
                             android:orientation="vertical"
                             android:paddingHorizontal="4dp"
-                            android:paddingVertical="6dp">
+                            android:paddingVertical="@dimen/summary_row_spacing">
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/oom_tab_et"
                                 android:textColor="?attr/colorOnSurfaceVariant"
-                                android:textSize="12sp" />
+                                android:textSize="@dimen/summary_label_size" />
 
                             <TextView
                                 android:id="@+id/tvSummaryEtOom"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:textColor="?attr/colorOnSurface"
-                                android:textSize="14sp"
+                                android:textSize="@dimen/summary_body_size"
                                 android:textStyle="bold"
                                 tools:text="#4 (£5,000)" />
                         </LinearLayout>
@@ -198,13 +196,13 @@
                     <com.google.android.material.divider.MaterialDivider
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginVertical="12dp" />
+                        android:layout_marginVertical="@dimen/summary_row_spacing" />
 
                     <!-- Match-Bilanz -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="12dp"
+                        android:layout_marginBottom="@dimen/summary_row_spacing"
                         android:gravity="center_horizontal"
                         android:orientation="vertical">
 
@@ -214,7 +212,7 @@
                             android:gravity="center"
                             android:text="@string/season_summary_matches_label"
                             android:textColor="?attr/colorOnSurfaceVariant"
-                            android:textSize="12sp" />
+                            android:textSize="@dimen/summary_label_size" />
 
                         <TextView
                             android:id="@+id/tvSummaryMatches"
@@ -223,7 +221,7 @@
                             android:layout_marginTop="2dp"
                             android:gravity="center"
                             android:textColor="?attr/colorOnSurface"
-                            android:textSize="14sp"
+                            android:textSize="@dimen/summary_body_size"
                             android:textStyle="bold"
                             tools:text="15 Siege • 5 Niederlagen (10 Turniere)" />
                     </LinearLayout>
@@ -232,7 +230,7 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="12dp"
+                        android:layout_marginBottom="@dimen/summary_row_spacing"
                         android:gravity="center_horizontal"
                         android:orientation="vertical">
 
@@ -242,7 +240,7 @@
                             android:gravity="center"
                             android:text="@string/season_summary_best_result_label"
                             android:textColor="?attr/colorOnSurfaceVariant"
-                            android:textSize="12sp" />
+                            android:textSize="@dimen/summary_label_size" />
 
                         <TextView
                             android:id="@+id/tvSummaryBestResult"
@@ -251,7 +249,7 @@
                             android:layout_marginTop="2dp"
                             android:gravity="center"
                             android:textColor="?attr/colorOnSurface"
-                            android:textSize="14sp"
+                            android:textSize="@dimen/summary_body_size"
                             android:textStyle="bold"
                             tools:text="World Championship (Sieger)" />
                     </LinearLayout>
@@ -260,7 +258,7 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="12dp"
+                        android:layout_marginBottom="@dimen/summary_row_spacing"
                         android:gravity="center_horizontal"
                         android:orientation="vertical">
 
@@ -270,7 +268,7 @@
                             android:gravity="center"
                             android:text="@string/season_summary_tour_card_label"
                             android:textColor="?attr/colorOnSurfaceVariant"
-                            android:textSize="12sp" />
+                            android:textSize="@dimen/summary_label_size" />
 
                         <TextView
                             android:id="@+id/tvSummaryTourCard"
@@ -279,7 +277,7 @@
                             android:layout_marginTop="2dp"
                             android:gravity="center"
                             android:textColor="?attr/colorOnSurface"
-                            android:textSize="14sp"
+                            android:textSize="@dimen/summary_body_size"
                             android:textStyle="bold"
                             tools:text="Tour Card über Top 64 OOM gehalten" />
                     </LinearLayout>
@@ -292,32 +290,30 @@
                 android:id="@+id/tvSectionHighlights"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
+                android:layout_marginBottom="@dimen/summary_row_spacing"
                 android:text="@string/season_summary_section_highlights"
                 android:textColor="?attr/colorPrimary"
-                android:textSize="16sp"
+                android:textSize="@dimen/summary_section_header_size"
                 android:textStyle="bold" />
 
             <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.DannyApp.Card.Variant"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
-                app:cardBackgroundColor="?attr/colorSurfaceVariant"
-                app:cardCornerRadius="12dp"
-                app:strokeWidth="0dp">
+                android:layout_marginBottom="@dimen/summary_card_spacing">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="@dimen/summary_padding">
 
                     <!-- Weltmeister -->
                     <LinearLayout
                         android:id="@+id/layoutSummaryWorldChampionContainer"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="12dp"
+                        android:layout_marginBottom="@dimen/summary_row_spacing"
                         android:gravity="center_horizontal"
                         android:orientation="vertical">
 
@@ -327,7 +323,7 @@
                             android:gravity="center"
                             android:text="@string/season_summary_world_champion_label"
                             android:textColor="?attr/colorOnSurfaceVariant"
-                            android:textSize="12sp" />
+                            android:textSize="@dimen/summary_label_size" />
 
                         <TextView
                             android:id="@+id/tvSummaryWorldChampion"
@@ -336,7 +332,7 @@
                             android:layout_marginTop="2dp"
                             android:gravity="center"
                             android:textColor="?attr/colorOnSurface"
-                            android:textSize="14sp"
+                            android:textSize="@dimen/summary_body_size"
                             android:textStyle="bold"
                             tools:text="🇩🇪 Max Mustermann" />
                     </LinearLayout>
@@ -346,7 +342,7 @@
                         android:id="@+id/layoutSummaryOomLeaderContainer"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="12dp"
+                        android:layout_marginBottom="@dimen/summary_row_spacing"
                         android:gravity="center_horizontal"
                         android:orientation="vertical">
 
@@ -356,7 +352,7 @@
                             android:gravity="center"
                             android:text="@string/season_summary_oom_leader_label"
                             android:textColor="?attr/colorOnSurfaceVariant"
-                            android:textSize="12sp" />
+                            android:textSize="@dimen/summary_label_size" />
 
                         <TextView
                             android:id="@+id/tvSummaryOomLeader"
@@ -365,7 +361,7 @@
                             android:layout_marginTop="2dp"
                             android:gravity="center"
                             android:textColor="?attr/colorOnSurface"
-                            android:textSize="14sp"
+                            android:textSize="@dimen/summary_body_size"
                             android:textStyle="bold"
                             tools:text="🇳🇱 Michael van Gerwen (£450,000)" />
                     </LinearLayout>
@@ -375,7 +371,7 @@
                         android:id="@+id/layoutSummaryTopClimberContainer"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="12dp"
+                        android:layout_marginBottom="@dimen/summary_row_spacing"
                         android:gravity="center_horizontal"
                         android:orientation="vertical">
 
@@ -385,7 +381,7 @@
                             android:gravity="center"
                             android:text="@string/season_summary_top_climber_label"
                             android:textColor="?attr/colorOnSurfaceVariant"
-                            android:textSize="12sp" />
+                            android:textSize="@dimen/summary_label_size" />
 
                         <TextView
                             android:id="@+id/tvSummaryTopClimber"
@@ -394,7 +390,7 @@
                             android:layout_marginTop="2dp"
                             android:gravity="center"
                             android:textColor="?attr/colorOnSurface"
-                            android:textSize="14sp"
+                            android:textSize="@dimen/summary_body_size"
                             android:textStyle="bold"
                             tools:text="🏴󠁧󠁢󠁥󠁮󠁧󠁿 Luke Humphries (+15 Plätze, +£50,000)" />
                     </LinearLayout>
@@ -402,7 +398,7 @@
                     <com.google.android.material.divider.MaterialDivider
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginVertical="12dp" />
+                        android:layout_marginVertical="@dimen/summary_row_spacing" />
 
                     <TextView
                         android:id="@+id/tvSectionMajorWinnersHeader"
@@ -411,7 +407,7 @@
                         android:layout_marginBottom="6dp"
                         android:text="@string/season_summary_major_winners_label"
                         android:textColor="?attr/colorOnSurface"
-                        android:textSize="14sp"
+                        android:textSize="@dimen/summary_body_size"
                         android:textStyle="bold" />
 
                     <LinearLayout
@@ -423,7 +419,7 @@
                     <com.google.android.material.divider.MaterialDivider
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginVertical="12dp" />
+                        android:layout_marginVertical="@dimen/summary_row_spacing" />
 
                     <TextView
                         android:layout_width="match_parent"
@@ -431,7 +427,7 @@
                         android:layout_marginBottom="6dp"
                         android:text="@string/season_summary_relegated_label"
                         android:textColor="?attr/colorOnSurface"
-                        android:textSize="14sp"
+                        android:textSize="@dimen/summary_body_size"
                         android:textStyle="bold" />
 
                     <TextView
@@ -440,7 +436,7 @@
                         android:layout_height="wrap_content"
                         android:text="@string/season_summary_relegated_none"
                         android:textColor="?attr/colorOnSurfaceVariant"
-                        android:textSize="13sp"
+                        android:textSize="@dimen/summary_sub_size"
                         android:visibility="gone" />
 
                     <LinearLayout
@@ -459,9 +455,10 @@
         android:id="@+id/btnStartNextSeason"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="24dp"
-        android:layout_marginBottom="24dp"
-        android:textSize="16sp"
+        android:layout_marginHorizontal="@dimen/primary_bottom_button_margin_h"
+        android:layout_marginBottom="@dimen/primary_bottom_button_margin_bottom"
+        android:minHeight="@dimen/start_button_min_height"
+        android:textSize="@dimen/primary_bottom_button_text_size"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

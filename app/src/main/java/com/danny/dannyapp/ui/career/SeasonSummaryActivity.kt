@@ -3,6 +3,7 @@ package com.danny.dannyapp.ui.career
 import android.content.Intent
 import android.graphics.Typeface
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
 import android.widget.Button
@@ -227,7 +228,7 @@ class SeasonSummaryActivity : BaseActivity() {
                             if (summary.majorWinners.isEmpty()) {
                                 val tvNone = TextView(this@SeasonSummaryActivity).apply {
                                     text = "-"
-                                    textSize = 14f
+                                    setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.summary_body_size))
                                     setTextColor(ContextCompat.getColor(this@SeasonSummaryActivity, R.color.grau_text_gedaempft))
                                 }
                                 layoutMajorWinnersList.addView(tvNone)
@@ -244,13 +245,13 @@ class SeasonSummaryActivity : BaseActivity() {
                                     val tvTour = TextView(this@SeasonSummaryActivity).apply {
                                         layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
                                         text = tournamentName
-                                        textSize = 14f
+                                        setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.summary_body_size))
                                         setTextColor(ContextCompat.getColor(this@SeasonSummaryActivity, R.color.grau_text_hell))
                                     }
                                     val tvWinner = TextView(this@SeasonSummaryActivity).apply {
                                         layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
                                         gravity = Gravity.END
-                                        textSize = 14f
+                                        setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.summary_body_size))
                                         setTextColor(ContextCompat.getColor(this@SeasonSummaryActivity, R.color.grau_text_hell))
                                         setTypeface(null, Typeface.BOLD)
                                     }
