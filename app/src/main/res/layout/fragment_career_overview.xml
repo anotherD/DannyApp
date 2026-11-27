@@ -35,7 +35,7 @@
                     android:layout_height="wrap_content"
                     android:textSize="@dimen/overview_player_text_size"
                     android:textStyle="bold"
-                    tools:text="🇩🇪 Max Verstappen" />
+                    tools:text="🇩🇪 Max Mustermann" />
 
                 <TextView
                     android:id="@+id/tvCareerOverviewMeta"

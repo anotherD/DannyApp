@@ -72,7 +72,7 @@
                         android:layout_marginBottom="16dp"
                         android:textSize="18sp"
                         android:textStyle="bold"
-                        tools:text="🇩🇪 Max Verstappen" />
+                        tools:text="🇩🇪 Max Mustermann" />
 
                     <!-- Ranglisten 2x2 Grid -->
                     <LinearLayout
@@ -338,7 +338,7 @@
                             android:textColor="?attr/colorOnSurface"
                             android:textSize="14sp"
                             android:textStyle="bold"
-                            tools:text="🇩🇪 Max Verstappen" />
+                            tools:text="🇩🇪 Max Mustermann" />
                     </LinearLayout>
 
                     <!-- Nr. 1 Order of Merit -->

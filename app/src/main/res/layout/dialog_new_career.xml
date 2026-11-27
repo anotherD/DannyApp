@@ -50,7 +50,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/careers_create_profile_hint"
-            android:minHeight="40dp"
+            android:minHeight="@dimen/dialog_dropdown_min_height"
             android:paddingVertical="8dp"
             android:textSize="@dimen/dialog_input_text_size"
             android:inputType="none" />
@@ -70,6 +70,8 @@
         android:layout_width="wrap_content"
         android:layout_height="@dimen/dialog_picker_height"
         android:layout_gravity="center"
+        android:scaleX="@dimen/dialog_picker_scale"
+        android:scaleY="@dimen/dialog_picker_scale"
         android:layout_marginBottom="@dimen/dialog_field_spacing" />
 
     <LinearLayout
@@ -112,7 +114,7 @@
                 android:id="@+id/autoCompleteMatchDistance"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:minHeight="40dp"
+                android:minHeight="@dimen/dialog_dropdown_min_height"
                 android:paddingVertical="8dp"
                 android:textSize="@dimen/dialog_input_text_size"
                 android:inputType="none" />
@@ -125,6 +127,8 @@
         android:id="@+id/cbPrefillOom"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:minHeight="@dimen/dialog_dropdown_min_height"
+        android:paddingStart="@dimen/dialog_checkbox_text_padding"
         android:text="@string/careers_create_prefill_oom"
         android:textSize="@dimen/dialog_label_size"
         android:checked="true" />
@@ -134,6 +138,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
+        android:minHeight="@dimen/dialog_dropdown_min_height"
+        android:paddingStart="@dimen/dialog_checkbox_text_padding"
         android:text="@string/careers_create_short_test_season"
         android:textSize="@dimen/dialog_label_size"
         android:checked="false"
