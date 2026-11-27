@@ -76,7 +76,7 @@
                     android:id="@+id/cardOverviewRankings"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="12dp"
+                    android:layout_marginEnd="@dimen/screen_margin_small"
                     style="@style/Widget.DannyApp.Card"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@id/cardShortcutCalendar"

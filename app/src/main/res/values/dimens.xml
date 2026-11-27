@@ -156,4 +156,9 @@
     <dimen name="sticky_shadow_height">12dp</dimen>
     <dimen name="screen_margin_small">12dp</dimen>
     <dimen name="list_bottom_padding_fab">72dp</dimen>
+    <dimen name="crash_title_size">24sp</dimen>
+    <dimen name="crash_subtitle_size">16sp</dimen>
+    <dimen name="crash_message_size">15sp</dimen>
+    <dimen name="crash_stacktrace_size">13sp</dimen>
+    <dimen name="crash_box_padding">16dp</dimen>
 </resources>
