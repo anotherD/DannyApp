@@ -24,85 +24,9 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
-    <!-- 1. VORSCHAU-MODUS (Geplantes Turnier ohne Matches) -->
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/layoutPreviewContainer"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/toolbar"
-        tools:visibility="gone">
-
-        <ScrollView
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:padding="@dimen/list_screen_padding"
-            app:layout_constraintBottom_toTopOf="@id/btnStartTournamentPreview"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/cardPreviewHeader"
-                    style="@style/Widget.DannyApp.Card"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="@dimen/list_screen_padding">
-
-                    <androidx.constraintlayout.widget.ConstraintLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:padding="@dimen/tour_hero_padding">
-
-                        <include layout="@layout/include_tournament_header_top" />
-
-                        <TextView
-                            android:id="@+id/tvPreviewPrizeFund"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:textColor="?attr/colorPrimary"
-                            android:textSize="@dimen/tour_hero_highlight_size"
-                            android:textStyle="bold"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@id/tvHeaderTypeBadge"
-                            tools:text="Gesamtpreisgeld: £1,000,000" />
-                    </androidx.constraintlayout.widget.ConstraintLayout>
-                </com.google.android.material.card.MaterialCardView>
-
-            </LinearLayout>
-        </ScrollView>
-
-        <Button
-            android:id="@+id/btnStartTournamentPreview"
-            style="@style/Widget.Material3.Button"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="@dimen/primary_bottom_button_margin_h"
-            android:layout_marginBottom="@dimen/primary_bottom_button_margin_bottom"
-            android:minHeight="@dimen/start_button_min_height"
-            android:text="@string/tournament_start"
-            android:textSize="@dimen/primary_bottom_button_text_size"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            tools:visibility="visible" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <!-- 2. KOPFKARTE AKTIV (Steuerungskarte) -->
+    <!-- 1. GEMEINSAME KOPFKARTE (Preview, Active, Review) -->
     <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cardActiveControls"
+        android:id="@+id/cardTournamentHeader"
         style="@style/Widget.DannyApp.Card.Hero"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -119,12 +43,29 @@
 
             <include layout="@layout/include_tournament_header_top" />
 
-            <!-- Action Buttons -->
+            <!-- A. Vorschau-Inhalt: tvPreviewPrizeFund -->
+            <TextView
+                android:id="@+id/tvPreviewPrizeFund"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textColor="?attr/colorPrimary"
+                android:textSize="@dimen/tour_hero_highlight_size"
+                android:textStyle="bold"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvHeaderTypeBadge"
+                tools:text="Gesamtpreisgeld: £1,000,000" />
+
+            <!-- B. Aktiv-Inhalt: layoutActiveActions -->
             <LinearLayout
+                android:id="@+id/layoutActiveActions"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:orientation="vertical"
+                android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tvHeaderTypeBadge">
@@ -167,29 +108,7 @@
                     tools:visibility="visible" />
             </LinearLayout>
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </com.google.android.material.card.MaterialCardView>
-
-    <!-- 3. KOPFKARTE RÜCKBLICK (Zusammenfassungskarte) -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cardReviewSummary"
-        style="@style/Widget.DannyApp.Card"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/screen_margin_small"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/toolbar"
-        tools:visibility="gone">
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="@dimen/tour_hero_padding">
-
-            <include layout="@layout/include_tournament_header_top" />
-
+            <!-- C. Rückblick-Inhalt -->
             <TextView
                 android:id="@+id/tvReviewWinnerLabel"
                 android:layout_width="wrap_content"
@@ -199,6 +118,7 @@
                 android:textColor="?attr/colorPrimary"
                 android:textSize="@dimen/tour_hero_highlight_size"
                 android:textStyle="bold"
+                android:visibility="gone"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tvHeaderTypeBadge"
                 tools:text="Sieger:" />
@@ -211,6 +131,7 @@
                 android:textColor="?attr/colorPrimary"
                 android:textSize="@dimen/tour_hero_highlight_size"
                 android:textStyle="bold"
+                android:visibility="gone"
                 app:layout_constraintBaseline_toBaselineOf="@id/tvReviewWinnerLabel"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/tvReviewWinnerLabel"
@@ -257,6 +178,7 @@
                 android:layout_marginTop="6dp"
                 android:textColor="?attr/colorOnSurfaceVariant"
                 android:textSize="@dimen/tour_hero_body_size"
+                android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/barrierReviewBottom"
@@ -269,6 +191,7 @@
                 android:layout_marginTop="2dp"
                 android:textColor="?attr/colorOnSurfaceVariant"
                 android:textSize="@dimen/tour_hero_body_size"
+                android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tvReviewUserRound"
@@ -277,15 +200,7 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- Barrier unter den Kopfkarten -->
-    <androidx.constraintlayout.widget.Barrier
-        android:id="@+id/barrierTopHeaderCards"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:barrierDirection="bottom"
-        app:constraint_referenced_ids="cardActiveControls,cardReviewSummary" />
-
-    <!-- 4. GEMEINSAMER INHALTSBEREICH (Aktives & Abgeschlossenes Turnier) -->
+    <!-- 2. GEMEINSAMER INHALTSBEREICH (Aktives & Abgeschlossenes Turnier) -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/layoutTournamentContent"
         android:layout_width="0dp"
@@ -294,7 +209,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/barrierTopHeaderCards"
+        app:layout_constraintTop_toBottomOf="@id/cardTournamentHeader"
         tools:visibility="visible">
 
         <!-- Round Selector Chips (Outside & directly below upper Card) -->
@@ -303,7 +218,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:paddingHorizontal="@dimen/screen_margin_small"
+            android:clipToPadding="false"
+            android:paddingHorizontal="@dimen/screen_margin"
             android:requiresFadingEdge="horizontal"
             android:scrollbars="none"
             app:layout_constraintEnd_toEndOf="parent"
@@ -325,7 +241,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:paddingHorizontal="@dimen/screen_margin_small"
+            android:clipToPadding="false"
+            android:paddingHorizontal="@dimen/screen_margin"
             android:requiresFadingEdge="horizontal"
             android:scrollbars="none"
             android:visibility="gone"
@@ -350,7 +267,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:orientation="vertical"
-            android:paddingHorizontal="@dimen/screen_margin_small"
+            android:paddingHorizontal="@dimen/screen_margin"
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -378,7 +295,7 @@
             android:id="@+id/containerGroupTable"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="@dimen/screen_margin_small"
+            android:layout_marginHorizontal="@dimen/screen_margin"
             android:layout_marginTop="18dp"
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
@@ -393,7 +310,7 @@
             android:layout_height="0dp"
             android:layout_marginTop="6dp"
             android:clipToPadding="false"
-            android:paddingHorizontal="@dimen/screen_margin_small"
+            android:paddingHorizontal="@dimen/screen_margin"
             android:paddingBottom="@dimen/list_bottom_padding_fab"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -408,6 +325,7 @@
             android:layout_marginTop="6dp"
             android:clipChildren="false"
             android:clipToPadding="false"
+            android:paddingHorizontal="@dimen/screen_margin"
             android:paddingBottom="@dimen/list_bottom_padding_fab"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -424,7 +342,7 @@
             android:layout_marginTop="6dp"
             android:clipToPadding="false"
             android:orientation="vertical"
-            android:paddingHorizontal="@dimen/list_screen_padding"
+            android:paddingHorizontal="@dimen/screen_margin"
             android:paddingTop="@dimen/list_screen_padding"
             android:paddingBottom="@dimen/list_bottom_padding_fab"
             android:visibility="gone"
@@ -463,12 +381,29 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <!-- Start Button for Preview -->
+    <Button
+        android:id="@+id/btnStartTournamentPreview"
+        style="@style/Widget.Material3.Button"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/primary_bottom_button_margin_h"
+        android:layout_marginBottom="@dimen/primary_bottom_button_margin_bottom"
+        android:minHeight="@dimen/start_button_min_height"
+        android:text="@string/tournament_start"
+        android:textSize="@dimen/primary_bottom_button_text_size"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:visibility="gone" />
+
     <!-- Schwebe-Buttons unten rechts -->
     <LinearLayout
         android:id="@+id/layoutFabContainer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/list_screen_padding"
+        android:layout_marginBottom="@dimen/bottom_fab_bar_margin_bottom"
         android:gravity="center_horizontal"
         android:orientation="horizontal"
         android:visibility="gone"

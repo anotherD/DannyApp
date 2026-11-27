@@ -7,7 +7,8 @@
     android:background="@color/anthrazit_hintergrund"
     android:fitsSystemWindows="true"
     android:orientation="vertical"
-    android:padding="@dimen/dialog_padding"
+    android:paddingHorizontal="@dimen/screen_margin"
+    android:paddingVertical="@dimen/dialog_padding"
     tools:context=".ui.CrashActivity">
 
     <TextView

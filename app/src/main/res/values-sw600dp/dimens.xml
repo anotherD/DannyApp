@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <dimen name="fading_edge_length">27dp</dimen>
     <dimen name="start_button_width">520dp</dimen>
     <dimen name="start_button_min_height">80dp</dimen>
     <dimen name="start_button_text_size">32sp</dimen>
@@ -162,4 +163,5 @@
     <dimen name="crash_message_size">22sp</dimen>
     <dimen name="crash_stacktrace_size">18sp</dimen>
     <dimen name="crash_box_padding">24dp</dimen>
+    <dimen name="bottom_fab_bar_margin_bottom">24dp</dimen>
 </resources>

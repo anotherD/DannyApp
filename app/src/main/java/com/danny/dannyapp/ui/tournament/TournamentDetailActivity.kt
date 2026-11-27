@@ -46,9 +46,9 @@ class TournamentDetailActivity : BaseActivity() {
     private lateinit var fabFocusUserMatch: FloatingActionButton
     private lateinit var fabToggleBracketView: FloatingActionButton
 
-    // Preview
-    private lateinit var cardPreviewHeader: MaterialCardView
-    private lateinit var layoutPreviewContainer: View
+    // Common Header Card
+    private lateinit var cardTournamentHeader: MaterialCardView
+    private lateinit var layoutActiveActions: View
     private lateinit var tvPreviewPrizeFund: TextView
     private lateinit var btnStartTournamentPreview: Button
     private var currentEvent: TournamentEvent? = null
@@ -69,20 +69,17 @@ class TournamentDetailActivity : BaseActivity() {
     private lateinit var layoutEntrantsContainer: LinearLayout
     private lateinit var containerGroupTable: ViewGroup
 
-    // Active Card
-    private lateinit var cardActiveControls: MaterialCardView
-    private lateinit var btnSimulateCpuMatches: Button
-    private lateinit var btnSimulateComplete: Button
-    private lateinit var btnAdvanceRound: Button
-
-    // Review Card
-    private lateinit var cardReviewSummary: MaterialCardView
+    // Review / Active internal views in cardTournamentHeader
     private lateinit var tvReviewWinnerLabel: TextView
     private lateinit var tvReviewWinner: TextView
     private lateinit var tvReviewQualifierHeader: TextView
     private lateinit var layoutReviewQualifierWinnersList: LinearLayout
     private lateinit var tvReviewUserRound: TextView
     private lateinit var tvReviewUserPrize: TextView
+    private lateinit var btnSimulateCpuMatches: Button
+    private lateinit var btnSimulateComplete: Button
+    private lateinit var btnAdvanceRound: Button
+
     private lateinit var layoutSimulatingOverlay: View
 
     private var tournamentId: Long = -1L
@@ -180,11 +177,21 @@ class TournamentDetailActivity : BaseActivity() {
         layoutSimulatingOverlay = findViewById(R.id.layoutSimulatingOverlay)
         layoutSimulatingOverlay.findViewById<TextView>(R.id.tvOverlayMessage).setText(R.string.simulating_tournament)
 
-        // Preview
-        cardPreviewHeader = findViewById(R.id.cardPreviewHeader)
-        layoutPreviewContainer = findViewById(R.id.layoutPreviewContainer)
+        // Common Header Card
+        cardTournamentHeader = findViewById(R.id.cardTournamentHeader)
         tvPreviewPrizeFund = findViewById(R.id.tvPreviewPrizeFund)
         btnStartTournamentPreview = findViewById(R.id.btnStartTournamentPreview)
+        layoutActiveActions = findViewById(R.id.layoutActiveActions)
+        btnSimulateCpuMatches = findViewById(R.id.btnSimulateCpuMatches)
+        btnSimulateComplete = findViewById(R.id.btnSimulateComplete)
+        btnAdvanceRound = findViewById(R.id.btnAdvanceRound)
+
+        tvReviewWinnerLabel = findViewById(R.id.tvReviewWinnerLabel)
+        tvReviewWinner = findViewById(R.id.tvReviewWinner)
+        tvReviewQualifierHeader = findViewById(R.id.tvReviewQualifierHeader)
+        layoutReviewQualifierWinnersList = findViewById(R.id.layoutReviewQualifierWinnersList)
+        tvReviewUserRound = findViewById(R.id.tvReviewUserRound)
+        tvReviewUserPrize = findViewById(R.id.tvReviewUserPrize)
 
         // Common Content
         layoutTournamentContent = findViewById(R.id.layoutTournamentContent)
@@ -200,21 +207,6 @@ class TournamentDetailActivity : BaseActivity() {
         tvDrawAfterRoundInfo = findViewById(R.id.tvDrawAfterRoundInfo)
         layoutEntrantsContainer = findViewById(R.id.layoutEntrantsContainer)
         containerGroupTable = findViewById(R.id.containerGroupTable)
-
-        // Active
-        cardActiveControls = findViewById(R.id.cardActiveControls)
-        btnSimulateCpuMatches = findViewById(R.id.btnSimulateCpuMatches)
-        btnSimulateComplete = findViewById(R.id.btnSimulateComplete)
-        btnAdvanceRound = findViewById(R.id.btnAdvanceRound)
-
-        // Review
-        cardReviewSummary = findViewById(R.id.cardReviewSummary)
-        tvReviewWinnerLabel = findViewById(R.id.tvReviewWinnerLabel)
-        tvReviewWinner = findViewById(R.id.tvReviewWinner)
-        tvReviewQualifierHeader = findViewById(R.id.tvReviewQualifierHeader)
-        layoutReviewQualifierWinnersList = findViewById(R.id.layoutReviewQualifierWinnersList)
-        tvReviewUserRound = findViewById(R.id.tvReviewUserRound)
-        tvReviewUserPrize = findViewById(R.id.tvReviewUserPrize)
 
         // FABs
         layoutFabContainer = findViewById(R.id.layoutFabContainer)
@@ -260,15 +252,7 @@ class TournamentDetailActivity : BaseActivity() {
             viewModel.advanceRound()
         }
 
-        cardPreviewHeader.findViewById<View>(R.id.btnHeaderPrizeInfo).setOnClickListener {
-            showPrizeMoneyDialog()
-        }
-
-        cardActiveControls.findViewById<View>(R.id.btnHeaderPrizeInfo).setOnClickListener {
-            showPrizeMoneyDialog()
-        }
-
-        cardReviewSummary.findViewById<View>(R.id.btnHeaderPrizeInfo).setOnClickListener {
+        cardTournamentHeader.findViewById<View>(R.id.btnHeaderPrizeInfo).setOnClickListener {
             showPrizeMoneyDialog()
         }
 
@@ -309,24 +293,29 @@ class TournamentDetailActivity : BaseActivity() {
         when (state) {
             is TournamentDetailState.Loading -> {
                 pbLoading.visibility = View.VISIBLE
-                layoutPreviewContainer.visibility = View.GONE
-                cardActiveControls.visibility = View.GONE
-                cardReviewSummary.visibility = View.GONE
+                cardTournamentHeader.visibility = View.GONE
+                btnStartTournamentPreview.visibility = View.GONE
                 layoutTournamentContent.visibility = View.GONE
             }
 
             is TournamentDetailState.Preview -> {
                 pbLoading.visibility = View.GONE
-                layoutPreviewContainer.visibility = View.VISIBLE
-                cardActiveControls.visibility = View.GONE
-                cardReviewSummary.visibility = View.GONE
+                cardTournamentHeader.visibility = View.VISIBLE
+                tvPreviewPrizeFund.visibility = View.VISIBLE
+                layoutActiveActions.visibility = View.GONE
+                tvReviewWinnerLabel.visibility = View.GONE
+                tvReviewWinner.visibility = View.GONE
+                tvReviewQualifierHeader.visibility = View.GONE
+                layoutReviewQualifierWinnersList.visibility = View.GONE
+                tvReviewUserRound.visibility = View.GONE
+                tvReviewUserPrize.visibility = View.GONE
                 layoutTournamentContent.visibility = View.GONE
 
                 val activeCareerName = state.careerName.ifBlank { careerName }
                 setupCareerNavigationToolbar(AppScreen.TOURNAMENT_DETAIL, activeCareerName, state.seasonNumber, titleOverride = state.tournament.name, rootViewId = R.id.tournamentDetailMain)
 
                 TournamentUiHelper.bindTournamentHeader(
-                    this, cardPreviewHeader,
+                    this, cardTournamentHeader,
                     state.tournament, getString(R.string.tournament_status_planned), R.color.status_planned
                 )
 
@@ -343,15 +332,23 @@ class TournamentDetailActivity : BaseActivity() {
 
             is TournamentDetailState.Active -> {
                 pbLoading.visibility = View.GONE
-                layoutPreviewContainer.visibility = View.GONE
-                cardActiveControls.visibility = View.VISIBLE
-                cardReviewSummary.visibility = View.GONE
+                cardTournamentHeader.visibility = View.VISIBLE
+                tvPreviewPrizeFund.visibility = View.GONE
+                layoutActiveActions.visibility = View.VISIBLE
+                tvReviewWinnerLabel.visibility = View.GONE
+                tvReviewWinner.visibility = View.GONE
+                tvReviewQualifierHeader.visibility = View.GONE
+                layoutReviewQualifierWinnersList.visibility = View.GONE
+                tvReviewUserRound.visibility = View.GONE
+                tvReviewUserPrize.visibility = View.GONE
+                btnStartTournamentPreview.visibility = View.GONE
+                layoutTournamentContent.visibility = View.VISIBLE
 
                 val activeCareerName = state.careerName.ifBlank { careerName }
                 setupCareerNavigationToolbar(AppScreen.TOURNAMENT_DETAIL, activeCareerName, state.seasonNumber, titleOverride = state.tournament.name, rootViewId = R.id.tournamentDetailMain)
 
                 TournamentUiHelper.bindTournamentHeader(
-                    this, cardActiveControls,
+                    this, cardTournamentHeader,
                     state.tournament, state.activeRoundDisplayName, R.color.status_active
                 )
 
@@ -384,15 +381,19 @@ class TournamentDetailActivity : BaseActivity() {
 
             is TournamentDetailState.Review -> {
                 pbLoading.visibility = View.GONE
-                layoutPreviewContainer.visibility = View.GONE
-                cardActiveControls.visibility = View.GONE
-                cardReviewSummary.visibility = View.VISIBLE
+                cardTournamentHeader.visibility = View.VISIBLE
+                tvPreviewPrizeFund.visibility = View.GONE
+                layoutActiveActions.visibility = View.GONE
+                tvReviewUserRound.visibility = View.VISIBLE
+                tvReviewUserPrize.visibility = View.VISIBLE
+                btnStartTournamentPreview.visibility = View.GONE
+                layoutTournamentContent.visibility = View.VISIBLE
 
                 val activeCareerName = state.careerName.ifBlank { careerName }
                 setupCareerNavigationToolbar(AppScreen.TOURNAMENT_DETAIL, activeCareerName, state.seasonNumber, titleOverride = state.tournament.name, rootViewId = R.id.tournamentDetailMain)
 
                 TournamentUiHelper.bindTournamentHeader(
-                    this, cardReviewSummary,
+                    this, cardTournamentHeader,
                     state.tournament, getString(R.string.tournament_status_completed), R.color.status_completed
                 )
 
@@ -435,9 +436,9 @@ class TournamentDetailActivity : BaseActivity() {
 
             is TournamentDetailState.Error -> {
                 pbLoading.visibility = View.VISIBLE
-                layoutPreviewContainer.visibility = View.GONE
-                cardActiveControls.visibility = View.GONE
-                cardReviewSummary.visibility = View.GONE
+                cardTournamentHeader.visibility = View.GONE
+                btnStartTournamentPreview.visibility = View.GONE
+                layoutTournamentContent.visibility = View.GONE
                 layoutTournamentContent.visibility = View.GONE
                 showMessage(state.message, isError = true, duration = Snackbar.LENGTH_LONG)
             }

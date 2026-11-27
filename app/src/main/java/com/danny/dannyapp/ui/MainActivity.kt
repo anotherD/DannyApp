@@ -236,7 +236,7 @@ class MainActivity : BaseActivity() {
     private fun showStartMenuView(startLayout: View, webView: WebView) {
         webView.visibility = View.GONE
         startLayout.visibility = View.VISIBLE
-        toolbar?.title = getString(R.string.app_title)
+        toolbar?.title = ""
         toolbar?.navigationIcon = null
         toolbar?.setNavigationOnClickListener(null)
     }

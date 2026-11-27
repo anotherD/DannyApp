@@ -27,7 +27,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="@dimen/settings_padding">
+            android:paddingHorizontal="@dimen/screen_margin"
+            android:paddingVertical="@dimen/settings_padding">
 
             <!-- Section 1: Gameplay & Simulation -->
             <TextView
