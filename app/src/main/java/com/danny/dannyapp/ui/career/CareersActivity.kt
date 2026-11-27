@@ -147,12 +147,12 @@ class CareersActivity : BaseActivity() {
         val dialogView = layoutInflater.inflate(R.layout.dialog_new_career, null)
         val etCareerName = dialogView.findViewById<TextInputEditText>(R.id.etCareerName)
         val autoCompleteLevel = dialogView.findViewById<AutoCompleteTextView>(R.id.autoCompleteLevel)
-        val levelValues = (Career.MIN_LEVEL..Career.MAX_LEVEL).toList()
-        val levelLabels = levelValues.map { getString(R.string.career_level_format, it) }
+        val levels = (Career.MIN_LEVEL..Career.MAX_LEVEL).toList()
+        val levelLabels = levels.map { getString(R.string.career_level_format, it) }
         var selectedLevel = Career.MIN_LEVEL
         val levelAdapter = ArrayAdapter(this, R.layout.item_dropdown, levelLabels)
         autoCompleteLevel.setAdapter(levelAdapter)
-        autoCompleteLevel.setText(getString(R.string.career_level_format, Career.MIN_LEVEL), false)
+        autoCompleteLevel.setText(levelLabels.first(), false)
         autoCompleteLevel.setOnClickListener {
             autoCompleteLevel.showDropDown()
         }
@@ -162,7 +162,7 @@ class CareersActivity : BaseActivity() {
             }
         }
         autoCompleteLevel.setOnItemClickListener { _, _, position, _ ->
-            selectedLevel = levelValues.getOrElse(position) { Career.MIN_LEVEL }
+            selectedLevel = levels[position]
         }
 
         val autoCompleteProfile = dialogView.findViewById<AutoCompleteTextView>(R.id.autoCompleteProfile)
@@ -227,7 +227,7 @@ class CareersActivity : BaseActivity() {
                 val enteredLevelText = autoCompleteLevel.text.toString().trim()
                 val matchedLevelIndex = levelLabels.indexOfFirst { it.equals(enteredLevelText, ignoreCase = true) }
                 if (matchedLevelIndex >= 0) {
-                    selectedLevel = levelValues[matchedLevelIndex]
+                    selectedLevel = levels[matchedLevelIndex]
                 }
 
                 val enteredProfileName = autoCompleteProfile.text.toString().trim()

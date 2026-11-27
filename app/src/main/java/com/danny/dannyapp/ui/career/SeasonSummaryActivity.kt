@@ -116,12 +116,9 @@ class SeasonSummaryActivity : BaseActivity() {
         btnStartNextSeason.setOnClickListener {
             val summary = (viewModel.uiState.value as? SeasonSummaryUiState.Ready)?.summary ?: return@setOnClickListener
 
-            val themedContext = android.view.ContextThemeWrapper(this, com.google.android.material.R.style.Widget_Material3_TextInputLayout_OutlinedBox_ExposedDropdownMenu)
-            val textInputLayout = TextInputLayout(themedContext, null, com.google.android.material.R.attr.textInputStyle).apply {
+            val themedContext = android.view.ContextThemeWrapper(this, R.style.Widget_DannyApp_TextInputLayout_Dropdown)
+            val textInputLayout = TextInputLayout(themedContext).apply {
                 layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-                boxStrokeWidth = resources.getDimensionPixelSize(R.dimen.dialog_box_stroke_width)
-                boxStrokeWidthFocused = resources.getDimensionPixelSize(R.dimen.dialog_box_stroke_width_focused)
-                setHintTextAppearance(R.style.TextAppearance_DannyApp_TextInputHint)
                 hint = getString(R.string.careers_create_level)
             }
 

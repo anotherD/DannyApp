@@ -18,10 +18,7 @@
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/dialog_field_spacing"
-        app:boxStrokeWidth="@dimen/dialog_box_stroke_width"
-        app:boxStrokeWidthFocused="@dimen/dialog_box_stroke_width_focused"
-        app:hintTextAppearance="@style/TextAppearance.DannyApp.TextInputHint">
+        android:layout_marginBottom="@dimen/dialog_field_spacing">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etCareerName"
@@ -35,15 +32,11 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+        style="@style/Widget.DannyApp.TextInputLayout.Dropdown"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/dialog_field_spacing"
-        app:boxCollapsedPaddingTop="4dp"
-        android:hint="@string/careers_create_profile_hint"
-        app:boxStrokeWidth="@dimen/dialog_box_stroke_width"
-        app:boxStrokeWidthFocused="@dimen/dialog_box_stroke_width_focused"
-        app:hintTextAppearance="@style/TextAppearance.DannyApp.TextInputHint">
+        android:hint="@string/careers_create_profile_hint">
 
         <AutoCompleteTextView
             android:id="@+id/autoCompleteProfile"
@@ -58,15 +51,11 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+        style="@style/Widget.DannyApp.TextInputLayout.Dropdown"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/dialog_field_spacing"
-        app:boxCollapsedPaddingTop="4dp"
-        android:hint="@string/careers_create_level"
-        app:boxStrokeWidth="@dimen/dialog_box_stroke_width"
-        app:boxStrokeWidthFocused="@dimen/dialog_box_stroke_width_focused"
-        app:hintTextAppearance="@style/TextAppearance.DannyApp.TextInputHint">
+        android:hint="@string/careers_create_level">
 
         <AutoCompleteTextView
             android:id="@+id/autoCompleteLevel"
@@ -106,14 +95,10 @@
             app:tint="?attr/colorOnSurfaceVariant" />
 
         <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            style="@style/Widget.DannyApp.TextInputLayout.Dropdown"
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:layout_height="wrap_content"
-            app:boxCollapsedPaddingTop="4dp"
-            app:boxStrokeWidth="@dimen/dialog_box_stroke_width"
-            app:boxStrokeWidthFocused="@dimen/dialog_box_stroke_width_focused"
-            app:hintTextAppearance="@style/TextAppearance.DannyApp.TextInputHint">
+            android:layout_height="wrap_content">
 
             <AutoCompleteTextView
                 android:id="@+id/autoCompleteMatchDistance"
