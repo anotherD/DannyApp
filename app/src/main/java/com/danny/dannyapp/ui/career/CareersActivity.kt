@@ -6,7 +6,6 @@ import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.Button
-import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.viewModels
 import com.danny.dannyapp.ui.UIHelper
@@ -277,38 +276,14 @@ class CareersActivity : BaseActivity() {
      * Shows a dialog to edit the career name.
      */
     private fun showEditCareerNameDialog(career: Career) {
-        val density = resources.displayMetrics.density
-        val paddingPx = (24 * density).toInt()
-        val layout = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(paddingPx, paddingPx, paddingPx, paddingPx)
-        }
-
-        val textInputLayout = TextInputLayout(this).apply {
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            )
-            hint = getString(R.string.careers_create_name_hint)
-        }
-
-        val editText = TextInputEditText(this).apply {
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            )
-            setText(career.name)
-            inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_FLAG_CAP_WORDS
-            maxLines = 1
-            setSelection(career.name.length)
-        }
-
-        textInputLayout.addView(editText)
-        layout.addView(textInputLayout)
+        val dialogView = layoutInflater.inflate(R.layout.dialog_edit_career, null)
+        val etEditCareerName = dialogView.findViewById<TextInputEditText>(R.id.etEditCareerName)
+        etEditCareerName.setText(career.name)
+        etEditCareerName.setSelection(career.name.length)
 
         val dialog = MaterialAlertDialogBuilder(this)
             .setTitle(getString(R.string.career_edit_title))
-            .setView(layout)
+            .setView(dialogView)
             .setPositiveButton(getString(R.string.career_edit_positive_button), null)
             .setNegativeButton(android.R.string.cancel, null)
             .create()
@@ -316,7 +291,7 @@ class CareersActivity : BaseActivity() {
         dialog.setOnShowListener {
             val positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
             positiveButton?.setOnClickListener {
-                val newName = editText.text.toString().trim()
+                val newName = etEditCareerName.text.toString().trim()
                 if (newName.isEmpty()) {
                     UIHelper.showSnackbar((dialog.window ?: return@setOnClickListener).decorView, getString(R.string.careers_create_error_empty_name), isError = true)
                 } else {

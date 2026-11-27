@@ -2,9 +2,6 @@ package com.danny.dannyapp.ui.tournament
 
 import android.content.Context
 import android.content.DialogInterface
-import android.graphics.Typeface
-import android.graphics.drawable.GradientDrawable
-import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
@@ -58,167 +55,81 @@ object TournamentDialogs {
     ) {
         if (prizeMoneyItems.isEmpty()) return
 
-        val rootLayout = LinearLayout(context).apply {
-            orientation = LinearLayout.VERTICAL
-        }
+        val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_tournament_info, null)
+        val tabLayout = dialogView.findViewById<TabLayout>(R.id.tabLayoutTournamentInfo)
+        val layoutTabPrizes = dialogView.findViewById<LinearLayout>(R.id.layoutInfoTabPrizes)
+        val tvHeader = dialogView.findViewById<TextView>(R.id.tvInfoPrizeHeader)
+        val tvMatchDistance = dialogView.findViewById<TextView>(R.id.tvInfoMatchDistance)
+        val tvException = dialogView.findViewById<TextView>(R.id.tvInfoException)
+        val rvPrizeMoney = dialogView.findViewById<RecyclerView>(R.id.rvInfoPrizeMoney)
 
-        val tabLayout = TabLayout(context).apply {
-            addTab(newTab().setText(context.getString(R.string.tournament_info_tab_prizes)))
-            addTab(newTab().setText(context.getString(R.string.tournament_info_tab_participants)))
-        }
-        rootLayout.addView(tabLayout)
-
-        val padH = context.resources.getDimensionPixelSize(R.dimen.info_dialog_padding_h)
-        val padV = context.resources.getDimensionPixelSize(R.dimen.info_dialog_padding_v)
-
-        val tab0Layout = LinearLayout(context).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(padH, padV, padH, padV)
-        }
+        val scrollTabParticipants = dialogView.findViewById<ScrollView>(R.id.scrollInfoTabParticipants)
+        val tvRules = dialogView.findViewById<TextView>(R.id.tvInfoRules)
+        val tvPreliminaryHint = dialogView.findViewById<TextView>(R.id.tvInfoPreliminaryHint)
+        val layoutParticipantsContainer = dialogView.findViewById<LinearLayout>(R.id.layoutInfoParticipantsContainer)
+        val dividerOpenSlots = dialogView.findViewById<View>(R.id.dividerInfoOpenSlots)
+        val tvOpenSlots = dialogView.findViewById<TextView>(R.id.tvInfoOpenSlots)
 
         val totalPrize = if (event != null && event.effectiveTotalPrizeFund > 0) {
             context.getString(R.string.tournament_total_prize_fund_format, event.effectiveTotalPrizeFund.toLong())
         } else {
             context.getString(R.string.tournament_qualifying_no_prize)
         }
+        tvHeader.text = totalPrize
+        tvMatchDistance.text = context.getString(R.string.tournament_info_match_distance_format, context.getString(matchDistancePreset.labelResId))
 
-        val tvHeader = TextView(context).apply {
-            text = totalPrize
-            setTextSize(TypedValue.COMPLEX_UNIT_PX, context.resources.getDimension(R.dimen.info_dialog_header_size))
-            setTypeface(null, Typeface.BOLD)
-            setTextColor(ContextCompat.getColor(context, R.color.rot_haupt))
-            setPadding(0, 0, 0, 4)
-        }
-        tab0Layout.addView(tvHeader)
-
-        val tvMatchDistance = TextView(context).apply {
-            text = context.getString(R.string.tournament_info_match_distance_format, context.getString(matchDistancePreset.labelResId))
-            setTextSize(TypedValue.COMPLEX_UNIT_PX, context.resources.getDimension(R.dimen.info_dialog_sub_size))
-            val typedValue = TypedValue()
-            context.theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurfaceVariant, typedValue, true)
-            if (typedValue.resourceId != 0) {
-                setTextColor(ContextCompat.getColor(context, typedValue.resourceId))
+        when {
+            event == TournamentEvent.EUROPEAN_TOUR -> {
+                tvException.visibility = View.VISIBLE
+                tvException.text = context.getString(R.string.tournament_info_exception_et)
             }
-            setPadding(0, 0, 0, 12)
-        }
-        tab0Layout.addView(tvMatchDistance)
-
-        if (event == TournamentEvent.EUROPEAN_TOUR) {
-            val tvExceptionEt = TextView(context).apply {
-                text = context.getString(R.string.tournament_info_exception_et)
-                setTextSize(TypedValue.COMPLEX_UNIT_PX, context.resources.getDimension(R.dimen.info_dialog_note_size))
-                setTextColor(ContextCompat.getColor(context, R.color.rot_hell))
-                setPadding(0, 0, 0, 8)
+            event in listOf(TournamentEvent.PLAYERS_CHAMPIONSHIP, TournamentEvent.UK_OPEN, TournamentEvent.EUROPEAN_OPEN) -> {
+                tvException.visibility = View.VISIBLE
+                tvException.text = context.getString(R.string.tournament_info_exception_pc_uk)
             }
-            tab0Layout.addView(tvExceptionEt)
-        } else if (event in listOf(TournamentEvent.PLAYERS_CHAMPIONSHIP, TournamentEvent.UK_OPEN, TournamentEvent.EUROPEAN_OPEN)) {
-            val tvExceptionPcUk = TextView(context).apply {
-                text = context.getString(R.string.tournament_info_exception_pc_uk)
-                setTextSize(TypedValue.COMPLEX_UNIT_PX, context.resources.getDimension(R.dimen.info_dialog_note_size))
-                setTextColor(ContextCompat.getColor(context, R.color.rot_hell))
-                setPadding(0, 0, 0, 8)
+            else -> {
+                tvException.visibility = View.GONE
             }
-            tab0Layout.addView(tvExceptionPcUk)
         }
 
-        val rv = RecyclerView(context).apply {
-            layoutManager = LinearLayoutManager(context)
-            adapter = PrizeMoneyAdapter().apply { submitList(prizeMoneyItems) }
-        }
-        UIHelper.attachVerticalEdgeFade(rv)
-        tab0Layout.addView(rv)
-        rootLayout.addView(tab0Layout)
+        rvPrizeMoney.adapter = PrizeMoneyAdapter().apply { submitList(prizeMoneyItems) }
+        UIHelper.attachVerticalEdgeFade(rvPrizeMoney)
 
-        val tab1ScrollView = ScrollView(context).apply {
-            visibility = View.GONE
-        }
-        UIHelper.attachVerticalEdgeFade(tab1ScrollView)
-        val tab1Layout = LinearLayout(context).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(padH, padV, padH, padV)
-        }
+        UIHelper.attachVerticalEdgeFade(scrollTabParticipants)
 
         if (event != null) {
-            val tvRules = TextView(context).apply {
-                text = context.getString(getQualificationRulesResId(event))
-                setTextSize(TypedValue.COMPLEX_UNIT_PX, context.resources.getDimension(R.dimen.info_dialog_body_size))
-                setTypeface(null, Typeface.BOLD)
-                val typedValue = TypedValue()
-                context.theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurface, typedValue, true)
-                if (typedValue.resourceId != 0) {
-                    setTextColor(ContextCompat.getColor(context, typedValue.resourceId))
-                }
-                setPadding(0, 0, 0, 16)
-            }
-            tab1Layout.addView(tvRules)
+            tvRules.visibility = View.VISIBLE
+            tvRules.text = context.getString(getQualificationRulesResId(event))
+        } else {
+            tvRules.visibility = View.GONE
         }
 
-        if (!isParticipantsFrozen) {
-            val density = context.resources.displayMetrics.density
-            val tvPreliminaryHint = TextView(context).apply {
-                layoutParams = LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-                ).apply {
-                    bottomMargin = (16 * density).toInt()
-                }
-                text = context.getString(R.string.tournament_info_participants_preliminary)
-                setTextSize(TypedValue.COMPLEX_UNIT_PX, context.resources.getDimension(R.dimen.info_dialog_note_size))
-                setTypeface(null, Typeface.BOLD)
-                setTextColor(ContextCompat.getColor(context, R.color.grau_text_hell))
-                background = GradientDrawable().apply {
-                    setColor(ContextCompat.getColor(context, R.color.warning_banner_bg))
-                    setStroke((1 * density).toInt(), ContextCompat.getColor(context, R.color.warning_banner_stroke))
-                    cornerRadius = 8 * density
-                }
-                setPadding(24, 16, 24, 16)
-            }
-            tab1Layout.addView(tvPreliminaryHint)
-        }
+        tvPreliminaryHint.visibility = if (!isParticipantsFrozen) View.VISIBLE else View.GONE
 
-        val participantsContainer = LinearLayout(context).apply {
-            orientation = LinearLayout.VERTICAL
-        }
         TournamentDetailUiHelper.renderOpenDrawEntrants(
             context = context,
-            container = participantsContainer,
+            container = layoutParticipantsContainer,
             groups = participantGroups,
             isPreliminary = !isParticipantsFrozen
         )
-        tab1Layout.addView(participantsContainer)
 
         if (!openQualifierSlotsText.isNullOrEmpty()) {
-            val divider = MaterialDivider(context).apply {
-                layoutParams = LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-                ).apply {
-                    topMargin = (12 * context.resources.displayMetrics.density).toInt()
-                    bottomMargin = (12 * context.resources.displayMetrics.density).toInt()
-                }
-            }
-            tab1Layout.addView(divider)
-
-            val tvOpenSlots = TextView(context).apply {
-                text = openQualifierSlotsText
-                setTextSize(TypedValue.COMPLEX_UNIT_PX, context.resources.getDimension(R.dimen.info_dialog_sub_size))
-                setTypeface(null, Typeface.ITALIC)
-                setTextColor(ContextCompat.getColor(context, R.color.rot_hell))
-            }
-            tab1Layout.addView(tvOpenSlots)
+            dividerOpenSlots.visibility = View.VISIBLE
+            tvOpenSlots.visibility = View.VISIBLE
+            tvOpenSlots.text = openQualifierSlotsText
+        } else {
+            dividerOpenSlots.visibility = View.GONE
+            tvOpenSlots.visibility = View.GONE
         }
-
-        tab1ScrollView.addView(tab1Layout)
-        rootLayout.addView(tab1ScrollView)
 
         tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 if (tab?.position == 1) {
-                    tab0Layout.visibility = View.GONE
-                    tab1ScrollView.visibility = View.VISIBLE
+                    layoutTabPrizes.visibility = View.GONE
+                    scrollTabParticipants.visibility = View.VISIBLE
                 } else {
-                    tab0Layout.visibility = View.VISIBLE
-                    tab1ScrollView.visibility = View.GONE
+                    layoutTabPrizes.visibility = View.VISIBLE
+                    scrollTabParticipants.visibility = View.GONE
                 }
             }
             override fun onTabUnselected(tab: TabLayout.Tab?) {}
@@ -227,7 +138,7 @@ object TournamentDialogs {
 
         MaterialAlertDialogBuilder(context)
             .setTitle(context.getString(R.string.tournament_preview_prizes_title))
-            .setView(rootLayout)
+            .setView(dialogView)
             .setPositiveButton(context.getString(R.string.dialog_close), null)
             .show()
     }

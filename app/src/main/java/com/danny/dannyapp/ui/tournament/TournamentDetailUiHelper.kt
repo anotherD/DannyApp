@@ -7,6 +7,7 @@ import android.text.TextUtils
 import android.util.TypedValue
 import android.view.GestureDetector
 import android.view.Gravity
+import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.widget.HorizontalScrollView
@@ -381,17 +382,16 @@ object TournamentDetailUiHelper {
         onRoundSelected: (Int) -> Unit
     ) {
         val context = chipGroup.context
+        val inflater = LayoutInflater.from(context)
         chipGroup.removeAllViews()
         var selectedChip: Chip? = null
 
         roundDisplayNames.forEachIndexed { index, displayName ->
             val status = roundStatuses?.getOrNull(index) ?: RoundStatus.COMPLETED
-            val chip = Chip(context).apply {
+            val chip = (inflater.inflate(R.layout.item_control_chip, chipGroup, false) as Chip).apply {
                 text = displayName
                 isCheckable = true
                 isChecked = (index == selectedIndex)
-                setTextSize(TypedValue.COMPLEX_UNIT_PX, context.resources.getDimension(R.dimen.tour_control_chip_text_size))
-                minHeight = context.resources.getDimensionPixelSize(R.dimen.tour_control_chip_min_height)
 
                 val (bgRes, textRes) = when (status) {
                     RoundStatus.COMPLETED -> R.color.status_completed to R.color.grau_text_gedaempft

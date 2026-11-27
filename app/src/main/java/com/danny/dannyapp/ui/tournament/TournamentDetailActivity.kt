@@ -2,7 +2,6 @@ package com.danny.dannyapp.ui.tournament
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
@@ -493,13 +492,11 @@ class TournamentDetailActivity : BaseActivity() {
                 rowGroups.forEachIndexed { colIndex, groupLetter ->
                     val globalIndex = rowIndex * 8 + colIndex
                     val isSelected = (globalIndex == selectedGroupIndex)
-                    val chip = Chip(this).apply {
+                    val chip = (layoutInflater.inflate(R.layout.item_control_chip, rowLayout, false) as Chip).apply {
                         text = getString(R.string.group_label_nav, groupLetter)
                         textAlignment = View.TEXT_ALIGNMENT_CENTER
                         isCheckable = true
                         isChecked = isSelected
-                        setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.tour_control_chip_text_size))
-                        minHeight = resources.getDimensionPixelSize(R.dimen.tour_control_chip_min_height)
                         setEnsureMinTouchTargetSize(false)
                         minWidth = 0
                         minimumWidth = 0
@@ -682,12 +679,10 @@ class TournamentDetailActivity : BaseActivity() {
         var selectedBoardChip: Chip? = null
 
         val isAllSelected = (selectedBoardFilterIndex == -1)
-        val chipAll = Chip(this).apply {
+        val chipAll = (layoutInflater.inflate(R.layout.item_control_chip, chipGroup, false) as Chip).apply {
             text = getString(R.string.bracket_board_all)
             isCheckable = true
             isChecked = isAllSelected
-            setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.tour_control_chip_text_size))
-            minHeight = resources.getDimensionPixelSize(R.dimen.tour_control_chip_min_height)
             UIHelper.styleSelectionChip(this, isAllSelected)
             setOnClickListener {
                 selectedBoardFilterIndex = -1
@@ -701,12 +696,10 @@ class TournamentDetailActivity : BaseActivity() {
 
         for (boardIdx in 0 until boardCount) {
             val isBoardSelected = (selectedBoardFilterIndex == boardIdx)
-            val chipBoard = Chip(this).apply {
+            val chipBoard = (layoutInflater.inflate(R.layout.item_control_chip, chipGroup, false) as Chip).apply {
                 text = getString(R.string.bracket_board_format, boardIdx + 1)
                 isCheckable = true
                 isChecked = isBoardSelected
-                setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.tour_control_chip_text_size))
-                minHeight = resources.getDimensionPixelSize(R.dimen.tour_control_chip_min_height)
                 UIHelper.styleSelectionChip(this, isBoardSelected)
                 setOnClickListener {
                     selectedBoardFilterIndex = boardIdx

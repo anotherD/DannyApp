@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tabLayoutTournamentInfo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/tournament_info_tab_prizes" />
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/tournament_info_tab_participants" />
+
+    </com.google.android.material.tabs.TabLayout>
+
+    <!-- Tab 0: Prize Money & Match Distance -->
+    <LinearLayout
+        android:id="@+id/layoutInfoTabPrizes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="@dimen/info_dialog_padding_h"
+        android:paddingVertical="@dimen/info_dialog_padding_v">
+
+        <TextView
+            android:id="@+id/tvInfoPrizeHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="4dp"
+            android:textColor="@color/rot_haupt"
+            android:textSize="@dimen/info_dialog_header_size"
+            android:textStyle="bold"
+            tools:text="Gesamtes Preisgeld: £100.000" />
+
+        <TextView
+            android:id="@+id/tvInfoMatchDistance"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="12dp"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textSize="@dimen/info_dialog_sub_size"
+            tools:text="Match-Distanz: Original" />
+
+        <TextView
+            android:id="@+id/tvInfoException"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="8dp"
+            android:textColor="@color/rot_hell"
+            android:textSize="@dimen/info_dialog_note_size"
+            android:visibility="gone"
+            tools:text="Hinweis: Gesetzte Spieler..."
+            tools:visibility="visible" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvInfoPrizeMoney"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+    </LinearLayout>
+
+    <!-- Tab 1: Participants & Qualification Rules -->
+    <ScrollView
+        android:id="@+id/scrollInfoTabParticipants"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="@dimen/info_dialog_padding_h"
+            android:paddingVertical="@dimen/info_dialog_padding_v">
+
+            <TextView
+                android:id="@+id/tvInfoRules"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="16dp"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="@dimen/info_dialog_body_size"
+                android:textStyle="bold"
+                android:visibility="gone"
+                tools:text="Regeln..."
+                tools:visibility="visible" />
+
+            <TextView
+                android:id="@+id/tvInfoPreliminaryHint"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/bg_warning_banner"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="8dp"
+                android:text="@string/tournament_info_participants_preliminary"
+                android:textColor="@color/grau_text_hell"
+                android:textSize="@dimen/info_dialog_note_size"
+                android:textStyle="bold"
+                android:visibility="gone"
+                tools:visibility="visible" />
+
+            <LinearLayout
+                android:id="@+id/layoutInfoParticipantsContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+
+            <com.google.android.material.divider.MaterialDivider
+                android:id="@+id/dividerInfoOpenSlots"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="12dp"
+                android:visibility="gone"
+                tools:visibility="visible" />
+
+            <TextView
+                android:id="@+id/tvInfoOpenSlots"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/rot_hell"
+                android:textSize="@dimen/info_dialog_sub_size"
+                android:textStyle="italic"
+                android:visibility="gone"
+                tools:text="+ 2 Plätze über Qualifier"
+                tools:visibility="visible" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout>

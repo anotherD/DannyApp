@@ -3,6 +3,7 @@ package com.danny.dannyapp.ui.career
 import android.content.Context
 import android.graphics.Typeface
 import android.util.TypedValue
+import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.ScrollView
@@ -35,48 +36,9 @@ object CareerDistanceInfoDialog {
      * Displays the match distance information dialog with the specified initial preset selected.
      */
     fun show(context: Context, initialPreset: MatchDistancePreset = MatchDistancePreset.ORIGINAL) {
-        val rootLayout = LinearLayout(context).apply {
-            orientation = LinearLayout.VERTICAL
-            layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
-        }
-
-        val density = context.resources.displayMetrics.density
-        val padH = context.resources.getDimensionPixelSize(R.dimen.info_dialog_padding_h)
-        val padV = context.resources.getDimensionPixelSize(R.dimen.info_dialog_padding_v)
-
-        val tvDescription = TextView(context).apply {
-            text = context.getString(R.string.match_distance_info_description)
-            setTextSize(TypedValue.COMPLEX_UNIT_PX, context.resources.getDimension(R.dimen.info_dialog_body_size))
-            setPadding(padH, padV, padH, padV)
-            val typedValue = TypedValue()
-            context.theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurfaceVariant, typedValue, true)
-            if (typedValue.resourceId != 0) {
-                setTextColor(ContextCompat.getColor(context, typedValue.resourceId))
-            }
-        }
-        rootLayout.addView(tvDescription)
-
-        val tabLayout = TabLayout(context).apply {
-            tabMode = TabLayout.MODE_SCROLLABLE
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            )
-        }
-        rootLayout.addView(tabLayout)
-
-        val viewPager = ViewPager2(context).apply {
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                context.resources.getDimensionPixelSize(R.dimen.info_dialog_pager_height)
-            ).apply {
-                topMargin = (8 * density).toInt()
-            }
-        }
-        rootLayout.addView(viewPager)
+        val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_distance_info, null)
+        val tabLayout = dialogView.findViewById<TabLayout>(R.id.tabLayoutDistancePresets)
+        val viewPager = dialogView.findViewById<ViewPager2>(R.id.viewPagerDistancePresets)
 
         val presets = MatchDistancePreset.entries
         val adapter = CareerDistancePresetPagerAdapter(context, presets)
@@ -91,7 +53,7 @@ object CareerDistanceInfoDialog {
 
         MaterialAlertDialogBuilder(context)
             .setTitle(context.getString(R.string.match_distance_info_title))
-            .setView(rootLayout)
+            .setView(dialogView)
             .setPositiveButton(context.getString(R.string.dialog_close), null)
             .show()
     }
