@@ -146,11 +146,32 @@
         <item name="strokeWidth">@dimen/card_stroke_thin</item>
     </style>
 
+    <style name="Widget.DannyApp.Chip.Filter" parent="Widget.Material3.Chip.Filter">
+        <item name="android:minHeight">@dimen/oom_chip_min_height</item>
+        <item name="android:textSize">@dimen/oom_chip_text_size</item>
+        <item name="checkedIconVisible">false</item>
+        <item name="chipStrokeWidth">@dimen/card_stroke_thin</item>
+    </style>
+
+    <style name="Widget.DannyApp.Chip.Control" parent="Widget.Material3.Chip.Filter">
+        <item name="android:minHeight">@dimen/tour_control_chip_min_height</item>
+        <item name="android:textSize">@dimen/tour_control_chip_text_size</item>
+        <item name="checkedIconVisible">false</item>
+    </style>
+
+    <style name="Widget.DannyApp.Button.Sort" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:paddingHorizontal">@dimen/players_sort_button_pad_h</item>
+        <item name="android:paddingVertical">@dimen/players_sort_button_pad_v</item>
+        <item name="android:minHeight">@dimen/players_sort_button_min_height</item>
+        <item name="strokeWidth">@dimen/card_stroke_thin</item>
+        <item name="android:textSize">@dimen/players_sort_button_text_size</item>
+    </style>
+
     <style name="Widget.DannyApp.Card.StickyUser" parent="Widget.DannyApp.Card.Compact">
         <item name="cardBackgroundColor">@color/rot_container_dunkel</item>
         <item name="cardCornerRadius">@dimen/card_corner_radius_sticky</item>
-        <item name="cardElevation">16dp</item>
-        <item name="android:translationZ">16dp</item>
+        <item name="cardElevation">@dimen/sticky_card_elevation</item>
+        <item name="android:translationZ">@dimen/sticky_card_elevation</item>
         <item name="android:outlineSpotShadowColor">@color/black</item>
         <item name="android:outlineAmbientShadowColor">@color/black</item>
         <item name="strokeColor">@color/rot_haupt</item>

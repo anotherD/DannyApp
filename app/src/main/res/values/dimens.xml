@@ -149,4 +149,11 @@
     <dimen name="info_dialog_sub_size">13sp</dimen>
     <dimen name="info_dialog_note_size">12sp</dimen>
     <dimen name="info_dialog_pager_height">420dp</dimen>
+    <dimen name="tour_group_label_size">14sp</dimen>
+    <dimen name="tour_open_draw_info_size">16sp</dimen>
+    <dimen name="card_elevation_modern">2dp</dimen>
+    <dimen name="sticky_card_elevation">16dp</dimen>
+    <dimen name="sticky_shadow_height">12dp</dimen>
+    <dimen name="screen_margin_small">12dp</dimen>
+    <dimen name="list_bottom_padding_fab">72dp</dimen>
 </resources>

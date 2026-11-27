@@ -378,7 +378,7 @@ object UIHelper {
         card.setCardBackgroundColor(cardBg)
         card.strokeColor = cardStrokeColor
         card.strokeWidth = cardStrokeWidth
-        card.cardElevation = if (useModern) 2f * context.resources.displayMetrics.density else 0f
+        card.cardElevation = if (useModern) context.resources.getDimension(R.dimen.card_elevation_modern) else 0f
 
         if (matchIndexBadge != null) {
             val background = matchIndexBadge.background

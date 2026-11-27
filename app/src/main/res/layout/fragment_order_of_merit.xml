@@ -10,7 +10,7 @@
         android:id="@+id/rvOrderOfMerit"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:padding="16dp"
+        android:padding="@dimen/list_screen_padding"
         android:clipToPadding="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -44,59 +44,13 @@
         app:layout_constraintEnd_toEndOf="parent"
         tools:visibility="visible">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingHorizontal="@dimen/oom_row_padding_h"
-            android:paddingVertical="@dimen/oom_row_padding_v">
-
-            <TextView
-                android:id="@+id/tvStickyRankTop"
-                android:layout_width="@dimen/oom_rank_width"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:maxLines="1"
-                android:textColor="@color/rot_sehr_hell"
-                android:textSize="@dimen/oom_rank_text_size"
-                android:textStyle="bold"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:text="#12" />
-
-            <TextView
-                android:id="@+id/tvStickyPlayerNameTop"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/oom_player_margin_h"
-                android:layout_marginEnd="8dp"
-                android:textColor="@color/rot_sehr_hell"
-                android:textSize="@dimen/oom_player_text_size"
-                android:textStyle="bold"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/tvStickyPrizeMoneyTop"
-                app:layout_constraintStart_toEndOf="@id/tvStickyRankTop"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:text="🇩🇪 Dein Name" />
-
-            <TextView
-                android:id="@+id/tvStickyPrizeMoneyTop"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="?attr/colorTertiary"
-                android:textSize="@dimen/oom_money_text_size"
-                android:textStyle="bold"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:text="£45,000" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
+        <include layout="@layout/include_sticky_user_row" />
     </com.google.android.material.card.MaterialCardView>
 
     <View
         android:id="@+id/shadowStickyTop"
         android:layout_width="0dp"
-        android:layout_height="12dp"
+        android:layout_height="@dimen/sticky_shadow_height"
         android:layout_marginHorizontal="6dp"
         android:background="@drawable/shadow_sticky_top"
         android:elevation="15dp"
@@ -119,59 +73,13 @@
         app:layout_constraintStart_toStartOf="parent"
         tools:visibility="visible">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingHorizontal="@dimen/oom_row_padding_h"
-            android:paddingVertical="@dimen/oom_row_padding_v">
-
-            <TextView
-                android:id="@+id/tvStickyRankBottom"
-                android:layout_width="@dimen/oom_rank_width"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:maxLines="1"
-                android:textColor="@color/rot_sehr_hell"
-                android:textSize="@dimen/oom_rank_text_size"
-                android:textStyle="bold"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:text="#12" />
-
-            <TextView
-                android:id="@+id/tvStickyPlayerNameBottom"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/oom_player_margin_h"
-                android:layout_marginEnd="8dp"
-                android:textColor="@color/rot_sehr_hell"
-                android:textSize="@dimen/oom_player_text_size"
-                android:textStyle="bold"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/tvStickyPrizeMoneyBottom"
-                app:layout_constraintStart_toEndOf="@id/tvStickyRankBottom"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:text="🇩🇪 Dein Name" />
-
-            <TextView
-                android:id="@+id/tvStickyPrizeMoneyBottom"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="?attr/colorTertiary"
-                android:textSize="@dimen/oom_money_text_size"
-                android:textStyle="bold"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:text="£45,000" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
+        <include layout="@layout/include_sticky_user_row" />
     </com.google.android.material.card.MaterialCardView>
 
     <View
         android:id="@+id/shadowStickyBottom"
         android:layout_width="0dp"
-        android:layout_height="12dp"
+        android:layout_height="@dimen/sticky_shadow_height"
         android:layout_marginHorizontal="6dp"
         android:background="@drawable/shadow_sticky_bottom"
         android:elevation="15dp"

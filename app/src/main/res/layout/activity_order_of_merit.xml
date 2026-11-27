@@ -37,51 +37,35 @@
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipOomMain"
-                style="@style/Widget.Material3.Chip.Filter"
+                style="@style/Widget.DannyApp.Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:minHeight="@dimen/oom_chip_min_height"
-                android:textSize="@dimen/oom_chip_text_size"
                 android:checked="true"
-                app:checkedIconVisible="false"
                 app:chipBackgroundColor="@color/anthrazit_container_niedrig"
-                app:chipStrokeWidth="@dimen/card_stroke_thin"
                 android:text="@string/oom_tab_oom" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipOomProTour"
-                style="@style/Widget.Material3.Chip.Filter"
+                style="@style/Widget.DannyApp.Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:minHeight="@dimen/oom_chip_min_height"
-                android:textSize="@dimen/oom_chip_text_size"
-                app:checkedIconVisible="false"
                 app:chipBackgroundColor="@color/anthrazit_container_niedrig"
-                app:chipStrokeWidth="@dimen/card_stroke_thin"
                 android:text="@string/oom_tab_pt" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipOomPlayersChamp"
-                style="@style/Widget.Material3.Chip.Filter"
+                style="@style/Widget.DannyApp.Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:minHeight="@dimen/oom_chip_min_height"
-                android:textSize="@dimen/oom_chip_text_size"
-                app:checkedIconVisible="false"
                 app:chipBackgroundColor="@color/anthrazit_container_niedrig"
-                app:chipStrokeWidth="@dimen/card_stroke_thin"
                 android:text="@string/oom_tab_pc" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipOomEuropeanTour"
-                style="@style/Widget.Material3.Chip.Filter"
+                style="@style/Widget.DannyApp.Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:minHeight="@dimen/oom_chip_min_height"
-                android:textSize="@dimen/oom_chip_text_size"
-                app:checkedIconVisible="false"
                 app:chipBackgroundColor="@color/anthrazit_container_niedrig"
-                app:chipStrokeWidth="@dimen/card_stroke_thin"
                 android:text="@string/oom_tab_et" />
 
         </com.google.android.material.chip.ChipGroup>

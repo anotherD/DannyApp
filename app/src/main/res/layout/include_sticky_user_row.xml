@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingHorizontal="@dimen/oom_row_padding_h"
+    android:paddingVertical="@dimen/oom_row_padding_v">
+
+    <TextView
+        android:id="@+id/tvStickyRank"
+        android:layout_width="@dimen/oom_rank_width"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:maxLines="1"
+        android:textColor="@color/rot_sehr_hell"
+        android:textSize="@dimen/oom_rank_text_size"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="#12" />
+
+    <TextView
+        android:id="@+id/tvStickyPlayerName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/oom_player_margin_h"
+        android:layout_marginEnd="8dp"
+        android:textColor="@color/rot_sehr_hell"
+        android:textSize="@dimen/oom_player_text_size"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/tvStickyPrizeMoney"
+        app:layout_constraintStart_toEndOf="@id/tvStickyRank"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="🇩🇪 Dein Name" />
+
+    <TextView
+        android:id="@+id/tvStickyPrizeMoney"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="?attr/colorTertiary"
+        android:textSize="@dimen/oom_money_text_size"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="£45,000" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

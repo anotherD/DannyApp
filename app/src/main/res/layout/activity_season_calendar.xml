@@ -36,45 +36,33 @@
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipFilterPc"
-                style="@style/Widget.Material3.Chip.Filter"
+                style="@style/Widget.DannyApp.Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checked="true"
-                android:minHeight="@dimen/oom_chip_min_height"
                 android:text="@string/tournament_type_players_championship"
-                android:textSize="@dimen/oom_chip_text_size"
-                app:checkedIconVisible="false"
                 app:chipBackgroundColor="@color/chip_bg_pc"
-                app:chipStrokeColor="@color/chip_stroke_pc"
-                app:chipStrokeWidth="@dimen/card_stroke_thin" />
+                app:chipStrokeColor="@color/chip_stroke_pc" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipFilterEt"
-                style="@style/Widget.Material3.Chip.Filter"
+                style="@style/Widget.DannyApp.Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checked="true"
-                android:minHeight="@dimen/oom_chip_min_height"
                 android:text="@string/tournament_type_european_tour"
-                android:textSize="@dimen/oom_chip_text_size"
-                app:checkedIconVisible="false"
                 app:chipBackgroundColor="@color/chip_bg_et"
-                app:chipStrokeColor="@color/chip_stroke_et"
-                app:chipStrokeWidth="@dimen/card_stroke_thin" />
+                app:chipStrokeColor="@color/chip_stroke_et" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipFilterMajor"
-                style="@style/Widget.Material3.Chip.Filter"
+                style="@style/Widget.DannyApp.Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checked="true"
-                android:minHeight="@dimen/oom_chip_min_height"
                 android:text="@string/tournament_type_major"
-                android:textSize="@dimen/oom_chip_text_size"
-                app:checkedIconVisible="false"
                 app:chipBackgroundColor="@color/chip_bg_major"
-                app:chipStrokeColor="@color/chip_stroke_major"
-                app:chipStrokeWidth="@dimen/card_stroke_thin" />
+                app:chipStrokeColor="@color/chip_stroke_major" />
 
         </com.google.android.material.chip.ChipGroup>
     </HorizontalScrollView>
@@ -84,9 +72,9 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:clipToPadding="false"
-        android:paddingHorizontal="12dp"
+        android:paddingHorizontal="@dimen/screen_margin_small"
         android:paddingTop="4dp"
-        android:paddingBottom="72dp"
+        android:paddingBottom="@dimen/list_bottom_padding_fab"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -110,7 +98,7 @@
         android:id="@+id/fabFocusCurrentTournament"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="@dimen/list_screen_padding"
         android:contentDescription="@string/cd_focus_current_tournament"
         android:src="@drawable/ic_my_location"
         android:visibility="gone"

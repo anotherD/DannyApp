@@ -45,26 +45,16 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSortSkill"
-                style="?attr/materialButtonOutlinedStyle"
+                style="@style/Widget.DannyApp.Button.Sort"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingHorizontal="@dimen/players_sort_button_pad_h"
-                android:paddingVertical="@dimen/players_sort_button_pad_v"
-                android:minHeight="@dimen/players_sort_button_min_height"
-                app:strokeWidth="@dimen/card_stroke_thin"
-                android:textSize="@dimen/players_sort_button_text_size"
                 android:text="@string/player_skill" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSortName"
-                style="?attr/materialButtonOutlinedStyle"
+                style="@style/Widget.DannyApp.Button.Sort"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingHorizontal="@dimen/players_sort_button_pad_h"
-                android:paddingVertical="@dimen/players_sort_button_pad_v"
-                android:minHeight="@dimen/players_sort_button_min_height"
-                app:strokeWidth="@dimen/card_stroke_thin"
-                android:textSize="@dimen/players_sort_button_text_size"
                 android:text="@string/player_name" />
 
         </com.google.android.material.button.MaterialButtonToggleGroup>
@@ -88,10 +78,10 @@
         android:id="@+id/tvEmptyPlayers"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="32dp"
+        android:layout_marginHorizontal="@dimen/list_empty_margin_h"
         android:text="@string/config_players_empty_state"
         android:textAlignment="center"
-        android:textSize="16sp"
+        android:textSize="@dimen/list_empty_text_size"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

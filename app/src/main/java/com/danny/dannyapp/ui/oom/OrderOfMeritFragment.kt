@@ -50,15 +50,15 @@ class OrderOfMeritFragment : Fragment(R.layout.fragment_order_of_merit) {
 
         cardStickyUserTop = view.findViewById(R.id.cardStickyUserTop)
         shadowStickyTop = view.findViewById(R.id.shadowStickyTop)
-        tvStickyRankTop = view.findViewById(R.id.tvStickyRankTop)
-        tvStickyPlayerNameTop = view.findViewById(R.id.tvStickyPlayerNameTop)
-        tvStickyPrizeMoneyTop = view.findViewById(R.id.tvStickyPrizeMoneyTop)
+        tvStickyRankTop = cardStickyUserTop.findViewById(R.id.tvStickyRank)
+        tvStickyPlayerNameTop = cardStickyUserTop.findViewById(R.id.tvStickyPlayerName)
+        tvStickyPrizeMoneyTop = cardStickyUserTop.findViewById(R.id.tvStickyPrizeMoney)
 
         cardStickyUserBottom = view.findViewById(R.id.cardStickyUserBottom)
         shadowStickyBottom = view.findViewById(R.id.shadowStickyBottom)
-        tvStickyRankBottom = view.findViewById(R.id.tvStickyRankBottom)
-        tvStickyPlayerNameBottom = view.findViewById(R.id.tvStickyPlayerNameBottom)
-        tvStickyPrizeMoneyBottom = view.findViewById(R.id.tvStickyPrizeMoneyBottom)
+        tvStickyRankBottom = cardStickyUserBottom.findViewById(R.id.tvStickyRank)
+        tvStickyPlayerNameBottom = cardStickyUserBottom.findViewById(R.id.tvStickyPlayerName)
+        tvStickyPrizeMoneyBottom = cardStickyUserBottom.findViewById(R.id.tvStickyPrizeMoney)
 
         val layoutManager = LinearLayoutManager(requireContext())
         rvOom.layoutManager = layoutManager

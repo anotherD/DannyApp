@@ -39,7 +39,7 @@
         <ScrollView
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:padding="16dp"
+            android:padding="@dimen/list_screen_padding"
             app:layout_constraintBottom_toTopOf="@id/btnStartTournamentPreview"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -55,7 +55,7 @@
                     style="@style/Widget.DannyApp.Card"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp">
+                    android:layout_marginBottom="@dimen/list_screen_padding">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
@@ -106,7 +106,7 @@
         style="@style/Widget.DannyApp.Card"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_margin="12dp"
+        android:layout_margin="@dimen/screen_margin_small"
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -177,7 +177,7 @@
         style="@style/Widget.DannyApp.Card"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_margin="12dp"
+        android:layout_margin="@dimen/screen_margin_small"
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -304,7 +304,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:paddingHorizontal="12dp"
+            android:paddingHorizontal="@dimen/screen_margin_small"
             android:requiresFadingEdge="horizontal"
             android:scrollbars="none"
             app:layout_constraintEnd_toEndOf="parent"
@@ -326,7 +326,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:paddingHorizontal="12dp"
+            android:paddingHorizontal="@dimen/screen_margin_small"
             android:requiresFadingEdge="horizontal"
             android:scrollbars="none"
             android:visibility="gone"
@@ -351,7 +351,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:orientation="vertical"
-            android:paddingHorizontal="12dp"
+            android:paddingHorizontal="@dimen/screen_margin_small"
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -363,7 +363,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/group_selection_label"
                 android:textColor="?attr/colorOnSurface"
-                android:textSize="14sp"
+                android:textSize="@dimen/tour_group_label_size"
                 android:textStyle="bold" />
 
             <LinearLayout
@@ -379,7 +379,7 @@
             android:id="@+id/containerGroupTable"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="12dp"
+            android:layout_marginHorizontal="@dimen/screen_margin_small"
             android:layout_marginTop="18dp"
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
@@ -394,8 +394,8 @@
             android:layout_height="0dp"
             android:layout_marginTop="6dp"
             android:clipToPadding="false"
-            android:paddingHorizontal="12dp"
-            android:paddingBottom="72dp"
+            android:paddingHorizontal="@dimen/screen_margin_small"
+            android:paddingBottom="@dimen/list_bottom_padding_fab"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -409,7 +409,7 @@
             android:layout_marginTop="6dp"
             android:clipChildren="false"
             android:clipToPadding="false"
-            android:paddingBottom="72dp"
+            android:paddingBottom="@dimen/list_bottom_padding_fab"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -425,9 +425,9 @@
             android:layout_marginTop="6dp"
             android:clipToPadding="false"
             android:orientation="vertical"
-            android:paddingHorizontal="16dp"
-            android:paddingTop="16dp"
-            android:paddingBottom="72dp"
+            android:paddingHorizontal="@dimen/list_screen_padding"
+            android:paddingTop="@dimen/list_screen_padding"
+            android:paddingBottom="@dimen/list_bottom_padding_fab"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -440,10 +440,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:paddingBottom="16dp"
+                android:paddingBottom="@dimen/list_screen_padding"
                 android:text="@string/draw_after_round_info"
                 android:textColor="?attr/colorOnSurface"
-                android:textSize="16sp"
+                android:textSize="@dimen/tour_open_draw_info_size"
                 android:textStyle="bold" />
 
             <ScrollView
@@ -451,7 +451,7 @@
                 android:layout_height="0dp"
                 android:layout_weight="1"
                 android:clipToPadding="false"
-                android:paddingBottom="72dp"
+                android:paddingBottom="@dimen/list_bottom_padding_fab"
                 android:scrollbars="vertical">
 
                 <LinearLayout
@@ -469,7 +469,7 @@
         android:id="@+id/layoutFabContainer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="@dimen/list_screen_padding"
         android:gravity="center_horizontal"
         android:orientation="horizontal"
         android:visibility="gone"
