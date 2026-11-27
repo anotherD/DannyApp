@@ -135,6 +135,7 @@
                             android:weightSum="2">
 
                             <include
+                                android:id="@+id/layoutOverviewRankPc"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
@@ -148,6 +149,7 @@
                                 layout="@layout/include_ranking_cell" />
 
                             <include
+                                android:id="@+id/layoutOverviewRankEt"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"

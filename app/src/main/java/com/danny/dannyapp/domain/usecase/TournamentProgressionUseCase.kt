@@ -47,7 +47,7 @@ class TournamentProgressionUseCase(
         while (loopCount < maxLoopCount) {
             loopCount++
             val tournament = tournamentRepository.getTournamentById(tournamentId)
-            if (tournament.isCompleted) break
+            if (tournament.isCompleted || tournament.currentRound == null) break
 
             val state = requireNotNull(advanceTournamentRoundUseCase.evaluateTournamentState(tournamentId)) {
                 "Turnier-Status für laufendes Turnier $tournamentId konnte nicht ermittelt werden"

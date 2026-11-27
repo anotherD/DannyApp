@@ -42,10 +42,10 @@ class CareerDetailActivity : BaseActivity() {
 
     private lateinit var tvCareerOverviewPlayer: TextView
     private lateinit var tvCareerOverviewMeta: TextView
-    private lateinit var tvOverviewRankOom: TextView
-    private lateinit var tvOverviewRankPt: TextView
-    private lateinit var tvOverviewRankPc: TextView
-    private lateinit var tvOverviewRankEt: TextView
+    private lateinit var tvOverviewRankOom: View
+    private lateinit var tvOverviewRankPt: View
+    private lateinit var tvOverviewRankPc: View
+    private lateinit var tvOverviewRankEt: View
     private lateinit var layoutOverviewRankOom: LinearLayout
     private lateinit var layoutOverviewRankPt: LinearLayout
     private lateinit var layoutOverviewRankPc: LinearLayout
@@ -78,10 +78,10 @@ class CareerDetailActivity : BaseActivity() {
 
         tvCareerOverviewPlayer = findViewById(R.id.tvCareerOverviewPlayer)
         tvCareerOverviewMeta = findViewById(R.id.tvCareerOverviewMeta)
-        tvOverviewRankOom = findViewById(R.id.tvOverviewRankOom)
-        tvOverviewRankPt = findViewById(R.id.tvOverviewRankPt)
-        tvOverviewRankPc = findViewById(R.id.tvOverviewRankPc)
-        tvOverviewRankEt = findViewById(R.id.tvOverviewRankEt)
+        tvOverviewRankOom = layoutOverviewRankOom
+        tvOverviewRankPt = layoutOverviewRankPt
+        tvOverviewRankPc = layoutOverviewRankPc
+        tvOverviewRankEt = layoutOverviewRankEt
         layoutOverviewRankOom = findViewById(R.id.layoutOverviewRankOom)
         layoutOverviewRankPt = findViewById(R.id.layoutOverviewRankPt)
         layoutOverviewRankPc = findViewById(R.id.layoutOverviewRankPc)
@@ -258,14 +258,15 @@ class CareerDetailActivity : BaseActivity() {
         oomViewModel.loadOrderOfMerit(careerId)
     }
 
-    private fun bindRankingEntry(targetTextView: TextView, entries: List<OrderOfMeritEntry>) {
+    private fun bindRankingEntry(targetCellView: View, entries: List<OrderOfMeritEntry>) {
+        val tvRankingValue = targetCellView.findViewById<TextView>(R.id.tvRankingValue)
         val userEntry = entries.find { entry -> entry.isUser }
         if (userEntry != null) {
             val rankText = getString(R.string.rank_format, userEntry.rank)
             val prizeText = getString(R.string.prize_money_format, userEntry.prizeMoney)
-            targetTextView.text = getString(R.string.career_overview_ranking_item_format, rankText, prizeText)
+            tvRankingValue.text = getString(R.string.career_overview_ranking_item_format, rankText, prizeText)
         } else {
-            targetTextView.text = getString(R.string.career_overview_rank_unranked)
+            tvRankingValue.text = getString(R.string.career_overview_rank_unranked)
         }
     }
 
