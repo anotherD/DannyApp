@@ -96,7 +96,7 @@
                             android:orientation="horizontal"
                             android:weightSum="2">
 
-                            <LinearLayout
+                            <include
                                 android:id="@+id/layoutOverviewRankOom"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
@@ -107,26 +107,10 @@
                                 android:gravity="center_horizontal"
                                 android:orientation="vertical"
                                 android:paddingHorizontal="6dp"
-                                android:paddingVertical="8dp">
+                                android:paddingVertical="8dp"
+                                layout="@layout/include_ranking_cell" />
 
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="@string/oom_tab_oom"
-                                    android:textColor="?attr/colorOnSurfaceVariant"
-                                    android:textSize="@dimen/overview_ranking_label_size" />
-
-                                <TextView
-                                    android:id="@+id/tvOverviewRankOom"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:textColor="?attr/colorOnSurface"
-                                    android:textSize="@dimen/overview_ranking_value_size"
-                                    android:textStyle="bold"
-                                    tools:text="#12 (£45,000)" />
-                            </LinearLayout>
-
-                            <LinearLayout
+                            <include
                                 android:id="@+id/layoutOverviewRankPt"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
@@ -137,37 +121,20 @@
                                 android:gravity="center_horizontal"
                                 android:orientation="vertical"
                                 android:paddingHorizontal="6dp"
-                                android:paddingVertical="8dp">
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="@string/oom_tab_pt"
-                                    android:textColor="?attr/colorOnSurfaceVariant"
-                                    android:textSize="@dimen/overview_ranking_label_size" />
-
-                                <TextView
-                                    android:id="@+id/tvOverviewRankPt"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:textColor="?attr/colorOnSurface"
-                                    android:textSize="@dimen/overview_ranking_value_size"
-                                    android:textStyle="bold"
-                                    tools:text="#18 (£15,000)" />
-                            </LinearLayout>
+                                android:paddingVertical="8dp"
+                                layout="@layout/include_ranking_cell" />
                         </LinearLayout>
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="10dp"
+                            android:layout_marginTop="@dimen/overview_section_spacing"
                             android:baselineAligned="false"
                             android:gravity="center_horizontal"
                             android:orientation="horizontal"
                             android:weightSum="2">
 
-                            <LinearLayout
-                                android:id="@+id/layoutOverviewRankPc"
+                            <include
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
@@ -177,27 +144,10 @@
                                 android:gravity="center_horizontal"
                                 android:orientation="vertical"
                                 android:paddingHorizontal="6dp"
-                                android:paddingVertical="8dp">
+                                android:paddingVertical="8dp"
+                                layout="@layout/include_ranking_cell" />
 
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="@string/oom_tab_pc"
-                                    android:textColor="?attr/colorOnSurfaceVariant"
-                                    android:textSize="@dimen/overview_ranking_label_size" />
-
-                                <TextView
-                                    android:id="@+id/tvOverviewRankPc"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:textColor="?attr/colorOnSurface"
-                                    android:textSize="@dimen/overview_ranking_value_size"
-                                    android:textStyle="bold"
-                                    tools:text="#15 (£10,000)" />
-                            </LinearLayout>
-
-                            <LinearLayout
-                                android:id="@+id/layoutOverviewRankEt"
+                            <include
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
@@ -207,24 +157,8 @@
                                 android:gravity="center_horizontal"
                                 android:orientation="vertical"
                                 android:paddingHorizontal="6dp"
-                                android:paddingVertical="8dp">
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="@string/oom_tab_et"
-                                    android:textColor="?attr/colorOnSurfaceVariant"
-                                    android:textSize="@dimen/overview_ranking_label_size" />
-
-                                <TextView
-                                    android:id="@+id/tvOverviewRankEt"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:textColor="?attr/colorOnSurface"
-                                    android:textSize="@dimen/overview_ranking_value_size"
-                                    android:textStyle="bold"
-                                    tools:text="#24 (£5,000)" />
-                            </LinearLayout>
+                                android:paddingVertical="8dp"
+                                layout="@layout/include_ranking_cell" />
                         </LinearLayout>
 
                     </LinearLayout>

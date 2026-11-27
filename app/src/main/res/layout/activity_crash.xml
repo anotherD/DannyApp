@@ -83,7 +83,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/dialog_field_spacing"
-            android:background="@color/anthrazit_container_hoch"
+            android:backgroundTint="@color/anthrazit_container_hoch"
             android:text="@string/crash_copy_button"
             android:textColor="@color/grau_text_hell" />
 
@@ -91,7 +91,7 @@
             android:id="@+id/btnCrashRestart"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/rot_haupt"
+            android:backgroundTint="@color/rot_haupt"
             android:text="@string/crash_restart_button"
             android:textColor="@color/white" />
     </LinearLayout>
