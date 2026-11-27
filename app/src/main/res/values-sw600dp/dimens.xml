@@ -93,6 +93,9 @@
     <dimen name="player_item_skill_text_size">18sp</dimen>
     <dimen name="card_stroke_thin">3dp</dimen>
     <dimen name="card_stroke_thick">5dp</dimen>
+    <dimen name="card_corner_radius">24dp</dimen>
+    <dimen name="card_corner_radius_small">14dp</dimen>
+    <dimen name="card_corner_radius_sticky">18dp</dimen>
     <dimen name="dialog_dropdown_min_height">88dp</dimen>
     <dimen name="dialog_checkbox_text_padding">18dp</dimen>
     <item name="dialog_picker_scale" format="float" type="dimen">1.5</item>

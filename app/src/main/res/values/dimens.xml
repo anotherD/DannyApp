@@ -97,6 +97,9 @@
     <dimen name="player_item_skill_text_size">12sp</dimen>
     <dimen name="card_stroke_thin">1dp</dimen>
     <dimen name="card_stroke_thick">2dp</dimen>
+    <dimen name="card_corner_radius">12dp</dimen>
+    <dimen name="card_corner_radius_small">8dp</dimen>
+    <dimen name="card_corner_radius_sticky">10dp</dimen>
     <dimen name="players_sort_button_pad_h">16dp</dimen>
     <dimen name="players_sort_button_pad_v">8dp</dimen>
     <dimen name="players_sort_button_min_height">40dp</dimen>

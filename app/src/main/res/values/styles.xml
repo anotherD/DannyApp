@@ -118,4 +118,24 @@
         <item name="buttonBarNegativeButtonStyle">@style/Widget.DannyApp.DialogButton</item>
         <item name="buttonBarNeutralButtonStyle">@style/Widget.DannyApp.DialogButton</item>
     </style>
+
+    <style name="Widget.DannyApp.Card" parent="Widget.Material3.CardView.Outlined">
+        <item name="cardCornerRadius">@dimen/card_corner_radius</item>
+        <item name="cardBackgroundColor">?attr/colorSurface</item>
+        <item name="strokeColor">?attr/colorOutlineVariant</item>
+        <item name="strokeWidth">@dimen/card_stroke_thin</item>
+    </style>
+
+    <style name="Widget.DannyApp.Card.Variant" parent="Widget.Material3.CardView.Filled">
+        <item name="cardCornerRadius">@dimen/card_corner_radius</item>
+        <item name="cardBackgroundColor">?attr/colorSurfaceVariant</item>
+        <item name="strokeWidth">0dp</item>
+    </style>
+
+    <style name="Widget.DannyApp.Card.Compact" parent="Widget.Material3.CardView.Outlined">
+        <item name="cardCornerRadius">@dimen/card_corner_radius_small</item>
+        <item name="cardBackgroundColor">?attr/colorSurface</item>
+        <item name="strokeColor">?attr/colorOutlineVariant</item>
+        <item name="strokeWidth">@dimen/card_stroke_thin</item>
+    </style>
 </resources>
