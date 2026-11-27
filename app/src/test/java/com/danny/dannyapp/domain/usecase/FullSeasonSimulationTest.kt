@@ -31,7 +31,6 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertTrue
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 import java.io.File
 import java.io.FileInputStream
@@ -135,8 +134,7 @@ class FullSeasonSimulationTest {
             tournamentDao = tournamentDao,
             tournamentMatchDao = tournamentMatchDao,
             tournamentPlacementDao = tournamentPlacementDao,
-            tournamentParticipantDao = tournamentParticipantDao,
-            database = null
+            tournamentParticipantDao = tournamentParticipantDao
         )
         seasonRepository = SeasonRepository(
             seasonDao = seasonDao,
@@ -247,7 +245,6 @@ class FullSeasonSimulationTest {
                 id = 1L,
                 name = "Test",
                 level = 10,
-                season = 1,
                 profileId = 1L,
                 matchDistancePreset = MatchDistancePreset.RAPID.name
             )
@@ -261,12 +258,12 @@ class FullSeasonSimulationTest {
 
             assertTrue("Saison 1 muss Turniere enthalten", seasonTournaments.isNotEmpty())
 
-            for (tournament in seasonTournaments) {
-                println("Simuliere #${tournament.order}: ${tournament.name} (${tournament.type})")
-                tournamentProgressionUseCase.simulateCompleteTournament(tournament.id)
-                val completedTournament = tournamentRepository.getTournamentById(tournament.id)
+            for ((id, _, name, type, order) in seasonTournaments) {
+                println("Simuliere #$order: $name ($type)")
+                tournamentProgressionUseCase.simulateCompleteTournament(id)
+                val completedTournament = tournamentRepository.getTournamentById(id)
                 assertTrue(
-                    "Turnier ${tournament.name} muss erfolgreich simuliert werden",
+                    "Turnier $name muss erfolgreich simuliert werden",
                     completedTournament.isCompleted
                 )
             }

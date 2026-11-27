@@ -57,22 +57,27 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
-    <TextView
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="4dp"
-        android:text="@string/careers_create_level"
-        android:textSize="@dimen/dialog_label_size"
-        android:labelFor="@+id/numberPickerLevel" />
+        android:layout_marginBottom="@dimen/dialog_field_spacing"
+        app:boxCollapsedPaddingTop="4dp"
+        android:hint="@string/careers_create_level"
+        app:boxStrokeWidth="@dimen/dialog_box_stroke_width"
+        app:boxStrokeWidthFocused="@dimen/dialog_box_stroke_width_focused"
+        app:hintTextAppearance="@style/TextAppearance.DannyApp.TextInputHint">
 
-    <NumberPicker
-        android:id="@+id/numberPickerLevel"
-        android:layout_width="wrap_content"
-        android:layout_height="@dimen/dialog_picker_height"
-        android:layout_gravity="center"
-        android:scaleX="@dimen/dialog_picker_scale"
-        android:scaleY="@dimen/dialog_picker_scale"
-        android:layout_marginBottom="@dimen/dialog_field_spacing" />
+        <AutoCompleteTextView
+            android:id="@+id/autoCompleteLevel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="@dimen/dialog_dropdown_min_height"
+            android:paddingVertical="8dp"
+            android:textSize="@dimen/dialog_input_text_size"
+            android:inputType="none" />
+
+    </com.google.android.material.textfield.TextInputLayout>
 
     <LinearLayout
         android:layout_width="match_parent"

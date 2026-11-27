@@ -45,7 +45,7 @@
             app:layout_constraintEnd_toStartOf="@+id/tvCareerLevel"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tvCareerName"
-            tools:text="🇩🇪 Spielername" />
+            tools:text="🇩🇪 Max Mustermann" />
 
         <TextView
             android:id="@+id/tvCareerProfile"
@@ -57,7 +57,7 @@
             app:layout_constraintEnd_toStartOf="@+id/tvCareerMatchDistance"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tvCareerPlayer"
-            tools:text="Profil: Pro" />
+            tools:text="Profil: Profil Nummer Eins" />
 
         <TextView
             android:id="@+id/tvCareerLevel"
@@ -74,7 +74,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/career_card_sub_spacing"
-            android:textSize="@dimen/career_card_sub_size"
+            android:textSize="@dimen/career_card_body_size"
             android:textColor="?attr/colorOnSurfaceVariant"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tvCareerLevel"
@@ -85,7 +85,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/career_card_sub_spacing"
-            android:textSize="@dimen/career_card_sub_size"
+            android:textSize="@dimen/career_card_body_size"
             android:textColor="?attr/colorOnSurfaceVariant"
             android:maxLines="1"
             android:ellipsize="end"

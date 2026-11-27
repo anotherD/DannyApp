@@ -46,7 +46,7 @@ object ProfileDialogs {
 
         val countries = Country.getAllCountries()
         val countryDisplayList = countries.map { "${it.flagEmoji}  ${it.displayName}" }
-        val countryAdapter = ArrayAdapter(context, android.R.layout.simple_dropdown_item_1line, countryDisplayList)
+        val countryAdapter = ArrayAdapter(context, R.layout.item_dropdown, countryDisplayList)
         actvCountry.setAdapter(countryAdapter)
 
         var selectedCountryCode = existingProfile?.countryCode ?: Country.DEFAULT_USER_CODE

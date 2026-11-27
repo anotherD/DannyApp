@@ -3,10 +3,10 @@ package com.danny.dannyapp.ui.career
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.Button
 import android.widget.LinearLayout
-import android.widget.NumberPicker
 import android.widget.TextView
 import androidx.activity.viewModels
 import com.danny.dannyapp.ui.UIHelper
@@ -146,17 +146,29 @@ class CareersActivity : BaseActivity() {
     private fun showNewCareerDialog(profiles: List<UserProfile>) {
         val dialogView = layoutInflater.inflate(R.layout.dialog_new_career, null)
         val etCareerName = dialogView.findViewById<TextInputEditText>(R.id.etCareerName)
-        val numberPickerLevel = dialogView.findViewById<NumberPicker>(R.id.numberPickerLevel).apply {
-            minValue = Career.MIN_LEVEL
-            maxValue = Career.MAX_LEVEL
-            displayedValues = Array(Career.MAX_LEVEL - Career.MIN_LEVEL + 1) { i -> getString(R.string.career_level_format, Career.MIN_LEVEL + i) }
-            value = Career.MIN_LEVEL
-            wrapSelectorWheel = false
+        val autoCompleteLevel = dialogView.findViewById<AutoCompleteTextView>(R.id.autoCompleteLevel)
+        val levelValues = (Career.MIN_LEVEL..Career.MAX_LEVEL).toList()
+        val levelLabels = levelValues.map { getString(R.string.career_level_format, it) }
+        var selectedLevel = Career.MIN_LEVEL
+        val levelAdapter = ArrayAdapter(this, R.layout.item_dropdown, levelLabels)
+        autoCompleteLevel.setAdapter(levelAdapter)
+        autoCompleteLevel.setText(getString(R.string.career_level_format, Career.MIN_LEVEL), false)
+        autoCompleteLevel.setOnClickListener {
+            autoCompleteLevel.showDropDown()
         }
+        autoCompleteLevel.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) {
+                autoCompleteLevel.showDropDown()
+            }
+        }
+        autoCompleteLevel.setOnItemClickListener { _, _, position, _ ->
+            selectedLevel = levelValues.getOrElse(position) { Career.MIN_LEVEL }
+        }
+
         val autoCompleteProfile = dialogView.findViewById<AutoCompleteTextView>(R.id.autoCompleteProfile)
 
         var selectedProfileId: Long = profiles.firstOrNull()?.id ?: 0L
-        val profileAdapter = android.widget.ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, profiles.map { it.name })
+        val profileAdapter = ArrayAdapter(this, R.layout.item_dropdown, profiles.map { it.name })
         autoCompleteProfile.setAdapter(profileAdapter)
         if (profiles.isNotEmpty()) {
             autoCompleteProfile.setText(profiles[0].name, false)
@@ -183,7 +195,7 @@ class CareersActivity : BaseActivity() {
 
         val matchDistancePresets = MatchDistancePreset.entries
         var selectedMatchDistancePreset = MatchDistancePreset.DEFAULT
-        val presetAdapter = android.widget.ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, matchDistancePresets.map { getString(it.labelResId) })
+        val presetAdapter = ArrayAdapter(this, R.layout.item_dropdown, matchDistancePresets.map { getString(it.labelResId) })
         autoCompleteMatchDistance.setAdapter(presetAdapter)
         autoCompleteMatchDistance.setText(getString(selectedMatchDistancePreset.labelResId), false)
         autoCompleteMatchDistance.setOnClickListener {
@@ -212,6 +224,12 @@ class CareersActivity : BaseActivity() {
             val positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
             positiveButton?.setOnClickListener {
                 val careerName = etCareerName.text.toString().trim()
+                val enteredLevelText = autoCompleteLevel.text.toString().trim()
+                val matchedLevelIndex = levelLabels.indexOfFirst { it.equals(enteredLevelText, ignoreCase = true) }
+                if (matchedLevelIndex >= 0) {
+                    selectedLevel = levelValues[matchedLevelIndex]
+                }
+
                 val enteredProfileName = autoCompleteProfile.text.toString().trim()
                 val matchedProfile = profiles.find { it.name.equals(enteredProfileName, ignoreCase = true) }
                 if (matchedProfile != null) {
@@ -229,12 +247,11 @@ class CareersActivity : BaseActivity() {
                 } else if (matchedProfile == null || selectedProfileId <= 0L) {
                     UIHelper.showSnackbar((dialog.window ?: return@setOnClickListener).decorView, getString(R.string.careers_create_error_empty_profile), isError = true)
                 } else {
-                    val level = numberPickerLevel.value
                     val prefillOom = cbPrefillOom.isChecked
                     val shortTestSeason = debugMode && cbShortTestSeason.isChecked
                     val newCareer = Career(
                         name = careerName,
-                        level = level,
+                        level = selectedLevel,
                         profileId = selectedProfileId,
                         matchDistancePreset = selectedMatchDistancePreset.name
                     )

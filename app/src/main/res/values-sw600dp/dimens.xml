@@ -59,7 +59,6 @@
     <dimen name="dialog_label_size">26sp</dimen>
     <dimen name="dialog_input_text_size">20sp</dimen>
     <dimen name="dialog_field_spacing">18dp</dimen>
-    <dimen name="dialog_picker_height">190dp</dimen>
     <dimen name="dialog_info_icon_size">38dp</dimen>
     <dimen name="profile_dialog_padding">48dp</dimen>
     <dimen name="profile_dialog_field_spacing">32dp</dimen>
@@ -98,7 +97,6 @@
     <dimen name="card_corner_radius_sticky">18dp</dimen>
     <dimen name="dialog_dropdown_min_height">88dp</dimen>
     <dimen name="dialog_checkbox_text_padding">18dp</dimen>
-    <item name="dialog_picker_scale" format="float" type="dimen">1.5</item>
     <dimen name="players_sort_button_pad_h">34dp</dimen>
     <dimen name="players_sort_button_pad_v">16dp</dimen>
     <dimen name="players_sort_button_min_height">76dp</dimen>
