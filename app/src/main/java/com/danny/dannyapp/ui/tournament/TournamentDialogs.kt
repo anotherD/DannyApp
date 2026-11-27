@@ -1,16 +1,15 @@
 package com.danny.dannyapp.ui.tournament
 
 import android.content.Context
+import android.content.DialogInterface
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
-import android.text.InputType
 import android.util.TypedValue
+import android.view.LayoutInflater
 import android.view.View
-import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
-import androidx.appcompat.app.AlertDialog
 import com.danny.dannyapp.ui.UIHelper
 import com.google.android.material.snackbar.Snackbar
 import androidx.core.content.ContextCompat
@@ -27,6 +26,8 @@ import com.danny.dannyapp.ui.model.PrizeMoneyItem
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.divider.MaterialDivider
 import com.google.android.material.tabs.TabLayout
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -279,7 +280,7 @@ object TournamentDialogs {
             arrayOf(manualScoreOption, liveGameOption)
         }
 
-        AlertDialog.Builder(context)
+        MaterialAlertDialogBuilder(context)
             .setTitle(context.getString(R.string.user_match_control_title))
             .setItems(options) { _, which ->
                 val selectedOption = options[which]
@@ -310,7 +311,7 @@ object TournamentDialogs {
             context.getString(R.string.user_match_choice_loss)
         )
 
-        AlertDialog.Builder(context)
+        MaterialAlertDialogBuilder(context)
             .setTitle(context.getString(R.string.user_match_set_winner_title))
             .setItems(choices) { _, which ->
                 val userWins = (which == 0)
@@ -334,49 +335,33 @@ object TournamentDialogs {
         coroutineScope: CoroutineScope,
         onSaveScore: suspend (matchId: Long, scoreP1: Int, scoreP2: Int) -> ManualScoreResult
     ) {
-        val padH = context.resources.getDimensionPixelSize(R.dimen.info_dialog_padding_h)
-        val padV = context.resources.getDimensionPixelSize(R.dimen.info_dialog_padding_v)
-        val layout = LinearLayout(context).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(padH, padV, padH, padV)
-        }
+        val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_manual_score, null)
+        val tvInfo = dialogView.findViewById<TextView>(R.id.tvManualScoreInfo)
+        val tilScoreP1 = dialogView.findViewById<TextInputLayout>(R.id.tilScoreP1)
+        val etScoreP1 = dialogView.findViewById<TextInputEditText>(R.id.etScoreP1)
+        val tilScoreP2 = dialogView.findViewById<TextInputLayout>(R.id.tilScoreP2)
+        val etScoreP2 = dialogView.findViewById<TextInputEditText>(R.id.etScoreP2)
 
-        val tvInfo = TextView(context).apply {
-            text = context.getString(
-                R.string.user_match_manual_info_format,
-                matchModel.player1.name,
-                matchModel.player2.name,
-                matchModel.roundDisplayName
-            )
-            setPadding(0, 0, 0, 20)
-            setTextSize(TypedValue.COMPLEX_UNIT_PX, context.resources.getDimension(R.dimen.info_dialog_body_size))
-        }
+        tvInfo.text = context.getString(
+            R.string.user_match_manual_info_format,
+            matchModel.player1.name,
+            matchModel.player2.name,
+            matchModel.roundDisplayName
+        )
+        tilScoreP1.hint = context.getString(R.string.user_match_player_score_hint, matchModel.player1.name)
+        tilScoreP2.hint = context.getString(R.string.user_match_player_score_hint, matchModel.player2.name)
 
-        val etP1 = EditText(context).apply {
-            hint = context.getString(R.string.user_match_player_score_hint, matchModel.player1.name)
-            inputType = InputType.TYPE_CLASS_NUMBER
-        }
-
-        val etP2 = EditText(context).apply {
-            hint = context.getString(R.string.user_match_player_score_hint, matchModel.player2.name)
-            inputType = InputType.TYPE_CLASS_NUMBER
-        }
-
-        layout.addView(tvInfo)
-        layout.addView(etP1)
-        layout.addView(etP2)
-
-        val dialog = AlertDialog.Builder(context)
+        val dialog = MaterialAlertDialogBuilder(context)
             .setTitle(context.getString(R.string.user_match_option_manual_score))
-            .setView(layout)
+            .setView(dialogView)
             .setPositiveButton(context.getString(R.string.dialog_save), null)
             .setNegativeButton(context.getString(R.string.dialog_cancel), null)
             .create()
 
         dialog.setOnShowListener {
-            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
-                val p1 = etP1.text.toString().toIntOrNull() ?: -1
-                val p2 = etP2.text.toString().toIntOrNull() ?: -1
+            dialog.getButton(DialogInterface.BUTTON_POSITIVE)?.setOnClickListener {
+                val p1 = etScoreP1.text.toString().toIntOrNull() ?: -1
+                val p2 = etScoreP2.text.toString().toIntOrNull() ?: -1
                 if (p1 < 0 || p2 < 0) {
                     UIHelper.showSnackbar(dialog.window!!.decorView, context.getString(R.string.user_match_invalid_numbers), isError = true, duration = Snackbar.LENGTH_LONG)
                     return@setOnClickListener
@@ -426,7 +411,7 @@ object TournamentDialogs {
      * @param context Host context.
      */
     fun showLiveGameEnginePlaceholder(context: Context) {
-        AlertDialog.Builder(context)
+        MaterialAlertDialogBuilder(context)
             .setTitle(context.getString(R.string.user_match_option_live_game))
             .setMessage(context.getString(R.string.user_match_live_placeholder))
             .setPositiveButton(context.getString(R.string.dialog_ok), null)

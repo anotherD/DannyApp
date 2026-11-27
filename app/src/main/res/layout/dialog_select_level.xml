@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="@dimen/dialog_padding">
+
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.DannyApp.TextInputLayout.Dropdown"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/careers_create_level">
+
+        <AutoCompleteTextView
+            android:id="@+id/autoCompleteSelectLevel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="@dimen/dialog_dropdown_min_height"
+            android:paddingVertical="8dp"
+            android:textSize="@dimen/dialog_input_text_size"
+            android:inputType="none" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+</LinearLayout>

@@ -11,7 +11,6 @@ import android.widget.AutoCompleteTextView
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
-import com.google.android.material.textfield.TextInputLayout
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
@@ -116,48 +115,28 @@ class SeasonSummaryActivity : BaseActivity() {
         btnStartNextSeason.setOnClickListener {
             val summary = (viewModel.uiState.value as? SeasonSummaryUiState.Ready)?.summary ?: return@setOnClickListener
 
-            val themedContext = android.view.ContextThemeWrapper(this, R.style.Widget_DannyApp_TextInputLayout_Dropdown)
-            val textInputLayout = TextInputLayout(themedContext).apply {
-                layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-                hint = getString(R.string.careers_create_level)
-            }
+            val dialogView = layoutInflater.inflate(R.layout.dialog_select_level, null)
+            val autoCompleteLevel = dialogView.findViewById<AutoCompleteTextView>(R.id.autoCompleteSelectLevel)
 
             val levelValues = (Career.MIN_LEVEL..Career.MAX_LEVEL).toList()
             val levelLabels = levelValues.map { getString(R.string.career_level_format, it) }
             var selectedLevel = summary.currentCareerLevel
 
-            val autoCompleteTextView = AutoCompleteTextView(themedContext).apply {
-                layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-                minHeight = resources.getDimensionPixelSize(R.dimen.dialog_dropdown_min_height)
-                val padV = (8 * resources.displayMetrics.density).toInt()
-                setPadding(paddingLeft, padV, paddingRight, padV)
-                setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.dialog_input_text_size))
-                inputType = android.text.InputType.TYPE_NULL
-                val adapter = ArrayAdapter(this@SeasonSummaryActivity, R.layout.item_dropdown, levelLabels)
-                setAdapter(adapter)
-                setText(getString(R.string.career_level_format, summary.currentCareerLevel), false)
-                setOnClickListener { showDropDown() }
-                setOnFocusChangeListener { _, hasFocus -> if (hasFocus) showDropDown() }
-                setOnItemClickListener { _, _, position, _ ->
-                    selectedLevel = levelValues.getOrElse(position) { summary.currentCareerLevel }
-                }
-            }
-
-            textInputLayout.addView(autoCompleteTextView)
-
-            val paddingPx = resources.getDimensionPixelSize(R.dimen.dialog_padding)
-            val container = LinearLayout(this).apply {
-                orientation = LinearLayout.VERTICAL
-                setPadding(paddingPx, paddingPx, paddingPx, paddingPx)
-                addView(textInputLayout)
+            val adapter = ArrayAdapter(this, R.layout.item_dropdown, levelLabels)
+            autoCompleteLevel.setAdapter(adapter)
+            autoCompleteLevel.setText(getString(R.string.career_level_format, summary.currentCareerLevel), false)
+            autoCompleteLevel.setOnClickListener { autoCompleteLevel.showDropDown() }
+            autoCompleteLevel.setOnFocusChangeListener { _, hasFocus -> if (hasFocus) autoCompleteLevel.showDropDown() }
+            autoCompleteLevel.setOnItemClickListener { _, _, position, _ ->
+                selectedLevel = levelValues.getOrElse(position) { summary.currentCareerLevel }
             }
 
             MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.season_summary_level_dialog_title)
                 .setMessage(getString(R.string.season_summary_level_dialog_message, summary.currentCareerLevel))
-                .setView(container)
+                .setView(dialogView)
                 .setPositiveButton(R.string.season_summary_level_dialog_confirm) { _, _ ->
-                    val enteredLevelText = autoCompleteTextView.text.toString().trim()
+                    val enteredLevelText = autoCompleteLevel.text.toString().trim()
                     val matchedLevelIndex = levelLabels.indexOfFirst { it.equals(enteredLevelText, ignoreCase = true) }
                     val finalLevel = if (matchedLevelIndex >= 0) levelValues[matchedLevelIndex] else selectedLevel
                     viewModel.startNextSeason(careerId, finalLevel)
