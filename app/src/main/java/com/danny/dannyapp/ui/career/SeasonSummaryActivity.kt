@@ -84,18 +84,30 @@ class SeasonSummaryActivity : BaseActivity() {
         tvSeasonSummaryHeader = findViewById(R.id.tvSeasonSummaryHeader)
         tvSummaryUserPlayer = findViewById(R.id.tvSummaryUserPlayer)
         val viewSummaryOom = findViewById<View>(R.id.layoutSummaryOom)
+        viewSummaryOom.isClickable = false
+        viewSummaryOom.isFocusable = false
+        viewSummaryOom.background = null
         viewSummaryOom.findViewById<TextView>(R.id.tvRankingLabel).text = getString(R.string.oom_tab_oom)
         tvSummaryOom = viewSummaryOom.findViewById<TextView>(R.id.tvRankingValue)
 
         val viewSummaryPtOom = findViewById<View>(R.id.layoutSummaryPtOom)
+        viewSummaryPtOom.isClickable = false
+        viewSummaryPtOom.isFocusable = false
+        viewSummaryPtOom.background = null
         viewSummaryPtOom.findViewById<TextView>(R.id.tvRankingLabel).text = getString(R.string.oom_tab_pt)
         tvSummaryPtOom = viewSummaryPtOom.findViewById<TextView>(R.id.tvRankingValue)
 
         val viewSummaryPcOom = findViewById<View>(R.id.layoutSummaryPcOom)
+        viewSummaryPcOom.isClickable = false
+        viewSummaryPcOom.isFocusable = false
+        viewSummaryPcOom.background = null
         viewSummaryPcOom.findViewById<TextView>(R.id.tvRankingLabel).text = getString(R.string.oom_tab_pc)
         tvSummaryPcOom = viewSummaryPcOom.findViewById<TextView>(R.id.tvRankingValue)
 
         val viewSummaryEtOom = findViewById<View>(R.id.layoutSummaryEtOom)
+        viewSummaryEtOom.isClickable = false
+        viewSummaryEtOom.isFocusable = false
+        viewSummaryEtOom.background = null
         viewSummaryEtOom.findViewById<TextView>(R.id.tvRankingLabel).text = getString(R.string.oom_tab_et)
         tvSummaryEtOom = viewSummaryEtOom.findViewById<TextView>(R.id.tvRankingValue)
 

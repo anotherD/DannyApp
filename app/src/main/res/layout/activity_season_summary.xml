@@ -82,17 +82,11 @@
 
                         <include
                             android:id="@+id/layoutSummaryOom"
-                            layout="@layout/include_ranking_cell"
-                            android:background="@null"
-                            android:clickable="false"
-                            android:focusable="false" />
+                            layout="@layout/include_ranking_cell" />
 
                         <include
                             android:id="@+id/layoutSummaryPtOom"
-                            layout="@layout/include_ranking_cell"
-                            android:background="@null"
-                            android:clickable="false"
-                            android:focusable="false" />
+                            layout="@layout/include_ranking_cell" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -104,17 +98,11 @@
 
                         <include
                             android:id="@+id/layoutSummaryPcOom"
-                            layout="@layout/include_ranking_cell"
-                            android:background="@null"
-                            android:clickable="false"
-                            android:focusable="false" />
+                            layout="@layout/include_ranking_cell" />
 
                         <include
                             android:id="@+id/layoutSummaryEtOom"
-                            layout="@layout/include_ranking_cell"
-                            android:background="@null"
-                            android:clickable="false"
-                            android:focusable="false" />
+                            layout="@layout/include_ranking_cell" />
                     </LinearLayout>
 
                     <com.google.android.material.divider.MaterialDivider
