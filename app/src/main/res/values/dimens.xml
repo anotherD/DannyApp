@@ -146,4 +146,11 @@
     <dimen name="match_card_score_width">28dp</dimen>
     <dimen name="match_card_divider_size">16sp</dimen>
     <dimen name="match_card_badge_size">11sp</dimen>
+    <dimen name="info_dialog_padding_h">18dp</dimen>
+    <dimen name="info_dialog_padding_v">10dp</dimen>
+    <dimen name="info_dialog_header_size">15sp</dimen>
+    <dimen name="info_dialog_body_size">14sp</dimen>
+    <dimen name="info_dialog_sub_size">13sp</dimen>
+    <dimen name="info_dialog_note_size">12sp</dimen>
+    <dimen name="info_dialog_pager_height">420dp</dimen>
 </resources>

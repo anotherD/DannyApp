@@ -44,12 +44,13 @@ object CareerDistanceInfoDialog {
         }
 
         val density = context.resources.displayMetrics.density
-        val paddingPx = (16 * density).toInt()
+        val padH = context.resources.getDimensionPixelSize(R.dimen.info_dialog_padding_h)
+        val padV = context.resources.getDimensionPixelSize(R.dimen.info_dialog_padding_v)
 
         val tvDescription = TextView(context).apply {
             text = context.getString(R.string.match_distance_info_description)
-            textSize = 14f
-            setPadding(paddingPx, paddingPx, paddingPx, (8 * density).toInt())
+            setTextSize(TypedValue.COMPLEX_UNIT_PX, context.resources.getDimension(R.dimen.info_dialog_body_size))
+            setPadding(padH, padV, padH, padV)
             val typedValue = TypedValue()
             context.theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurfaceVariant, typedValue, true)
             if (typedValue.resourceId != 0) {
@@ -70,7 +71,7 @@ object CareerDistanceInfoDialog {
         val viewPager = ViewPager2(context).apply {
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
-                (420 * density).toInt()
+                context.resources.getDimensionPixelSize(R.dimen.info_dialog_pager_height)
             ).apply {
                 topMargin = (8 * density).toInt()
             }
@@ -150,17 +151,17 @@ object CareerDistanceInfoDialog {
             activeScrollViews.add(holder.scrollView)
             val preset = presets[position]
             val density = context.resources.displayMetrics.density
+            val padH = context.resources.getDimensionPixelSize(R.dimen.info_dialog_padding_h)
+            val padV = context.resources.getDimensionPixelSize(R.dimen.info_dialog_padding_v)
             val contentLayout = LinearLayout(context).apply {
                 orientation = LinearLayout.VERTICAL
-                val padHorizontal = (16 * density).toInt()
-                val padVertical = (8 * density).toInt()
-                setPadding(padHorizontal, padVertical, padHorizontal, padVertical)
+                setPadding(padH, padV, padH, padV)
             }
 
             categories.forEach { category ->
                 val tvCategory = TextView(context).apply {
                     text = context.getString(category.titleResId)
-                    textSize = 15f
+                    setTextSize(TypedValue.COMPLEX_UNIT_PX, context.resources.getDimension(R.dimen.info_dialog_header_size))
                     setTypeface(null, Typeface.BOLD)
                     val typedValue = TypedValue()
                     context.theme.resolveAttribute(android.R.attr.colorPrimary, typedValue, true)
@@ -181,7 +182,7 @@ object CareerDistanceInfoDialog {
                     val tvRoundName = TextView(context).apply {
                         layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
                         text = TournamentUiHelper.getDisplayRoundName(round.name, context)
-                        textSize = 13f
+                        setTextSize(TypedValue.COMPLEX_UNIT_PX, context.resources.getDimension(R.dimen.info_dialog_sub_size))
                         val typedValue = TypedValue()
                         context.theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurface, typedValue, true)
                         if (typedValue.resourceId != 0) {
@@ -198,7 +199,7 @@ object CareerDistanceInfoDialog {
                             LinearLayout.LayoutParams.WRAP_CONTENT
                         )
                         text = distanceText
-                        textSize = 13f
+                        setTextSize(TypedValue.COMPLEX_UNIT_PX, context.resources.getDimension(R.dimen.info_dialog_sub_size))
                         setTypeface(null, Typeface.BOLD)
                         val typedValue = TypedValue()
                         context.theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurfaceVariant, typedValue, true)

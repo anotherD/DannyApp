@@ -67,9 +67,12 @@ object TournamentDialogs {
         }
         rootLayout.addView(tabLayout)
 
+        val padH = context.resources.getDimensionPixelSize(R.dimen.info_dialog_padding_h)
+        val padV = context.resources.getDimensionPixelSize(R.dimen.info_dialog_padding_v)
+
         val tab0Layout = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(48, 24, 48, 24)
+            setPadding(padH, padV, padH, padV)
         }
 
         val totalPrize = if (event != null && event.effectiveTotalPrizeFund > 0) {
@@ -80,7 +83,7 @@ object TournamentDialogs {
 
         val tvHeader = TextView(context).apply {
             text = totalPrize
-            textSize = 15f
+            setTextSize(TypedValue.COMPLEX_UNIT_PX, context.resources.getDimension(R.dimen.info_dialog_header_size))
             setTypeface(null, Typeface.BOLD)
             setTextColor(ContextCompat.getColor(context, R.color.rot_haupt))
             setPadding(0, 0, 0, 4)
@@ -89,7 +92,7 @@ object TournamentDialogs {
 
         val tvMatchDistance = TextView(context).apply {
             text = context.getString(R.string.tournament_info_match_distance_format, context.getString(matchDistancePreset.labelResId))
-            textSize = 13f
+            setTextSize(TypedValue.COMPLEX_UNIT_PX, context.resources.getDimension(R.dimen.info_dialog_sub_size))
             val typedValue = TypedValue()
             context.theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurfaceVariant, typedValue, true)
             if (typedValue.resourceId != 0) {
@@ -102,7 +105,7 @@ object TournamentDialogs {
         if (event == TournamentEvent.EUROPEAN_TOUR) {
             val tvExceptionEt = TextView(context).apply {
                 text = context.getString(R.string.tournament_info_exception_et)
-                textSize = 12f
+                setTextSize(TypedValue.COMPLEX_UNIT_PX, context.resources.getDimension(R.dimen.info_dialog_note_size))
                 setTextColor(ContextCompat.getColor(context, R.color.rot_hell))
                 setPadding(0, 0, 0, 8)
             }
@@ -110,7 +113,7 @@ object TournamentDialogs {
         } else if (event in listOf(TournamentEvent.PLAYERS_CHAMPIONSHIP, TournamentEvent.UK_OPEN, TournamentEvent.EUROPEAN_OPEN)) {
             val tvExceptionPcUk = TextView(context).apply {
                 text = context.getString(R.string.tournament_info_exception_pc_uk)
-                textSize = 12f
+                setTextSize(TypedValue.COMPLEX_UNIT_PX, context.resources.getDimension(R.dimen.info_dialog_note_size))
                 setTextColor(ContextCompat.getColor(context, R.color.rot_hell))
                 setPadding(0, 0, 0, 8)
             }
@@ -131,13 +134,13 @@ object TournamentDialogs {
         UIHelper.attachVerticalEdgeFade(tab1ScrollView)
         val tab1Layout = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(48, 24, 48, 24)
+            setPadding(padH, padV, padH, padV)
         }
 
         if (event != null) {
             val tvRules = TextView(context).apply {
                 text = context.getString(getQualificationRulesResId(event))
-                textSize = 14f
+                setTextSize(TypedValue.COMPLEX_UNIT_PX, context.resources.getDimension(R.dimen.info_dialog_body_size))
                 setTypeface(null, Typeface.BOLD)
                 val typedValue = TypedValue()
                 context.theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurface, typedValue, true)
@@ -159,7 +162,7 @@ object TournamentDialogs {
                     bottomMargin = (16 * density).toInt()
                 }
                 text = context.getString(R.string.tournament_info_participants_preliminary)
-                textSize = 12f
+                setTextSize(TypedValue.COMPLEX_UNIT_PX, context.resources.getDimension(R.dimen.info_dialog_note_size))
                 setTypeface(null, Typeface.BOLD)
                 setTextColor(ContextCompat.getColor(context, R.color.grau_text_hell))
                 background = GradientDrawable().apply {
@@ -197,7 +200,7 @@ object TournamentDialogs {
 
             val tvOpenSlots = TextView(context).apply {
                 text = openQualifierSlotsText
-                textSize = 13f
+                setTextSize(TypedValue.COMPLEX_UNIT_PX, context.resources.getDimension(R.dimen.info_dialog_sub_size))
                 setTypeface(null, Typeface.ITALIC)
                 setTextColor(ContextCompat.getColor(context, R.color.rot_hell))
             }
@@ -331,9 +334,11 @@ object TournamentDialogs {
         coroutineScope: CoroutineScope,
         onSaveScore: suspend (matchId: Long, scoreP1: Int, scoreP2: Int) -> ManualScoreResult
     ) {
+        val padH = context.resources.getDimensionPixelSize(R.dimen.info_dialog_padding_h)
+        val padV = context.resources.getDimensionPixelSize(R.dimen.info_dialog_padding_v)
         val layout = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(50, 20, 50, 20)
+            setPadding(padH, padV, padH, padV)
         }
 
         val tvInfo = TextView(context).apply {
@@ -344,7 +349,7 @@ object TournamentDialogs {
                 matchModel.roundDisplayName
             )
             setPadding(0, 0, 0, 20)
-            textSize = 14f
+            setTextSize(TypedValue.COMPLEX_UNIT_PX, context.resources.getDimension(R.dimen.info_dialog_body_size))
         }
 
         val etP1 = EditText(context).apply {
