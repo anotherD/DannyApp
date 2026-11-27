@@ -350,28 +350,28 @@ object UIHelper {
             if (item.isUserMatch) {
                 cardBg = ContextCompat.getColor(context, R.color.rot_container_dunkel)
                 cardStrokeColor = ContextCompat.getColor(context, R.color.rot_hell)
-                cardStrokeWidth = (2 * context.resources.displayMetrics.density).toInt()
+                cardStrokeWidth = context.resources.getDimensionPixelSize(R.dimen.card_stroke_thick)
                 badgeStrokeColor = ContextCompat.getColor(context, R.color.rot_hell)
-                badgeStrokeWidth = 2
+                badgeStrokeWidth = context.resources.getDimensionPixelSize(R.dimen.card_stroke_thick)
             } else {
                 cardBg = ContextCompat.getColor(context, R.color.anthrazit_flaeche)
                 cardStrokeColor = ContextCompat.getColor(context, R.color.grau_rahmen_dunkel)
-                cardStrokeWidth = (1 * context.resources.displayMetrics.density).toInt()
+                cardStrokeWidth = context.resources.getDimensionPixelSize(R.dimen.card_stroke_thin)
                 badgeStrokeColor = ContextCompat.getColor(context, R.color.grau_rahmen)
-                badgeStrokeWidth = 1
+                badgeStrokeWidth = context.resources.getDimensionPixelSize(R.dimen.card_stroke_thin)
             }
         } else {
             cardBg = ContextCompat.getColor(context, if (!item.isCompleted) R.color.surface_grau_heller else R.color.anthrazit_flaeche)
             if (item.isUserMatch) {
                 cardStrokeColor = ContextCompat.getColor(context, R.color.rot_hell)
-                cardStrokeWidth = (2 * context.resources.displayMetrics.density).toInt()
+                cardStrokeWidth = context.resources.getDimensionPixelSize(R.dimen.card_stroke_thick)
                 badgeStrokeColor = ContextCompat.getColor(context, R.color.rot_hell)
-                badgeStrokeWidth = 2
+                badgeStrokeWidth = context.resources.getDimensionPixelSize(R.dimen.card_stroke_thick)
             } else {
                 cardStrokeColor = ContextCompat.getColor(context, R.color.anthrazit_container_hoechst)
-                cardStrokeWidth = (1 * context.resources.displayMetrics.density).toInt()
+                cardStrokeWidth = context.resources.getDimensionPixelSize(R.dimen.card_stroke_thin)
                 badgeStrokeColor = ContextCompat.getColor(context, R.color.grau_rahmen)
-                badgeStrokeWidth = 1
+                badgeStrokeWidth = context.resources.getDimensionPixelSize(R.dimen.card_stroke_thin)
             }
         }
 
@@ -389,7 +389,7 @@ object UIHelper {
                     if (useModern) R.color.surface_et_tint else R.color.anthrazit_flaeche
                 )
                 background.setColor(badgeFillColor)
-                background.setStroke((badgeStrokeWidth * context.resources.displayMetrics.density).toInt(), badgeStrokeColor)
+                background.setStroke(badgeStrokeWidth, badgeStrokeColor)
             }
         }
 
@@ -458,11 +458,11 @@ object UIHelper {
         )
         if (isSelected) {
             chip.chipStrokeColor = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.white))
-            chip.chipStrokeWidth = 2 * chip.resources.displayMetrics.density
+            chip.chipStrokeWidth = chip.resources.getDimension(R.dimen.card_stroke_thick)
             chip.setTextColor(ContextCompat.getColor(context, R.color.white))
         } else {
             chip.chipStrokeColor = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.grau_rahmen_dunkel))
-            chip.chipStrokeWidth = 1 * chip.resources.displayMetrics.density
+            chip.chipStrokeWidth = chip.resources.getDimension(R.dimen.card_stroke_thin)
             chip.setTextColor(ContextCompat.getColor(context, R.color.grau_text_gedaempft))
         }
     }
