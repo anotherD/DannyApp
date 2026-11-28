@@ -153,18 +153,21 @@
                 <Button
                     android:id="@+id/btnOpenScolia"
                     style="@style/Widget.DannyApp.Button.Start"
+                    android:layout_height="wrap_content"
                     android:text="@string/scolia_browser" />
 
                 <!-- Button 2: Profile -->
                 <Button
                     android:id="@+id/btnProfiles"
                     style="@style/Widget.DannyApp.Button.Start"
+                    android:layout_height="wrap_content"
                     android:text="@string/profiles" />
 
                 <!-- Button 3: Karriere -->
                 <Button
                     android:id="@+id/btnCareers"
                     style="@style/Widget.DannyApp.Button.Start"
+                    android:layout_height="wrap_content"
                     android:text="@string/careers" />
 
             </LinearLayout>

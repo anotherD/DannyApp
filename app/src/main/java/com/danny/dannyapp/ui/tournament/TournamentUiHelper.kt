@@ -4,6 +4,7 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.util.TypedValue
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import androidx.core.content.ContextCompat
@@ -216,24 +217,53 @@ object TournamentUiHelper {
         val city = getTournamentCity(tournament.hostCity)
         UIHelper.formatFlagAndText(tvTournamentDetails, tournament.hostCountry, city)
 
+        val event = TournamentEvent.valueOf(tournament.type)
         val cardView = itemView as? MaterialCardView
+        val innerLayout = (itemView as? ViewGroup)?.getChildAt(0)
+
         when {
-            model.status == TournamentStatus.ACTIVE -> {
-                cardView?.setCardBackgroundColor(ContextCompat.getColor(context, R.color.surface_karte_aktiv))
-                cardView?.strokeColor = ContextCompat.getColor(context, R.color.status_active)
-                cardView?.strokeWidth = context.resources.getDimensionPixelSize(R.dimen.card_stroke_thick)
+            model.status == TournamentStatus.COMPLETED -> {
+                innerLayout?.alpha = 0.65f
+                if (cardView != null) {
+                    cardView.setCardBackgroundColor(ContextCompat.getColor(context, R.color.anthrazit_container_niedrig))
+                    cardView.strokeColor = ContextCompat.getColor(context, R.color.grau_rahmen_dunkel)
+                    cardView.strokeWidth = context.resources.getDimensionPixelSize(R.dimen.card_stroke_thin)
+                }
             }
-            model.isNextPlanned -> {
-                cardView?.setCardBackgroundColor(ContextCompat.getColor(context, R.color.surface_karte_aktiv))
-                cardView?.strokeColor = ContextCompat.getColor(context, R.color.status_planned)
-                cardView?.strokeWidth = context.resources.getDimensionPixelSize(R.dimen.card_stroke_thick)
+            model.status == TournamentStatus.ACTIVE || model.isNextPlanned -> {
+                innerLayout?.alpha = 1.0f
+                if (cardView != null) {
+                    applyTournamentEventCardStyle(context, cardView, event, isHighlighted = true)
+                }
             }
             else -> {
-                cardView?.setCardBackgroundColor(ContextCompat.getColor(context, R.color.anthrazit_flaeche))
-                cardView?.strokeColor = ContextCompat.getColor(context, R.color.grau_rahmen_dunkel)
-                cardView?.strokeWidth = context.resources.getDimensionPixelSize(R.dimen.card_stroke_thin)
+                innerLayout?.alpha = 1.0f
+                if (cardView != null) {
+                    cardView.setCardBackgroundColor(ContextCompat.getColor(context, R.color.anthrazit_flaeche))
+                    cardView.strokeColor = ContextCompat.getColor(context, R.color.grau_rahmen_dunkel)
+                    cardView.strokeWidth = context.resources.getDimensionPixelSize(R.dimen.card_stroke_thin)
+                }
             }
         }
+
+        if (cardView != null) {
+            if (model.status == TournamentStatus.ACTIVE) {
+                val elevationPx = context.resources.getDimension(R.dimen.sticky_card_elevation)
+                cardView.cardElevation = elevationPx
+                cardView.translationZ = elevationPx
+            } else {
+                cardView.cardElevation = 0f
+                cardView.translationZ = 0f
+            }
+        }
+
+        val paddingDimen = if (model.status == TournamentStatus.ACTIVE) {
+            R.dimen.tournament_card_padding_active
+        } else {
+            R.dimen.tournament_card_padding
+        }
+        val paddingPx = context.resources.getDimensionPixelSize(paddingDimen)
+        innerLayout?.setPadding(paddingPx, paddingPx, paddingPx, paddingPx)
 
         val isSimulatingAny = simulatingTournamentId != null
 
@@ -256,6 +286,53 @@ object TournamentUiHelper {
         }
 
         itemView.setOnClickListener { onTournamentClick(model) }
+    }
+
+    private fun applyTournamentEventCardStyle(
+        context: Context,
+        card: MaterialCardView,
+        event: TournamentEvent,
+        isHighlighted: Boolean = true
+    ) {
+        val isMajor = event.isMajor
+        val isQualifier = event.isQualifier
+        val isEuropeanTour = event == TournamentEvent.EUROPEAN_TOUR
+        val isEtQualifier = event == TournamentEvent.QUALIFIER_ET
+        val isMajorQualifier = isQualifier && !isEtQualifier
+
+        when {
+            isMajor -> {
+                card.strokeWidth = context.resources.getDimensionPixelSize(R.dimen.card_stroke_thick)
+                card.strokeColor = ContextCompat.getColor(context, R.color.badge_major)
+                card.setCardBackgroundColor(ContextCompat.getColor(context, R.color.surface_major_tint))
+            }
+            isMajorQualifier -> {
+                card.strokeWidth = context.resources.getDimensionPixelSize(R.dimen.card_stroke_thick)
+                card.strokeColor = ContextCompat.getColor(context, R.color.badge_major_qualifier)
+                card.setCardBackgroundColor(ContextCompat.getColor(context, R.color.surface_major_tint))
+            }
+            isEuropeanTour -> {
+                card.strokeWidth = context.resources.getDimensionPixelSize(R.dimen.card_stroke_thick)
+                card.strokeColor = ContextCompat.getColor(context, R.color.badge_european_tour)
+                card.setCardBackgroundColor(ContextCompat.getColor(context, R.color.surface_et_tint))
+            }
+            isEtQualifier -> {
+                card.strokeWidth = context.resources.getDimensionPixelSize(R.dimen.card_stroke_thick)
+                card.strokeColor = ContextCompat.getColor(context, R.color.badge_et_qualifier)
+                card.setCardBackgroundColor(ContextCompat.getColor(context, R.color.surface_et_tint))
+            }
+            else -> {
+                if (isHighlighted) {
+                    card.strokeWidth = context.resources.getDimensionPixelSize(R.dimen.card_stroke_thick)
+                    card.strokeColor = ContextCompat.getColor(context, R.color.grau_rahmen)
+                    card.setCardBackgroundColor(ContextCompat.getColor(context, R.color.surface_karte_aktiv))
+                } else {
+                    card.strokeWidth = context.resources.getDimensionPixelSize(R.dimen.card_stroke_thin)
+                    card.strokeColor = ContextCompat.getColor(context, R.color.grau_rahmen_dunkel)
+                    card.setCardBackgroundColor(ContextCompat.getColor(context, R.color.anthrazit_flaeche))
+                }
+            }
+        }
     }
 
     fun bindTournamentHeader(
@@ -284,38 +361,6 @@ object TournamentUiHelper {
         UIHelper.formatFlagAndText(tvHost, tournament.hostCountry, city)
 
         val event = TournamentEvent.valueOf(tournament.type)
-        val isMajor = event.isMajor
-        val isQualifier = event.isQualifier
-        val isEuropeanTour = event == TournamentEvent.EUROPEAN_TOUR
-        val isEtQualifier = event == TournamentEvent.QUALIFIER_ET
-        val isMajorQualifier = isQualifier && !isEtQualifier
-
-        when {
-            isMajor -> {
-                headerCard.strokeWidth = context.resources.getDimensionPixelSize(R.dimen.card_stroke_thick)
-                headerCard.strokeColor = ContextCompat.getColor(context, R.color.badge_major)
-                headerCard.setCardBackgroundColor(ContextCompat.getColor(context, R.color.surface_major_tint))
-            }
-            isMajorQualifier -> {
-                headerCard.strokeWidth = context.resources.getDimensionPixelSize(R.dimen.card_stroke_thick)
-                headerCard.strokeColor = ContextCompat.getColor(context, R.color.badge_major_qualifier)
-                headerCard.setCardBackgroundColor(ContextCompat.getColor(context, R.color.surface_major_tint))
-            }
-            isEuropeanTour -> {
-                headerCard.strokeWidth = context.resources.getDimensionPixelSize(R.dimen.card_stroke_thick)
-                headerCard.strokeColor = ContextCompat.getColor(context, R.color.badge_european_tour)
-                headerCard.setCardBackgroundColor(ContextCompat.getColor(context, R.color.surface_et_tint))
-            }
-            isEtQualifier -> {
-                headerCard.strokeWidth = context.resources.getDimensionPixelSize(R.dimen.card_stroke_thick)
-                headerCard.strokeColor = ContextCompat.getColor(context, R.color.badge_et_qualifier)
-                headerCard.setCardBackgroundColor(ContextCompat.getColor(context, R.color.surface_et_tint))
-            }
-            else -> {
-                headerCard.strokeWidth = context.resources.getDimensionPixelSize(R.dimen.card_stroke_thin)
-                headerCard.strokeColor = ContextCompat.getColor(context, R.color.grau_rahmen_dunkel)
-                headerCard.setCardBackgroundColor(ContextCompat.getColor(context, R.color.anthrazit_flaeche))
-            }
-        }
+        applyTournamentEventCardStyle(context, headerCard, event)
     }
 }
