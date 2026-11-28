@@ -39,8 +39,6 @@
     <dimen name="tournament_card_status_size">12sp</dimen>
     <dimen name="tournament_card_badge_size">11sp</dimen>
     <dimen name="tournament_card_details_size">14sp</dimen>
-    <dimen name="tournament_card_badge_pad_h">8dp</dimen>
-    <dimen name="tournament_card_badge_pad_v">4dp</dimen>
     <dimen name="tournament_card_sim_btn_width">36dp</dimen>
     <dimen name="tournament_card_sim_btn_height">28dp</dimen>
     <dimen name="tournament_card_sim_icon_size">18dp</dimen>
@@ -120,8 +118,6 @@
     <dimen name="tour_hero_padding">16dp</dimen>
     <dimen name="tour_hero_title_size">18sp</dimen>
     <dimen name="tour_hero_badge_size">11sp</dimen>
-    <dimen name="tour_hero_badge_pad_h">8dp</dimen>
-    <dimen name="tour_hero_badge_pad_v">3dp</dimen>
     <dimen name="tour_hero_body_size">14sp</dimen>
     <dimen name="tour_hero_highlight_size">16sp</dimen>
     <dimen name="tour_hero_icon_size">24dp</dimen>

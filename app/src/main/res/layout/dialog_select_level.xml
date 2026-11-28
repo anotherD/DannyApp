@@ -13,12 +13,9 @@
 
         <AutoCompleteTextView
             android:id="@+id/autoCompleteSelectLevel"
+            style="@style/Widget.DannyApp.AutoCompleteTextView.Dropdown"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="@dimen/dialog_dropdown_min_height"
-            android:paddingVertical="8dp"
-            android:textSize="@dimen/dialog_input_text_size"
-            android:inputType="none" />
+            android:layout_height="wrap_content" />
 
     </com.google.android.material.textfield.TextInputLayout>
 

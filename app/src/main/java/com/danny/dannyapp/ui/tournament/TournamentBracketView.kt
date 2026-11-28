@@ -2,6 +2,7 @@ package com.danny.dannyapp.ui.tournament
 
 import android.animation.ValueAnimator
 import android.content.Context
+import android.content.res.ColorStateList
 import android.graphics.Canvas
 import android.graphics.LinearGradient
 import android.graphics.Paint
@@ -19,6 +20,7 @@ import android.view.ViewConfiguration
 import android.widget.FrameLayout
 import android.widget.OverScroller
 import android.widget.TextView
+import com.google.android.material.chip.Chip
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.ColorUtils
 import com.danny.dannyapp.R
@@ -346,59 +348,48 @@ class TournamentBracketView @JvmOverloads constructor(
     }
 
     private fun createHeaderView(roundIndex: Int, displayName: String, status: RoundStatus): View {
-        val textView = TextView(context).apply {
+        val chip = (LayoutInflater.from(context).inflate(R.layout.item_control_chip, this, false) as Chip).apply {
             text = displayName
-            textSize = 12f
-            typeface = Typeface.DEFAULT_BOLD
-            gravity = Gravity.CENTER
-            maxLines = 1
-            ellipsize = TextUtils.TruncateAt.END
-            val pxPaddingH = (14 * density).toInt()
-            val pxPaddingV = (6 * density).toInt()
-            setPadding(pxPaddingH, pxPaddingV, pxPaddingH, pxPaddingV)
-            minWidth = (72 * density).toInt()
-
+            isCheckable = true
+            isChecked = (roundIndex == selectedRoundIndex)
             setOnClickListener {
                 selectRound(roundIndex)
                 onRoundSelected?.invoke(roundIndex)
             }
         }
-        styleHeaderView(textView, roundIndex, status)
-        return textView
+        styleHeaderView(chip, roundIndex, status)
+        return chip
     }
 
-    private fun styleHeaderView(textView: TextView, roundIndex: Int, status: RoundStatus) {
+    private fun styleHeaderView(chip: Chip, roundIndex: Int, status: RoundStatus) {
         val isSelected = (roundIndex == selectedRoundIndex)
-        val bgRes = when (status) {
-            RoundStatus.COMPLETED -> R.color.status_completed
-            RoundStatus.ACTIVE -> R.color.status_active
-            RoundStatus.PENDING -> R.color.anthrazit_container_niedrig
-        }
-        val textRes = when {
-            isSelected -> R.color.white
-            status == RoundStatus.ACTIVE -> R.color.white
-            else -> R.color.grau_text_gedaempft
+        chip.isChecked = isSelected
+        UIHelper.styleSelectionChip(chip, isSelected)
+
+        val (bgRes, textRes) = when (status) {
+            RoundStatus.COMPLETED -> R.color.status_completed to R.color.grau_text_gedaempft
+            RoundStatus.ACTIVE -> R.color.status_active to R.color.white
+            RoundStatus.PENDING -> R.color.anthrazit_container_niedrig to R.color.grau_text_gedaempft
         }
 
-        val bgDrawable = GradientDrawable().apply {
-            shape = GradientDrawable.RECTANGLE
-            cornerRadius = 8f * density
-            setColor(ContextCompat.getColor(context, bgRes))
-            if (isSelected) {
-                setStroke((2f * density).toInt(), ContextCompat.getColor(context, R.color.white))
-            } else {
-                setStroke((1f * density).toInt(), ContextCompat.getColor(context, R.color.grau_rahmen_dunkel))
-            }
+        chip.chipBackgroundColor = ColorStateList.valueOf(ContextCompat.getColor(context, bgRes))
+        chip.setTextColor(ContextCompat.getColor(context, textRes))
+
+        if (isSelected) {
+            chip.chipStrokeColor = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.white))
+            chip.chipStrokeWidth = 2 * density
+            chip.setTextColor(ContextCompat.getColor(context, R.color.white))
+        } else {
+            chip.chipStrokeColor = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.grau_rahmen_dunkel))
+            chip.chipStrokeWidth = 1 * density
         }
-        textView.background = bgDrawable
-        textView.setTextColor(ContextCompat.getColor(context, textRes))
     }
 
     private fun updateHeaderStyles() {
         for ((roundIndex, view) in headerViews.withIndex()) {
-            val textView = view as? TextView ?: continue
+            val chip = view as? Chip ?: continue
             val status = headerStatuses.getOrNull(roundIndex) ?: RoundStatus.PENDING
-            styleHeaderView(textView, roundIndex, status)
+            styleHeaderView(chip, roundIndex, status)
         }
     }
 
