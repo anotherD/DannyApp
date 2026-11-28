@@ -28,6 +28,7 @@ import com.danny.dannyapp.ui.model.GrandSlamGroupItem
 import com.danny.dannyapp.ui.model.MatchUiModel
 import com.danny.dannyapp.ui.model.PrizeMoneyItem
 import com.danny.dannyapp.ui.navigation.AppScreen
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
@@ -48,9 +49,10 @@ class TournamentDetailActivity : BaseActivity() {
 
     // Common Header Card
     private lateinit var cardTournamentHeader: MaterialCardView
-    private lateinit var layoutActiveActions: View
+    private lateinit var layoutHeroActionRow: View
+    private lateinit var btnHeroAdvanceAction: Button
+    private lateinit var btnSimulateComplete: MaterialButton
     private lateinit var tvPreviewPrizeFund: TextView
-    private lateinit var btnStartTournamentPreview: Button
     private var currentEvent: TournamentEvent? = null
 
     // Common Content
@@ -76,9 +78,6 @@ class TournamentDetailActivity : BaseActivity() {
     private lateinit var layoutReviewQualifierWinnersList: LinearLayout
     private lateinit var tvReviewUserRound: TextView
     private lateinit var tvReviewUserPrize: TextView
-    private lateinit var btnSimulateCpuMatches: Button
-    private lateinit var btnSimulateComplete: Button
-    private lateinit var btnAdvanceRound: Button
 
     private lateinit var layoutSimulatingOverlay: View
 
@@ -180,11 +179,9 @@ class TournamentDetailActivity : BaseActivity() {
         // Common Header Card
         cardTournamentHeader = findViewById(R.id.cardTournamentHeader)
         tvPreviewPrizeFund = findViewById(R.id.tvPreviewPrizeFund)
-        btnStartTournamentPreview = findViewById(R.id.btnStartTournamentPreview)
-        layoutActiveActions = findViewById(R.id.layoutActiveActions)
-        btnSimulateCpuMatches = findViewById(R.id.btnSimulateCpuMatches)
+        layoutHeroActionRow = findViewById(R.id.layoutHeroActionRow)
+        btnHeroAdvanceAction = findViewById(R.id.btnHeroAdvanceAction)
         btnSimulateComplete = findViewById(R.id.btnSimulateComplete)
-        btnAdvanceRound = findViewById(R.id.btnAdvanceRound)
 
         tvReviewWinnerLabel = findViewById(R.id.tvReviewWinnerLabel)
         tvReviewWinner = findViewById(R.id.tvReviewWinner)
@@ -218,7 +215,11 @@ class TournamentDetailActivity : BaseActivity() {
         matchesAdapter = TournamentMatchAdapter { matchModel ->
             val state = viewModel.uiState.value
             if (state is TournamentDetailState.Active && !matchModel.isCompleted && matchModel.isUserMatch) {
-                showUserMatchOptionsDialog(matchModel)
+                if (matchModel.match.id == state.nextPlayableUserMatchId) {
+                    showUserMatchOptionsDialog(matchModel)
+                } else {
+                    showMessage(getString(R.string.user_match_not_ready_yet))
+                }
             }
         }
         rvMatches.layoutManager = LinearLayoutManager(this)
@@ -227,7 +228,11 @@ class TournamentDetailActivity : BaseActivity() {
         bracketView.onMatchClick = { matchModel ->
             val state = viewModel.uiState.value
             if (state is TournamentDetailState.Active && !matchModel.isCompleted && matchModel.isUserMatch) {
-                showUserMatchOptionsDialog(matchModel)
+                if (matchModel.match.id == state.nextPlayableUserMatchId) {
+                    showUserMatchOptionsDialog(matchModel)
+                } else {
+                    showMessage(getString(R.string.user_match_not_ready_yet))
+                }
             }
         }
         bracketView.onRoundSelected = { index ->
@@ -236,20 +241,8 @@ class TournamentDetailActivity : BaseActivity() {
     }
 
     private fun setupListeners() {
-        btnStartTournamentPreview.setOnClickListener {
-            viewModel.startTournament()
-        }
-
-        btnSimulateCpuMatches.setOnClickListener {
-            viewModel.simulateCpuMatches()
-        }
-
         btnSimulateComplete.setOnClickListener {
             viewModel.simulateCompleteTournament()
-        }
-
-        btnAdvanceRound.setOnClickListener {
-            viewModel.advanceRound()
         }
 
         cardTournamentHeader.findViewById<View>(R.id.btnHeaderPrizeInfo).setOnClickListener {
@@ -294,7 +287,7 @@ class TournamentDetailActivity : BaseActivity() {
             is TournamentDetailState.Loading -> {
                 pbLoading.visibility = View.VISIBLE
                 cardTournamentHeader.visibility = View.GONE
-                btnStartTournamentPreview.visibility = View.GONE
+                layoutHeroActionRow.visibility = View.GONE
                 layoutTournamentContent.visibility = View.GONE
             }
 
@@ -302,7 +295,6 @@ class TournamentDetailActivity : BaseActivity() {
                 pbLoading.visibility = View.GONE
                 cardTournamentHeader.visibility = View.VISIBLE
                 tvPreviewPrizeFund.visibility = View.VISIBLE
-                layoutActiveActions.visibility = View.GONE
                 tvReviewWinnerLabel.visibility = View.GONE
                 tvReviewWinner.visibility = View.GONE
                 tvReviewQualifierHeader.visibility = View.GONE
@@ -324,9 +316,13 @@ class TournamentDetailActivity : BaseActivity() {
                 currentPrizeMoneyItems = state.prizeMoneyItems
 
                 if (state.isNextPlanned) {
-                    btnStartTournamentPreview.visibility = View.VISIBLE
+                    layoutHeroActionRow.visibility = View.VISIBLE
+                    btnHeroAdvanceAction.visibility = View.VISIBLE
+                    btnHeroAdvanceAction.setText(R.string.tournament_start)
+                    btnHeroAdvanceAction.setOnClickListener { viewModel.startTournament() }
+                    btnSimulateComplete.visibility = View.GONE
                 } else {
-                    btnStartTournamentPreview.visibility = View.GONE
+                    layoutHeroActionRow.visibility = View.GONE
                 }
             }
 
@@ -334,14 +330,12 @@ class TournamentDetailActivity : BaseActivity() {
                 pbLoading.visibility = View.GONE
                 cardTournamentHeader.visibility = View.VISIBLE
                 tvPreviewPrizeFund.visibility = View.GONE
-                layoutActiveActions.visibility = View.VISIBLE
                 tvReviewWinnerLabel.visibility = View.GONE
                 tvReviewWinner.visibility = View.GONE
                 tvReviewQualifierHeader.visibility = View.GONE
                 layoutReviewQualifierWinnersList.visibility = View.GONE
                 tvReviewUserRound.visibility = View.GONE
                 tvReviewUserPrize.visibility = View.GONE
-                btnStartTournamentPreview.visibility = View.GONE
                 layoutTournamentContent.visibility = View.VISIBLE
 
                 val activeCareerName = state.careerName.ifBlank { careerName }
@@ -355,10 +349,37 @@ class TournamentDetailActivity : BaseActivity() {
                 currentEvent = state.event
 
                 btnSimulateComplete.visibility = if (debugMode) View.VISIBLE else View.GONE
-                btnSimulateCpuMatches.visibility = if (!autoSimulateCpu && state.hasOpenCpuMatchesInActiveRound) View.VISIBLE else View.GONE
-                btnAdvanceRound.visibility = if (!autoAdvanceRound && state.canAdvanceRound) View.VISIBLE else View.GONE
-                btnAdvanceRound.isEnabled = state.canAdvanceRound
-                btnAdvanceRound.setText(if (state.isFinalRound) R.string.btn_finish_tournament else R.string.btn_advance_round)
+
+                if (state.nextPlayableUserMatchId != null) {
+                    btnHeroAdvanceAction.visibility = View.VISIBLE
+                    btnHeroAdvanceAction.setText(R.string.btn_start_user_match)
+                    btnHeroAdvanceAction.setOnClickListener {
+                        val userMatch = viewModel.getNextPlayableUserMatch()
+                        if (userMatch != null) {
+                            showUserMatchOptionsDialog(userMatch)
+                        }
+                    }
+                } else if (!autoSimulateCpu && state.hasOpenCpuMatchesInActiveRound) {
+                    btnHeroAdvanceAction.visibility = View.VISIBLE
+                    btnHeroAdvanceAction.setText(R.string.btn_simulate_cpu)
+                    btnHeroAdvanceAction.setOnClickListener {
+                        viewModel.simulateCpuMatches()
+                    }
+                } else if (!autoAdvanceRound && state.canAdvanceRound) {
+                    btnHeroAdvanceAction.visibility = View.VISIBLE
+                    btnHeroAdvanceAction.setText(if (state.isFinalRound) R.string.btn_finish_tournament else R.string.btn_advance_round)
+                    btnHeroAdvanceAction.setOnClickListener {
+                        viewModel.advanceRound()
+                    }
+                } else {
+                    btnHeroAdvanceAction.visibility = View.GONE
+                }
+
+                layoutHeroActionRow.visibility = if (btnHeroAdvanceAction.visibility == View.VISIBLE || btnSimulateComplete.visibility == View.VISIBLE) {
+                    View.VISIBLE
+                } else {
+                    View.GONE
+                }
 
                 currentPrizeMoneyItems = state.prizeMoneyItems
 
@@ -383,10 +404,9 @@ class TournamentDetailActivity : BaseActivity() {
                 pbLoading.visibility = View.GONE
                 cardTournamentHeader.visibility = View.VISIBLE
                 tvPreviewPrizeFund.visibility = View.GONE
-                layoutActiveActions.visibility = View.GONE
+                layoutHeroActionRow.visibility = View.GONE
                 tvReviewUserRound.visibility = View.VISIBLE
                 tvReviewUserPrize.visibility = View.VISIBLE
-                btnStartTournamentPreview.visibility = View.GONE
                 layoutTournamentContent.visibility = View.VISIBLE
 
                 val activeCareerName = state.careerName.ifBlank { careerName }
@@ -437,7 +457,7 @@ class TournamentDetailActivity : BaseActivity() {
             is TournamentDetailState.Error -> {
                 pbLoading.visibility = View.VISIBLE
                 cardTournamentHeader.visibility = View.GONE
-                btnStartTournamentPreview.visibility = View.GONE
+                layoutHeroActionRow.visibility = View.GONE
                 layoutTournamentContent.visibility = View.GONE
                 showMessage(state.message, isError = true, duration = Snackbar.LENGTH_LONG)
             }

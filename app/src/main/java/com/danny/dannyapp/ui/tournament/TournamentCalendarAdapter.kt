@@ -11,7 +11,6 @@ import com.danny.dannyapp.ui.model.TournamentUiModel
 
 class TournamentCalendarAdapter(
     private val onTournamentClick: (TournamentUiModel) -> Unit,
-    private val onStartTournamentClick: (TournamentUiModel) -> Unit,
     private val onSimulateCompleteClick: (TournamentUiModel) -> Unit
 ) : ListAdapter<TournamentUiModel, TournamentCalendarAdapter.TournamentViewHolder>(TournamentDiffCallback) {
 
@@ -41,7 +40,7 @@ class TournamentCalendarAdapter(
 
     override fun onBindViewHolder(holder: TournamentViewHolder, position: Int) {
         val model = getItem(position)
-        TournamentUiHelper.bindTournamentTile(holder.itemView, model, onTournamentClick, onStartTournamentClick, onSimulateCompleteClick, simulatingTournamentId)
+        TournamentUiHelper.bindTournamentTile(holder.itemView, model, onTournamentClick, onSimulateCompleteClick, simulatingTournamentId)
     }
 
     private object TournamentDiffCallback : DiffUtil.ItemCallback<TournamentUiModel>() {

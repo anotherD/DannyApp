@@ -98,19 +98,6 @@ class SeasonCalendarActivity : BaseActivity() {
                 }
                 startActivity(intent)
             },
-            onStartTournamentClick = { model ->
-                lifecycleScope.launch {
-                    val started = calendarViewModel.startTournament(model.tournament.id)
-                    if (started) {
-                        val intent = Intent(this@SeasonCalendarActivity, TournamentDetailActivity::class.java).apply {
-                            putExtra(TournamentDetailActivity.EXTRA_TOURNAMENT_ID, model.tournament.id)
-                            putExtra(TournamentDetailActivity.EXTRA_CAREER_ID, careerId)
-                            putExtra(TournamentDetailActivity.EXTRA_CAREER_NAME, careerName)
-                        }
-                        startActivity(intent)
-                    }
-                }
-            },
             onSimulateCompleteClick = { model ->
                 lifecycleScope.launch {
                     calendarViewModel.simulateUpToTournament(model.tournament.id)

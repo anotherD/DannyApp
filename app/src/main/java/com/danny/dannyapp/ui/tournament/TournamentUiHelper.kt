@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.danny.dannyapp.R
@@ -189,7 +188,6 @@ object TournamentUiHelper {
         itemView: View,
         model: TournamentUiModel,
         onTournamentClick: (TournamentUiModel) -> Unit,
-        onStartTournamentClick: (TournamentUiModel) -> Unit,
         onSimulateCompleteClick: (TournamentUiModel) -> Unit,
         simulatingTournamentId: Long? = null
     ) {
@@ -200,7 +198,6 @@ object TournamentUiHelper {
         val tvTournamentTypeBadge: TextView = itemView.findViewById(R.id.tvTournamentTypeBadge)
         val tvTournamentStatus: TextView = itemView.findViewById(R.id.tvTournamentStatus)
         val tvTournamentDetails: TextView = itemView.findViewById(R.id.tvTournamentDetails)
-        val btnStartTournament: Button = itemView.findViewById(R.id.btnStartTournament)
         val btnSimulateCompleteTournament: MaterialButton = itemView.findViewById(R.id.btnSimulateCompleteTournament)
 
         tvTournamentName.text = context.getString(R.string.tournament_order_name_format, tournament.order, tournament.name)
@@ -266,14 +263,6 @@ object TournamentUiHelper {
         innerLayout?.setPadding(paddingPx, paddingPx, paddingPx, paddingPx)
 
         val isSimulatingAny = simulatingTournamentId != null
-
-        if (model.status == TournamentStatus.PLANNED && model.isNextPlanned) {
-            btnStartTournament.visibility = View.VISIBLE
-            btnStartTournament.isEnabled = !isSimulatingAny
-            btnStartTournament.setOnClickListener { if (!isSimulatingAny) onStartTournamentClick(model) }
-        } else {
-            btnStartTournament.visibility = View.GONE
-        }
 
         val debugMode = context.appContainer.settingsManager.debugMode
         val isEligibleForQuickSim = debugMode && model.status != TournamentStatus.COMPLETED

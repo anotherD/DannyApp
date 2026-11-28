@@ -55,53 +55,45 @@
                 app:layout_constraintTop_toBottomOf="@id/tvHeaderTypeBadge"
                 tools:text="Gesamtpreisgeld: £1,000,000" />
 
-            <!-- B. Aktiv-Inhalt: layoutActiveActions -->
+            <!-- B. Aktions-Zeile: layoutHeroActionRow -->
             <LinearLayout
-                android:id="@+id/layoutActiveActions"
+                android:id="@+id/layoutHeroActionRow"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:orientation="vertical"
+                android:layout_marginTop="@dimen/item_spacing_medium"
+                android:gravity="center"
+                android:orientation="horizontal"
                 android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tvHeaderTypeBadge">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <Button
-                        android:id="@+id/btnSimulateCpuMatches"
-                        style="@style/Widget.Material3.Button.OutlinedButton"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="4dp"
-                        android:layout_weight="1"
-                        android:text="@string/btn_simulate_cpu"
-                        android:textSize="@dimen/tour_hero_button_text_size" />
-
-                    <Button
-                        android:id="@+id/btnAdvanceRound"
-                        style="@style/Widget.Material3.Button"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="4dp"
-                        android:layout_weight="1"
-                        android:text="@string/btn_advance_round"
-                        android:textSize="@dimen/tour_hero_button_text_size" />
-                </LinearLayout>
-
                 <Button
-                    android:id="@+id/btnSimulateComplete"
-                    style="@style/Widget.Material3.Button.OutlinedButton"
-                    android:layout_width="match_parent"
+                    android:id="@+id/btnHeroAdvanceAction"
+                    style="@style/Widget.DannyApp.Button.AdvanceGame"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="@string/tournament_simulate_complete"
-                    android:textSize="@dimen/tour_hero_button_text_size"
+                    tools:text="Match starten" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnSimulateComplete"
+                    style="@style/Widget.Material3.Button.IconButton.Outlined"
+                    android:layout_width="@dimen/tournament_card_sim_btn_width"
+                    android:layout_height="@dimen/tournament_card_sim_btn_height"
+                    android:layout_marginStart="@dimen/item_spacing_small"
+                    android:minWidth="0dp"
+                    android:minHeight="0dp"
+                    app:ensureMinTouchTargetSize="false"
+                    android:padding="@dimen/tournament_card_sim_icon_pad"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
                     android:visibility="gone"
+                    app:icon="@drawable/ic_fast_forward"
+                    app:iconSize="@dimen/tournament_card_sim_icon_size"
+                    app:iconPadding="0dp"
+                    app:iconTint="?attr/colorPrimary"
+                    app:iconGravity="textStart"
+                    android:contentDescription="@string/tournament_simulate_complete"
                     tools:visibility="visible" />
             </LinearLayout>
 
@@ -381,19 +373,6 @@
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <!-- Start Button for Preview -->
-    <Button
-        android:id="@+id/btnStartTournamentPreview"
-        style="@style/Widget.DannyApp.Button.PrimaryBottom"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="@string/tournament_start"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:visibility="gone" />
 
     <!-- Schwebe-Buttons unten rechts -->
     <LinearLayout

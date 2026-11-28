@@ -163,4 +163,11 @@
     <dimen name="badge_padding_h">16dp</dimen>
     <dimen name="badge_padding_v">8dp</dimen>
     <dimen name="badge_text_size">23sp</dimen>
+    <dimen name="action_button_min_height">68dp</dimen>
+    <dimen name="action_button_pad_h">32dp</dimen>
+    <dimen name="action_button_pad_v">16dp</dimen>
+    <dimen name="action_button_text_size">26sp</dimen>
+    <dimen name="action_button_icon_size">32dp</dimen>
+    <dimen name="action_button_icon_padding">12dp</dimen>
+    <dimen name="action_button_elevation">6dp</dimen>
 </resources>

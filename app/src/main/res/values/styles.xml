@@ -133,12 +133,24 @@
         <item name="android:textSize">@dimen/dialog_input_hint_size</item>
     </style>
 
+    <style name="Widget.DannyApp.DialogButton.Positive" parent="Widget.DannyApp.DialogButton">
+        <item name="android:textColor">@color/rot_hell</item>
+    </style>
+
+    <style name="Widget.DannyApp.DialogButton.Negative" parent="Widget.DannyApp.DialogButton">
+        <item name="android:textColor">@color/grau_text_gedaempft</item>
+    </style>
+
+    <style name="Widget.DannyApp.DialogButton.Destructive" parent="Widget.DannyApp.DialogButton">
+        <item name="android:textColor">@color/rot_haupt</item>
+    </style>
+
     <style name="ThemeOverlay.DannyApp.MaterialAlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
         <item name="materialAlertDialogTitleTextStyle">@style/TextAppearance.DannyApp.DialogTitle</item>
         <item name="materialAlertDialogBodyTextStyle">@style/TextAppearance.DannyApp.DialogBody</item>
         <item name="buttonBarButtonStyle">@style/Widget.DannyApp.DialogButton</item>
-        <item name="buttonBarPositiveButtonStyle">@style/Widget.DannyApp.DialogButton</item>
-        <item name="buttonBarNegativeButtonStyle">@style/Widget.DannyApp.DialogButton</item>
+        <item name="buttonBarPositiveButtonStyle">@style/Widget.DannyApp.DialogButton.Positive</item>
+        <item name="buttonBarNegativeButtonStyle">@style/Widget.DannyApp.DialogButton.Negative</item>
         <item name="buttonBarNeutralButtonStyle">@style/Widget.DannyApp.DialogButton</item>
     </style>
 
@@ -207,5 +219,43 @@
         <item name="android:textAlignment">center</item>
         <item name="android:textSize">@dimen/list_empty_text_size</item>
         <item name="android:visibility">gone</item>
+    </style>
+
+    <style name="Widget.DannyApp.Button.AdvanceGame" parent="Widget.Material3.Button">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">@dimen/action_button_min_height</item>
+        <item name="android:paddingHorizontal">@dimen/action_button_pad_h</item>
+        <item name="android:paddingVertical">@dimen/action_button_pad_v</item>
+        <item name="android:textSize">@dimen/action_button_text_size</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="backgroundTint">@color/rot_haupt</item>
+        <item name="strokeColor">@color/rot_hell</item>
+        <item name="strokeWidth">@dimen/card_stroke_thin</item>
+        <item name="icon">@drawable/ic_play_arrow</item>
+        <item name="iconSize">@dimen/action_button_icon_size</item>
+        <item name="iconPadding">@dimen/action_button_icon_padding</item>
+        <item name="iconTint">@color/white</item>
+        <item name="android:elevation">@dimen/action_button_elevation</item>
+    </style>
+
+    <style name="Widget.DannyApp.Button.Manage" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">@dimen/action_button_min_height</item>
+        <item name="android:paddingHorizontal">@dimen/action_button_pad_h</item>
+        <item name="android:paddingVertical">@dimen/action_button_pad_v</item>
+        <item name="android:textSize">@dimen/action_button_text_size</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/grau_text_hell</item>
+        <item name="backgroundTint">@color/anthrazit_container_hoch</item>
+        <item name="strokeColor">@color/grau_rahmen</item>
+        <item name="strokeWidth">@dimen/card_stroke_thin</item>
+        <item name="icon">@drawable/ic_add</item>
+        <item name="iconSize">@dimen/action_button_icon_size</item>
+        <item name="iconPadding">@dimen/action_button_icon_padding</item>
+        <item name="iconTint">@color/grau_text_hell</item>
+        <item name="android:elevation">@dimen/action_button_elevation</item>
     </style>
 </resources>

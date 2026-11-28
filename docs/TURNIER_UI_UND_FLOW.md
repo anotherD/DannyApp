@@ -25,7 +25,7 @@ Dieses Dokument beschreibt die Benutzeroberfläche und den Interaktions-Flow fü
 * **Status-Zustände:**
     * **Abgeschlossen:** Zeigt bei Einzelsieger-Turnieren den Turniersieger an. Bei Multi-Sieger-Qualifiern (`QUALIFIER_ET`, `QUALIFIER_GRAND_SLAM`, `QUALIFIER_WM`, `QUALIFIER_WORLD_MASTERS`) steht im Kalender nur *„Abgeschlossen“* ohne Einzel-Pokal und ohne Gewinnerliste (diese wird erst im Turnier-Rückblick gezeigt).
     * **Aktiv:** Zeigt die aktuell laufende Turnierrunde an.
-    * **Geplant:** Das nächste anstehende Turnier bietet den Button **„Turnier starten“**.
+    * **Geplant:** Das nächste anstehende Turnier bietet den Button **„Turnier starten“** einheitlich in der Turnier-Hero-Box (entfällt in der Kalender-Kachel).
 * **Debug-Funktion:** Bei aktiviertem Debug-Modus (`debugMode == true`) steht an jedem nicht abgeschlossenen Turnier ein kompakter Fast-Forward-Button (`⏩`) zur Verfügung, der alle offenen Turniere der Saison chronologisch bis einschließlich zum gewählten Turnier mit Fortschritts-Overlay durchsimuliert.
 
 ---
@@ -36,7 +36,7 @@ Dieses Dokument beschreibt die Benutzeroberfläche und den Interaktions-Flow fü
 
 1. **Vorschau-Modus (Geplantes Turnier):**
     * Zeigt Turnierkopfzeile, Gesamtpreisgeld sowie ein Info-Icon für den Turnier-Info-Dialog.
-    * Ist es das nächste anstehende Turnier im Kalender, kann es über **„Turnier starten“** gestartet werden.
+    * Ist es das nächste anstehende Turnier, kann es über den einheitlichen **„Turnier starten“**-Button in der Turnier-Hero-Box gestartet werden.
 2. **Aktiver Turnier-Modus (Laufendes Turnier):**
     * **Farbliche Akzentuierung:** Die obere Steuerungskarte ist je nach Turniertyp (Major, Major-Qualifier, European Tour, ET-Qualifier, Players Championship) farblich abgesetzt.
     * **Runden-Navigation & Grand Slam:** Gemeinsamer Inhaltsbereich (`layoutTournamentContent`) für aktiven Modus und Rückblick. Horizontale Runden-Pillen (`8dp` Eckenradius, Hintergrund kodiert nach *Abgeschlossen*, *Aktiv* und *Ausstehend*, aktive Auswahl mit weißem `2dp`-Rahmen und automatischer mittiger Zentrierung) sowie horizontale Wischgesten (Swipe links/rechts). Beim **Grand Slam of Darts** erscheint in der Gruppenphase eine 2-zeilige Gruppen-Auswahl (`A–H` oben, `I–P` unten, je 8 gleich breite Pillen mit weißem Auswahlrahmen) sowie direkt darunter die vergrößerte **Gruppentabelle** oberhalb der 3 Gruppen-Matches.
@@ -54,16 +54,17 @@ Dieses Dokument beschreibt die Benutzeroberfläche und den Interaktions-Flow fü
 
 ### 3.2 Simulations-Steuerung, Settings & Button-Matrix (Single Source of Truth)
 
+In der aktiven Runde führt ein einzelner primärer Fortschritts-Button (`btnHeroAdvanceAction`) schrittweise durch **`CPU simulieren`** (bis zum nächsten User-Match) ➔ **`Match starten`** ➔ **`Nächste Runde`** / **`Turnier abschließen`**, ergänzt um den kompakten Fast-Forward-Button (`btnSimulateComplete`) im Debug-Modus. Vorzeitige User-Matches sind bis zu ihrem Aufruf gesperrt.
+
 Jeder Simulations-Button hängt an genau einer Einstellung in `SettingsManager`:
 
-| Button / Aktion | Ort | Abhängiges Setting | Sichtbarkits- & Aktivierungsbedingung |
+| Button / Aktion | Ort | Abhängiges Setting | Sichtbarkeits- & Aktivierungsbedingung |
 | :--- | :--- | :--- | :--- |
-| **`CPU simulieren`** | Turnieransicht (Aktiv) | `autoSimulateCpu` | Sichtbar, wenn `autoSimulateCpu == false` und offene CPU-Matches in der aktiven Runde existieren (unabhängig von `debugMode`). |
-| **`Nächste Runde` / `Turnier abschließen`** | Turnieransicht (Aktiv) | `autoAdvanceRound` | Sichtbar, wenn `autoAdvanceRound == false` und alle Matches der aktiven Runde beendet sind (unabhängig von `debugMode`). |
+| **Primärer Fortschritts-Button** (`CPU simulieren` / `Match starten` / `Nächste Runde` / `Turnier abschließen`) | Turnier-Hero-Box (Aktiv) | `autoSimulateCpu` / `autoAdvanceRound` | Führt schrittweise durch `CPU simulieren` (bis zum nächsten User-Match) -> `Match starten` -> `Nächste Runde` / `Turnier abschließen`. Vorzeitige User-Matches sind bis zum Aufruf gesperrt. |
 | **`Turnier simulieren`** | Turnieransicht (Aktiv) | `debugMode` | Sichtbar nur im Debug-Modus (`debugMode == true`). Simuliert das komplette Turnier inkl. User-Matches bis zum Ende. |
 | **`⏩` (Bis hier simulieren)** | Saisonkalender & Übersicht | `debugMode` | Sichtbar nur im Debug-Modus (`debugMode == true`) bei noch nicht abgeschlossenen Turnieren (`status != COMPLETED`). |
 | **`Sieger festlegen (Sieg/Niederlage)`** | User-Match-Dialog | `debugMode` | Sichtbar nur im Debug-Modus (`debugMode == true`). |
-| **`Turnier starten`** | Saisonkalender, Übersicht & Vorschau | — | Sichtbar beim nächsten geplanten Turnier (`isNextPlanned == true`). |
+| **`Turnier starten`** | Turnier-Hero-Box (Vorschau) | — | Einheitlich in der Turnier-Hero-Box beim nächsten geplanten Turnier (`isNextPlanned == true`) platziert (entfällt in Kalender-Kacheln). |
 
 **Trigger-Zeitpunkte für automatische Abläufe (Domain-Layer `TournamentProgressionUseCase`):**
 * **`autoSimulateCpu == true`:** Löst die Simulation aller offenen CPU-Matches der aktuellen Runde automatisch aus:

@@ -332,4 +332,6 @@
     <string name="season_summary_level_dialog_confirm">Weiter</string>
     <string name="season_summary_relegated_label">Tour-Card-Absteiger</string>
     <string name="season_summary_relegated_none">Keine Tour-Card-Absteiger</string>
+    <string name="btn_start_user_match">Match starten</string>
+    <string name="user_match_not_ready_yet">Die Bühne ist noch nicht frei. Bitte lass erst die anderen Spieler ihre Matches beenden.</string>
 </resources>

@@ -37,9 +37,10 @@
 
     <Button
         android:id="@+id/btnCreateNewProfile"
-        style="@style/Widget.DannyApp.Button.PrimaryBottom"
-        android:layout_width="0dp"
+        style="@style/Widget.DannyApp.Button.Manage"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/primary_bottom_button_margin_bottom"
         android:text="@string/profiles_create_new"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

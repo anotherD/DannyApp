@@ -196,11 +196,12 @@
 
             <Button
                 android:id="@+id/btnEndSeason"
-                android:layout_width="match_parent"
+                style="@style/Widget.DannyApp.Button.AdvanceGame"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
                 android:layout_marginTop="16dp"
                 android:text="@string/btn_end_season"
-                android:textSize="@dimen/overview_empty_text_size"
                 android:visibility="gone"
                 tools:visibility="visible" />
 

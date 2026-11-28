@@ -84,7 +84,8 @@ sealed interface TournamentDetailState {
         val isFinalRound: Boolean = false,
         val participantGroups: List<EntrantGroupInfo> = emptyList(),
         val isParticipantsFrozen: Boolean = false,
-        val openQualifierSlotsText: String? = null
+        val openQualifierSlotsText: String? = null,
+        val nextPlayableUserMatchId: Long? = null
     ) : TournamentDetailState
 
     data class Review(
@@ -444,7 +445,8 @@ class TournamentDetailViewModel(
             isFinalRound = isFinalRound,
             participantGroups = participantData.participantGroups,
             isParticipantsFrozen = participantData.isParticipantsFrozen,
-            openQualifierSlotsText = participantData.openQualifierSlotsText
+            openQualifierSlotsText = participantData.openQualifierSlotsText,
+            nextPlayableUserMatchId = progressState?.nextPlayableUserMatchId
         )
     }
 
@@ -769,13 +771,23 @@ class TournamentDetailViewModel(
         viewModelScope.launch {
             _isSimulatingBatch.value = true
             try {
-                completeMatchUseCase.simulateAllOpenCpuMatches(currentTournamentId)
+                completeMatchUseCase.simulateAllOpenCpuMatches(currentTournamentId, stopAtUserMatch = true)
             } catch (e: Exception) {
                 getApplication<Application>().appContainer.reportError("Match simulieren", e)
             } finally {
                 _isSimulatingBatch.value = false
             }
         }
+    }
+
+    /**
+     * Liefert das nächste anstehende User-Match als UI-Modell.
+     */
+    fun getNextPlayableUserMatch(): MatchUiModel? {
+        val state = _uiState.value as? TournamentDetailState.Active ?: return null
+        val nextId = state.nextPlayableUserMatchId ?: return null
+        return state.matches.find { it.match.id == nextId }
+            ?: state.allRoundsMatches.flatten().find { it.match.id == nextId }
     }
 
     /**

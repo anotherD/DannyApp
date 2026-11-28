@@ -86,20 +86,5 @@
             app:layout_constraintBottom_toBottomOf="@id/tvTournamentTypeBadge"
             tools:visibility="visible" />
 
-        <Button
-            android:id="@+id/btnStartTournament"
-            style="@style/Widget.Material3.Button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:minHeight="@dimen/start_button_min_height"
-            android:paddingHorizontal="@dimen/tournament_card_start_btn_pad_h"
-            android:layout_marginTop="@dimen/item_spacing_small"
-            android:text="@string/tournament_start"
-            android:textSize="@dimen/primary_bottom_button_text_size"
-            android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvTournamentTypeBadge"
-            tools:visibility="visible" />
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>
