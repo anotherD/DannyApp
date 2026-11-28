@@ -5,6 +5,10 @@ import com.danny.dannyapp.R
 import com.danny.dannyapp.data.db.CareerWithProfile
 import com.danny.dannyapp.data.db.PLACEHOLDER_OPEN_DRAW_ID
 import com.danny.dannyapp.data.db.PLACEHOLDER_PREVIOUS_WINNER_ID
+import com.danny.dannyapp.data.db.PLACEHOLDER_QUAL_PRELIM_BASE_ID
+import com.danny.dannyapp.data.db.PLACEHOLDER_QUAL_PRELIM_MIN_ID
+import com.danny.dannyapp.data.db.PLACEHOLDER_GROUP_WINNER_BASE_ID
+import com.danny.dannyapp.data.db.PLACEHOLDER_GROUP_WINNER_MIN_ID
 import com.danny.dannyapp.data.db.Player
 import com.danny.dannyapp.data.db.TournamentMatch
 import com.danny.dannyapp.data.db.USER_ID
@@ -70,13 +74,13 @@ object TournamentDetailMapper {
                     context.getString(R.string.tournament_placeholder_winner, sourceLabel)
                 }
             }
-            playerId <= -1000L && playerId > -2000L -> {
-                val prelimIndex = (-1000L - playerId).toInt() + 1
+            playerId <= PLACEHOLDER_QUAL_PRELIM_BASE_ID && playerId > PLACEHOLDER_QUAL_PRELIM_MIN_ID -> {
+                val prelimIndex = (PLACEHOLDER_QUAL_PRELIM_BASE_ID - playerId).toInt() + 1
                 val sourceLabel = "${TournamentUiHelper.getRoundPrefix(TournamentRound.QUAL_PRELIM.name)}-$prelimIndex"
                 context.getString(R.string.tournament_placeholder_winner, sourceLabel)
             }
-            playerId <= -9000L && playerId > -9020L -> {
-                val groupIndex = (-9000L - playerId).toInt()
+            playerId <= PLACEHOLDER_GROUP_WINNER_BASE_ID && playerId > PLACEHOLDER_GROUP_WINNER_MIN_ID -> {
+                val groupIndex = (PLACEHOLDER_GROUP_WINNER_BASE_ID - playerId).toInt()
                 val groupLetter = ('A' + groupIndex).toString()
                 context.getString(R.string.grand_slam_group_winner_format, groupLetter)
             }

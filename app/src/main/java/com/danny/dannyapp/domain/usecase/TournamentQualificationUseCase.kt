@@ -2,6 +2,7 @@ package com.danny.dannyapp.domain.usecase
 
 import com.danny.dannyapp.data.db.CareerRepository
 import com.danny.dannyapp.data.db.PLACEHOLDER_OPEN_DRAW_ID
+import com.danny.dannyapp.data.db.PLACEHOLDER_QUAL_PRELIM_BASE_ID
 import com.danny.dannyapp.data.db.Player
 import com.danny.dannyapp.data.db.PlayerRepository
 import com.danny.dannyapp.data.db.SeasonRepository
@@ -749,7 +750,7 @@ class TournamentQualificationUseCase(
         } else {
             4
         }
-        val placeholderId = -1000L - prelimMatchIndex
+        val placeholderId = PLACEHOLDER_QUAL_PRELIM_BASE_ID - prelimMatchIndex
         val r1Match = qualR1Matches.firstOrNull { r1 ->
             r1.player1Id == placeholderId || r1.player2Id == placeholderId ||
                 (winnerId != null && (r1.player1Id == winnerId || r1.player2Id == winnerId))

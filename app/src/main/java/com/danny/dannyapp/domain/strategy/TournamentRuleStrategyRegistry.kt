@@ -2,6 +2,7 @@ package com.danny.dannyapp.domain.strategy
 
 import com.danny.dannyapp.data.db.PLACEHOLDER_OPEN_DRAW_ID
 import com.danny.dannyapp.data.db.PLACEHOLDER_PREVIOUS_WINNER_ID
+import com.danny.dannyapp.data.db.PLACEHOLDER_GROUP_WINNER_BASE_ID
 import com.danny.dannyapp.data.db.TournamentMatch
 import com.danny.dannyapp.domain.enums.TournamentEvent
 import com.danny.dannyapp.domain.enums.TournamentRound
@@ -330,8 +331,8 @@ object GrandSlamStrategy : TournamentRuleStrategy {
                 tournamentId = tournamentId,
                 round = TournamentRound.L16.name,
                 matchIndex = matchIndex,
-                player1Id = -9000L - (2 * matchIndex),
-                player2Id = -9000L - (2 * matchIndex + 1)
+                player1Id = PLACEHOLDER_GROUP_WINNER_BASE_ID - (2 * matchIndex),
+                player2Id = PLACEHOLDER_GROUP_WINNER_BASE_ID - (2 * matchIndex + 1)
             )
         }
         tournamentMatches.addAll(l16Matches)

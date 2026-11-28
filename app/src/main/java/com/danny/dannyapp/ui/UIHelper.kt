@@ -30,6 +30,7 @@ import com.danny.dannyapp.appContainer
 import com.danny.dannyapp.data.db.CareerWithProfile
 import com.danny.dannyapp.data.db.Player
 import com.danny.dannyapp.data.db.USER_ID
+import com.danny.dannyapp.data.db.PLACEHOLDER_OPEN_DRAW_ID
 import com.danny.dannyapp.domain.enums.SkillLevel
 import com.danny.dannyapp.domain.model.Country
 import com.danny.dannyapp.ui.enums.RoundStatus
@@ -332,7 +333,8 @@ object UIHelper {
         player1Score: TextView,
         player2Name: TextView,
         player2Score: TextView,
-        matchIndexBadge: TextView? = null
+        matchIndexBadge: TextView? = null,
+        scoreDivider: TextView? = null
     ) {
         val context = card.context
         val match = item.match
@@ -346,6 +348,19 @@ object UIHelper {
 
         val colorTextHell = ContextCompat.getColor(context, R.color.grau_text_hell)
         val colorTextGedaempft = ContextCompat.getColor(context, R.color.grau_text_gedaempft)
+
+        val isByeMatch = match.player1Id == PLACEHOLDER_OPEN_DRAW_ID || match.player2Id == PLACEHOLDER_OPEN_DRAW_ID
+        if (isByeMatch) {
+            player1Score.visibility = View.INVISIBLE
+            player2Score.visibility = View.INVISIBLE
+            scoreDivider?.visibility = View.INVISIBLE
+            player1Score.text = ""
+            player2Score.text = ""
+        } else {
+            player1Score.visibility = View.VISIBLE
+            player2Score.visibility = View.VISIBLE
+            scoreDivider?.visibility = View.VISIBLE
+        }
 
         if (useModern) {
             if (item.isUserMatch) {

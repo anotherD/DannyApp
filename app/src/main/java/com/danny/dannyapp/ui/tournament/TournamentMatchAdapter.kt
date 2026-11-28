@@ -24,6 +24,7 @@ class TournamentMatchAdapter(
         val tvMatchRoundIndex: TextView = view.findViewById(R.id.tvMatchRoundIndex)
         val tvPlayer1Name: TextView = view.findViewById(R.id.tvPlayer1Name)
         val tvPlayer1Score: TextView = view.findViewById(R.id.tvPlayer1Score)
+        val tvScoreDivider: TextView = view.findViewById(R.id.tvScoreDivider)
         val tvPlayer2Name: TextView = view.findViewById(R.id.tvPlayer2Name)
         val tvPlayer2Score: TextView = view.findViewById(R.id.tvPlayer2Score)
         val layoutBoardHeader: View = view.findViewById(R.id.layoutBoardHeader)
@@ -70,7 +71,8 @@ class TournamentMatchAdapter(
             player1Score = holder.tvPlayer1Score,
             player2Name = holder.tvPlayer2Name,
             player2Score = holder.tvPlayer2Score,
-            matchIndexBadge = holder.tvMatchRoundIndex
+            matchIndexBadge = holder.tvMatchRoundIndex,
+            scoreDivider = holder.tvScoreDivider
         )
 
         holder.itemView.setOnClickListener {

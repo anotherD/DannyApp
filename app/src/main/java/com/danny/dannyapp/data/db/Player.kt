@@ -5,6 +5,14 @@ import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
 
+const val USER_ID = -1L
+const val PLACEHOLDER_OPEN_DRAW_ID = -998L
+const val PLACEHOLDER_PREVIOUS_WINNER_ID = -999L
+const val PLACEHOLDER_QUAL_PRELIM_BASE_ID = -1000L
+const val PLACEHOLDER_QUAL_PRELIM_MIN_ID = -2000L
+const val PLACEHOLDER_GROUP_WINNER_BASE_ID = -9000L
+const val PLACEHOLDER_GROUP_WINNER_MIN_ID = -9020L
+
 @Entity(
     tableName = "players",
     indices = [Index(value = ["name"], unique = true)] // Verhindert doppelte Spieler!
