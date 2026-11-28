@@ -54,7 +54,7 @@ class TournamentProgressionUseCase(
             }
 
             if (settingsManager.autoSimulateCpu && state.hasOpenCpuMatchesInActiveRound) {
-                completeMatchUseCase.simulateAllOpenCpuMatches(tournamentId)
+                completeMatchUseCase.simulateAllOpenCpuMatches(tournamentId, stopAtUserMatch = true)
                 continue
             }
 

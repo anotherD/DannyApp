@@ -21,6 +21,7 @@ enum class TournamentRoundPhase {
  *                           and round advancement or tournament completion has not yet been processed.
  * @property isFinalRound `true` if [activeRound] is the final round of the tournament ([TournamentRound.F] or [TournamentRound.QUAL_FINAL]).
  * @property hasOpenCpuMatchesInActiveRound `true` if there are still unplayed matches between two real CPU players in [activeRound].
+ * @property nextPlayableUserMatchId ID of the first open, playable user match in the active round, or `null`.
  */
 data class TournamentProgressState(
     val activeRound: TournamentRound?,
@@ -28,6 +29,7 @@ data class TournamentProgressState(
     val canAdvanceRound: Boolean,
     val isFinalRound: Boolean,
     val hasOpenCpuMatchesInActiveRound: Boolean,
+    val nextPlayableUserMatchId: Long? = null,
     val activeRoundKey: String? = activeRound?.name,
     val roundPhaseKeys: Map<String, TournamentRoundPhase> = roundPhases.mapKeys { it.key.name }
 )

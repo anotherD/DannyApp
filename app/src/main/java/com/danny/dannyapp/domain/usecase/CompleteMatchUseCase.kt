@@ -191,30 +191,36 @@ class CompleteMatchUseCase(
      * Simulates all open CPU matches in the current active round for the given tournament.
      *
      * @param tournamentId The ID of the tournament.
+     * @param stopAtUserMatch If `true`, stops simulation upon encountering the first open playable user match.
      * @return List of all tournament matches after simulating CPU matches in the active round.
      */
-    suspend fun simulateAllOpenCpuMatches(tournamentId: Long): List<TournamentMatch> = withContext(Dispatchers.IO) {
+    suspend fun simulateAllOpenCpuMatches(
+        tournamentId: Long,
+        stopAtUserMatch: Boolean = false
+    ): List<TournamentMatch> = withContext(Dispatchers.IO) {
         tournamentRepository.runInTransaction {
             val matches = tournamentRepository.getMatchesListForTournament(tournamentId)
             val activeRoundKey = advanceTournamentRoundUseCase.evaluateTournamentState(tournamentId)?.activeRoundKey
                 ?: return@runInTransaction matches
 
-            val updatedList = mutableListOf<TournamentMatch>()
+            val activeRoundMatches = matches
+                .filter { it.round == activeRoundKey }
+                .sortedBy { it.matchIndex }
 
-            for (match in matches) {
-                if (match.round == activeRoundKey &&
-                    !match.isCompleted &&
-                    match.player1Id != USER_ID &&
-                    match.player2Id != USER_ID &&
-                    hasRealPlayers(match)
-                ) {
-                    val simulatedMatch = simulateMatch(match)
-                    updatedList.add(simulatedMatch)
-                } else {
-                    updatedList.add(match)
+            for (match in activeRoundMatches) {
+                if (!match.isCompleted) {
+                    if (stopAtUserMatch &&
+                        (match.player1Id == USER_ID || match.player2Id == USER_ID) &&
+                        hasRealPlayers(match)
+                    ) {
+                        break
+                    }
+                    if (match.player1Id > 0L && match.player2Id > 0L) {
+                        simulateMatch(match)
+                    }
                 }
             }
-            updatedList
+            tournamentRepository.getMatchesListForTournament(tournamentId)
         }
     }
 

@@ -3,6 +3,7 @@ package com.danny.dannyapp.domain.usecase
 import com.danny.dannyapp.data.db.Tournament
 import com.danny.dannyapp.data.db.TournamentMatch
 import com.danny.dannyapp.data.db.TournamentRepository
+import com.danny.dannyapp.data.db.USER_ID
 import com.danny.dannyapp.domain.enums.TournamentEvent
 import com.danny.dannyapp.domain.enums.TournamentRound
 import com.danny.dannyapp.domain.model.TournamentProgressState
@@ -95,8 +96,23 @@ class AdvanceTournamentRoundUseCase(
             roundPhaseKeys[round.name] ?: TournamentRoundPhase.PENDING
         }
 
-        val activeRoundMatches = allMatches.filter { it.round == currentRoundKey }
+        val activeRoundMatches = allMatches.filter { it.round == currentRoundKey }.sortedBy { it.matchIndex }
         val canAdvanceRound = activeRoundMatches.isNotEmpty() && activeRoundMatches.all { it.isCompleted }
+
+        val openPlayableMatches = activeRoundMatches.filter { match ->
+            !match.isCompleted &&
+            (match.player1Id > 0L || match.player1Id == USER_ID) &&
+            (match.player2Id > 0L || match.player2Id == USER_ID)
+        }
+        val firstOpenPlayableMatch = openPlayableMatches.firstOrNull()
+        val nextPlayableUserMatchId = if (firstOpenPlayableMatch != null &&
+            (firstOpenPlayableMatch.player1Id == USER_ID || firstOpenPlayableMatch.player2Id == USER_ID)
+        ) {
+            firstOpenPlayableMatch.id
+        } else {
+            null
+        }
+
         val hasOpenCpuMatches = activeRoundMatches.any { match ->
             !match.isCompleted && match.player1Id > 0L && match.player2Id > 0L
         }
@@ -112,6 +128,7 @@ class AdvanceTournamentRoundUseCase(
             canAdvanceRound = canAdvanceRound,
             isFinalRound = isFinalRound,
             hasOpenCpuMatchesInActiveRound = hasOpenCpuMatches,
+            nextPlayableUserMatchId = nextPlayableUserMatchId,
             activeRoundKey = currentRoundKey,
             roundPhaseKeys = roundPhaseKeys
         )
