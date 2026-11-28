@@ -8,8 +8,8 @@
     android:focusable="true"
     android:orientation="vertical"
     android:gravity="center_horizontal"
-    android:paddingHorizontal="6dp"
-    android:paddingVertical="8dp">
+    android:paddingHorizontal="@dimen/item_spacing_small"
+    android:paddingVertical="@dimen/item_spacing_small">
 
     <TextView
         android:id="@+id/tvRankingLabel"

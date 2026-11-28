@@ -40,13 +40,10 @@
 
         <AutoCompleteTextView
             android:id="@+id/autoCompleteProfile"
+            style="@style/Widget.DannyApp.AutoCompleteTextView.Dropdown"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/careers_create_profile_hint"
-            android:minHeight="@dimen/dialog_dropdown_min_height"
-            android:paddingVertical="8dp"
-            android:textSize="@dimen/dialog_input_text_size"
-            android:inputType="none" />
+            android:hint="@string/careers_create_profile_hint" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -59,12 +56,9 @@
 
         <AutoCompleteTextView
             android:id="@+id/autoCompleteLevel"
+            style="@style/Widget.DannyApp.AutoCompleteTextView.Dropdown"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="@dimen/dialog_dropdown_min_height"
-            android:paddingVertical="8dp"
-            android:textSize="@dimen/dialog_input_text_size"
-            android:inputType="none" />
+            android:layout_height="wrap_content" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -85,8 +79,8 @@
             android:id="@+id/btnMatchDistanceInfo"
             android:layout_width="@dimen/dialog_info_icon_size"
             android:layout_height="@dimen/dialog_info_icon_size"
-            android:layout_marginStart="6dp"
-            android:layout_marginEnd="12dp"
+            android:layout_marginStart="@dimen/item_spacing_small"
+            android:layout_marginEnd="@dimen/item_spacing_medium"
             android:src="@drawable/ic_info"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:clickable="true"
@@ -102,12 +96,9 @@
 
             <AutoCompleteTextView
                 android:id="@+id/autoCompleteMatchDistance"
+                style="@style/Widget.DannyApp.AutoCompleteTextView.Dropdown"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="@dimen/dialog_dropdown_min_height"
-                android:paddingVertical="8dp"
-                android:textSize="@dimen/dialog_input_text_size"
-                android:inputType="none" />
+                android:layout_height="wrap_content" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -127,7 +118,7 @@
         android:id="@+id/cbShortTestSeason"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="@dimen/item_spacing_tiny"
         android:minHeight="@dimen/dialog_dropdown_min_height"
         android:paddingStart="@dimen/dialog_checkbox_text_padding"
         android:text="@string/careers_create_short_test_season"

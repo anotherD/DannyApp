@@ -56,12 +56,10 @@
 
         <AutoCompleteTextView
             android:id="@+id/actvCountry"
+            style="@style/Widget.DannyApp.AutoCompleteTextView.Dropdown"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minHeight="@dimen/dialog_dropdown_min_height"
-            android:hint="@string/profiles_create_country_hint"
-            android:inputType="none"
-            android:textSize="@dimen/dialog_input_text_size" />
+            android:hint="@string/profiles_create_country_hint" />
 
     </com.google.android.material.textfield.TextInputLayout>
 

@@ -85,6 +85,21 @@
         <item name="android:textColorHint">@color/eingabe_hint</item>
     </style>
 
+    <style name="Widget.DannyApp.AutoCompleteTextView.Dropdown" parent="Widget.Material3.AutoCompleteTextView.OutlinedBox">
+        <item name="android:inputType">none</item>
+        <item name="android:minHeight">@dimen/dialog_dropdown_min_height</item>
+        <item name="android:paddingVertical">@dimen/dropdown_item_padding_v</item>
+        <item name="android:textSize">@dimen/dialog_input_text_size</item>
+    </style>
+
+    <style name="Widget.DannyApp.Text.Badge" parent="android:Widget.TextView">
+        <item name="android:paddingHorizontal">@dimen/badge_padding_h</item>
+        <item name="android:paddingVertical">@dimen/badge_padding_v</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textSize">@dimen/badge_text_size</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
     <style name="TextAppearance.DannyApp.ToolbarTitle" parent="TextAppearance.Material3.TitleLarge">
         <item name="android:textSize">@dimen/toolbar_title_size</item>
     </style>

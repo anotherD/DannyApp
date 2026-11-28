@@ -159,4 +159,11 @@
     <dimen name="crash_stacktrace_size">18sp</dimen>
     <dimen name="crash_box_padding">24dp</dimen>
     <dimen name="bottom_fab_bar_margin_bottom">24dp</dimen>
+    <dimen name="item_spacing_tiny">4dp</dimen>
+    <dimen name="item_spacing_small">9dp</dimen>
+    <dimen name="item_spacing_medium">15dp</dimen>
+    <dimen name="dropdown_item_padding_v">12dp</dimen>
+    <dimen name="badge_padding_h">16dp</dimen>
+    <dimen name="badge_padding_v">8dp</dimen>
+    <dimen name="badge_text_size">23sp</dimen>
 </resources>

@@ -16,7 +16,7 @@
             android:id="@+id/tvTournamentName"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
+            android:layout_marginEnd="@dimen/item_spacing_small"
             android:textColor="?attr/colorOnSurface"
             android:textSize="@dimen/tournament_card_title_size"
             android:textStyle="bold"
@@ -27,11 +27,10 @@
 
         <TextView
             android:id="@+id/tvTournamentStatus"
+            style="@style/Widget.DannyApp.Text.Badge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/bg_skill_badge"
-            android:paddingHorizontal="@dimen/tournament_card_badge_pad_h"
-            android:paddingVertical="@dimen/tournament_card_badge_pad_v"
             android:textColor="@color/white"
             android:textSize="@dimen/tournament_card_status_size"
             app:layout_constraintEnd_toEndOf="parent"
@@ -40,15 +39,13 @@
 
         <TextView
             android:id="@+id/tvTournamentTypeBadge"
+            style="@style/Widget.DannyApp.Text.Badge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="@dimen/item_spacing_small"
             android:background="@drawable/bg_major_badge"
-            android:paddingHorizontal="@dimen/tournament_card_badge_pad_h"
-            android:paddingVertical="@dimen/tournament_card_badge_pad_v"
             android:textColor="@color/white"
             android:textSize="@dimen/tournament_card_badge_size"
-            android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvTournamentName"
             tools:text="Major" />
@@ -57,7 +54,7 @@
             android:id="@+id/tvTournamentDetails"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
+            android:layout_marginEnd="@dimen/item_spacing_small"
             android:textColor="?attr/colorOnSurfaceVariant"
             android:textSize="@dimen/tournament_card_details_size"
             app:layout_constraintEnd_toStartOf="@id/btnSimulateCompleteTournament"

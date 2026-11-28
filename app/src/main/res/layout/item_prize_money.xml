@@ -5,7 +5,7 @@
     style="@style/Widget.DannyApp.Card.Compact"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="6dp">
+    android:layout_marginBottom="@dimen/item_spacing_small">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -28,7 +28,7 @@
             android:id="@+id/tvPrizeMatchDistance"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
+            android:layout_marginTop="@dimen/item_spacing_tiny"
             android:textColor="?attr/colorOnSurfaceVariant"
             android:textSize="@dimen/info_dialog_note_size"
             app:layout_constraintEnd_toStartOf="@id/tvPrizeMoney"
