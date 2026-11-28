@@ -9,10 +9,7 @@
 
     <include
         android:id="@+id/toolbar"
-        layout="@layout/include_toolbar"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        layout="@layout/include_toolbar" />
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/scrollCareerOverview"
@@ -76,7 +73,7 @@
                     android:id="@+id/cardOverviewRankings"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="@dimen/screen_margin_small"
+                    android:layout_marginEnd="@dimen/screen_margin"
                     style="@style/Widget.DannyApp.Card"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@id/cardShortcutCalendar"
