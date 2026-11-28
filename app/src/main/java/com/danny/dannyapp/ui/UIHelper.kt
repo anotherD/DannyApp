@@ -32,6 +32,7 @@ import com.danny.dannyapp.data.db.Player
 import com.danny.dannyapp.data.db.USER_ID
 import com.danny.dannyapp.domain.enums.SkillLevel
 import com.danny.dannyapp.domain.model.Country
+import com.danny.dannyapp.ui.enums.RoundStatus
 import com.danny.dannyapp.ui.model.MatchUiModel
 import com.danny.dannyapp.ui.model.PlayerUiInfo
 import com.google.android.material.card.MaterialCardView
@@ -451,11 +452,15 @@ object UIHelper {
     /**
      * Wendet das einheitliche Styling für Selektions-Chips (Pillen) an.
      */
-    fun styleSelectionChip(chip: Chip, isSelected: Boolean) {
+    fun styleSelectionChip(chip: Chip, isSelected: Boolean, status: RoundStatus? = null) {
         val context = chip.context
-        chip.chipBackgroundColor = ColorStateList.valueOf(
-            ContextCompat.getColor(context, R.color.anthrazit_container_niedrig)
-        )
+        val bgRes = when (status) {
+            RoundStatus.COMPLETED -> R.color.status_completed
+            RoundStatus.ACTIVE -> R.color.status_active
+            RoundStatus.PENDING, null -> R.color.anthrazit_container_niedrig
+        }
+        chip.chipBackgroundColor = ColorStateList.valueOf(ContextCompat.getColor(context, bgRes))
+
         if (isSelected) {
             chip.chipStrokeColor = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.white))
             chip.chipStrokeWidth = chip.resources.getDimension(R.dimen.card_stroke_thick)
@@ -463,7 +468,8 @@ object UIHelper {
         } else {
             chip.chipStrokeColor = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.grau_rahmen_dunkel))
             chip.chipStrokeWidth = chip.resources.getDimension(R.dimen.card_stroke_thin)
-            chip.setTextColor(ContextCompat.getColor(context, R.color.grau_text_gedaempft))
+            val textColorRes = if (status == RoundStatus.ACTIVE) R.color.white else R.color.grau_text_gedaempft
+            chip.setTextColor(ContextCompat.getColor(context, textColorRes))
         }
     }
 

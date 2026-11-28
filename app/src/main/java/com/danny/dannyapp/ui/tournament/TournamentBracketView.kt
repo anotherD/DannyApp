@@ -2,7 +2,6 @@ package com.danny.dannyapp.ui.tournament
 
 import android.animation.ValueAnimator
 import android.content.Context
-import android.content.res.ColorStateList
 import android.graphics.Canvas
 import android.graphics.LinearGradient
 import android.graphics.Paint
@@ -364,25 +363,7 @@ class TournamentBracketView @JvmOverloads constructor(
     private fun styleHeaderView(chip: Chip, roundIndex: Int, status: RoundStatus) {
         val isSelected = (roundIndex == selectedRoundIndex)
         chip.isChecked = isSelected
-        UIHelper.styleSelectionChip(chip, isSelected)
-
-        val (bgRes, textRes) = when (status) {
-            RoundStatus.COMPLETED -> R.color.status_completed to R.color.grau_text_gedaempft
-            RoundStatus.ACTIVE -> R.color.status_active to R.color.white
-            RoundStatus.PENDING -> R.color.anthrazit_container_niedrig to R.color.grau_text_gedaempft
-        }
-
-        chip.chipBackgroundColor = ColorStateList.valueOf(ContextCompat.getColor(context, bgRes))
-        chip.setTextColor(ContextCompat.getColor(context, textRes))
-
-        if (isSelected) {
-            chip.chipStrokeColor = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.white))
-            chip.chipStrokeWidth = 2 * density
-            chip.setTextColor(ContextCompat.getColor(context, R.color.white))
-        } else {
-            chip.chipStrokeColor = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.grau_rahmen_dunkel))
-            chip.chipStrokeWidth = 1 * density
-        }
+        UIHelper.styleSelectionChip(chip, isSelected, status)
     }
 
     private fun updateHeaderStyles() {

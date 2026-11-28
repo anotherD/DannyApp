@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/Widget.DannyApp.Card.Compact"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:cardElevation="@dimen/card_elevation_modern">
+
+    <ScrollView
+        android:id="@+id/scrollBracketOpenDraw"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/item_spacing_medium">
+
+            <TextView
+                android:id="@+id/tvBracketOpenDrawInfo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/item_spacing_small"
+                android:textColor="@color/white"
+                android:textSize="@dimen/info_dialog_note_size"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:id="@+id/layoutBracketOpenDrawEntrants"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+
+        </LinearLayout>
+    </ScrollView>
+</com.google.android.material.card.MaterialCardView>

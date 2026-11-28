@@ -2,7 +2,6 @@ package com.danny.dannyapp.ui.tournament
 
 import android.content.Context
 import android.graphics.Typeface
-import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,7 +14,6 @@ import com.danny.dannyapp.data.db.USER_ID
 import com.danny.dannyapp.ui.UIHelper
 import com.danny.dannyapp.ui.model.EntrantGroupInfo
 import com.danny.dannyapp.ui.model.GrandSlamGroupItem
-import com.google.android.material.card.MaterialCardView
 
 /**
  * Hilfsklasse zum Erstellen von programmatischen UI-Karten für den Turnierbaum (Bracket).
@@ -29,117 +27,20 @@ object TournamentBracketCardBuilder {
         context: Context,
         density: Float,
         prevRoundName: String,
-        groups: List<EntrantGroupInfo>
+        groups: List<EntrantGroupInfo>,
+        parent: ViewGroup? = null
     ): View {
-        val card = MaterialCardView(context).apply {
-            radius = 8f * density
-            cardElevation = 2f * density
-            strokeWidth = (1f * density).toInt()
-            strokeColor = ContextCompat.getColor(context, R.color.grau_rahmen_dunkel)
-            setCardBackgroundColor(ContextCompat.getColor(context, R.color.anthrazit_flaeche))
-            useCompatPadding = false
-        }
-
-        val scrollView = ScrollView(context).apply {
-            layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
-            )
-        }
+        val view = LayoutInflater.from(context).inflate(R.layout.card_bracket_open_draw, parent, false)
+        val scrollView = view.findViewById<ScrollView>(R.id.scrollBracketOpenDraw)
         UIHelper.attachVerticalEdgeFade(scrollView)
 
-        val mainContainer = LinearLayout(context).apply {
-            orientation = LinearLayout.VERTICAL
-            val px = (10 * density).toInt()
-            setPadding(px, px, px, px)
-        }
+        val tvInfo = view.findViewById<TextView>(R.id.tvBracketOpenDrawInfo)
+        tvInfo.text = context.getString(R.string.draw_after_round_info, prevRoundName)
 
-        val tvInfo = TextView(context).apply {
-            text = context.getString(R.string.draw_after_round_info, prevRoundName)
-            textSize = 12f
-            setTypeface(null, Typeface.BOLD)
-            setTextColor(ContextCompat.getColor(context, R.color.white))
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply {
-                bottomMargin = (8 * density).toInt()
-            }
-        }
-        mainContainer.addView(tvInfo)
+        val layoutEntrants = view.findViewById<LinearLayout>(R.id.layoutBracketOpenDrawEntrants)
+        TournamentDetailUiHelper.renderOpenDrawEntrants(context, layoutEntrants, groups)
 
-        for ((groupIndex, group) in groups.withIndex()) {
-            if (groupIndex > 0) {
-                val divider = View(context).apply {
-                    layoutParams = LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        (1 * density).toInt()
-                    ).apply {
-                        topMargin = (6 * density).toInt()
-                        bottomMargin = (6 * density).toInt()
-                    }
-                    setBackgroundColor(ContextCompat.getColor(context, R.color.grau_rahmen_dunkel))
-                }
-                mainContainer.addView(divider)
-            }
-
-            val tvGroupTitle = TextView(context).apply {
-                text = group.title
-                textSize = 11f
-                setTypeface(null, Typeface.BOLD)
-                setTextColor(ContextCompat.getColor(context, R.color.rot_sehr_hell))
-                layoutParams = LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-                ).apply {
-                    bottomMargin = (4 * density).toInt()
-                }
-            }
-            mainContainer.addView(tvGroupTitle)
-
-            val playerPairs = group.players.chunked(2)
-            for (pair in playerPairs) {
-                val rowLayout = LinearLayout(context).apply {
-                    orientation = LinearLayout.HORIZONTAL
-                    layoutParams = LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT
-                    ).apply {
-                        bottomMargin = (2 * density).toInt()
-                    }
-                }
-
-                for ((colIdx, player) in pair.withIndex()) {
-                    val tvPlayer = TextView(context).apply {
-                        textSize = 10f
-                        maxLines = 1
-                        ellipsize = TextUtils.TruncateAt.END
-                        layoutParams = LinearLayout.LayoutParams(
-                            0,
-                            LinearLayout.LayoutParams.WRAP_CONTENT,
-                            1f
-                        )
-                    }
-                    UIHelper.bindSmartPlayerName(tvPlayer, player)
-                    rowLayout.addView(tvPlayer)
-
-                    if (colIdx == 0 && pair.size > 1) {
-                        val spacer = View(context).apply {
-                            layoutParams = LinearLayout.LayoutParams(
-                                (4 * density).toInt(),
-                                LinearLayout.LayoutParams.WRAP_CONTENT
-                            )
-                        }
-                        rowLayout.addView(spacer)
-                    }
-                }
-                mainContainer.addView(rowLayout)
-            }
-        }
-
-        scrollView.addView(mainContainer)
-        card.addView(scrollView)
-        return card
+        return view
     }
 
     /**

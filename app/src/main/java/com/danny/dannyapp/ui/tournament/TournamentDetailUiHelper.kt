@@ -1,7 +1,6 @@
 package com.danny.dannyapp.ui.tournament
 
 import android.content.Context
-import android.content.res.ColorStateList
 import android.graphics.Typeface
 import android.text.TextUtils
 import android.util.TypedValue
@@ -342,23 +341,7 @@ object TournamentDetailUiHelper {
                 isCheckable = true
                 isChecked = (index == selectedIndex)
 
-                val (bgRes, textRes) = when (status) {
-                    RoundStatus.COMPLETED -> R.color.status_completed to R.color.grau_text_gedaempft
-                    RoundStatus.ACTIVE -> R.color.status_active to R.color.white
-                    RoundStatus.PENDING -> R.color.anthrazit_container_niedrig to R.color.grau_text_gedaempft
-                }
-
-                chipBackgroundColor = ColorStateList.valueOf(ContextCompat.getColor(context, bgRes))
-                setTextColor(ContextCompat.getColor(context, textRes))
-
-                if (isChecked) {
-                    chipStrokeColor = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.white))
-                    chipStrokeWidth = 2 * context.resources.displayMetrics.density
-                    setTextColor(ContextCompat.getColor(context, R.color.white))
-                } else {
-                    chipStrokeColor = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.grau_rahmen_dunkel))
-                    chipStrokeWidth = 1 * context.resources.displayMetrics.density
-                }
+                UIHelper.styleSelectionChip(this, isChecked, status)
 
                 setOnClickListener {
                     onRoundSelected(index)
