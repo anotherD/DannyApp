@@ -76,13 +76,10 @@
 
     <TextView
         android:id="@+id/tvEmptyPlayers"
+        style="@style/Widget.DannyApp.Text.EmptyState"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/list_empty_margin_h"
         android:text="@string/config_players_empty_state"
-        android:textAlignment="center"
-        android:textSize="@dimen/list_empty_text_size"
-        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

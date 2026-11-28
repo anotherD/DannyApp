@@ -179,4 +179,18 @@
         <item name="android:minHeight">@dimen/start_button_min_height</item>
         <item name="android:textSize">@dimen/start_button_text_size</item>
     </style>
+
+    <style name="Widget.DannyApp.Button.PrimaryBottom" parent="Widget.Material3.Button">
+        <item name="android:layout_marginHorizontal">@dimen/primary_bottom_button_margin_h</item>
+        <item name="android:layout_marginBottom">@dimen/primary_bottom_button_margin_bottom</item>
+        <item name="android:minHeight">@dimen/start_button_min_height</item>
+        <item name="android:textSize">@dimen/primary_bottom_button_text_size</item>
+    </style>
+
+    <style name="Widget.DannyApp.Text.EmptyState" parent="android:Widget.TextView">
+        <item name="android:layout_marginHorizontal">@dimen/list_empty_margin_h</item>
+        <item name="android:textAlignment">center</item>
+        <item name="android:textSize">@dimen/list_empty_text_size</item>
+        <item name="android:visibility">gone</item>
+    </style>
 </resources>

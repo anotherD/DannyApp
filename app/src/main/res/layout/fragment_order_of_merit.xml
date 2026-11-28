@@ -21,12 +21,10 @@
 
     <TextView
         android:id="@+id/tvEmptyOom"
+        style="@style/Widget.DannyApp.Text.EmptyState"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/list_empty_margin_h"
         android:text="@string/no_oom_data_available"
-        android:textSize="@dimen/list_empty_text_size"
-        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

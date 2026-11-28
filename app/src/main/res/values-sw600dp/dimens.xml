@@ -11,7 +11,6 @@
     <dimen name="start_subtitle_line_width">52dp</dimen>
     <dimen name="start_subtitle_trans_y">21dp</dimen>
     <dimen name="start_subtitle_line_height">3.2dp</dimen>
-    <dimen name="overview_padding_horizontal">32dp</dimen>
     <dimen name="overview_padding">32dp</dimen>
     <dimen name="overview_section_spacing">48dp</dimen>
     <dimen name="overview_player_text_size">46sp</dimen>
@@ -72,13 +71,11 @@
     <dimen name="settings_card_margin_bottom">24dp</dimen>
     <dimen name="settings_item_text_size">24sp</dimen>
     <dimen name="settings_divider_margin_v">18dp</dimen>
-    <dimen name="players_sort_padding_h">35dp</dimen>
     <dimen name="players_sort_padding_top">18dp</dimen>
     <dimen name="players_sort_padding_bottom">10dp</dimen>
     <dimen name="players_sort_label_size">31sp</dimen>
     <dimen name="players_sort_label_margin_end">26dp</dimen>
     <dimen name="players_sort_button_text_size">28sp</dimen>
-    <dimen name="players_list_padding_h">24dp</dimen>
     <dimen name="players_list_padding_bottom">24dp</dimen>
     <dimen name="player_item_margin_v">6dp</dimen>
     <dimen name="player_item_padding_h">15dp</dimen>
@@ -99,7 +96,6 @@
     <dimen name="players_sort_button_pad_h">34dp</dimen>
     <dimen name="players_sort_button_pad_v">16dp</dimen>
     <dimen name="players_sort_button_min_height">76dp</dimen>
-    <dimen name="oom_chip_group_pad_h">24dp</dimen>
     <dimen name="oom_chip_group_pad_v">12dp</dimen>
     <dimen name="oom_chip_spacing">12dp</dimen>
     <dimen name="oom_chip_text_size">21sp</dimen>

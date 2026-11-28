@@ -439,7 +439,6 @@ class TournamentDetailActivity : BaseActivity() {
                 cardTournamentHeader.visibility = View.GONE
                 btnStartTournamentPreview.visibility = View.GONE
                 layoutTournamentContent.visibility = View.GONE
-                layoutTournamentContent.visibility = View.GONE
                 showMessage(state.message, isError = true, duration = Snackbar.LENGTH_LONG)
             }
         }
